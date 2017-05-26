@@ -1,0 +1,191 @@
+"Frontpage" = "Home";
+"Gamelog" = "Journal";
+"MyDetails" = "My Details";
+"Announcements" = "Messages";
+"ContactDetails" = "Contacts";
+"Settings" = "Settings";
+"Logout" = "Logout";
+
+"MenuFrontPage" = "Home";
+"MenuGameLog" = "Journal";
+"MenuMyDetails" = "My details";
+"MenuAnnouncements" = "Messages";
+"MenuSettings" = "Settings";
+"MenuContactDetails" = "Contacts";
+"MenuMore" = "More";
+
+"LoginText" = "Login with username and password created in oma.riista.fi";
+"Username" = "Username";
+"Password" = "Password";
+"Login" = "Login";
+"loginFailed" = "Login failed";
+"loginConnectFailed" = "Cannot access Oma riista service. Please try again later.";
+"loginIncorrectCredentials" = "Wrong username or password. Please try again.";
+"loginOutdatedVersion" = "Update the application to newer version to continue to use it.";
+"OK" = "OK";
+
+"SeasonFormat" = "Hunting season %i - %i";
+"TotalCatchFormat" = "%d animal(s)";
+"TotalObservationsFormat" = "%d observation(s)";
+"TotalSrvasFormat" = "%d event(s)";
+"LogGameFormat" = "Add a harvest\n%@";
+
+"MyDetailsTitlePerson" = "Personal information";
+"MyDetailsName" = "Name";
+"MyDetailsDateOfBirth" = "Date of birth";
+"MyDetailsHomeMunicipality" = "Place of Domicile";
+"MyDetailsAddress" = "Address";
+"MyDetailsTitleRegistry" = "Hunter registry";
+"MyDetailsHunterId" = "Hunter number";
+"MyDetailsTitleHuntingLicense" = "Hunting license";
+"MyDetailsInsurancePolicyText" = "The valid Hunting card includes the Hunter`s Insurance, which is valid in all Nordic Countries and in EU-Countries";
+"MyDetailsPayment" = "Game management fee";
+"MyDetailsExamDate" = "Exam date";
+"MyDetailsMembership" = "RHY membership";
+"MyDetailsFeePaidFormat" = "Paid\n%@ - %@";
+"MyDetailsFeeNotPaid" = "Not paid";
+"MyDetailsNoValidLicense" = "No valid hunting license";
+"MyDetailsHuntingBan" = "Hunting ban";
+"MyDetailsAssignmentsTitle" = "Assignments";
+"DurationIndefinite" = "Indefinitely";
+
+"Loggame" = "Add a harvest";
+"Game" = "Harvest";
+"Dismiss" = "Discard";
+"Cancel" = "Undo";
+"CancelRemove" = "Cancel";
+"Save" = "Save";
+"Species" = "Species";
+"Amount" = "Amount";
+"DateTime" = "Date";
+"ImagesAndDescription" = "Images and description";
+"CoordinatesFormat" = "N %d, E %d (ETRS-TM35FIN)";
+"ChooseSpecies" = "Select species";
+"GPSGood" = "Good GPS signal";
+"GPSAverage" = "Average GPS signal";
+"GPSBad" = "Fair GPS signal";
+"Error" = "Error";
+"DiaryEditFailed" = "Editing journal entry failed.";
+"OutdatedDiaryEntry" = "Editing journal entry failed. Server has a newer version.";
+"Delete" = "Delete";
+"DeleteEntryCaption" = "Remove journal entry?";
+"DeleteEntryText" = "Do you want to remove a journal entry and attached images?";
+
+"EntryDetailsAmountShort" = "pcs";
+"EntryDetailsImage" = "Images";
+"EntryDetailsDescription" = "Description";
+
+"MapPageGoToCurrentGps" = "Go to current GPS position";
+"MapPageSetLocation" = "Set new position on the map";
+
+"HarvestStateCreateReport" = "Submit an official harvest report";
+"HarvestStateProposed" = "Harvest report proposed";
+"HarvestStateSentForApproval" = "Harvest report sent";
+"HarvestStateApproved" = "Harvest report approved";
+"HarvestStateRejected" = "Harvest report rejected";
+
+"HarvestPermitStateProposed" = "Proposed to permit";
+"HarvestPermitStateAccepted" = "Approved to permit";
+"HarvestPermitStateRejected" = "Rejected from permit";
+
+"SpecimenDetailsTitle" = "Specimen details";
+"SpecimenGenderTitle" = "Gender";
+"SpecimenGenderFemale" = "Female";
+"SpecimenGenderMale" = "Male";
+"SpecimenAgeTitle" = "Age";
+"SpecimenAgeAdult" = "Adult";
+"SpecimenAgeYoung" = "Less than 1 year";
+"SpecimenWeightTitle" = "Weight (kg)";
+"SpecimenValueUnknown" = "Unknown";
+"SpecimenAddSpecimen" = "Add specimen";
+
+"PermitDescription" = "Harvested using derogation permit issued by Finnish Wildlife Agency";
+"PermitListPageTitle" = "Choose permit";
+"PermitListHelpText" = "You don't need to enter license number for cervidae animals";
+"PermitListInputPrompt" = "Search with permit number";
+"PermitListButtonText" = "Get details";
+"PermitListAmountShort" = "pcs";
+"PermitListSectionHeader" = "Permit details";
+"PermitListNotAvailable" = "Permit not available";
+
+"Observation" = "Observation";
+"LogObservation" = "Add an observation";
+"LogObservationFormat" = "Add an observation\n%@";
+"LogObservationsTotalFormat" = "%@ observations";
+
+"ObservationDetailsMarked" = "Tag";
+"ObservationDetailsState" = "Condition";
+"ObservationDetailsType" = "Observation type";
+"ObservationDetailsWithinMooseHunting" = "During moose hunt";
+"ObservationDetailsMooseFemale" = "F+0";
+"ObservationDetailsMooseFemale1Calf" = "F+1";
+"ObservationDetailsMooseFemale2Calf" = "F+2";
+"ObservationDetailsMooseFemale3Calf" = "F+3";
+"ObservationDetailsMooseFemale4Calf" = "F+4";
+"ObservationDetailsMooseMale" = "M";
+"ObservationDetailsMooseUnknown" = "U";
+
+"LogSrva" = "Add SRVA-event";
+
+"SrvaOtherSpeciesShort" = "Other";
+"SrvaOtherSpeciesDescription" = "Other species";
+"SrvaEvent" = "Event";
+"SrvaType" = "Type";
+"SrvaTypeDescription" = "Type description";
+
+"SrvaResult" = "Result";
+"SrvaMethod" = "Method";
+"SrvaMethodDescription" = "Method description";
+"SrvaPersonCount" = "Participants";
+"SrvaTimeSpent" = "Overall work hours";
+
+"SrvaApprover" = "Approver";
+"SrvaRejecter" = "Rejecter";
+
+"CustomerService" = "Oma riista help desk";
+"SupportAndFeedback" = "Support and feedback";
+"CustomerServiceTimesTemplate" = "Service hours: Mon to Fri, %@-%@";
+"Email" = "Email";
+"EmailTitle" = "Feedback about Oma riista mobile application";
+"EmailTemplate" = "\n\nApplication version:  %@\nIOS version: %@";
+"UsedThirdPartyLibraries" = "Application uses third party libraries";
+"ThirdPartyLibraries" = "Third party libraries used";
+"MakeCallMessage" = "Do you want to call Oma riista help desk?";
+"MakeCall" = "Call";
+
+"Synchronization" = "Synchronization";
+"Manual" = "Manual";
+"Automatic" = "Automatic";
+"Version" = "Version";
+"Language" = "Language";
+
+"SettingsMapTypeTitle" = "Map source";
+"SettingsMapTypeGoogle" = "Google";
+"SettingsMapTypeMml" = "MML";
+"MapTypeSelect" = "Map type";
+"MapTypeTopographic" = "Topographic";
+"MapTypeBackgound" = "Background";
+"MapTypeAerial" = "Aerial";
+"MapCopyrightMml" = "©Maanmittauslaitos";
+
+"ChooseImageSource" = "Choose image source";
+"CameraSource" = "Camera";
+"GallerySource" = "Gallery";
+
+"SavingDataFailed" = "Saving data failed. You can restart application and try again. If problem persists, contact support oma@riista.fi";
+
+"MooseNotEdible" = "Not edible";
+"MooseWeightEstimated" = "Estimated carcase weight (kg)";
+"MooseWeightWeighted" = "Measured carcase weight (kg)";
+"MooseFitnessClass" = "Condition";
+"MooseAntlersType" = "Antler type";
+"MooseAntlersWidth" = "Antler spread (cm)";
+"MooseAntlersPointsLeft" = "Antler points left";
+"MooseAntlersPointsRight" = "Antler points right";
+"MooseAdditionalInfo" = "Additional information";
+
+"DisplayAll" = "Show all";
+"AnnouncementsNone" = "No announcements";
+"AnnouncementsFetchFailed" = "Retrieving announcements failed";
+
+"KeyboardDone" = "Done";

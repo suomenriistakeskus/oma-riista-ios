@@ -1,0 +1,6613 @@
+{
+"observationSpecVersion" : 1,
+"lastModified" : "2015-10-06T10:50:53.740+0300",
+"speciesList" : [ {
+"gameSpeciesCode" : 26366,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 27152,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 27381,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : { }
+} ]
+}, {
+"gameSpeciesCode" : 27649,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : { }
+} ]
+}, {
+"gameSpeciesCode" : 27911,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : { }
+} ]
+}, {
+"gameSpeciesCode" : 37178,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : { }
+} ]
+}, {
+"gameSpeciesCode" : 37166,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : { }
+} ]
+}, {
+"gameSpeciesCode" : 37122,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : { }
+} ]
+}, {
+"gameSpeciesCode" : 27750,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : { }
+} ]
+}, {
+"gameSpeciesCode" : 27759,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : { }
+} ]
+}, {
+"gameSpeciesCode" : 200535,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : { }
+} ]
+}, {
+"gameSpeciesCode" : 33117,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : { }
+} ]
+}, {
+"gameSpeciesCode" : 27048,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26921,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "SOIDIN",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26922,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "SOIDIN",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26931,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "SOIDIN",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26926,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "SOIDIN",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26928,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "SOIDIN",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 200555,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESIMALUOTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "LEPAILYLUOTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47305,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESIMALUOTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "LEPAILYLUOTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47282,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESIMALUOTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "LEPAILYLUOTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26298,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26291,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26373,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26360,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY"
+},
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26382,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26388,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26394,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26407,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26415,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26419,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26427,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26435,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26440,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26442,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 26287,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "LEG_RING_OR_WING_TAG" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESIMASUO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUUTON_AIKAINEN_LEPAILYALUE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 50106,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 50386,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 50336,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47476,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KELOMISPUU",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KIIMAKUOPPA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47479,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KELOMISPUU",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KIIMAKUOPPA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47774,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 53004,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 48089,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 48251,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 48250,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 48537,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 46542,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47329,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47230,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47240,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47169,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47223,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 50114,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "LUOLASTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 46587,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "LUOLASTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47243,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 46564,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "LUOLASTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47180,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "LUOLASTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47503,
+"baseFields" : {
+"withinMooseHunting" : "YES"
+},
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : true,
+"type" : "NAKO",
+"baseFields" : {
+"mooselikeUnknownSpecimenAmount" : "YES",
+"mooselikeFemaleAmount" : "YES",
+"mooselikeFemale2CalfsAmount" : "YES",
+"mooselikeMaleAmount" : "YES",
+"mooselikeFemale1CalfAmount" : "YES",
+"mooselikeFemale3CalfsAmount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KELOMISPUU",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KIIMAKUOPPA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47629,
+"baseFields" : {
+"withinMooseHunting" : "YES"
+},
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : true,
+"type" : "NAKO",
+"baseFields" : {
+"mooselikeUnknownSpecimenAmount" : "YES",
+"mooselikeFemaleAmount" : "YES",
+"mooselikeFemale2CalfsAmount" : "YES",
+"mooselikeMaleAmount" : "YES",
+"mooselikeFemale1CalfAmount" : "YES",
+"mooselikeFemale3CalfsAmount" : "YES",
+"mooselikeFemale4CalfsAmount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KELOMISPUU",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KIIMAKUOPPA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47507,
+"baseFields" : {
+"withinMooseHunting" : "YES"
+},
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : true,
+"type" : "NAKO",
+"baseFields" : {
+"mooselikeUnknownSpecimenAmount" : "YES",
+"mooselikeFemaleAmount" : "YES",
+"mooselikeFemale2CalfsAmount" : "YES",
+"mooselikeMaleAmount" : "YES",
+"mooselikeFemale1CalfAmount" : "YES",
+"mooselikeFemale3CalfsAmount" : "YES",
+"mooselikeFemale4CalfsAmount" : "YES"
+},
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KELOMISPUU",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KIIMAKUOPPA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 200556,
+"baseFields" : {
+"withinMooseHunting" : "YES"
+},
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : true,
+"type" : "NAKO",
+"baseFields" : {
+"mooselikeUnknownSpecimenAmount" : "YES",
+"mooselikeFemaleAmount" : "YES",
+"mooselikeFemale2CalfsAmount" : "YES",
+"mooselikeMaleAmount" : "YES",
+"mooselikeFemale1CalfAmount" : "YES",
+"mooselikeFemale3CalfsAmount" : "YES",
+"mooselikeFemale4CalfsAmount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KELOMISPUU",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KIIMAKUOPPA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47484,
+"baseFields" : {
+"withinMooseHunting" : "YES"
+},
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : true,
+"type" : "NAKO",
+"baseFields" : {
+"mooselikeUnknownSpecimenAmount" : "YES",
+"mooselikeFemaleAmount" : "YES",
+"mooselikeFemale2CalfsAmount" : "YES",
+"mooselikeMaleAmount" : "YES",
+"mooselikeFemale1CalfAmount" : "YES",
+"mooselikeFemale3CalfsAmount" : "YES",
+"mooselikeFemale4CalfsAmount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KELOMISPUU",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "KIIMAKUOPPA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47926,
+"baseFields" : { },
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 46615,
+"baseFields" : {
+"withinMooseHunting" : "YES"
+},
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : true,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : true,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "HAASKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47348,
+"baseFields" : {
+"withinMooseHunting" : "YES"
+},
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : true,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : true,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "HAASKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 46549,
+"baseFields" : {
+"withinMooseHunting" : "YES"
+},
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : true,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : true,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "HAASKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "LUOLASTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+}, {
+"gameSpeciesCode" : 47212,
+"baseFields" : {
+"withinMooseHunting" : "YES"
+},
+"specimenFields" : { },
+"contextSensitiveFieldSets" : [ {
+"withinMooseHunting" : true,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : true,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "NAKO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "JALKI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "ULOSTE",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "AANI",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTAKAMERA",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "KOIRAN_RIISTATYO",
+"baseFields" : {
+"amount" : "YES"
+},
+"specimenFields" : {
+"state" : "VOLUNTARY",
+"marking" : "VOLUNTARY",
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "_1TO2Y", "UNKNOWN" ],
+"allowedStates" : [ "HEALTHY", "ILL", "WOUNDED", "CARCASS", "DEAD" ],
+"allowedMarkings" : [ "NOT_MARKED", "COLLAR_OR_RADIO_TRANSMITTER", "EARMARK" ]
+}, {
+"withinMooseHunting" : false,
+"type" : "HAASKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "SYONNOS",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MAKUUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "PESA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "LUOLASTO",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "RIISTANKULKUPAIKKA",
+"baseFields" : { },
+"specimenFields" : { }
+}, {
+"withinMooseHunting" : false,
+"type" : "MUU",
+"baseFields" : {
+"amount" : "VOLUNTARY"
+},
+"specimenFields" : {
+"gender" : "VOLUNTARY",
+"age" : "VOLUNTARY"
+},
+"allowedAges" : [ "ADULT", "LT1Y", "UNKNOWN" ]
+} ]
+} ]
+}

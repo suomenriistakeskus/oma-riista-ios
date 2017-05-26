@@ -1,0 +1,84 @@
+"observation_unknown" = "Unknown";
+
+"observation_type_sight" = "Seen";
+"observation_type_track" = "Track";
+"observation_type_excrement" = "Dropping";
+"observation_type_sound" = "Sound";
+"observation_type_game_camera" = "Game camera";
+"observation_type_dog" = "Dog work";
+"observation_type_ground_count" = "Field count";
+"observation_type_triangulation_count" = "Triangle count";
+"observation_type_air_count" = "Aerial count";
+"observation_type_carcass" = "Carcass";
+"observation_type_feeding" = "Foraging place";
+"observation_type_kelomispuu" = "Scrape";
+"observation_type_kiimakuoppa" = "Rub";
+"observation_type_laying_location" = "Resting place";
+"observation_type_nest" = "Nest";
+"observation_type_nest_mound" = "Free-standing lodge";
+"observation_type_nest_bank" = "Bank burrow";
+"observation_type_nest_mixed" = "Bank lodge";
+"observation_type_dam" = "Dam";
+"observation_type_soidin" = "Lek";
+"observation_type_caves" = "Cave";
+"observation_type_nesting_islet" = "Breeding islet";
+"observation_type_resting_islet" = "Resting islet";
+"observation_type_nesting_swamp" = "Breeding swamp";
+"observation_type_migration_resting_area" = "Migratory resting area";
+"observation_type_game_path" = "Game path";
+"observation_type_other" = "Other";
+
+"observation_age_adult" = "Adult";
+"observation_age_less_than_year" = "Under 1 years";
+"observation_age_year_or_two" = "1-2 years";
+"observation_age_eraus" = "Yearling cub";
+
+"observation_state_healthy" = "Healthy";
+"observation_state_ill" = "Ill";
+"observation_state_wounded" = "Wounded";
+"observation_state_carcass" = "Carcass";
+"observation_state_dead" = "Dead";
+
+"observation_marked_none" = "No tag";
+"observation_marked_collar" = "Collar / radio collar";
+"observation_marked_ring" = "Leg band, wing band";
+"observation_marked_ear" = "Ear tag";
+
+"srva_accident" = "Accident";
+"srva_deportation" = "Deportation";
+"srva_sick_animal" = "Sick animal";
+
+"srva_traffic_accident" = "Traffic accident";
+"srva_railway_accident" = "Railway accident";
+"srva_other" = "Other";
+
+"srva_animal_near_houses" = "Animal near houses area";
+"srva_animal_at_food_destination" = "Animal at the food destination";
+
+"srva_injured_animal" = "Injured animal";
+"srva_animal_on_ice" = "Animal on the ice";
+
+"srva_animal_found_dead" = "Animal was found dead";
+"srva_animal_found_and_terminated" = "Animal was found and put to death";
+"srva_animal_found_and_not_terminated" = "Animal was found and left alive";
+"srva_accident_site_not_found" = "Accident site was not found";
+"srva_animal_not_found" = "Animal was not found";
+"srva_undue_alarm" = "Undue alarm";
+
+"srva_animal_terminated" = "Animal was put to death";
+"srva_animal_deported" = "Animal was deported";
+
+"srva_method_dog" = "Dog";
+"srva_method_traced_with_dog" = "Traced with dog";
+"srva_method_traced_without_dog" = "Traced without dog";
+"srva_method_pain_equipment" = "Pain equipment";
+"srva_method_sound_equipment" = "Sound equipment";
+
+"harvest_moose_fitness_class_excellent" = "Excellent";
+"harvest_moose_fitness_class_normal" = "Normal";
+"harvest_moose_fitness_class_thin" = "Thin";
+"harvest_moose_fitness_class_starved" = "Starved";
+
+"harvest_moose_antlers_type_hanko" = "Cervine";
+"harvest_moose_antlers_type_lapio" = "Palmate";
+"harvest_moose_antlers_type_seka" = "Mixed";

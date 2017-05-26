@@ -1,0 +1,191 @@
+"Frontpage" = "Första sidan";
+"Gamelog" = "Viltlogg";
+"MyDetails" = "Egna uppgifter";
+"Announcements" = "Meddelanden";
+"ContactDetails" = "Kontaktuppgifter";
+"Settings" = "Inställningar";
+"Logout" = "Logga ut";
+
+"MenuFrontPage" = "Hemms.";
+"MenuGameLog" = "Viltlogg";
+"MenuMyDetails" = "Egna uppg.";
+"MenuAnnouncements" = "Medd.";
+"MenuSettings" = "Inställningar";
+"MenuContactDetails" = "Kontaktuppgifter";
+"MenuMore" = "Mer";
+
+"LoginText" = "Logga in med koderna som skapats i oma.riista.fi";
+"Username" = "Användarnamn";
+"Password" = "Lösenord";
+"Login" = "Logga in";
+"loginFailed" = "Inloggning misslyckades";
+"loginConnectFailed" = "Kontakt med servern ficks ej. Var god och försök senare igen.";
+"loginIncorrectCredentials" = "Fel användarnamn eller lösenord. Var god och försök igen.";
+"loginOutdatedVersion" = "Programversionen är föråldrad. Uppdatera programmet till en ny version för att fortsätta användningen.";
+"OK" = "OK";
+
+"SeasonFormat" = "Jaktperiod %i - %i";
+"TotalCatchFormat" = "%d byte totalt";
+"TotalObservationsFormat" = "%d observationen";
+"TotalSrvasFormat" = "%d händelser";
+"LogGameFormat" = "Anteckna byte\n%@";
+
+"MyDetailsTitlePerson" = "Personuppgifter";
+"MyDetailsName" = "Namn";
+"MyDetailsDateOfBirth" = "Födelsedag";
+"MyDetailsHomeMunicipality" = "Hemort";
+"MyDetailsAddress" = "Adress";
+"MyDetailsTitleRegistry" = "Jägarregistret";
+"MyDetailsHunterId" = "Jägarnummer";
+"MyDetailsTitleHuntingLicense" = "Jaktkort";
+"MyDetailsInsurancePolicyText" = "I detta kort nämnda jägare har en jägarförsäkring, som är giltig i alla nordiska länder och EU-länder.";
+"MyDetailsPayment" = "Jaktvårdsavgift";
+"MyDetailsExamDate" = "Datum för avläggande av examen";
+"MyDetailsMembership" = "JVF medlemsskap";
+"MyDetailsFeePaidFormat" = "Betald\n%@ - %@";
+"MyDetailsFeeNotPaid" = "Betald inte";
+"MyDetailsNoValidLicense" = "Jaktkort inte giltig";
+"MyDetailsHuntingBan" = "Jaktförbud";
+"MyDetailsAssignmentsTitle" = "Uppdrag";
+"DurationIndefinite" = "Tills vidare";
+
+"Loggame" = "Anteckna byte";
+"Game" = "Byte";
+"Dismiss" = "Förkasta";
+"Cancel" = "Ångra";
+"CancelRemove" = "Ångra";
+"Save" = "Spara";
+"Species" = "Art";
+"Amount" = "Antal";
+"DateTime" = "Tidpunkt";
+"ImagesAndDescription" = "Bilder och beskrivning";
+"CoordinatesFormat" = "N %d, E %d (ETRS-TM35FIN)";
+"ChooseSpecies" = "Välj art";
+"GPSGood" = "GPS BRA";
+"GPSAverage" = "GPS SKÄLIG";
+"GPSBad" = "GPS DÅLIG";
+"Error" = "Misstag";
+"DiaryEditFailed" = "Redigeringen av anteckningen misslyckades.";
+"OutdatedDiaryEntry" = "Redigeringen av anteckningen misslyckades. Det finns en nyare version av anteckningen på servern.";
+"Delete" = "Ta bort";
+"DeleteEntryCaption" = "Ta bort anteckningen?";
+"DeleteEntryText" = "Vill du ta bort anteckningen? Då avlägsnas också till den eventuellt bifogade bilder.";
+
+"EntryDetailsAmountShort" = "st.";
+"EntryDetailsImage" = "Bilder";
+"EntryDetailsDescription" = "Beskrivning";
+
+"MapPageGoToCurrentGps" = "Gå till den aktuella GPS platsen";
+"MapPageSetLocation" = "Ställ en ny platts på kartan";
+
+"HarvestStateCreateReport" = "Gör en lagstadgad bytesanmälan";
+"HarvestStateProposed" = "Bytesanmälan framförd";
+"HarvestStateSentForApproval" = "Bytesanmälan skickad";
+"HarvestStateApproved" = "Bytesanmälan godkänd";
+"HarvestStateRejected" = "Bytesanmälan avslagen";
+
+"HarvestPermitStateProposed" = "Framställts till licensen";
+"HarvestPermitStateAccepted" = "Godkänts till licensen";
+"HarvestPermitStateRejected" = "Avslagits från licensen";
+
+"SpecimenDetailsTitle" = "Individuppgifter";
+"SpecimenGenderTitle" = "Kön";
+"SpecimenGenderFemale" = "Hondjur";
+"SpecimenGenderMale" = "Handjur";
+"SpecimenAgeTitle" = "Ålder";
+"SpecimenAgeAdult" = "Vuxen";
+"SpecimenAgeYoung" = "Under 1 År";
+"SpecimenWeightTitle" = "Vikt (kg)";
+"SpecimenValueUnknown" = "Okänd";
+"SpecimenAddSpecimen" = "Anteckna individupgift";
+
+"PermitDescription" = "Bytet har fångats med stöd av Viltcentralen beviljad dispens eller jaktlicens";
+"PermitListPageTitle" = "Välj licens";
+"PermitListHelpText" = "För hjortdjur behöver man inte skriva in licensnumret";
+"PermitListInputPrompt" = "Sök efter licensnummer";
+"PermitListButtonText" = "Sök detaljer";
+"PermitListAmountShort" = "st.";
+"PermitListSectionHeader" = "Detaljer licenser";
+"PermitListNotAvailable" = "Dispens finns inte att tillgå. Tag kontakt med dispensmottagaren";
+
+"Observation" = "Observation";
+"LogObservation" = "Anteckna observation";
+"LogObservationFormat" = "Anteckna observation\n%@";
+"LogObservationsTotalFormat" = "%@ observationen";
+
+"ObservationDetailsMarked" = "Djuret märkts";
+"ObservationDetailsState" = "Djurets kondition";
+"ObservationDetailsType" = "Typ av observation";
+"ObservationDetailsWithinMooseHunting" = "I samband med älgjakten";
+"ObservationDetailsMooseFemale" = "Kor utan kalvar";
+"ObservationDetailsMooseFemale1Calf" = "Ko + 1 kalv";
+"ObservationDetailsMooseFemale2Calf" = "Ko + 2 kalvar";
+"ObservationDetailsMooseFemale3Calf" = "Ko + 3 kalvar";
+"ObservationDetailsMooseFemale4Calf" = "Ko + 4 kalvar";
+"ObservationDetailsMooseMale" = "Vuxna tjurar";
+"ObservationDetailsMooseUnknown" = "Okända";
+
+"LogSrva" = "Anteckna SRVA-händelse";
+
+"SrvaOtherSpeciesShort" = "Övrigt";
+"SrvaOtherSpeciesDescription" = "Annan art";
+"SrvaEvent" = "Händelse";
+"SrvaType" = "Typ";
+"SrvaTypeDescription" = "Beskrivning av typ";
+
+"SrvaResult" = "Resultat";
+"SrvaMethod" = "Metod";
+"SrvaMethodDescription" = "Beskrivning av metoden";
+"SrvaPersonCount" = "Personer som deltog";
+"SrvaTimeSpent" = "Arbetstimmar sammanlagt";
+
+"SrvaApprover" = "Godkännare";
+"SrvaRejecter" = "Förkastare";
+
+"CustomerService" = "Oma riista information";
+"SupportAndFeedback" = "Stöd och respons";
+"CustomerServiceTimesTemplate" = "Vi betjänar vardagar kl %@-%@";
+"Email" = "E-post";
+"EmailTitle" = "Återkoppling på Oma riista mobilapplikation";
+"EmailTemplate" = "\n\nApplikationsversion: %@\nIOS-version: %@";
+"UsedThirdPartyLibraries" = "Tredjeparts-biblioteker som användes i programmet";
+"ThirdPartyLibraries" = "Tredjeparts-biblioteker";
+"MakeCallMessage" = "Vill du ringa till Oma riista information?";
+"MakeCall" = "Ringa";
+
+"Synchronization" = "Synkronisering";
+"Manual" = "Manuell";
+"Automatic" = "Automatisk";
+"Version" = "Version";
+"Language" = "Språk";
+
+"SettingsMapTypeTitle" = "Kartor";
+"SettingsMapTypeGoogle" = "Google";
+"SettingsMapTypeMml" = "MML";
+"MapTypeSelect" = "Karta typ";
+"MapTypeTopographic" = "Terrängkarta";
+"MapTypeBackgound" = "Grundkarta";
+"MapTypeAerial" = "Ortofoton";
+"MapCopyrightMml" = "©Maanmittauslaitos";
+
+"ChooseImageSource" = "Välj bildkällan";
+"CameraSource" = "Kamera";
+"GallerySource" = "Galleri";
+
+"SavingDataFailed" = "Lagringen av data misslyckades. Du kan starta om programmet att försöka igen. Om det här händar igen, kontakt oma@riista.fi";
+
+"MooseNotEdible" = "Människoföda oduglig";
+"MooseWeightEstimated" = "Slaktvikt uppskattad (kg)";
+"MooseWeightWeighted" = "Slaktvikt vägd (kg)";
+"MooseFitnessClass" = "Konditionsklass";
+"MooseAntlersType" = "Typ av horn";
+"MooseAntlersWidth" = "Hornutläggets avstånd (cm)";
+"MooseAntlersPointsLeft" = "Horntaggar vänster";
+"MooseAntlersPointsRight" = "Horntaggar höger";
+"MooseAdditionalInfo" = "Tilläggsuppgifter";
+
+"DisplayAll" = "Visa hela";
+"AnnouncementsNone" = "Inga meddelanden";
+"AnnouncementsFetchFailed" = "Hämtning av meddelanden misslyckadesi";
+
+"KeyboardDone" = "Klar";

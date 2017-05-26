@@ -1,0 +1,191 @@
+"Frontpage" = "Etusivu";
+"Gamelog" = "Riistaloki";
+"MyDetails" = "Omat tiedot";
+"Announcements" = "Viestit";
+"ContactDetails" = "Yhteystiedot";
+"Settings" = "Asetukset";
+"Logout" = "Kirjaudu ulos";
+
+"MenuFrontPage" = "Etusivu";
+"MenuGameLog" = "Riistaloki";
+"MenuMyDetails" = "Omat tiedot";
+"MenuAnnouncements" = "Viestit";
+"MenuSettings" = "Asetukset";
+"MenuContactDetails" = "Yhteystiedot";
+"MenuMore" = "Lisää";
+
+"LoginText" = "Kirjaudu sisään oma.riista.fi:ssä luoduilla tunnuksilla";
+"Username" = "Käyttäjänimi";
+"Password" = "Salasana";
+"Login" = "Kirjaudu sisään";
+"loginFailed" = "Kirjautuminen epäonnistui";
+"loginConnectFailed" = "Palvelimeen ei saatu yhteyttä. Ole hyvä ja yritä myöhemmin uudelleen.";
+"loginIncorrectCredentials" = "Väärä käyttäjänimi tai salasana. Ole hyvä ja yritä uudelleen.";
+"loginOutdatedVersion" = "Ohjelmaversio on vanhentunut. Päivitä ohjelma uuteen versioon jatkaaksesi käyttöä.";
+"OK" = "OK";
+
+"SeasonFormat" = "Metsästyskausi %i - %i";
+"TotalCatchFormat" = "%d saalista";
+"TotalObservationsFormat" = "%d havaintoa";
+"TotalSrvasFormat" = "%d tapahtumaa";
+"LogGameFormat" = "Kirjaa saalis\n%@";
+
+"MyDetailsTitlePerson" = "Henkilötiedot";
+"MyDetailsName" = "Nimi";
+"MyDetailsDateOfBirth" = "Syntymäaika";
+"MyDetailsHomeMunicipality" = "Kotipaikka";
+"MyDetailsAddress" = "Osoite";
+"MyDetailsTitleRegistry" = "Metsästäjärekisteri";
+"MyDetailsHunterId" = "Metsästäjänumero";
+"MyDetailsTitleHuntingLicense" = "Metsästyskortti";
+"MyDetailsInsurancePolicyText" = "Tässä kortissa mainitulla metsästäjällä on metsästäjävakuutus, joka on voimassa kaikissa Pohjoismaissa ja EU-maissa.";
+"MyDetailsPayment" = "Riistanhoitomaksu";
+"MyDetailsExamDate" = "Tutkinnon suorituspäivä";
+"MyDetailsMembership" = "RHY jäsenyys";
+"MyDetailsFeePaidFormat" = "Maksettu\n%@ - %@";
+"MyDetailsFeeNotPaid" = "Ei maksettu";
+"MyDetailsNoValidLicense" = "Ei voimassaolevaa metsästyskorttia";
+"MyDetailsHuntingBan" = "Metsästyskielto";
+"MyDetailsAssignmentsTitle" = "Tehtävät";
+"DurationIndefinite" = "Toistaiseksi";
+
+"Loggame" = "Kirjaa saalis";
+"Game" = "Saalis";
+"Dismiss" = "Hylkää";
+"Cancel" = "Peru";
+"CancelRemove" = "Peru";
+"Save" = "Tallenna";
+"Species" = "Laji";
+"Amount" = "Määrä";
+"DateTime" = "Ajankohta";
+"ImagesAndDescription" = "Kuvat ja kuvaus";
+"CoordinatesFormat" = "P %d, I %d (ETRS-TM35FIN)";
+"ChooseSpecies" = "Valitse laji";
+"GPSGood" = "GPS HYVÄ";
+"GPSAverage" = "GPS KOHTALAINEN";
+"GPSBad" = "GPS HUONO";
+"Error" = "Virhe";
+"DiaryEditFailed" = "Merkinnän muokkaaminen epäonnistui.";
+"OutdatedDiaryEntry" = "Merkinnän muokkaaminen epäonnistui. Palvelimella on uudempi versio merkinnästä.";
+"Delete" = "Poista";
+"DeleteEntryCaption" = "Poista merkintä?";
+"DeleteEntryText" = "Haluatko poistaa merkinnän? Tällöin myös siihen mahdollisesti liittyvät kuvat poistetaan.";
+
+"EntryDetailsAmountShort" = "kpl";
+"EntryDetailsImage" = "Kuvat";
+"EntryDetailsDescription" = "Kuvaus";
+
+"MapPageGoToCurrentGps" = "Vie nykyiseen GPS-sijaintiin";
+"MapPageSetLocation" = "Aseta uusi sijainti kartalla";
+
+"HarvestStateCreateReport" = "Tee lakisääteinen saalisilmoitus";
+"HarvestStateProposed" = "Saalisilmoitus lähetetty";
+"HarvestStateSentForApproval" = "Saalisilmoitus lähetetty";
+"HarvestStateApproved" = "Saalisilmoitus hyväksytty";
+"HarvestStateRejected" = "Saalisilmoitus hylätty";
+
+"HarvestPermitStateProposed" = "Esitetty lupaan";
+"HarvestPermitStateAccepted" = "Hyväksytty lupaan";
+"HarvestPermitStateRejected" = "Hylätty luvasta";
+
+"SpecimenDetailsTitle" = "Yksilötiedot";
+"SpecimenGenderTitle" = "Sukupuoli";
+"SpecimenGenderFemale" = "Naaras";
+"SpecimenGenderMale" = "Uros";
+"SpecimenAgeTitle" = "Ikä";
+"SpecimenAgeAdult" = "Aikuinen";
+"SpecimenAgeYoung" = "Alle 1V";
+"SpecimenWeightTitle" = "Paino (kg)";
+"SpecimenValueUnknown" = "Tuntematon";
+"SpecimenAddSpecimen" = "Lisää yksilö";
+
+"PermitDescription" = "Riistakeskuksen luvalla";
+"PermitListPageTitle" = "Valitse lupa";
+"PermitListHelpText" = "Hirvieläimille ei tarvitse syöttää lupanumeroa";
+"PermitListInputPrompt" = "Etsi lupanumerolla";
+"PermitListButtonText" = "Hae tiedot";
+"PermitListAmountShort" = "kpl";
+"PermitListSectionHeader" = "Lupatiedot";
+"PermitListNotAvailable" = "Lupa ei ole käytettävissä. Ota yhteyttä luvansaajaan.";
+
+"Observation" = "Havainto";
+"LogObservation" = "Kirjaa havainto";
+"LogObservationFormat" = "Kirjaa havainto\n%@";
+"LogObservationsTotalFormat" = "%@ havaintoa";
+
+"ObservationDetailsMarked" = "Eläin merkitty";
+"ObservationDetailsState" = "Eläimen tila";
+"ObservationDetailsType" = "Havaintotyyppi";
+"ObservationDetailsWithinMooseHunting" = "Hirvenmetsästyksen yhteydessä";
+"ObservationDetailsMooseFemale" = "Vasattomia naaraita";
+"ObservationDetailsMooseFemale1Calf" = "Naaras + 1 vasa";
+"ObservationDetailsMooseFemale2Calf" = "Naaras + 2 vasaa";
+"ObservationDetailsMooseFemale3Calf" = "Naaras + 3 vasaa";
+"ObservationDetailsMooseFemale4Calf" = "Naaras + 4 vasaa";
+"ObservationDetailsMooseMale" = "Aikuisia uroksia";
+"ObservationDetailsMooseUnknown" = "Tuntemattomia";
+
+"LogSrva" = "Kirjaa SRVA-tapahtuma";
+
+"SrvaOtherSpeciesShort" = "Muu";
+"SrvaOtherSpeciesDescription" = "Muu laji";
+"SrvaEvent" = "Tapahtuma";
+"SrvaType" = "Tyyppi";
+"SrvaTypeDescription" = "Tyypin kuvaus";
+
+"SrvaResult" = "Tulos";
+"SrvaMethod" = "Menetelmä";
+"SrvaMethodDescription" = "Menetelmän kuvaus";
+"SrvaPersonCount" = "Osallistuneita henkilöitä";
+"SrvaTimeSpent" = "Työtunteja yhteensä";
+
+"SrvaApprover" = "Hyväksyjä";
+"SrvaRejecter" = "Hylkääjä";
+
+"CustomerService" = "Oma riista neuvonta";
+"SupportAndFeedback" = "Tuki ja palaute";
+"CustomerServiceTimesTemplate" = "Palvelemme arkisin klo %@-%@";
+"Email" = "Sähköposti";
+"EmailTitle" = "Palautetta Oma riista -mobiilisovelluksesta";
+"EmailTemplate" = "\n\nSovellusversio: %@\nIOS-versio: %@";
+"UsedThirdPartyLibraries" = "Sovelluksessa käytetyt kolmansien osapuolien kirjastot";
+"ThirdPartyLibraries" = "Kolmannen osapuolen kirjastot";
+"MakeCallMessage" = "Haluatko soittaa Oma riista neuvontaan?";
+"MakeCall" = "Soita";
+
+"Synchronization" = "Synkronointi";
+"Manual" = "Manuaalinen";
+"Automatic" = "Automaattinen";
+"Version" = "Versio";
+"Language" = "Kieli";
+
+"SettingsMapTypeTitle" = "Kartta-aineisto";
+"SettingsMapTypeGoogle" = "Google";
+"SettingsMapTypeMml" = "MML";
+"MapTypeSelect" = "Karttatyyppi";
+"MapTypeTopographic" = "Maastokartta";
+"MapTypeBackgound" = "Taustakartta";
+"MapTypeAerial" = "Ortokuva";
+"MapCopyrightMml" = "©Maanmittauslaitos";
+
+"ChooseImageSource" = "Valitse kuvalähde";
+"CameraSource" = "Kamera";
+"GallerySource" = "Galleria";
+
+"SavingDataFailed" = "Tiedon tallentaminen epäonnistui. Voit uudelleenkäynnistää ohjelman yrittääksesi uudelleen. Mikäli tämä tapahtuu uudelleen, ota yhteyttä oma@riista.fi";
+
+"MooseNotEdible" = "Ihmisravinnoksi kelpaamaton";
+"MooseWeightEstimated" = "Arvioitu teuraspaino (kg)";
+"MooseWeightWeighted" = "Punnittu teuraspaino (kg)";
+"MooseFitnessClass" = "Kuntoluokka";
+"MooseAntlersType" = "Sarvityyppi";
+"MooseAntlersWidth" = "Sarvien kärkiväli (cm)";
+"MooseAntlersPointsLeft" = "Sarvipiikit vasen";
+"MooseAntlersPointsRight" = "Sarvipiikit oikea";
+"MooseAdditionalInfo" = "Lisätiedot";
+
+"DisplayAll" = "Näytä kokonaan";
+"AnnouncementsNone" = "Ei viestejä";
+"AnnouncementsFetchFailed" = "Viestien hakeminen epäonnistui";
+
+"KeyboardDone" = "Valmis";

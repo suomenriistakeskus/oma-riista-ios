@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="RiistaCalendarViewController">
+            <connections>
+                <outlet property="statisticsView" destination="KBO-GW-Cek" id="PiX-gX-8zk"/>
+                <outlet property="view" destination="iN0-l3-epB" id="r7f-eP-T8L"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="180"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KBO-GW-Cek">
+                    <rect key="frame" x="0.0" y="10" width="320" height="160"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="160" id="bxW-Od-mpq"/>
+                    </constraints>
+                </scrollView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pSy-R8-GQE">
+                    <rect key="frame" x="0.0" y="179" width="320" height="1"/>
+                    <color key="backgroundColor" red="0.73357780612244894" green="0.73357780612244894" blue="0.73357780612244894" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="9km-6w-JVR"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="KBO-GW-Cek" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="Kkk-EZ-qFx"/>
+                <constraint firstItem="KBO-GW-Cek" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="10" id="TQj-Cc-rbK"/>
+                <constraint firstAttribute="bottom" secondItem="pSy-R8-GQE" secondAttribute="bottom" id="XqS-g5-HJz"/>
+                <constraint firstItem="pSy-R8-GQE" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="g8d-BH-eBP"/>
+                <constraint firstAttribute="trailing" secondItem="pSy-R8-GQE" secondAttribute="trailing" id="qmR-Xg-oFj"/>
+                <constraint firstAttribute="trailing" secondItem="KBO-GW-Cek" secondAttribute="trailing" id="zOU-KV-olM"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+        </view>
+    </objects>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4_7.fullscreen"/>
+    </simulatedMetricsContainer>
+</document>

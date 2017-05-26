@@ -1,0 +1,84 @@
+"observation_unknown" = "Tuntematon";
+
+"observation_type_sight" = "Näkö";
+"observation_type_track" = "Jälki";
+"observation_type_excrement" = "Uloste";
+"observation_type_sound" = "Ääni";
+"observation_type_game_camera" = "Riistakamera";
+"observation_type_dog" = "Koiran riistatyö";
+"observation_type_ground_count" = "Maastolaskenta";
+"observation_type_triangulation_count" = "Kolmiolaskenta";
+"observation_type_air_count" = "Lentolaskenta";
+"observation_type_carcass" = "Haaska";
+"observation_type_feeding" = "Syönnös";
+"observation_type_kelomispuu" = "Kelomispuu";
+"observation_type_kiimakuoppa" = "Kiimakuoppa";
+"observation_type_laying_location" = "Makuupaikka";
+"observation_type_nest" = "Pesä";
+"observation_type_nest_mound" = "Kekopesä";
+"observation_type_nest_bank" = "Penkkapesä";
+"observation_type_nest_mixed" = "Sekapesä";
+"observation_type_dam" = "Pato";
+"observation_type_soidin" = "Soidin";
+"observation_type_caves" = "Luolasto";
+"observation_type_nesting_islet" = "Pesimäluoto";
+"observation_type_resting_islet" = "Lepäilyluoto";
+"observation_type_nesting_swamp" = "Pesimäsuo";
+"observation_type_migration_resting_area" = "Muuton aikainen lepäilyalue";
+"observation_type_game_path" = "Riistankulkupaikka";
+"observation_type_other" = "Muu";
+
+"observation_age_adult" = "Aikuinen";
+"observation_age_less_than_year" = "Alle 1 v";
+"observation_age_year_or_two" = "1-2 vuotias";
+"observation_age_eraus" = "Eraus";
+
+"observation_state_healthy" = "Terve";
+"observation_state_ill" = "Sairas";
+"observation_state_wounded" = "Loukkaantunut";
+"observation_state_carcass" = "Haaska";
+"observation_state_dead" = "Kuollut";
+
+"observation_marked_none" = "Ei merkkiä";
+"observation_marked_collar" = "Panta / Radiolähetin";
+"observation_marked_ring" = "Jalkarengas, Siipimerkki";
+"observation_marked_ear" = "Korvamerkki";
+
+"srva_accident" = "Onnettomuus";
+"srva_deportation" = "Karkotus";
+"srva_sick_animal" = "Sairas eläin";
+
+"srva_traffic_accident" = "Liikenneonnettomuus";
+"srva_railway_accident" = "Onnettomuus rautatiellä";
+"srva_other" = "Muu";
+
+"srva_animal_near_houses" = "Eläin asutuksen tuntumassa";
+"srva_animal_at_food_destination" = "Eläin ravintokohteilla";
+
+"srva_injured_animal" = "Loukkaantunut eläin";
+"srva_animal_on_ice" = "Eläin jäällä";
+
+"srva_animal_found_dead" = "Eläin löydettiin kuolleena";
+"srva_animal_found_and_terminated" = "Eläin löydettiin ja lopetettiin";
+"srva_animal_found_and_not_terminated" = "Eläin löydettiin ja jätettiin henkiin";
+"srva_accident_site_not_found" = "Onnettomuuspaikkaa ei löytynyt";
+"srva_animal_not_found" = "Eläintä ei löydetty";
+"srva_undue_alarm" = "Aiheeton hälytys";
+
+"srva_animal_terminated" = "Eläin lopetettiin";
+"srva_animal_deported" = "Eläin karkotettiin";
+
+"srva_method_dog" = "Koira";
+"srva_method_traced_with_dog" = "Jäljitettiin koiran kanssa";
+"srva_method_traced_without_dog" = "Jäljitettiin ilman koiraa";
+"srva_method_pain_equipment" = "Kipua tuottavat laitteet";
+"srva_method_sound_equipment" = "Ääntä tuottavat laitteet";
+
+"harvest_moose_fitness_class_excellent" = "Erinomainen";
+"harvest_moose_fitness_class_normal" = "Normaali";
+"harvest_moose_fitness_class_thin" = "Laiha";
+"harvest_moose_fitness_class_starved" = "Nääntynyt";
+
+"harvest_moose_antlers_type_hanko" = "Hanko";
+"harvest_moose_antlers_type_lapio" = "Lapio";
+"harvest_moose_antlers_type_seka" = "Seka";

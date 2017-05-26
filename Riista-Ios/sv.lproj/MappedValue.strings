@@ -1,0 +1,84 @@
+"observation_unknown" = "Okänd";
+
+"observation_type_sight" = "Synobservation";
+"observation_type_track" = "Spårobservation";
+"observation_type_excrement" = "Exkrement";
+"observation_type_sound" = "Ljud";
+"observation_type_game_camera" = "Viltkamera";
+"observation_type_dog" = "Hundens viltarbete";
+"observation_type_ground_count" = "Markinventering";
+"observation_type_triangulation_count" = "Triangelinventering";
+"observation_type_air_count" = "Flyginventering";
+"observation_type_carcass" = "Åtel";
+"observation_type_feeding" = "Uppstötning";
+"observation_type_kelomispuu" = "Fejningsträd";
+"observation_type_kiimakuoppa" = "Brunstgrop";
+"observation_type_laying_location" = "Daglega";
+"observation_type_nest" = "Rede";
+"observation_type_nest_mound" = "Bäckhydda";
+"observation_type_nest_bank" = "Bankhydda";
+"observation_type_nest_mixed" = "Älvhydda";
+"observation_type_dam" = "Damm";
+"observation_type_soidin" = "Spel";
+"observation_type_caves" = "Gryt";
+"observation_type_nesting_islet" = "Häckningskär";
+"observation_type_resting_islet" = "Viloskär";
+"observation_type_nesting_swamp" = "Häckningsmyr";
+"observation_type_migration_resting_area" = "Viloplats för flyttande fågel";
+"observation_type_game_path" = "Viltpassage";
+"observation_type_other" = "Annat";
+
+"observation_age_adult" = "Vuxen";
+"observation_age_less_than_year" = "Under 1 år";
+"observation_age_year_or_two" = "1-2-åring";
+"observation_age_eraus" = "Överåring";
+
+"observation_state_healthy" = "Frisk";
+"observation_state_ill" = "Sjuk";
+"observation_state_wounded" = "Skadad";
+"observation_state_carcass" = "Kadaver";
+"observation_state_dead" = "Död";
+
+"observation_marked_none" = "Inga märken";
+"observation_marked_collar" = "Halsband / radiosändare";
+"observation_marked_ring" = "Ringmärke, vingmärke";
+"observation_marked_ear" = "Öronmärke";
+
+"srva_accident" = "Händelse";
+"srva_deportation" = "Fördrivning";
+"srva_sick_animal" = "Sjukt djur";
+
+"srva_traffic_accident" = "Trafikolycka";
+"srva_railway_accident" = "Olycka på järnväg";
+"srva_other" = "Övrigt";
+
+"srva_animal_near_houses" = "Djur i närheten av bosättning";
+"srva_animal_at_food_destination" = "Djur vid näringskälla";
+
+"srva_injured_animal" = "Skadat djur";
+"srva_animal_on_ice" = "Djur på isen";
+
+"srva_animal_found_dead" = "Djuret hittades dött";
+"srva_animal_found_and_terminated" = "Djuret hittades och avlivades";
+"srva_animal_found_and_not_terminated" = "Djuret hittades och lämnades vid liv";
+"srva_accident_site_not_found" = "Olycksplatsen hittades inte";
+"srva_animal_not_found" = "Djuret hittades inte";
+"srva_undue_alarm" = "Obefogat larm";
+
+"srva_animal_terminated" = "Djuret avlivades";
+"srva_animal_deported" = "Djuret fördrevs";
+
+"srva_method_dog" = "Hund";
+"srva_method_traced_with_dog" = "Spårades med hund";
+"srva_method_traced_without_dog" = "Spårades utan hund";
+"srva_method_pain_equipment" = "Anordning som orsakar smärta";
+"srva_method_sound_equipment" = "Anordning som skapar ljud";
+
+"harvest_moose_fitness_class_excellent" = "Utmärkt";
+"harvest_moose_fitness_class_normal" = "Normal";
+"harvest_moose_fitness_class_thin" = "Mager";
+"harvest_moose_fitness_class_starved" = "Undernärd";
+
+"harvest_moose_antlers_type_hanko" = "Stång";
+"harvest_moose_antlers_type_lapio" = "Skovel";
+"harvest_moose_antlers_type_seka" = "Bland";

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="7549" systemVersion="14D131" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="DiaryEntry" representedClassName="DiaryEntry" syncable="YES">
+        <attribute name="amount" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="apiVersion" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="canEdit" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
+        <attribute name="clientDataFormat" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="diarydescription" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="gameSpeciesCode" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="harvestReportDone" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="harvestReportRequired" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="harvestReportState" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="mobileClientRefId" optional="YES" attributeType="Integer 64" syncable="YES"/>
+        <attribute name="month" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="pendingOperation" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="permitNumber" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="permitType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="pointOfTime" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="remote" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="remoteId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="rev" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="sent" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="stateAcceptedToHarvestPermit" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="year" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <relationship name="coordinates" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GeoCoordinate" inverseName="diaryEntry" inverseEntity="GeoCoordinate" syncable="YES"/>
+        <relationship name="diaryImages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="DiaryImage" inverseName="diaryEntry" inverseEntity="DiaryImage" syncable="YES"/>
+        <relationship name="specimens" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Specimen" inverseName="diaryEntry" inverseEntity="Specimen" syncable="YES"/>
+    </entity>
+    <entity name="DiaryImage" representedClassName="DiaryImage" syncable="YES">
+        <attribute name="imageid" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="uri" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="diaryEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DiaryEntry" inverseName="diaryImages" inverseEntity="DiaryEntry" syncable="YES"/>
+    </entity>
+    <entity name="GeoCoordinate" representedClassName="GeoCoordinate" syncable="YES">
+        <attribute name="accuracy" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="altitude" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="altitudeAccuracy" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="latitude" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="source" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="diaryEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DiaryEntry" inverseName="coordinates" inverseEntity="DiaryEntry" syncable="YES"/>
+    </entity>
+    <entity name="Specimen" representedClassName="RiistaSpecimen" syncable="YES">
+        <attribute name="age" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="gender" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="remoteId" optional="YES" attributeType="Integer 32" syncable="YES"/>
+        <attribute name="rev" optional="YES" attributeType="Integer 32" syncable="YES"/>
+        <attribute name="weight" optional="YES" attributeType="Double" syncable="YES"/>
+        <relationship name="diaryEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DiaryEntry" inverseName="specimens" inverseEntity="DiaryEntry" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="DiaryEntry" positionX="-270" positionY="-0" width="128" height="420"/>
+        <element name="DiaryImage" positionX="-63" positionY="234" width="128" height="118"/>
+        <element name="GeoCoordinate" positionX="-65" positionY="54" width="128" height="150"/>
+        <element name="Specimen" positionX="-63" positionY="366" width="128" height="133"/>
+    </elements>
+</model>

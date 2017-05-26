@@ -1,0 +1,75 @@
+
+/* Class = "IBUIButton"; normalTitle = "Button"; ObjectID = "64t-xT-7HF"; */
+"64t-xT-7HF.normalTitle" = "Button";
+
+/* Class = "IBUIButton"; normalTitle = "Button"; ObjectID = "9bk-nh-fS4"; */
+"9bk-nh-fS4.normalTitle" = "Button";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "B0H-ha-sFe"; */
+"B0H-ha-sFe.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "CrN-GP-pPb"; */
+"CrN-GP-pPb.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "D1V-3C-PQj"; */
+"D1V-3C-PQj.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "GJE-Bp-GM9"; */
+"GJE-Bp-GM9.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "Jvz-vf-OT8"; */
+"Jvz-vf-OT8.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "KD2-1m-lSH"; */
+"KD2-1m-lSH.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "KsF-ud-8zI"; */
+"KsF-ud-8zI.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "OHy-5j-lOV"; */
+"OHy-5j-lOV.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "Otl-xR-XdX"; */
+"Otl-xR-XdX.text" = "Label";
+
+/* Class = "IBUIButton"; normalTitle = "Button"; ObjectID = "PSN-TV-Wig"; */
+"PSN-TV-Wig.normalTitle" = "Button";
+
+/* Class = "IBUIButton"; normalTitle = "Button"; ObjectID = "QsN-My-Nxb"; */
+"QsN-My-Nxb.normalTitle" = "Button";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "RdS-Di-KYc"; */
+"RdS-Di-KYc.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "SpD-oz-svX"; */
+"SpD-oz-svX.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "Wre-av-6Sy"; */
+"Wre-av-6Sy.text" = "Label";
+
+/* Class = "IBUIButton"; normalTitle = "Button"; ObjectID = "Yxk-yc-Fpn"; */
+"Yxk-yc-Fpn.normalTitle" = "Button";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "cbb-On-9j7"; */
+"cbb-On-9j7.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "dx7-w0-T0U"; */
+"dx7-w0-T0U.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "fKp-k2-fZo"; */
+"fKp-k2-fZo.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "rCb-1t-5Qu"; */
+"rCb-1t-5Qu.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "wNy-Mi-zzC"; */
+"wNy-Mi-zzC.text" = "Label";
+
+/* Class = "IBUISegmentedControl"; ypK-3b-tIe.segmentTitles[0] = "First"; ObjectID = "ypK-3b-tIe"; */
+"ypK-3b-tIe.segmentTitles[0]" = "First";
+
+/* Class = "IBUISegmentedControl"; ypK-3b-tIe.segmentTitles[1] = "Second"; ObjectID = "ypK-3b-tIe"; */
+"ypK-3b-tIe.segmentTitles[1]" = "Second";
+
+/* Class = "IBUIButton"; normalTitle = "Button"; ObjectID = "yrx-6y-R2p"; */
+"yrx-6y-R2p.normalTitle" = "Button";
