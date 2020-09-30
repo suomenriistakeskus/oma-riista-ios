@@ -1,5 +1,6 @@
 #import "Styles.h"
 #import "UIColor+ApplicationColor.h"
+#import "Oma_riista-Swift.h"
 
 NSInteger const RiistaRefreshPadding = 15;
 NSInteger const RiistaRefreshImageSize = 32;
@@ -33,7 +34,7 @@ NSInteger const RiistaRefreshImageSize = 32;
 + (void)styleBaseButton:(UIButton*)button
 {
     [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    UIFont *font = [UIFont boldSystemFontOfSize:15];
+    UIFont *font = [UIFont boldSystemFontOfSize:AppFont.ButtonMedium];
     [button.titleLabel setFont:font];
     button.layer.cornerRadius = 3;
     button.clipsToBounds = YES;
@@ -45,6 +46,21 @@ NSInteger const RiistaRefreshImageSize = 32;
     view.layer.cornerRadius = 3;
     view.clipsToBounds = YES;
     view.backgroundColor = color;
+}
+
++ (void)styleMapButton:(UIButton*)button
+{
+    UIColor *highlighted = [UIColor colorWithWhite:0.5 alpha:0.8];
+    [button setBackgroundImage:[Styles imageWithColor:highlighted] forState:UIControlStateHighlighted];
+
+    UIColor *selected = [UIColor colorWithRed:0.25f green:1.0f blue:0.25f alpha:0.8];
+    [button setBackgroundImage:[Styles imageWithColor:selected] forState:UIControlStateSelected];
+
+    button.layer.cornerRadius = 10;
+    button.layer.borderColor = [[UIColor blackColor] CGColor];
+    button.layer.borderWidth = 1;
+
+    button.clipsToBounds = YES;
 }
 
 + (UIImage *)imageWithColor:(UIColor *)color {

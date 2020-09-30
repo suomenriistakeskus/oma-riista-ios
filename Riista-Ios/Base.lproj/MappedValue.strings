@@ -26,7 +26,21 @@
 "observation_type_nesting_swamp" = "Breeding swamp";
 "observation_type_migration_resting_area" = "Migratory resting area";
 "observation_type_game_path" = "Game path";
+"observation_type_poikueymparisto" = "Brood habitat";
+"observation_type_vaihtelevarakenteinen_mustikkametsa" = "Structurally variable bilberry forest";
+"observation_type_vaihtelevarakenteinen_mantysekotteinen_metsa" = "Structurally variable mixed pine forest";
+"observation_type_hakomamanty" = "Feeding pine";
+"observation_type_vaihtelevarakenteinen_lehtipuusekotteinen_metsa" = "Structurally variable mixed deciduous forest";
+"observation_type_ruokailukoivikko" = "Feeding site in birch forest";
+"observation_type_leppakuusimetsa_tai_koivukuusimetsä" = "Alder-spruce forest or birch-spruce forest";
+"observation_type_kuusisekotteinen_metsa" = "Mixed spruce forest (moulting)";
+"observation_type_suon_reunametsa" = "Forest next to a peatland";
+"observation_type_ruokailupajukko_tai_koivikko" = "Feeding site in willow or birch forest";
 "observation_type_other" = "Other";
+
+"observation_deer_hunting_type_stand_hunting" = "Stand hunting";
+"observation_deer_hunting_type_dog_hunting" = "Dog hunting";
+"observation_deer_hunting_type_other" = "Other";
 
 "observation_age_adult" = "Adult";
 "observation_age_less_than_year" = "Under 1 years";
@@ -82,3 +96,7 @@
 "harvest_moose_antlers_type_hanko" = "Cervine";
 "harvest_moose_antlers_type_lapio" = "Palmate";
 "harvest_moose_antlers_type_seka" = "Mixed";
+
+"harvest_hunting_type_shot" = "Hunting, shot";
+"harvest_hunting_type_captured_alive" = "Trapped, live trap";
+"harvest_hunting_type_shot_but_lost" = "Shot but not retrieved";

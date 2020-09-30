@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -18,45 +16,57 @@
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view userInteractionEnabled="NO" contentMode="scaleToFill" id="iN0-l3-epB">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="63"/>
+            <rect key="frame" x="0.0" y="0.0" width="320" height="80"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SlI-US-eb7">
-                    <rect key="frame" x="15" y="11" width="34" height="21"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <rect key="frame" x="12" y="11" width="274" height="19.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <color key="textColor" red="0.12549019607843137" green="0.12549019607843137" blue="0.12549019607843137" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Value" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j2V-zu-gIa">
-                    <rect key="frame" x="15" y="34" width="36" height="17"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                    <color key="textColor" red="0.33333333333333331" green="0.33333333333333331" blue="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <rect key="frame" x="12" y="40.5" width="44.5" height="21.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                    <color key="textColor" red="0.41568627450980394" green="0.41568627450980394" blue="0.41568627450980394" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="next.png" translatesAutoresizingMaskIntoConstraints="NO" id="eEr-1B-qE2">
-                    <rect key="frame" x="293" y="23" width="12" height="18"/>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arrow_forward.png" translatesAutoresizingMaskIntoConstraints="NO" id="eEr-1B-qE2">
+                    <rect key="frame" x="296" y="31" width="12" height="18"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="18" id="Cl1-SS-xEJ"/>
                         <constraint firstAttribute="width" constant="12" id="yZk-hM-I8T"/>
                     </constraints>
                 </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jsu-Av-lI7" userLabel="Separator">
+                    <rect key="frame" x="12" y="68" width="296" height="1"/>
+                    <color key="backgroundColor" red="0.41568627450980394" green="0.41568627450980394" blue="0.41568627450980394" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="cMk-Au-rHX"/>
+                    </constraints>
+                </view>
             </subviews>
             <accessibility key="accessibilityConfiguration">
                 <accessibilityTraits key="traits" notEnabled="YES"/>
             </accessibility>
             <constraints>
-                <constraint firstAttribute="bottom" secondItem="j2V-zu-gIa" secondAttribute="bottom" constant="12" id="AfT-GY-gf5"/>
-                <constraint firstItem="SlI-US-eb7" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="15" id="Phy-r1-WL1"/>
-                <constraint firstAttribute="trailing" secondItem="eEr-1B-qE2" secondAttribute="trailing" constant="15" id="QY9-T9-s3a"/>
+                <constraint firstItem="eEr-1B-qE2" firstAttribute="leading" secondItem="SlI-US-eb7" secondAttribute="trailing" constant="10" id="9zZ-i6-jSg"/>
+                <constraint firstAttribute="bottom" secondItem="j2V-zu-gIa" secondAttribute="bottom" constant="18" id="AfT-GY-gf5"/>
+                <constraint firstItem="SlI-US-eb7" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="12" id="Phy-r1-WL1"/>
+                <constraint firstAttribute="trailing" secondItem="eEr-1B-qE2" secondAttribute="trailing" constant="12" id="QY9-T9-s3a"/>
                 <constraint firstItem="eEr-1B-qE2" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="fci-Go-aep"/>
-                <constraint firstItem="j2V-zu-gIa" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="15" id="pzy-YS-9XP"/>
+                <constraint firstItem="jsu-Av-lI7" firstAttribute="leading" secondItem="SlI-US-eb7" secondAttribute="leading" id="lrb-OM-AA5"/>
+                <constraint firstItem="j2V-zu-gIa" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="12" id="pzy-YS-9XP"/>
+                <constraint firstItem="jsu-Av-lI7" firstAttribute="top" secondItem="j2V-zu-gIa" secondAttribute="bottom" constant="6" id="tgO-0e-RyF"/>
                 <constraint firstItem="SlI-US-eb7" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="11" id="toZ-jX-uAk"/>
+                <constraint firstItem="jsu-Av-lI7" firstAttribute="trailing" secondItem="eEr-1B-qE2" secondAttribute="trailing" id="unq-Pq-PC5"/>
             </constraints>
             <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="131" y="154"/>
         </view>
     </objects>
     <resources>
-        <image name="next.png" width="9" height="15"/>
+        <image name="arrow_forward.png" width="48" height="48"/>
     </resources>
 </document>

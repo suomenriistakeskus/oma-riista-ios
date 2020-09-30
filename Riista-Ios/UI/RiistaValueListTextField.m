@@ -3,6 +3,8 @@
 #import "RiistaUtils.h"
 #import "KeyboardToolbarView.h"
 
+#import "Oma_riista-Swift.h"
+
 @implementation RiistaValueListTextField
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -40,26 +42,32 @@
         frame.origin = CGPointZero;
         self.view.frame = frame;
     }
-    [RiistaViewUtils addTopAndBottomBorders:self.view];
-    [RiistaViewUtils setTextViewStyle:self.textView];
 
-    self.textView.delegate = self;
-    self.textView.keyboardType = UIKeyboardTypeDecimalPad;
+    _inputController = [[MDCTextInputControllerUnderline alloc] initWithTextInput:self.textField];
+    _inputController.floatingEnabled = NO;
+    [_inputController applyThemeWithScheme:AppTheme.shared.textFieldContainerScheme];
+
+    [AppTheme.shared setupLabelFontWithLabel:self.titleTextLabel];
+    [AppTheme.shared setupValueFontWithTextField:self.textField];
+    self.textField.delegate = self;
+    self.textField.keyboardType = UIKeyboardTypeDecimalPad;
 
     self.maxTextLength = [NSNumber numberWithInteger:255];
 
     [self addSubview:self.view];
+    [self.view constraintToSuperviewBounds];
 }
 
-- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)text
 {
     // Close keyboard on return key
     if ([text isEqualToString:@"\n"]) {
-        [textView resignFirstResponder];
+        [textField resignFirstResponder];
         return NO;
     }
 
-    NSString *newString = [textView.text stringByReplacingCharactersInRange:range withString:text];
+    // Need to apply replacement to original string and validate the whole input instead of just changed part
+    NSString *newString = [textField.text stringByReplacingCharactersInRange:range withString:text];
 
     if (self.maxTextLength != nil) {
         if (newString.length > [self.maxTextLength integerValue]) {
@@ -67,30 +75,40 @@
         }
     }
 
-    if (self.maxNumberValue != nil) {
+    if (self.nonNegativeIntNumberOnly && ![newString isAllDigitsOrEmpty]) {
+        return NO;
+    }
+
+    if ([newString length] > 0 && (self.minNumberValue != nil || self.maxNumberValue != nil)) {
         NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
         formatter.locale = [NSLocale currentLocale];
         formatter.numberStyle = NSNumberFormatterDecimalStyle;
 
         NSNumber *result = [formatter numberFromString:newString];
-        if ([result doubleValue] > [self.maxNumberValue doubleValue] || [result doubleValue] < 0.0) {
+        if (self.maxNumberValue != nil &&
+            ([result doubleValue] > [self.maxNumberValue doubleValue] || [result doubleValue] < 0.0)) {
+
+            return NO;
+        }
+
+        if (self.minNumberValue != nil && [result doubleValue] < [self.minNumberValue doubleValue]) {
             return NO;
         }
     }
     return YES;
 }
 
-- (void)textViewDidEndEditing:(UITextView *)textView
+- (void)textFieldDidEndEditing:(UITextField *)textField
 {
     if (self.delegate) {
-        [self.delegate textViewDidEndEditing:textView];
+        [self.delegate textFieldDidEndEditing:textField];
     }
 }
 
-- (void)textViewDidBeginEditing:(UITextView *)textView
+- (void)textFieldDidBeginEditing:(UITextField *)textField
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [textView selectAll:nil];
+        [textField selectAll:nil];
     });
 }
 

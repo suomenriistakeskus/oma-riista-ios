@@ -5,14 +5,19 @@
 #import "RiistaNetworkManager.h"
 #import "RiistaLocalization.h"
 
+#import "Oma_riista-Swift.h"
+
 @interface RiistaLoginViewController () <UITextFieldDelegate, KeyboardHandlerDelegate>
+
 @property (weak, nonatomic) IBOutlet UILabel *loginlabel;
-@property (weak, nonatomic) IBOutlet UITextField *username;
-@property (weak, nonatomic) IBOutlet UITextField *password;
-@property (weak, nonatomic) IBOutlet UIButton *loginbutton;
+@property (weak, nonatomic) IBOutlet MDCTextField *username;
+@property (weak, nonatomic) IBOutlet MDCTextField *password;
+@property (weak, nonatomic) IBOutlet MDCButton *loginbutton;
+
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomPaneBottomSpace;
 
 @property (strong, nonatomic) RiistaKeyboardHandler *keyboardHandler;
+
 @end
 
 @implementation RiistaLoginViewController
@@ -20,14 +25,20 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
     self.keyboardHandler = [[RiistaKeyboardHandler alloc] initWithView:self.view andBottomSpaceConstraint:self.bottomPaneBottomSpace];
+    self.keyboardHandler.cancelTouchesInView = YES;
     self.keyboardHandler.delegate = self;
     
     _username.keyboardType = UIKeyboardTypeEmailAddress;
+    _username.returnKeyType = UIReturnKeyNext;
     [_username resignFirstResponder];
     _username.delegate = self;
+
+    _password.returnKeyType = UIReturnKeyDone;
     _password.delegate = self;
-    [Styles styleButton:_loginbutton];
+
+    [AppTheme.shared setupPrimaryButtonThemeWithButton:_loginbutton];
     [_loginbutton addTarget:self action:@selector(loginButtonClick:) forControlEvents:UIControlEventTouchUpInside];
 }
 
@@ -36,23 +47,43 @@
     [super viewWillAppear:animated];
 
     RiistaLanguageRefresh;
+
+    [AppTheme.shared setupValueFontWithTextField:_username];
+    [AppTheme.shared setupValueFontWithTextField:_password];
+
+
     _loginlabel.text = RiistaLocalizedString(@"LoginText", nil);
     _username.placeholder = RiistaLocalizedString(@"Username", nil);
     _password.placeholder = RiistaLocalizedString(@"Password", nil);
+
     [_loginbutton setTitle:RiistaLocalizedString(@"Login", nil) forState:UIControlStateNormal];
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)theTextField {
-	[theTextField resignFirstResponder];
-	return YES;
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    if(textField == _username) {
+        [_password becomeFirstResponder];
+    } else if (textField == _password) {
+        [textField resignFirstResponder];
+        [self login];
+    }
+    return textField == _password;
 }
 
 - (void)loginButtonClick:(id)sender
 {
+    [_username resignFirstResponder];
+    [_password resignFirstResponder];
+    [self login];
+}
+
+- (void)login
+{
     NSString *username = self.username.text;
     NSString *password = self.password.text;
+
     RiistaNetworkManager *manager = [RiistaNetworkManager sharedInstance];
     __weak RiistaLoginViewController *weakSelf = self;
+
     [manager login:username password:password completion:^(NSError *error) {
         if (!error) {
             if (weakSelf.delegate) {
@@ -63,17 +94,26 @@
                 [weakSelf.delegate didLogin];
             }
         } else {
-            UIAlertView *alertView = [UIAlertView new];
-            alertView.title = RiistaLocalizedString(@"loginFailed", nil);
+            MDCAlertController *alertController =
+            [MDCAlertController alertControllerWithTitle:RiistaLocalizedString(@"loginFailed", nil)
+                                                 message:nil];
+
             if (error.code == LOGIN_NETWORK_UNREACHABLE || error.code ==  LOGIN_TIMEOUT) {
-                alertView.message = RiistaLocalizedString(@"loginConnectFailed", nil);
+                alertController.message = RiistaLocalizedString(@"loginConnectFailed", nil);
             } else if (error.code == LOGIN_INCORRECT_CREDENTIALS) {
-                alertView.message = RiistaLocalizedString(@"loginIncorrectCredentials", nil);
+                alertController.message = RiistaLocalizedString(@"loginIncorrectCredentials", nil);
             } else if (error.code == LOGIN_OUTDATED_VERSION) {
-                alertView.message = RiistaLocalizedString(@"loginOutdatedVersion", nil);
+                alertController.message = RiistaLocalizedString(@"loginOutdatedVersion", nil);
             }
-            [alertView addButtonWithTitle:RiistaLocalizedString(@"OK", nil)];
-            [alertView show];
+
+            MDCAlertAction *alertAction = [MDCAlertAction actionWithTitle:RiistaLocalizedString(@"OK", nil)
+                                                                  handler:^(MDCAlertAction *action) {
+                // Do nothing
+            }];
+
+            [alertController addAction:alertAction];
+
+            [self presentViewController:alertController animated:YES completion:nil];
         }
     }];
 }

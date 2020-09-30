@@ -5,8 +5,10 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Voit liittää kuvia tekemiisi merkintöihin.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Näytä sijaintisi kartalla selatessasi karttoja tai muokatessa merkintöjä.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Voit liittää kuvia tekemiisi merkintöihin.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Voit liittää kuvia tekemiisi merkintöihin.</string>
 </dict>
 </plist>

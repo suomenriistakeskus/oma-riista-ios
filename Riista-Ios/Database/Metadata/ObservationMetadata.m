@@ -1,17 +1,11 @@
 #import "ObservationMetadata.h"
 #import "ObservationSpecimenMetadata.h"
-
+#import "RiistaUtils.h"
 
 NSString *const kBaseClassObservationSpecVersion = @"observationSpecVersion";
 NSString *const kBaseClassLastModified = @"lastModified";
 NSString *const kBaseClassSpeciesList = @"speciesList";
 
-
-@interface ObservationMetadata ()
-
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
-
-@end
 
 @implementation ObservationMetadata
 
@@ -28,30 +22,29 @@ NSString *const kBaseClassSpeciesList = @"speciesList";
 - (instancetype)initWithDictionary:(NSDictionary *)dict
 {
     self = [super init];
-    
+
     // This check serves to make sure that a non-NSDictionary object
     // passed into the model class doesn't break the parsing.
     if(self && [dict isKindOfClass:[NSDictionary class]]) {
-            self.observationSpecVersion = [[self objectOrNilForKey:kBaseClassObservationSpecVersion fromDictionary:dict] doubleValue];
-            self.lastModified = [self objectOrNilForKey:kBaseClassLastModified fromDictionary:dict];
-    NSObject *receivedSpeciesList = [dict objectForKey:kBaseClassSpeciesList];
-    NSMutableArray *parsedSpeciesList = [NSMutableArray array];
-    if ([receivedSpeciesList isKindOfClass:[NSArray class]]) {
-        for (NSDictionary *item in (NSArray *)receivedSpeciesList) {
-            if ([item isKindOfClass:[NSDictionary class]]) {
-                [parsedSpeciesList addObject:[ObservationSpecimenMetadata modelObjectWithDictionary:item]];
+        self.observationSpecVersion = [[RiistaUtils objectOrNilForKey:kBaseClassObservationSpecVersion fromDictionary:dict] doubleValue];
+        self.lastModified = [RiistaUtils objectOrNilForKey:kBaseClassLastModified fromDictionary:dict];
+
+        NSObject *receivedSpeciesList = [dict objectForKey:kBaseClassSpeciesList];
+        NSMutableArray *parsedSpeciesList = [NSMutableArray array];
+        if ([receivedSpeciesList isKindOfClass:[NSArray class]]) {
+            for (NSDictionary *item in (NSArray *)receivedSpeciesList) {
+                if ([item isKindOfClass:[NSDictionary class]]) {
+                    [parsedSpeciesList addObject:[ObservationSpecimenMetadata modelObjectWithDictionary:item]];
+                }
             }
-       }
-    } else if ([receivedSpeciesList isKindOfClass:[NSDictionary class]]) {
-       [parsedSpeciesList addObject:[ObservationSpecimenMetadata modelObjectWithDictionary:(NSDictionary *)receivedSpeciesList]];
+        } else if ([receivedSpeciesList isKindOfClass:[NSDictionary class]]) {
+            [parsedSpeciesList addObject:[ObservationSpecimenMetadata modelObjectWithDictionary:(NSDictionary *)receivedSpeciesList]];
+        }
+
+        self.speciesList = [NSArray arrayWithArray:parsedSpeciesList];
     }
 
-    self.speciesList = [NSArray arrayWithArray:parsedSpeciesList];
-
-    }
-    
     return self;
-    
 }
 
 - (NSDictionary *)dictionaryRepresentation
@@ -79,14 +72,6 @@ NSString *const kBaseClassSpeciesList = @"speciesList";
     return [NSString stringWithFormat:@"%@", [self dictionaryRepresentation]];
 }
 
-#pragma mark - Helper Method
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
-{
-    id object = [dict objectForKey:aKey];
-    return [object isEqual:[NSNull null]] ? nil : object;
-}
-
-
 #pragma mark - NSCoding Methods
 
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -101,7 +86,6 @@ NSString *const kBaseClassSpeciesList = @"speciesList";
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
-
     [aCoder encodeDouble:_observationSpecVersion forKey:kBaseClassObservationSpecVersion];
     [aCoder encodeObject:_lastModified forKey:kBaseClassLastModified];
     [aCoder encodeObject:_speciesList forKey:kBaseClassSpeciesList];
@@ -110,16 +94,13 @@ NSString *const kBaseClassSpeciesList = @"speciesList";
 - (id)copyWithZone:(NSZone *)zone
 {
     ObservationMetadata *copy = [[ObservationMetadata alloc] init];
-    
     if (copy) {
-
         copy.observationSpecVersion = self.observationSpecVersion;
         copy.lastModified = [self.lastModified copyWithZone:zone];
         copy.speciesList = [self.speciesList copyWithZone:zone];
     }
-    
+
     return copy;
 }
-
 
 @end

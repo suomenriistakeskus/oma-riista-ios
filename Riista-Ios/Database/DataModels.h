@@ -3,3 +3,4 @@
 #import "Occupation.h"
 #import "Organisation.h"
 #import "UserInfo.h"
+#import "ShootingTest.h"

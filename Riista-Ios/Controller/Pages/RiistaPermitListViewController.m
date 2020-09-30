@@ -11,6 +11,9 @@
 #import "RiistaGameDatabase.h"
 #import "RiistaSpecies.h"
 #import "RiistaSettings.h"
+#import "NSDateformatter+Locale.h"
+
+#import "Oma_riista-Swift.h"
 
 const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
 
@@ -43,19 +46,22 @@ const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
 
 @property (weak, nonatomic) IBOutlet UILabel *helpText;
 @property (weak, nonatomic) IBOutlet UILabel *inputPrompt;
-@property (weak, nonatomic) IBOutlet UITextField *numberInput;
+@property (weak, nonatomic) IBOutlet MDCTextField *numberInput;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *progressView;
-@property (weak, nonatomic) IBOutlet UIButton *submitButton;
+@property (weak, nonatomic) IBOutlet MDCButton *submitButton;
 @property (weak, nonatomic) IBOutlet UILabel *errorNoteLabel;
 @property (weak, nonatomic) IBOutlet UILabel *listTitle;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *errorNoteHeightConstraint;
 
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomPaneBottomSpace;
+
+@property (strong, nonatomic) MDCTextInputControllerUnderline *textInputController;
+
 @property (strong, nonatomic) NSArray *permitListItems;
 @property (strong, nonatomic) NSArray *filteredPermitListItems;
 
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomPaneBottomSpace;
 @property (strong, nonatomic) RiistaKeyboardHandler *keyboardHandler;
 
 @property (strong, nonatomic) NSDateFormatter *dateFormatter;
@@ -68,19 +74,22 @@ const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
 {
     [super viewDidLoad];
 
-    self.dateFormatter = [[NSDateFormatter alloc] init];
+    self.dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
     [self.dateFormatter setDateFormat:@"dd.MM.yyyy"];
 
     self.keyboardHandler = [[RiistaKeyboardHandler alloc] initWithView:self.view andBottomSpaceConstraint:self.bottomPaneBottomSpace];
     self.keyboardHandler.delegate = self;
     [self registerForKeyboardNotifications];
 
-    [Styles styleButton:_submitButton];
-    [self.submitButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 5)];
+    [_submitButton applyContainedThemeWithScheme:AppTheme.shared.primaryButtonScheme];
+    _submitButton.titleEdgeInsets = UIEdgeInsetsMake(_submitButton.titleEdgeInsets.top, -10.0, _submitButton.titleEdgeInsets.bottom, -10.0);
     [self.submitButton addTarget:self action:@selector(submitButtonClick:) forControlEvents:UIControlEventTouchUpInside];
 
     [self.numberInput setDelegate:self];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(numberInputDidChange:) name:UITextFieldTextDidChangeNotification object:self.numberInput];
+
+    self.textInputController = [[MDCTextInputControllerUnderline alloc] initWithTextInput:self.numberInput];
+    [self.textInputController applyThemeWithScheme:AppTheme.shared.textFieldContainerScheme];
 }
 
 - (void)viewWillAppear:(BOOL)animated

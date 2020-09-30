@@ -8,6 +8,7 @@
 #import "DiaryImage.h"
 #import "GeoCoordinate.h"
 #import "RiistaModelUtils.h"
+#import "NSDateFormatter+Locale.h"
 
 @implementation SrvaSync
 {
@@ -19,7 +20,7 @@
 {
     self = [super init];
     if (self) {
-        dateFormatter = [NSDateFormatter new];
+        dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
         [dateFormatter setDateFormat:ISO_8601];
     }
     return self;
@@ -27,12 +28,12 @@
 
 - (void)sync:(SrvaSynchronizationCompletion)completion;
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     context.parentContext = delegate.managedObjectContext;
 
     NSMutableArray<SrvaEntry*> *deleted = [self fetchDeletedRemoteEvents];
-    DLog("Deleting: %ld", deleted.count);
+    DDLog(@"Deleting: %lu", (unsigned long)deleted.count);
     [self deleteRemoteSrvaEvents:deleted completion:completion];
 }
 
@@ -56,7 +57,7 @@
 - (void)sendUnsentEvents:(SrvaSynchronizationCompletion)completion
 {
     NSMutableArray<SrvaEntry*> *unsent = [self fetchUnsentEvents];
-    DLog(@"Sending: %ld", unsent.count);
+    DLog(@"Sending: %lu", (unsigned long)unsent.count);
     [self sendSrvaEvents:unsent completion:completion];
 }
 
@@ -86,17 +87,17 @@
             NSMutableDictionary* remotesMap = [NSMutableDictionary new];
 
             for (NSDictionary* dict in entries) {
-                SrvaEntry* entry = [self srvaEntryFromDict:dict objectContext:context];
+                SrvaEntry* entry = [self srvaEntryFromDict:dict objectContext:self->context];
                 SrvaEntry* old = [localsMap objectForKey:entry.remoteId];
 
                 if ([self insertReceivedEvent:entry oldEntry:old]) {
                     if (old) {
-                        [context deleteObject:old];
+                        [self->context deleteObject:old];
                     }
-                    [context insertObject:entry];
+                    [self->context insertObject:entry];
                 }
                 else {
-                    [context deleteObject:entry];
+                    [self->context deleteObject:entry];
                 }
 
                 [remotesMap setObject:entry forKey:entry.remoteId];
@@ -107,7 +108,7 @@
                 SrvaEntry *remote = [remotesMap objectForKey:remoteId];
                 if (remote == nil) {
                     SrvaEntry* local = [localsMap objectForKey:remoteId];
-                    [context deleteObject:local];
+                    [self->context deleteObject:local];
                 }
             }
         }

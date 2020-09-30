@@ -138,7 +138,21 @@ static NSBundle *_bundle = nil;
                                                @"observation_type_nesting_swamp", @"PESIMASUO",
                                                @"observation_type_migration_resting_area", @"MUUTON_AIKAINEN_LEPAILYALUE",
                                                @"observation_type_game_path", @"RIISTANKULKUPAIKKA",
+                                               @"observation_type_poikueymparisto", @"POIKUEYMPARISTO",
+                                               @"observation_type_vaihtelevarakenteinen_mustikkametsa", @"VAIHTELEVARAKENTEINEN_MUSTIKKAMETSA",
+                                               @"observation_type_vaihtelevarakenteinen_mantysekotteinen_metsa", @"VAIHTELEVARAKENTEINEN_MANTYSEKOTTEINEN_METSA",
+                                               @"observation_type_hakomamanty", @"HAKOMAMANTY",
+                                               @"observation_type_vaihtelevarakenteinen_lehtipuusekotteinen_metsa", @"VAIHTELEVARAKENTEINEN_LEHTIPUUSEKOTTEINEN_METSA",
+                                               @"observation_type_ruokailukoivikko", @"RUOKAILUKOIVIKKO",
+                                               @"observation_type_leppakuusimetsa_tai_koivukuusimetsä", @"LEPPAKUUSIMETSA_TAI_KOIVUKUUSIMETSA",
+                                               @"observation_type_kuusisekotteinen_metsa", @"KUUSISEKOTTEINEN_METSA",
+                                               @"observation_type_suon_reunametsa", @"SUON_REUNAMETSA",
+                                               @"observation_type_ruokailupajukko_tai_koivikko", @"RUOKAILUPAJUKKO_TAI_KOIVIKKO",
                                                @"observation_type_other", @"MUU",
+
+                                               @"observation_deer_hunting_type_stand_hunting", @"STAND_HUNTING",
+                                               @"observation_deer_hunting_type_dog_hunting", @"DOG_HUNTING",
+                                               @"observation_deer_hunting_type_other", @"OTHER",
 
                                                @"observation_age_adult", @"ADULT",
                                                @"observation_age_less_than_year", @"LT1Y",
@@ -166,6 +180,10 @@ static NSBundle *_bundle = nil;
                                                @"harvest_moose_antlers_type_hanko", @"HANKO",
                                                @"harvest_moose_antlers_type_lapio", @"LAPIO",
                                                @"harvest_moose_antlers_type_seka", @"SEKA",
+
+                                               @"harvest_hunting_type_shot", @"SHOT",
+                                               @"harvest_hunting_type_captured_alive", @"CAPTURED_ALIVE",
+                                               @"harvest_hunting_type_shot_but_lost", @"SHOT_BUT_LOST",
 
                                                @"srva_accident", @"ACCIDENT",
                                                @"srva_deportation", @"DEPORTATION",

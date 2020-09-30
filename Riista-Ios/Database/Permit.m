@@ -1,5 +1,6 @@
 #import "Permit.h"
 #import "PermitSpeciesAmounts.h"
+#import "RiistaUtils.h"
 
 
 NSString *const kPermitBaseClassId = @"id";
@@ -9,12 +10,6 @@ NSString *const kPermitBaseClassPermitType = @"permitType";
 NSString *const kPermitBaseClassSpeciesAmounts = @"speciesAmounts";
 NSString *const kPermitBaseClassUnavailable = @"unavailable";
 
-
-@interface Permit ()
-
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
-
-@end
 
 @implementation Permit
 
@@ -38,11 +33,11 @@ NSString *const kPermitBaseClassUnavailable = @"unavailable";
     // This check serves to make sure that a non-NSDictionary object
     // passed into the model class doesn't break the parsing.
     if(self && [dict isKindOfClass:[NSDictionary class]]) {
-            self.permitNumber = [self objectOrNilForKey:kPermitBaseClassPermitNumber fromDictionary:dict];
-            self.permitIdentifier = [[self objectOrNilForKey:kPermitBaseClassId fromDictionary:dict] integerValue];
-            self.rev = [[self objectOrNilForKey:kPermitBaseClassRev fromDictionary:dict] integerValue];
-            self.permitType = [self objectOrNilForKey:kPermitBaseClassPermitType fromDictionary:dict];
-            self.unavailable = [[self objectOrNilForKey:kPermitBaseClassUnavailable fromDictionary:dict] boolValue];
+            self.permitNumber = [RiistaUtils objectOrNilForKey:kPermitBaseClassPermitNumber fromDictionary:dict];
+            self.permitIdentifier = [[RiistaUtils objectOrNilForKey:kPermitBaseClassId fromDictionary:dict] integerValue];
+            self.rev = [[RiistaUtils objectOrNilForKey:kPermitBaseClassRev fromDictionary:dict] integerValue];
+            self.permitType = [RiistaUtils objectOrNilForKey:kPermitBaseClassPermitType fromDictionary:dict];
+            self.unavailable = [[RiistaUtils objectOrNilForKey:kPermitBaseClassUnavailable fromDictionary:dict] boolValue];
     NSObject *receivedPermitSpeciesAmounts = [dict objectForKey:kPermitBaseClassSpeciesAmounts];
     NSMutableArray *parsedPermitSpeciesAmounts = [NSMutableArray array];
     if ([receivedPermitSpeciesAmounts isKindOfClass:[NSArray class]]) {
@@ -90,14 +85,6 @@ NSString *const kPermitBaseClassUnavailable = @"unavailable";
 {
     return [NSString stringWithFormat:@"%@", [self dictionaryRepresentation]];
 }
-
-#pragma mark - Helper Method
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
-{
-    id object = [dict objectForKey:aKey];
-    return [object isEqual:[NSNull null]] ? nil : object;
-}
-
 
 #pragma mark - NSCoding Methods
 

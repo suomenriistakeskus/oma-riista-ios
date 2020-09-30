@@ -1,6 +1,12 @@
 #import "RiistaMoreViewController.h"
 #import "RiistaLocalization.h"
+#import "RiistaSettings.h"
 #import "RiistaTabBarViewController.h"
+#import "RiistaMagazineViewController.h"
+#import "RiistaNavigationController.h"
+#import "UserInfo.h"
+
+#import "Oma_riista-Swift.h"
 
 @interface MoreItem : NSObject
 
@@ -22,11 +28,14 @@
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
-@property (strong, nonatomic) NSArray *listItems;
+@property (strong, nonatomic) NSMutableArray *listItems;
+@property (nonatomic) BOOL displayShootingTests;
 
 @end
 
 @implementation RiistaMoreViewController
+
+const NSInteger SHOOTING_TEST_INDEX = 4;
 
 - (id) initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
@@ -41,19 +50,28 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    [super viewDidLoad];
+    self.displayShootingTests = [[RiistaSettings userInfo] isShootingTestOfficial];
 
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.tableHeaderView = nil;
-    self.tableView.tableFooterView = nil;
+    self.tableView.tableFooterView = [UIView new];
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = 60;
 
-    self.listItems = @[[[MoreItem alloc] initWithIcon:@"ic_nav_contact.png" title:@"MenuContactDetails"],
-                       [[MoreItem alloc] initWithIcon:@"ic_nav_settings.png" title:@"MenuSettings"],
-                       [[MoreItem alloc] initWithIcon:@"ic_logout.png" title:@"Logout"]
-                       ];
+    self.listItems = [NSMutableArray arrayWithArray:@[[[MoreItem alloc] initWithIcon:@"more_person" title:@"MyDetails"],
+                                                      [[MoreItem alloc] initWithIcon:@"more_gallery" title:@"Gallery"],
+                                                      [[MoreItem alloc] initWithIcon:@"more_contacts" title:@"MenuContactDetails"],
+                                                      [[MoreItem alloc] initWithIcon:@"more_settings" title:@"MenuSettings"],
+                                                      [[MoreItem alloc] initWithIcon:@"more_search" title:@"MenuEventSearch"],
+                                                      [[MoreItem alloc] initWithIcon:@"more_magazine" title:@"MenuReadMagazine"],
+                                                      [[MoreItem alloc] initWithIcon:@"more_seasons" title:@"MenuOpenSeasons"],
+                                                      [[MoreItem alloc] initWithIcon:@"more_logout" title:@"Logout"],
+                                                      ]];
+    if (self.displayShootingTests) {
+        [self.listItems insertObject:[[MoreItem alloc] initWithIcon:@"more_shooting" title:@"MenuShootingTests"]
+                             atIndex:SHOOTING_TEST_INDEX];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -78,7 +96,11 @@
 
 - (void)pageSelected
 {
-    self.navigationController.title = RiistaLocalizedString(@"MenuMore", nil);
+    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
+    [navController setLeftBarItem:nil];
+    [navController setRightBarItems:nil];
+
+    navController.title = RiistaLocalizedString(@"MenuMore", nil);
 }
 
 - (void)refreshTabItem
@@ -131,42 +153,135 @@
 - (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath
 {
     UIViewController *controller;
-    UIAlertView *alert;
-
+    
     switch (indexPath.row) {
         case 0:
-            controller = [self.storyboard instantiateViewControllerWithIdentifier:@"ContactDetailsController"];
+            controller = [self.storyboard instantiateViewControllerWithIdentifier:@"MyDetailsController"];
             [self.navigationController pushViewController:controller animated:YES];
             break;
         case 1:
-            controller = [self.storyboard instantiateViewControllerWithIdentifier:@"SettingsController"];
+            controller = [self.storyboard instantiateViewControllerWithIdentifier:@"GalleryController"];
             [self.navigationController pushViewController:controller animated:YES];
             break;
         case 2:
-            alert = [[UIAlertView alloc] initWithTitle:[RiistaLocalizedString(@"Logout", nil) stringByAppendingString:@"?"]
-                                               message:nil
-                                              delegate:self
-                                     cancelButtonTitle:RiistaLocalizedString(@"CancelRemove", nil)
-                                     otherButtonTitles:RiistaLocalizedString(@"OK", nil), nil];
-            [alert show];
+            controller = [self.storyboard instantiateViewControllerWithIdentifier:@"ContactDetailsController"];
+            [self.navigationController pushViewController:controller animated:YES];
+            break;
+        case 3:
+            controller = [self.storyboard instantiateViewControllerWithIdentifier:@"SettingsController"];
+            [self.navigationController pushViewController:controller animated:YES];
+            break;
+        case 4:
+            if (self.displayShootingTests) {
+                [self didSelectShootingTests];
+            }
+            else {
+                [self didSelectEventSearch];
+            }
+            break;
+        case 5:
+            if (self.displayShootingTests) {
+                [self didSelectEventSearch];
+            }
+            else {
+                [self didSelectMagazine];
+            }
+            break;
+        case 6:
+            if (self.displayShootingTests) {
+                [self didSelectMagazine];
+            }
+            else {
+                [self didSelectHuntingSeasons];
+            }
+            break;
+        case 7:
+            if (self.displayShootingTests) {
+                [self didSelectHuntingSeasons];
+            }
+            else {
+                [self didSelectLogout];
+            }
+            break;
+        case 8:
+            [self didSelectLogout];
             break;
         default:
             break;
     }
 }
 
-# pragma mark - UIAlertViewDelegate
-
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+- (void) didSelectShootingTests
 {
-    switch (buttonIndex) {
-        case 1:
-            [(RiistaTabBarViewController*)self.tabBarController logout];
-            break;
-        case 0:
-        default:
-            break;
+    UIViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"ShootingTestCalendarEventsController"];
+    [self.navigationController pushViewController:controller animated:YES];
+}
+
+- (void) didSelectEventSearch
+{
+    NSString *language = [RiistaSettings language];
+    NSURL *url;
+
+    if ([@"sv" isEqualToString:language]) {
+        url = [NSURL URLWithString:EventSearchSv];
     }
+    else {
+        url = [NSURL URLWithString:EventSearchFi];
+    }
+
+    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+}
+
+- (void) didSelectMagazine
+{
+    UIViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"MagazineController"];
+
+    if ([[RiistaSettings language] isEqualToString:@"sv"]) {
+        ((RiistaMagazineViewController*)controller).urlAddress = MagazineUrlSv;
+    }
+    else {
+        ((RiistaMagazineViewController*)controller).urlAddress = MagazineUrlFi;
+    }
+    [self.navigationController pushViewController:controller animated:YES];
+}
+
+- (void) didSelectHuntingSeasons
+{
+    NSString *language = [RiistaSettings language];
+    NSURL *url;
+
+    if ([@"sv" isEqualToString:language]) {
+        url = [NSURL URLWithString:HuntingSeasonsUrlSv];
+    }
+    else if ([@"en" isEqualToString:language]) {
+        url = [NSURL URLWithString:HuntingSeasonsUrlEn];
+    }
+    else {
+        url = [NSURL URLWithString:HuntingSeasonsUrlFi];
+    }
+
+    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+}
+
+- (void) didSelectLogout
+{
+    MDCAlertController *alertController =
+    [MDCAlertController alertControllerWithTitle:[RiistaLocalizedString(@"Logout", nil) stringByAppendingString:@"?"]
+                                         message:nil];
+
+    MDCAlertAction *cancelAction = [MDCAlertAction actionWithTitle:RiistaLocalizedString(@"CancelRemove", nil)
+                                                          handler:^(MDCAlertAction *action) {
+        // Do nothing
+    }];
+    MDCAlertAction *okAction = [MDCAlertAction actionWithTitle:RiistaLocalizedString(@"OK", nil)
+                                                          handler:^(MDCAlertAction *action) {
+        [(RiistaTabBarViewController*)self.tabBarController logout];
+    }];
+
+    [alertController addAction:cancelAction];
+    [alertController addAction:okAction];
+
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 @end

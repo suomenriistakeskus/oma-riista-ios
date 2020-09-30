@@ -2,7 +2,7 @@
 
 @class SrvaEntry;
 
-typedef void(^SrvaSynchronizationCompletion)();
+typedef void(^SrvaSynchronizationCompletion)(void);
 
 @interface SrvaSync : NSObject
 

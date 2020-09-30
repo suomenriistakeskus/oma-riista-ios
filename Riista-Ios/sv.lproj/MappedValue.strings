@@ -26,7 +26,21 @@
 "observation_type_nesting_swamp" = "Häckningsmyr";
 "observation_type_migration_resting_area" = "Viloplats för flyttande fågel";
 "observation_type_game_path" = "Viltpassage";
+"observation_type_poikueymparisto" = "Livsmiljö för skogshönsfågelkullar";
+"observation_type_vaihtelevarakenteinen_mustikkametsa" = "Blåbärsskog med varierande struktur";
+"observation_type_vaihtelevarakenteinen_mantysekotteinen_metsa" = "Tallblandad skog med varierande struktur";
+"observation_type_hakomamanty" = "Betestall";
+"observation_type_vaihtelevarakenteinen_lehtipuusekotteinen_metsa" = "Lövträdsblandad skog med varierad struktur";
+"observation_type_ruokailukoivikko" = "Födoplats i björkdungar";
+"observation_type_leppakuusimetsa_tai_koivukuusimetsä" = "Al-granskog eller björk-granskog";
+"observation_type_kuusisekotteinen_metsa" = "Granblandad skog (putsning)";
+"observation_type_suon_reunametsa" = "Myrens kantskog";
+"observation_type_ruokailupajukko_tai_koivikko" = "Födoplats bland vide- eller björkbestånd";
 "observation_type_other" = "Annat";
+
+"observation_deer_hunting_type_stand_hunting" = "Vaktjakt";
+"observation_deer_hunting_type_dog_hunting" = "Sällskapsjakt med hund";
+"observation_deer_hunting_type_other" = "Annat";
 
 "observation_age_adult" = "Vuxen";
 "observation_age_less_than_year" = "Under 1 år";
@@ -82,3 +96,7 @@
 "harvest_moose_antlers_type_hanko" = "Stång";
 "harvest_moose_antlers_type_lapio" = "Skovel";
 "harvest_moose_antlers_type_seka" = "Bland";
+
+"harvest_hunting_type_shot" = "Skjuten";
+"harvest_hunting_type_captured_alive" = "Fångad med levandefångstfälla";
+"harvest_hunting_type_shot_but_lost" = "Skjuten men förlorad";

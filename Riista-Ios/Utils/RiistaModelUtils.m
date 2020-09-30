@@ -1,6 +1,9 @@
 #import "GeoCoordinate.h"
 #import "RiistaModelUtils.h"
 #import "RiistaAppDelegate.h"
+#import "RiistaSettings.h"
+#import "UserInfo.h"
+#import "ObservationContextSensitiveFieldSets.h"
 
 @implementation RiistaModelUtils
 
@@ -54,7 +57,7 @@
 {
     NSError *error = nil;
     if ([context save:&error]) {
-        RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
         [delegate.managedObjectContext performBlock:^(void) {
             NSError *mErr;
             if ([delegate.managedObjectContext save:&mErr] == NO) {
@@ -65,6 +68,11 @@
     else {
         NSLog(@"Context save error: %@", [error localizedDescription]);
     }
+}
+
++ (BOOL) isFieldCarnivoreAuthorityVoluntaryForUser:(ObservationContextSensitiveFieldSets*)fieldSet fieldName:(NSString*)fieldName
+{
+    return [[RiistaSettings userInfo] isCarnivoreAuthority] && [fieldSet hasFieldCarnivoreAuthorityVoluntary:fieldSet.baseFields name:fieldName];
 }
 
 @end

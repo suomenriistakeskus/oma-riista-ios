@@ -9,6 +9,7 @@
 #import "RiistaNetworkManager.h"
 #import "RiistaSettings.h"
 #import "UserInfo.h"
+#import "NSDateformatter+Locale.h"
 
 @implementation ObservationSync
 {
@@ -20,7 +21,7 @@
 {
     self = [super init];
     if (self) {
-        dateFormatter = [NSDateFormatter new];
+        dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
         [dateFormatter setDateFormat:ISO_8601];
     }
     return self;
@@ -28,12 +29,12 @@
 
 - (void)sync:(ObservationSynchronizationCompletion)completion
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     context.parentContext = delegate.managedObjectContext;
 
     NSMutableArray<ObservationEntry*> *deleted = [self fetchDeletedRemoteEvents];
-    DLog(@"Deleting: %ld", deleted.count);
+    DDLog(@"Deleting: %lu", (unsigned long)deleted.count);
     [self deleteRemoteObservationEvents:deleted completion:completion];
 }
 
@@ -48,7 +49,7 @@
 
     [[RiistaGameDatabase sharedInstance] deleteObservationEntry:entry completion:^(NSError *error) {
         if (error) {
-            DLog(@"Observation delete error: %@", [error localizedDescription]);
+            DDLog(@"Observation delete error: %@", [error localizedDescription]);
         }
         [self deleteRemoteObservationEvents:events completion:completion];
     }];
@@ -57,7 +58,7 @@
 - (void)sendUnsentEvents:(ObservationSynchronizationCompletion)completion
 {
     NSMutableArray<ObservationEntry*> *unsent = [self fetchUnsentEvents];
-    DLog(@"Sending: %ld", unsent.count);
+    DDLog(@"Sending: %lu", (unsigned long)unsent.count);
     [self sendObservationEvents:unsent completion:completion];
 }
 
@@ -72,7 +73,7 @@
 
     [[RiistaGameDatabase sharedInstance] editObservationEntry:entry completion:^(NSDictionary *response, NSError *error) {
         if (error) {
-            DLog(@"Observation send error: %@", [error localizedDescription]);
+            DDLog(@"Observation send error: %@", [error localizedDescription]);
         }
         [self sendObservationEvents:events completion:completion];
     }];
@@ -122,17 +123,17 @@
             NSMutableDictionary* remotesMap = [NSMutableDictionary new];
 
             for (NSDictionary* dict in entries) {
-                ObservationEntry* entry = [self observationEntryFromDict:dict objectContext:context];
+                ObservationEntry* entry = [self observationEntryFromDict:dict objectContext:self->context];
                 ObservationEntry* old = [localsMap objectForKey:entry.remoteId];
 
                 if ([self insertReceivedEvent:entry oldEntry:old]) {
                     if (old) {
-                        [context deleteObject:old];
+                        [self->context deleteObject:old];
                     }
-                    [context insertObject:entry];
+                    [self->context insertObject:entry];
                 }
                 else {
-                    [context deleteObject:entry];
+                    [self->context deleteObject:entry];
                 }
 
                 [remotesMap setObject:entry forKey:entry.remoteId];
@@ -143,7 +144,7 @@
                 ObservationEntry *remote = [remotesMap objectForKey:remoteId];
                 if (remote == nil) {
                     ObservationEntry* local = [localsMap objectForKey:remoteId];
-                    [context deleteObject:local];
+                    [self->context deleteObject:local];
                 }
             }
         }
@@ -153,13 +154,21 @@
 
 - (BOOL)insertReceivedEvent:(ObservationEntry*)newEntry oldEntry:(ObservationEntry*)oldEntry
 {
-    if (!oldEntry
-        || [newEntry.rev integerValue] > [oldEntry.rev integerValue]
-        || (newEntry.observationSpecVersion > oldEntry.observationSpecVersion)
-        || (newEntry.canEdit != oldEntry.canEdit)) {
+    if (!oldEntry) {
+        //DDLog(@"inserting observation %@, no existing entry", newEntry.remoteId);
+        return YES;
+    } else if ([newEntry.rev integerValue] > [oldEntry.rev integerValue]) {
+        //DDLog(@"inserting observation %@, rev %@ > %@", newEntry.remoteId, newEntry.rev, oldEntry.rev);
+        return YES;
+    } else if ([newEntry.observationSpecVersion integerValue] > [oldEntry.observationSpecVersion integerValue]) {
+        //DDLog(@"inserting observation %@, spec version %@ > %@", newEntry.remoteId, newEntry.observationSpecVersion, oldEntry.observationSpecVersion);
+        return YES;
+    } else if (newEntry.canEdit != oldEntry.canEdit) {
+        //DDLog(@"inserting observation %@, canEdit = %@", newEntry.remoteId, newEntry.canEdit);
         return YES;
     }
 
+    //DDLog(@"NOT inserting observation %@", newEntry.remoteId);
     return NO;
 }
 
@@ -210,7 +219,9 @@
 
     entry.observationSpecVersion = dict[@"observationSpecVersion"];
     entry.observationType = dict[@"observationType"];
-    entry.withinMooseHunting = [RiistaModelUtils checkNull:dict key:@"withinMooseHunting"];
+    entry.observationCategory = [RiistaModelUtils checkNull:dict key:@"observationCategory"];
+    entry.deerHuntingType = [RiistaModelUtils checkNull:dict key:@"deerHuntingType"];
+    entry.deerHuntingTypeDescription = [RiistaModelUtils checkNull:dict key:@"deerHuntingTypeDescription"];
 
     entry.mooselikeFemale1CalfAmount = dict[@"mooselikeFemale1CalfAmount"];
     entry.mooselikeFemale2CalfsAmount = dict[@"mooselikeFemale2CalfsAmount"];
@@ -218,7 +229,16 @@
     entry.mooselikeFemale4CalfsAmount = dict[@"mooselikeFemale4CalfsAmount"];
     entry.mooselikeFemaleAmount = dict[@"mooselikeFemaleAmount"];
     entry.mooselikeMaleAmount = dict[@"mooselikeMaleAmount"];
+    entry.mooselikeCalfAmount = dict[@"mooselikeCalfAmount"];
     entry.mooselikeUnknownSpecimenAmount = dict[@"mooselikeUnknownSpecimenAmount"];
+
+    entry.observerName = [RiistaModelUtils checkNull:dict key:@"observerName"];
+    entry.observerPhoneNumber = [RiistaModelUtils checkNull:dict key:@"observerPhoneNumber"];
+    entry.officialAdditionalInfo = [RiistaModelUtils checkNull:dict key:@"officialAdditionalInfo"];
+    entry.verifiedByCarnivoreAuthority = [RiistaModelUtils checkNull:dict key:@"verifiedByCarnivoreAuthority"];
+    entry.inYardDistanceToResidence = [RiistaModelUtils checkNull:dict key:@"inYardDistanceToResidence"];
+    entry.pack = [RiistaModelUtils checkNull:dict key:@"pack"];
+    entry.litter = [RiistaModelUtils checkNull:dict key:@"litter"];
 
     // Images
     NSMutableArray *diaryImages = [NSMutableArray new];
@@ -245,6 +265,8 @@
             specimen.gender = [RiistaModelUtils checkNull:item key:@"gender"];
             specimen.marking = [RiistaModelUtils checkNull:item key:@"marking"];
             specimen.state = [RiistaModelUtils checkNull:item key:@"state"];
+            specimen.lengthOfPaw = [RiistaModelUtils checkNull:item key:@"lengthOfPaw"];
+            specimen.widthOfPaw = [RiistaModelUtils checkNull:item key:@"widthOfPaw"];
             [specimens addObject:specimen];
         }
     }
@@ -275,14 +297,24 @@
                                     @"totalSpecimenAmount":[RiistaModelUtils nullify:observationEntry.totalSpecimenAmount],
                                     @"observationSpecVersion":observationEntry.observationSpecVersion,
                                     @"observationType":observationEntry.observationType,
-                                    @"withinMooseHunting":[RiistaModelUtils nullify:observationEntry.withinMooseHunting],
+                                    @"observationCategory":[RiistaModelUtils nullify:observationEntry.observationCategory],
+                                    @"deerHuntingType":[RiistaModelUtils nullify:observationEntry.deerHuntingType],
+                                    @"deerHuntingTypeDescription":[RiistaModelUtils nullify:observationEntry.deerHuntingTypeDescription],
                                     @"mooselikeFemale1CalfAmount":[RiistaModelUtils nullify:observationEntry.mooselikeFemale1CalfAmount],
                                     @"mooselikeFemale2CalfsAmount":[RiistaModelUtils nullify:observationEntry.mooselikeFemale2CalfsAmount],
                                     @"mooselikeFemale3CalfsAmount":[RiistaModelUtils nullify:observationEntry.mooselikeFemale3CalfsAmount],
                                     @"mooselikeFemale4CalfsAmount":[RiistaModelUtils nullify:observationEntry.mooselikeFemale4CalfsAmount],
                                     @"mooselikeFemaleAmount":[RiistaModelUtils nullify:observationEntry.mooselikeFemaleAmount],
                                     @"mooselikeMaleAmount":[RiistaModelUtils nullify:observationEntry.mooselikeMaleAmount],
-                                    @"mooselikeUnknownSpecimenAmount":[RiistaModelUtils nullify:observationEntry.mooselikeUnknownSpecimenAmount]
+                                    @"mooselikeCalfAmount":[RiistaModelUtils nullify:observationEntry.mooselikeCalfAmount],
+                                    @"mooselikeUnknownSpecimenAmount":[RiistaModelUtils nullify:observationEntry.mooselikeUnknownSpecimenAmount],
+                                    @"observerName":[RiistaModelUtils nullify:observationEntry.observerName],
+                                    @"observerPhoneNumber":[RiistaModelUtils nullify:observationEntry.observerPhoneNumber],
+                                    @"officialAdditionalInfo":[RiistaModelUtils nullify:observationEntry.officialAdditionalInfo],
+                                    @"verifiedByCarnivoreAuthority":[RiistaModelUtils nullify:observationEntry.verifiedByCarnivoreAuthority],
+                                    @"inYardDistanceToResidence":[RiistaModelUtils nullify:observationEntry.inYardDistanceToResidence],
+                                    @"pack":[RiistaModelUtils nullify:observationEntry.pack],
+                                    @"litter":[RiistaModelUtils nullify:observationEntry.litter],
                                     } mutableCopy];
 
     if (isNew) {
@@ -302,7 +334,9 @@
         NSMutableDictionary *item =[@{@"age":[RiistaModelUtils nullify:specimen.age],
                                       @"gender":[RiistaModelUtils nullify:specimen.gender],
                                       @"marking":[RiistaModelUtils nullify:specimen.marking],
-                                      @"state":[RiistaModelUtils nullify:specimen.state]
+                                      @"state":[RiistaModelUtils nullify:specimen.state],
+                                      @"lengthOfPaw":[RiistaModelUtils nullify:specimen.lengthOfPaw],
+                                      @"widthOfPaw":[RiistaModelUtils nullify:specimen.widthOfPaw],
                                       } mutableCopy];
 
         if ([specimen.remoteId intValue] > 0) {
@@ -345,7 +379,7 @@
     NSError *error = nil;
     NSArray *results = [context executeFetchRequest:request error:&error];
     if (error) {
-        DLog(@"Observation query error: %@", [error localizedDescription]);
+        DDLog(@"Observation query error: %@", [error localizedDescription]);
         return nil;
     }
     else {

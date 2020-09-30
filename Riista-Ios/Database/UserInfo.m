@@ -2,7 +2,9 @@
 #import "Rhy.h"
 #import "Address.h"
 #import "Occupation.h"
-
+#import "ShootingTest.h"
+#import "NSDateformatter+Locale.h"
+#import "RiistaUtils.h"
 
 NSString *const kUserInfoRhy = @"rhy";
 NSString *const kUserInfoLastName = @"lastName";
@@ -20,10 +22,14 @@ NSString *const kUserInfoHuntingBanEnd = @"huntingBanEnd";
 NSString *const kUserInfoUsername = @"username";
 NSString *const kUserInfoGameDiaryYears = @"gameDiaryYears";
 NSString *const kUserInfoOccupations = @"occupations";
+NSString *const kUserInfoDeerPilotUser = @"deerPilotUser";
 NSString *const kUserInfoHomeMunicipality = @"homeMunicipality";
 NSString *const kUserInfoHarvestYears = @"harvestYears";
 NSString *const kUserInfoObservationYears = @"observationYears";
 NSString *const kUserInfoEnableSrva = @"enableSrva";
+NSString *const kUserInfoEnableShootingTests = @"enableShootingTests";
+NSString *const kUserInfoQrCode = @"qrCode";
+NSString *const kUserInfoShootingTests = @"shootingTests";
 
 // ISO 8601 date times
 static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
@@ -31,7 +37,6 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
 
 @interface UserInfo ()
 
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
 - (NSDate *)dateOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
 
 @end
@@ -57,10 +62,14 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
 @synthesize username = _username;
 @synthesize gameDiaryYears = _gameDiaryYears;
 @synthesize occupations = _occupations;
+@synthesize deerPilotUser = _deerPilotUser;
 @synthesize homeMunicipality = _homeMunicipality;
 @synthesize harvestYears = _harvestYears;
 @synthesize observationYears = _observationYears;
 @synthesize enableSrva = _enableSrva;
+@synthesize enableShootingTests = _enableShootingTests;
+@synthesize qrCode = _qrCode;
+@synthesize shootingTests = _shootingTests;
 
 + (instancetype)modelObjectWithDictionary:(NSDictionary *)dict
 {
@@ -71,31 +80,39 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
 {
     self = [super init];
 
-    dateFormatter = [NSDateFormatter new];
+    dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
     [dateFormatter setDateFormat:DATE_FORMAT_NO_TIME];
 
     // This check serves to make sure that a non-NSDictionary object
     // passed into the model class doesn't break the parsing.
     if(self && [dict isKindOfClass:[NSDictionary class]]) {
-        self.rhy = [Rhy modelObjectWithDictionary:[dict objectForKey:kUserInfoRhy]];
-        self.lastName = [self objectOrNilForKey:kUserInfoLastName fromDictionary:dict];
-        self.firstName = [self objectOrNilForKey:kUserInfoFirstName fromDictionary:dict];
+        NSObject *rhyDict = [dict objectForKey:kUserInfoRhy];
+        if (rhyDict != nil && [rhyDict isKindOfClass:[NSDictionary class]]) {
+            self.rhy = [Rhy modelObjectWithDictionary:(NSDictionary *)rhyDict];
+        } else {
+            self.rhy = nil;
+        }
+        self.lastName = [RiistaUtils objectOrNilForKey:kUserInfoLastName fromDictionary:dict];
+        self.firstName = [RiistaUtils objectOrNilForKey:kUserInfoFirstName fromDictionary:dict];
         self.birthDate = [self dateOrNilForKey:kUserInfoBirthDate fromDictionary:dict];
-        self.huntingCardValidNow = [[self objectOrNilForKey:kUserInfoHuntingCardValidNow fromDictionary:dict] boolValue];
-        self.timestamp = [self objectOrNilForKey:kUserInfoTimestamp fromDictionary:dict];
+        self.huntingCardValidNow = [[RiistaUtils objectOrNilForKey:kUserInfoHuntingCardValidNow fromDictionary:dict] boolValue];
+        self.timestamp = [RiistaUtils objectOrNilForKey:kUserInfoTimestamp fromDictionary:dict];
         self.hunterExamDate = [self dateOrNilForKey:kUserInfoHunterExamDate fromDictionary:dict];
         self.huntingCardEnd = [self dateOrNilForKey:kUserInfoHuntingCardEnd fromDictionary:dict];
         self.huntingBanStart = [self dateOrNilForKey:kUserInfoHuntingBanStart fromDictionary:dict];
-        self.hunterNumber = [self objectOrNilForKey:kUserInfoHunterNumber fromDictionary:dict];
+        self.hunterNumber = [RiistaUtils objectOrNilForKey:kUserInfoHunterNumber fromDictionary:dict];
         self.address = [Address modelObjectWithDictionary:[dict objectForKey:kUserInfoAddress]];
         self.huntingCardStart = [self dateOrNilForKey:kUserInfoHuntingCardStart fromDictionary:dict];
         self.huntingBanEnd = [self dateOrNilForKey:kUserInfoHuntingBanEnd fromDictionary:dict];
-        self.username = [self objectOrNilForKey:kUserInfoUsername fromDictionary:dict];
-        self.gameDiaryYears = [self objectOrNilForKey:kUserInfoGameDiaryYears fromDictionary:dict];
-        self.homeMunicipality = [self objectOrNilForKey:kUserInfoHomeMunicipality fromDictionary:dict];
-        self.harvestYears = [self objectOrNilForKey:kUserInfoHarvestYears fromDictionary:dict];
-        self.observationYears = [self objectOrNilForKey:kUserInfoObservationYears fromDictionary:dict];
-        self.enableSrva = [self objectOrNilForKey:kUserInfoEnableSrva fromDictionary:dict];
+        self.username = [RiistaUtils objectOrNilForKey:kUserInfoUsername fromDictionary:dict];
+        self.gameDiaryYears = [RiistaUtils objectOrNilForKey:kUserInfoGameDiaryYears fromDictionary:dict];
+        self.homeMunicipality = [RiistaUtils objectOrNilForKey:kUserInfoHomeMunicipality fromDictionary:dict];
+        self.harvestYears = [RiistaUtils objectOrNilForKey:kUserInfoHarvestYears fromDictionary:dict];
+        self.observationYears = [RiistaUtils objectOrNilForKey:kUserInfoObservationYears fromDictionary:dict];
+        self.enableSrva = [RiistaUtils objectOrNilForKey:kUserInfoEnableSrva fromDictionary:dict];
+        self.enableShootingTests = [RiistaUtils objectOrNilForKey:kUserInfoEnableShootingTests fromDictionary:dict];
+        self.qrCode = [RiistaUtils objectOrNilForKey:kUserInfoQrCode fromDictionary:dict];
+        self.deerPilotUser = [[RiistaUtils objectOrNilForKey:kUserInfoDeerPilotUser fromDictionary:dict] boolValue];
 
         NSObject *receivedOccupations = [dict objectForKey:kUserInfoOccupations];
         NSMutableArray *parsedOccupations = [NSMutableArray array];
@@ -110,6 +127,17 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
         }
 
         self.occupations = [NSArray arrayWithArray:parsedOccupations];
+
+        NSObject *receivedShootingTests = [dict objectForKey:kUserInfoShootingTests];
+        NSMutableArray *parsedShootingTests = [NSMutableArray array];
+        if ([receivedShootingTests isKindOfClass:[NSArray class]]) {
+            for (NSDictionary *item in (NSArray *)receivedShootingTests) {
+                if ([item isKindOfClass:[NSDictionary class]]) {
+                    [parsedShootingTests addObject:[ShootingTest modelObjectWithDictionary:item]];
+                }
+            }
+        }
+        self.shootingTests = [NSArray arrayWithArray:parsedShootingTests];
     }
 
     return self;
@@ -134,6 +162,9 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
     [mutableDict setValue:self.username forKey:kUserInfoUsername];
     [mutableDict setValue:self.homeMunicipality forKey:kUserInfoHomeMunicipality];
     [mutableDict setValue:self.enableSrva forKey:kUserInfoEnableSrva];
+    [mutableDict setValue:self.enableShootingTests forKey:kUserInfoEnableShootingTests];
+    [mutableDict setValue:self.qrCode forKey:kUserInfoQrCode];
+    [mutableDict setValue:[NSNumber numberWithBool:self.deerPilotUser] forKey:kUserInfoDeerPilotUser];
 
     NSMutableArray *tempArrayForHarvestYears = [NSMutableArray array];
     for (NSObject *subArrayObject in self.harvestYears) {
@@ -179,6 +210,17 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
     }
     [mutableDict setValue:[NSArray arrayWithArray:tempArrayForOccupations] forKey:kUserInfoOccupations];
 
+    NSMutableArray *tempArrayForShootingTests = [NSMutableArray array];
+    for (NSObject *subArrayObject in self.shootingTests) {
+        if ([subArrayObject respondsToSelector:@selector(dictionaryRepresentation)]) {
+            [tempArrayForShootingTests addObject:[subArrayObject performSelector:@selector(dictionaryRepresentation)]];
+        }
+        else {
+            [tempArrayForShootingTests addObject:subArrayObject];
+        }
+    }
+    [mutableDict setValue:[NSArray arrayWithArray:tempArrayForShootingTests] forKey:kUserInfoShootingTests];
+
     return [NSDictionary dictionaryWithDictionary:mutableDict];
 }
 
@@ -188,15 +230,10 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
 }
 
 #pragma mark - Helper Method
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
-{
-    id object = [dict objectForKey:aKey];
-    return [object isEqual:[NSNull null]] ? nil : object;
-}
 
 - (NSDate *)dateOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
 {
-    id object = [self objectOrNilForKey:aKey fromDictionary:dict];
+    id object = [RiistaUtils objectOrNilForKey:aKey fromDictionary:dict];
     return [dateFormatter dateFromString:object];
 }
 
@@ -222,10 +259,14 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
     self.username = [aDecoder decodeObjectForKey:kUserInfoUsername];
     self.gameDiaryYears = [aDecoder decodeObjectForKey:kUserInfoGameDiaryYears];
     self.occupations = [aDecoder decodeObjectForKey:kUserInfoOccupations];
+    self.deerPilotUser = [aDecoder decodeBoolForKey:kUserInfoDeerPilotUser];
     self.homeMunicipality = [aDecoder decodeObjectForKey:kUserInfoHomeMunicipality];
     self.harvestYears = [aDecoder decodeObjectForKey:kUserInfoHarvestYears];
     self.observationYears = [aDecoder decodeObjectForKey:kUserInfoObservationYears];
     self.enableSrva = [aDecoder decodeObjectForKey:kUserInfoEnableSrva];
+    self.enableShootingTests = [aDecoder decodeObjectForKey:kUserInfoEnableShootingTests];
+    self.qrCode = [aDecoder decodeObjectForKey:kUserInfoQrCode];
+    self.shootingTests = [aDecoder decodeObjectForKey:kUserInfoShootingTests];
 
     return self;
 }
@@ -248,10 +289,14 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
     [aCoder encodeObject:_username forKey:kUserInfoUsername];
     [aCoder encodeObject:_gameDiaryYears forKey:kUserInfoGameDiaryYears];
     [aCoder encodeObject:_occupations forKey:kUserInfoOccupations];
+    [aCoder encodeBool:_deerPilotUser forKey:kUserInfoDeerPilotUser];
     [aCoder encodeObject:_homeMunicipality forKey:kUserInfoHomeMunicipality];
     [aCoder encodeObject:_harvestYears forKey:kUserInfoHarvestYears];
     [aCoder encodeObject:_observationYears forKey:kUserInfoObservationYears];
     [aCoder encodeObject:_enableSrva forKey:kUserInfoEnableSrva];
+    [aCoder encodeObject:_enableShootingTests forKey:kUserInfoEnableShootingTests];
+    [aCoder encodeObject:_qrCode forKey:kUserInfoQrCode];
+    [aCoder encodeObject:_shootingTests forKey:kUserInfoShootingTests];
 }
 
 - (id)copyWithZone:(NSZone *)zone
@@ -259,7 +304,6 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
     UserInfo *copy = [[UserInfo alloc] init];
 
     if (copy) {
-
         copy.rhy = [self.rhy copyWithZone:zone];
         copy.lastName = [self.lastName copyWithZone:zone];
         copy.firstName = [self.firstName copyWithZone:zone];
@@ -276,14 +320,43 @@ static NSString *const DATE_FORMAT_FULL = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
         copy.username = [self.username copyWithZone:zone];
         copy.gameDiaryYears = [self.gameDiaryYears copyWithZone:zone];
         copy.occupations = [self.occupations copyWithZone:zone];
+        copy.deerPilotUser = self.deerPilotUser;
         copy.homeMunicipality = [self.homeMunicipality copyWithZone:zone];
         copy.harvestYears = [self.harvestYears copyWithZone:zone];
         copy.observationYears = [self.observationYears copyWithZone:zone];
         copy.enableSrva = [self.enableSrva copyWithZone:zone];
+        copy.enableShootingTests = [self.enableShootingTests copyWithZone:zone];
+        copy.qrCode = [self.qrCode copyWithZone:zone];
+        copy.shootingTests = [self.shootingTests copyWithZone:zone];
     }
 
     return copy;
 }
 
+- (BOOL)isCarnivoreAuthority
+{
+    for (Occupation *occupation in self.occupations) {
+        if ([@"PETOYHDYSHENKILO" isEqualToString:occupation.occupationType]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (BOOL)isShootingTestOfficial
+{
+    return [self.enableShootingTests boolValue];
+}
+
+- (Occupation*)findOccupationOfType:(NSString*)occupationType forRhyId:(int)rhyId
+{
+    for (Occupation *occupation in self.occupations) {
+        if ([occupation isOccupationOfType:occupationType forRhyId:rhyId]) {
+            return occupation;
+        }
+    }
+
+    return nil;
+}
 
 @end

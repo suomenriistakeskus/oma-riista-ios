@@ -68,7 +68,7 @@
 
     if (species.speciesId == -1) {
         //Other
-        cell.speciesImageView.image = [[UIImage imageNamed:@"ic_question_mark_green.png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        cell.speciesImageView.image = [[UIImage imageNamed:@"unknown_white"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         cell.speciesImageView.tintColor = [UIColor blackColor];
         cell.speciesNameLabel.text = RiistaLocalizedString(@"SrvaOtherSpeciesDescription", nil);
     }

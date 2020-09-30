@@ -2,9 +2,14 @@
 
 @implementation RiistaDateTimeUtils
 
++ (NSTimeZone*)finnishTimezone
+{
+    return [NSTimeZone timeZoneWithName:@"EET"];
+}
+
 + (NSDate*)removeTime:(NSDate*)originalDate
 {
-    unsigned int flags = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit;
+    unsigned int flags = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay;
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSDateComponents *dateComponents = [calendar components:flags fromDate:originalDate];
 

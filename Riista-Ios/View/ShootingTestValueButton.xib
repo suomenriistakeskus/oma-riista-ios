@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ShootingTestValueButton" customModule="Oma_riista" customModuleProvider="target">
+            <connections>
+                <outlet property="button" destination="RL5-BM-xEM" id="6wW-ma-EJT"/>
+                <outlet property="contentView" destination="iN0-l3-epB" id="ebW-fr-eN3"/>
+                <outlet property="title" destination="rrl-9R-QIN" id="exM-hY-Azy"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="139" height="44"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RL5-BM-xEM">
+                    <rect key="frame" x="0.0" y="0.0" width="139" height="44"/>
+                    <connections>
+                        <action selector="buttonPressed:" destination="-1" eventType="touchUpInside" id="jqi-zs-RAF"/>
+                    </connections>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rrl-9R-QIN">
+                    <rect key="frame" x="10" y="13" width="37.5" height="18"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arrow_forward.png" translatesAutoresizingMaskIntoConstraints="NO" id="AFJ-Tj-5Un">
+                    <rect key="frame" x="113" y="14" width="16" height="16"/>
+                    <constraints>
+                        <constraint firstAttribute="width" secondItem="AFJ-Tj-5Un" secondAttribute="height" multiplier="1:1" id="3b4-p6-027"/>
+                        <constraint firstAttribute="width" constant="16" id="NxZ-Yk-MC6"/>
+                    </constraints>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="AFJ-Tj-5Un" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="rrl-9R-QIN" secondAttribute="trailing" constant="10" id="Suz-Ow-cIG"/>
+                <constraint firstItem="RL5-BM-xEM" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="UQh-XF-X85"/>
+                <constraint firstAttribute="trailing" secondItem="AFJ-Tj-5Un" secondAttribute="trailing" constant="10" id="Xbh-b3-IpF"/>
+                <constraint firstAttribute="bottom" secondItem="RL5-BM-xEM" secondAttribute="bottom" id="Zoe-ae-N4J"/>
+                <constraint firstItem="RL5-BM-xEM" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="ax2-av-Phe"/>
+                <constraint firstItem="rrl-9R-QIN" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="hZz-cG-s6f"/>
+                <constraint firstItem="AFJ-Tj-5Un" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="mIF-Ty-cfT"/>
+                <constraint firstAttribute="trailing" secondItem="RL5-BM-xEM" secondAttribute="trailing" id="tfN-8z-fAr"/>
+                <constraint firstItem="rrl-9R-QIN" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="10" id="yHQ-ca-Z58"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="-85.5" y="-254"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="arrow_forward.png" width="48" height="48"/>
+    </resources>
+</document>

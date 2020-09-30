@@ -9,14 +9,14 @@
   }, {
     "id" : 2,
     "name" : {
-      "fi" : "Riistanisäkkäät",
+      "fi" : "Riista\u00ADnisäkkäät",
       "sv" : "Viltdäggdjur",
       "en" : "Game mammals"
     }
   }, {
     "id" : 3,
     "name" : {
-      "fi" : "Rauhoittamattomat eläimet",
+      "fi" : "Rauhoittamat\u00ADto\u00ADmat eläimet",
       "sv" : "Icke fredade djur",
       "en" : "Unprotected species"
     }
@@ -55,7 +55,7 @@
     "id" : 47507,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Metsäkauris",
+      "fi" : "Metsä\u00ADkauris",
       "sv" : "Rådjur",
       "en" : "Roe deer"
     },
@@ -65,7 +65,7 @@
     "id" : 50106,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Metsäjänis",
+      "fi" : "Metsä\u00ADjänis",
       "sv" : "Skogshare",
       "en" : "Mountain hare"
     },
@@ -95,7 +95,7 @@
     "id" : 48251,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Euroopanmajava",
+      "fi" : "Euroopan\u00ADmajava",
       "sv" : "Bäver",
       "en" : "European beaver"
     },
@@ -105,7 +105,7 @@
     "id" : 48250,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Kanadanmajava",
+      "fi" : "Kanadan\u00ADmajava",
       "sv" : "Amerikansk bäver",
       "en" : "Canadian beaver"
     },
@@ -125,7 +125,7 @@
     "id" : 50336,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Rämemajava",
+      "fi" : "Räme\u00ADmajava",
       "sv" : "Sumpbäver",
       "en" : "Nutria"
     },
@@ -165,7 +165,7 @@
     "id" : 47329,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Pesukarhu",
+      "fi" : "Pesu\u00ADkarhu",
       "sv" : "Tvättbjörn",
       "en" : "Raccoon"
     },
@@ -235,8 +235,8 @@
     "id" : 200555,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Itämerennorppa",
-      "sv" : "Östersjövikare",
+      "fi" : "Itämeren\u00ADnorppa",
+      "sv" : "Östersjö\u00ADvikare",
       "en" : "Ringed seal"
     },
     "multipleSpecimenAllowedOnHarvests" : false,
@@ -245,7 +245,7 @@
     "id" : 47305,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Kirjohylje",
+      "fi" : "Kirjo\u00ADhylje",
       "sv" : "Knubbsäl",
       "en" : "Harbour seal"
     },
@@ -265,7 +265,7 @@
     "id" : 47926,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Villisika",
+      "fi" : "Villi\u00ADsika",
       "sv" : "Vildsvin",
       "en" : "Wild boar"
     },
@@ -275,7 +275,7 @@
     "id" : 47484,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Kuusipeura",
+      "fi" : "Kuusi\u00ADpeura",
       "sv" : "Dovhjort",
       "en" : "Fallow deer"
     },
@@ -285,7 +285,7 @@
     "id" : 47476,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Saksanhirvi",
+      "fi" : "Saksan\u00ADhirvi",
       "sv" : "Kronhjort",
       "en" : "Red deer"
     },
@@ -295,7 +295,7 @@
     "id" : 47479,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Japaninhirvi ",
+      "fi" : "Japanin\u00ADpeura",
       "sv" : "Sikahjort",
       "en" : "Sika deer"
     },
@@ -305,8 +305,8 @@
     "id" : 47629,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Valkohäntäpeura",
-      "sv" : "Vitsvanshjort",
+      "fi" : "Valko\u00ADhäntä\u00ADpeura",
+      "sv" : "Vitsvans\u00ADhjort",
       "en" : "White-tailed deer"
     },
     "multipleSpecimenAllowedOnHarvests" : false,
@@ -315,7 +315,7 @@
     "id" : 200556,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Metsäpeura",
+      "fi" : "Metsä\u00ADpeura",
       "sv" : "Skogsren",
       "en" : "Wild forest deer"
     },
@@ -335,7 +335,7 @@
     "id" : 53004,
     "categoryId" : 3,
     "name" : {
-      "fi" : "Villiintynyt kissa",
+      "fi" : "Villiin\u00ADty\u00ADnyt kissa",
       "sv" : "Förvildad katt",
       "en" : "Wild cat"
     },
@@ -355,7 +355,7 @@
     "id" : 26298,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Kanadanhanhi",
+      "fi" : "Kanadan\u00ADhanhi",
       "sv" : "Kanadagås",
       "en" : "Canada goose"
     },
@@ -375,7 +375,7 @@
     "id" : 26287,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Metsähanhi",
+      "fi" : "Metsä\u00ADhanhi",
       "sv" : "Sädgås",
       "en" : "Bean goose"
     },
@@ -385,7 +385,7 @@
     "id" : 26373,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Heinäsorsa",
+      "fi" : "Heinä\u00ADsorsa",
       "sv" : "Gräsand",
       "en" : "Mallard"
     },
@@ -415,7 +415,7 @@
     "id" : 26382,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Jouhisorsa",
+      "fi" : "Jouhi\u00ADsorsa",
       "sv" : "Stjärtand",
       "en" : "Pintail"
     },
@@ -435,7 +435,7 @@
     "id" : 26394,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Lapasorsa",
+      "fi" : "Lapa\u00ADsorsa",
       "sv" : "Skedand",
       "en" : "Shoveler"
     },
@@ -445,7 +445,7 @@
     "id" : 26407,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Punasotka",
+      "fi" : "Puna\u00ADsotka",
       "sv" : "Brunand",
       "en" : "Pochard"
     },
@@ -455,7 +455,7 @@
     "id" : 26415,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Tukkasotka",
+      "fi" : "Tukka\u00ADsotka",
       "sv" : "Vigg",
       "en" : "Tufted duck"
     },
@@ -495,7 +495,7 @@
     "id" : 26440,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Tukkakoskelo",
+      "fi" : "Tukka\u00ADkoskelo",
       "sv" : "Småskrake",
       "en" : "Red-breasted merganser"
     },
@@ -505,7 +505,7 @@
     "id" : 26442,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Isokoskelo",
+      "fi" : "Iso\u00ADkoskelo",
       "sv" : "Storskrake",
       "en" : "Goosander"
     },
@@ -585,7 +585,7 @@
     "id" : 27649,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Lehtokurppa",
+      "fi" : "Lehto\u00ADkurppa",
       "sv" : "Morkulla",
       "en" : "Woodcock"
     },
@@ -595,7 +595,7 @@
     "id" : 27911,
     "categoryId" : 1,
     "name" : {
-      "fi" : "Sepelkyyhky",
+      "fi" : "Sepel\u00ADkyyhky",
       "sv" : "Ringduva",
       "en" : "Wood pigeon"
     },
@@ -605,7 +605,7 @@
     "id" : 50114,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Villikani",
+      "fi" : "Villi\u00ADkani",
       "sv" : "Vildkanin",
       "en" : "Rabbit"
     },
@@ -615,7 +615,7 @@
     "id" : 46564,
     "categoryId" : 2,
     "name" : {
-      "fi" : "Supikoira",
+      "fi" : "Supi\u00ADkoira",
       "sv" : "Mårdhund",
       "en" : "Raccoon dog"
     },
@@ -662,10 +662,20 @@
     "multipleSpecimenAllowedOnHarvests" : true,
     "imageUrl" : null
   }, {
+    "id" : 37142,
+    "categoryId" : 3,
+    "name" : {
+      "fi" : "Naakka",
+      "sv" : "Kaja",
+      "en" : "Eurasian Jackdaw"
+    },
+    "multipleSpecimenAllowedOnHarvests" : true,
+    "imageUrl" : null
+  }, {
     "id" : 27750,
     "categoryId" : 3,
     "name" : {
-      "fi" : "Harmaalokki",
+      "fi" : "Harmaa\u00ADlokki",
       "sv" : "Gråtrut",
       "en" : "Herring gull"
     },
@@ -675,7 +685,7 @@
     "id" : 27759,
     "categoryId" : 3,
     "name" : {
-      "fi" : "Merilokki",
+      "fi" : "Meri\u00ADlokki",
       "sv" : "Havstrut",
       "en" : "Sea gull"
     },
@@ -685,7 +695,7 @@
     "id" : 200535,
     "categoryId" : 3,
     "name" : {
-      "fi" : "Kesykyyhky",
+      "fi" : "Kesy\u00ADkyyhky",
       "sv" : "Tamduva",
       "en" : "Feral pigeon"
     },
@@ -695,7 +705,7 @@
     "id" : 33117,
     "categoryId" : 3,
     "name" : {
-      "fi" : "Räkättirastas",
+      "fi" : "Räkätti\u00ADrastas",
       "sv" : "Björktrast",
       "en" : "Field fare"
     },

@@ -1,39 +1,48 @@
-//
-//  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
-//  to delete and recreate this implementation file for your updated model.
-//
-
 #import "ObservationEntry.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ObservationEntry (CoreDataProperties)
 
-@property (nullable, nonatomic, retain) NSNumber *canEdit;
-@property (nullable, nonatomic, retain) NSString *diarydescription;
-@property (nullable, nonatomic, retain) NSNumber *gameSpeciesCode;
-@property (nullable, nonatomic, retain) NSNumber *linkedToGroupHuntingDay;
-@property (nullable, nonatomic, retain) NSNumber *mobileClientRefId;
-@property (nullable, nonatomic, retain) NSNumber *month;
-@property (nullable, nonatomic, retain) NSNumber *mooselikeFemale1CalfAmount;
-@property (nullable, nonatomic, retain) NSNumber *mooselikeFemale2CalfsAmount;
-@property (nullable, nonatomic, retain) NSNumber *mooselikeFemale3CalfsAmount;
-@property (nullable, nonatomic, retain) NSNumber *mooselikeFemale4CalfsAmount;
-@property (nullable, nonatomic, retain) NSNumber *mooselikeFemaleAmount;
-@property (nullable, nonatomic, retain) NSNumber *mooselikeMaleAmount;
-@property (nullable, nonatomic, retain) NSNumber *mooselikeUnknownSpecimenAmount;
-@property (nullable, nonatomic, retain) NSNumber *observationSpecVersion;
-@property (nullable, nonatomic, retain) NSString *observationType;
-@property (nullable, nonatomic, retain) NSNumber *pendingOperation;
-@property (nullable, nonatomic, retain) NSDate *pointOfTime;
-@property (nullable, nonatomic, retain) NSNumber *remote;
-@property (nullable, nonatomic, retain) NSNumber *remoteId;
-@property (nullable, nonatomic, retain) NSNumber *rev;
-@property (nullable, nonatomic, retain) NSNumber *sent;
-@property (nullable, nonatomic, retain) NSNumber *totalSpecimenAmount;
-@property (nullable, nonatomic, retain) NSString *type;
-@property (nullable, nonatomic, retain) NSNumber *withinMooseHunting;
-@property (nullable, nonatomic, retain) NSNumber *year;
++ (NSFetchRequest<ObservationEntry *> *)fetchRequest;
+
+@property (nullable, nonatomic, copy) NSNumber *canEdit;
+@property (nullable, nonatomic, copy) NSString *diarydescription;
+@property (nullable, nonatomic, copy) NSNumber *gameSpeciesCode;
+@property (nullable, nonatomic, copy) NSNumber *inYardDistanceToResidence;
+@property (nullable, nonatomic, copy) NSNumber *linkedToGroupHuntingDay;
+@property (nullable, nonatomic, copy) NSNumber *litter;
+@property (nullable, nonatomic, copy) NSNumber *mobileClientRefId;
+@property (nullable, nonatomic, copy) NSNumber *month;
+@property (nullable, nonatomic, copy) NSNumber *mooselikeCalfAmount;
+@property (nullable, nonatomic, copy) NSNumber *mooselikeFemale1CalfAmount;
+@property (nullable, nonatomic, copy) NSNumber *mooselikeFemale2CalfsAmount;
+@property (nullable, nonatomic, copy) NSNumber *mooselikeFemale3CalfsAmount;
+@property (nullable, nonatomic, copy) NSNumber *mooselikeFemale4CalfsAmount;
+@property (nullable, nonatomic, copy) NSNumber *mooselikeFemaleAmount;
+@property (nullable, nonatomic, copy) NSNumber *mooselikeMaleAmount;
+@property (nullable, nonatomic, copy) NSNumber *mooselikeUnknownSpecimenAmount;
+@property (nullable, nonatomic, copy) NSString *observationCategory;
+@property (nullable, nonatomic, copy) NSNumber *observationSpecVersion;
+@property (nullable, nonatomic, copy) NSString *observationType;
+@property (nullable, nonatomic, copy) NSString *deerHuntingType; // used when observation was made within deer hunting
+@property (nullable, nonatomic, copy) NSString *deerHuntingTypeDescription;
+@property (nullable, nonatomic, copy) NSString *observerName;
+@property (nullable, nonatomic, copy) NSString *observerPhoneNumber;
+@property (nullable, nonatomic, copy) NSString *officialAdditionalInfo;
+@property (nullable, nonatomic, copy) NSNumber *pack;
+@property (nullable, nonatomic, copy) NSNumber *pendingOperation;
+@property (nullable, nonatomic, copy) NSDate *pointOfTime;
+@property (nullable, nonatomic, copy) NSNumber *remote;
+@property (nullable, nonatomic, copy) NSNumber *remoteId;
+@property (nullable, nonatomic, copy) NSNumber *rev;
+@property (nullable, nonatomic, copy) NSNumber *sent;
+@property (nullable, nonatomic, copy) NSNumber *totalSpecimenAmount;
+@property (nullable, nonatomic, copy) NSString *type;
+@property (nullable, nonatomic, copy) NSNumber *verifiedByCarnivoreAuthority;
+@property (nullable, nonatomic, copy) NSNumber *withinMooseHunting;
+@property (nullable, nonatomic, copy) NSNumber *year;
 @property (nullable, nonatomic, retain) GeoCoordinate *coordinates;
 @property (nullable, nonatomic, retain) NSOrderedSet<DiaryImage *> *diaryImages;
 @property (nullable, nonatomic, retain) NSOrderedSet<ObservationSpecimen *> *specimens;

@@ -3,6 +3,8 @@
 #import "RiistaLocalization.h"
 #import "KeyboardToolbarView.h"
 
+#import "Oma_riista-Swift.h"
+
 @implementation RiistaSpecimenView
 {
     BOOL isGenderRequired;
@@ -23,6 +25,12 @@
     _weightInput.keyboardType = UIKeyboardTypeDecimalPad;
     _weightInput.inputAccessoryView = [KeyboardToolbarView textFieldDoneToolbarView:_weightInput];
 
+    _weightInputController = [[MDCTextInputControllerUnderline alloc] initWithTextInput:_weightInput];
+    [_weightInputController applyThemeWithScheme:AppTheme.shared.textFieldContainerScheme];
+
+    [AppTheme.shared setupSegmentedControllerWithSegmentedController:_genderSelect];
+    [AppTheme.shared setupSegmentedControllerWithSegmentedController:_ageSelect];
+
     [_genderSelect addTarget:self action:@selector(genderValueChanged:) forControlEvents:UIControlEventValueChanged];
     [_ageSelect addTarget:self action:@selector(ageValueChanged:) forControlEvents:UIControlEventValueChanged];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -33,9 +41,23 @@
 
 - (void)updateLocalizedTexts
 {
+    [_genderSelect setImage:[UIImage textEmbededImageWithImage:[UIImage imageNamed:@"female"]
+                                                        string:RiistaLocalizedString(@"SpecimenGenderFemale", nil)
+                                                         color:UIColor.blackColor
+                                                imageAlignment:0
+                                                       segFont:[UIFont fontWithName:AppFont.Name size:AppFont.LabelMedium]]
+          forSegmentAtIndex:0];
+    [_genderSelect setImage:[UIImage textEmbededImageWithImage:[UIImage imageNamed:@"male"]
+                                                        string:RiistaLocalizedString(@"SpecimenGenderMale", nil)
+                                                         color:[UIColor applicationColor:Primary]
+                                                imageAlignment:0
+                                                       segFont:[UIFont fontWithName:AppFont.Name size:AppFont.LabelMedium]]
+          forSegmentAtIndex:1];
+
     [_ageSelect setTitle:RiistaLocalizedString(@"SpecimenAgeAdult", nil) forSegmentAtIndex:0];
     [_ageSelect setTitle:RiistaLocalizedString(@"SpecimenAgeYoung", nil) forSegmentAtIndex:1];
-    [_weightLabel setText:RiistaLocalizedString(@"SpecimenWeightTitle", nil)];
+
+    [_weightInputController setPlaceholderText:RiistaLocalizedString(@"SpecimenWeightTitle", nil)];
 }
 
 - (void)updateValueSelections
@@ -127,6 +149,10 @@
     _specimen.weight = [formatter numberFromString:[_weightInput text]];
 
     [self refreshRequiredValueIndicators];
+
+    if (_genderAndAgeListener) {
+        _genderAndAgeListener();
+    }
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
@@ -151,12 +177,13 @@
 
 - (void)hideWeightInput:(BOOL)hide
 {
-    [self.weightInput setHidden:hide];
-    [self.weightLabel setHidden:hide];
+    [self.hideWeightInputContainerConstraint setConstrainedViewHiddenWithHidden:hide];
+    [self.weightInputContainer setHidden:hide];
     // Only override visibility here when hiding all weight views
     if (hide) {
         [self.weightRequiredIndicator setHidden:hide];
     }
+    [self.weightInputContainer layoutIfNeeded];
 }
 
 @end

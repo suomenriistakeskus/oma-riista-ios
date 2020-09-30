@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-@class GeoCoordinate;
+@class GeoCoordinate, ObservationContextSensitiveFieldSets;
 
 @interface RiistaModelUtils : NSObject
 
@@ -13,5 +13,7 @@
 + (GeoCoordinate*)coordinatesFromDict:(NSDictionary*)dict context:(NSManagedObjectContext*)context;
 
 + (void)saveContexts:(NSManagedObjectContext*)context;
+
++ (BOOL) isFieldCarnivoreAuthorityVoluntaryForUser:(ObservationContextSensitiveFieldSets*)fieldSet fieldName:(NSString*)fieldName;
 
 @end

@@ -1,7 +1,9 @@
 #import "Occupation.h"
 #import "Organisation.h"
+#import "NSDateformatter+Locale.h"
+#import "RiistaUtils.h"
 
-
+NSString *const kOccupationsId = @"id";
 NSString *const kOccupationsOrganisation = @"organisation";
 NSString *const kOccupationsEndDate = @"endDate";
 NSString *const kOccupationsOccupationType = @"occupationType";
@@ -12,7 +14,6 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
 
 @interface Occupation ()
 
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
 - (NSDate *)dateOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
 
 @end
@@ -22,6 +23,7 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
     NSDateFormatter *dateFormatter;
 }
 
+@synthesize occupationId = _occupationId;
 @synthesize organisation = _organisation;
 @synthesize endDate = _endDate;
 @synthesize occupationType = _occupationType;
@@ -38,16 +40,17 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
 {
     self = [super init];
 
-    dateFormatter = [NSDateFormatter new];
+    dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
     [dateFormatter setDateFormat:DATE_FORMAT_NO_TIME];
 
     // This check serves to make sure that a non-NSDictionary object
     // passed into the model class doesn't break the parsing.
     if(self && [dict isKindOfClass:[NSDictionary class]]) {
+        self.occupationId = [RiistaUtils objectOrNilForKey:kOccupationsId fromDictionary:dict];
         self.organisation = [Organisation modelObjectWithDictionary:[dict objectForKey:kOccupationsOrganisation]];
         self.endDate = [self dateOrNilForKey:kOccupationsEndDate fromDictionary:dict];
-        self.occupationType = [self objectOrNilForKey:kOccupationsOccupationType fromDictionary:dict];
-        self.name = [self objectOrNilForKey:kOccupationsName fromDictionary:dict];
+        self.occupationType = [RiistaUtils objectOrNilForKey:kOccupationsOccupationType fromDictionary:dict];
+        self.name = [RiistaUtils objectOrNilForKey:kOccupationsName fromDictionary:dict];
         self.beginDate = [self dateOrNilForKey:kOccupationsBeginDate fromDictionary:dict];
 
     }
@@ -58,6 +61,7 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
 - (NSDictionary *)dictionaryRepresentation
 {
     NSMutableDictionary *mutableDict = [NSMutableDictionary dictionary];
+    [mutableDict setValue:self.occupationId forKey:kOccupationsId];
     [mutableDict setValue:[self.organisation dictionaryRepresentation] forKey:kOccupationsOrganisation];
     [mutableDict setValue:self.endDate forKey:kOccupationsEndDate];
     [mutableDict setValue:self.occupationType forKey:kOccupationsOccupationType];
@@ -73,15 +77,10 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
 }
 
 #pragma mark - Helper Method
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
-{
-    id object = [dict objectForKey:aKey];
-    return [object isEqual:[NSNull null]] ? nil : object;
-}
 
 - (NSDate *)dateOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
 {
-    id object = [self objectOrNilForKey:aKey fromDictionary:dict];
+    id object = [RiistaUtils objectOrNilForKey:aKey fromDictionary:dict];
     return [dateFormatter dateFromString:object];
 }
 
@@ -91,6 +90,7 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
 {
     self = [super init];
 
+    self.occupationId = [aDecoder decodeObjectForKey:kOccupationsId];
     self.organisation = [aDecoder decodeObjectForKey:kOccupationsOrganisation];
     self.endDate = [aDecoder decodeObjectForKey:kOccupationsEndDate];
     self.occupationType = [aDecoder decodeObjectForKey:kOccupationsOccupationType];
@@ -101,7 +101,7 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
-
+    [aCoder encodeObject:_occupationId forKey:kOccupationsId];
     [aCoder encodeObject:_organisation forKey:kOccupationsOrganisation];
     [aCoder encodeObject:_endDate forKey:kOccupationsEndDate];
     [aCoder encodeObject:_occupationType forKey:kOccupationsOccupationType];
@@ -114,7 +114,7 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
     Occupation *copy = [[Occupation alloc] init];
 
     if (copy) {
-
+        copy.occupationId = [self.occupationId copyWithZone:zone];
         copy.organisation = [self.organisation copyWithZone:zone];
         copy.endDate = [self.endDate copyWithZone:zone];
         copy.occupationType = [self.occupationType copyWithZone:zone];
@@ -125,5 +125,10 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
     return copy;
 }
 
+
+- (BOOL)isOccupationOfType:(NSString*)occupationType forRhyId:(int)rhyId
+{
+    return [occupationType isEqualToString:self.occupationType] && rhyId == self.organisation.organisationIdentifier.intValue;
+}
 
 @end

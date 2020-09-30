@@ -7,6 +7,9 @@
 #import "DiaryEntry.h"
 #import "RiistaKeyboardHandler.h"
 #import "KeyboardToolbarView.h"
+#import "MaterialTextFields.h"
+
+#import "Oma_riista-Swift.h"
 
 @protocol SpecimenCellDelegate
 
@@ -23,15 +26,14 @@ static BOOL sWeigthRequired = false;
 @property (weak, nonatomic) IBOutlet UILabel *itemTitle;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *genderSelect;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *ageSelect;
-@property (weak, nonatomic) IBOutlet UILabel *weightLabel;
-@property (weak, nonatomic) IBOutlet UITextField *weightInput;
-@property (weak, nonatomic) IBOutlet UIButton *removeButton;
+@property (weak, nonatomic) IBOutlet MDCTextField *weightInput;
+@property (weak, nonatomic) IBOutlet MDCButton *removeButton;
 
 @property (weak, nonatomic) IBOutlet UILabel *genderRequiredIndicator;
 @property (weak, nonatomic) IBOutlet UILabel *ageRequiredIndicator;
 @property (weak, nonatomic) IBOutlet UILabel *weightRequiredIndicator;
 
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *buttonWidthConstraint;
+@property (strong, nonatomic) MDCTextInputControllerUnderline *weightInputController;
 
 @property (weak, nonatomic) id<SpecimenCellDelegate> delegate;
 @property (strong, nonatomic) RiistaSpecimen *specimen;
@@ -58,6 +60,8 @@ static BOOL sWeigthRequired = false;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    self.tableView.tableFooterView = [UIView new];
 
     self.keyboardHandler = [[RiistaKeyboardHandler alloc] initWithView:self.view andBottomSpaceConstraint:self.bottomPaneBottomSpace];
     self.keyboardHandler.delegate = self;
@@ -127,6 +131,10 @@ static BOOL sWeigthRequired = false;
 {
     cell.delegate = self;
 
+    [AppTheme.shared setupSegmentedControllerWithSegmentedController:cell.genderSelect];
+    [AppTheme.shared setupSegmentedControllerWithSegmentedController:cell.ageSelect];
+    [AppTheme.shared setupValueFontWithTextField:cell.weightInput];
+
     [cell updateLocalizedTexts];
     [cell setSpecimen:specimen];
     [cell updateValueSelections];
@@ -135,7 +143,8 @@ static BOOL sWeigthRequired = false;
     [cell updateItemTitle:titleText];
 
     // Hide remove button when not editing
-    cell.buttonWidthConstraint.constant = _editMode ? 40.f : 0.f;
+    [cell.removeButton setHidden:!_editMode];
+
     [cell.genderSelect setUserInteractionEnabled:_editMode ? YES : NO];
     [cell.ageSelect setUserInteractionEnabled:_editMode ? YES : NO];
     [cell.weightInput setUserInteractionEnabled:_editMode ? YES : NO];
@@ -206,12 +215,17 @@ static BOOL sWeigthRequired = false;
     _weightInput.keyboardType = UIKeyboardTypeDecimalPad;
     _weightInput.inputAccessoryView = [KeyboardToolbarView textFieldDoneToolbarView:_weightInput];
 
+    _weightInputController = [[MDCTextInputControllerUnderline alloc] initWithTextInput:_weightInput];
+    [_weightInputController applyThemeWithScheme:AppTheme.shared.textFieldContainerScheme];
+
     [_genderSelect addTarget:self action:@selector(genderValueChanged:) forControlEvents:UIControlEventValueChanged];
     [_ageSelect addTarget:self action:@selector(ageValueChanged:) forControlEvents:UIControlEventValueChanged];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(weightValueChanged:)
                                                  name:UITextFieldTextDidChangeNotification
                                                object:_weightInput];
+
+    [AppTheme.shared setupImageButtonThemeWithButton:_removeButton];
     [_removeButton addTarget:self action:@selector(removeSpecimenItem:) forControlEvents:UIControlEventTouchUpInside];
 }
 
@@ -219,7 +233,7 @@ static BOOL sWeigthRequired = false;
 {
     [_ageSelect setTitle:RiistaLocalizedString(@"SpecimenAgeAdult", nil) forSegmentAtIndex:0];
     [_ageSelect setTitle:RiistaLocalizedString(@"SpecimenAgeYoung", nil) forSegmentAtIndex:1];
-    [_weightLabel setText:RiistaLocalizedString(@"SpecimenWeightTitle", nil)];
+    _weightInput.placeholder = RiistaLocalizedString(@"SpecimenWeightTitle", nil);
 }
 
 - (void)updateItemTitle:(NSString*)titleText

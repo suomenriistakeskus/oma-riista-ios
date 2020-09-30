@@ -11,12 +11,16 @@
 #import "RiistaMetadataManager.h"
 #import "SrvaEntry.h"
 #import "AnnouncementsSync.h"
+#import "NSDateformatter+Locale.h"
 
-NSString *const RiistaHostname = @"oma.riista.fi";
+#import "Oma_riista-Swift.h"
+
+@import Firebase;
 
 #define BASE_API_PATH @"api/mobile/v2/"
 
 NSString *const RiistaLoginPath = @"login";
+NSString *const RiistaRegisterPushTokenPath = BASE_API_PATH @"push/register";
 NSString *const RiistaAccountPath = BASE_API_PATH @"gamediary/account";
 NSString *const RiistaYearUpdateCheckPath = @"api/mobile/v1/gamediary/entries/haschanges/%ld/%@";
 
@@ -46,7 +50,17 @@ NSString *const RiistaDiaryImageDeletePath = BASE_API_PATH @"gamediary/image/%@"
 NSString *const RiistaPermitPreloadPath = BASE_API_PATH @"gamediary/preloadPermits";
 NSString *const RiistaPermitCheckNumberPath = BASE_API_PATH @"gamediary/checkPermitNumber";
 
+NSString *const RiistaListMhPermitsPath = BASE_API_PATH @"permit/mh";
 NSString *const RiistaListAnnouncementsPath = BASE_API_PATH @"announcement/list";
+
+NSString *const RiistaClubAreaMapsPath = BASE_API_PATH @"area/club";
+NSString *const RiistaClubAreaMapPath = BASE_API_PATH @"area/code/%@";
+
+NSString *const RiistaMooseAreaMapsPath = BASE_API_PATH @"area/mh/hirvi";
+NSString *const RiistaPienriistaAreaMapsPath = BASE_API_PATH @"area/mh/pienriista";
+
+NSString *const RiistaShootingTestCalendarEventsPath = BASE_API_PATH @"shootingtest/calendarevents";
+NSString *const RiistaShootingTestCalendarEventPath = BASE_API_PATH @"shootingtest/calendarevent/%ld";
 
 BOOL const UseSSL = YES;
 
@@ -74,11 +88,12 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 {
     self = [super init];
     if (self) {
-        _networkEngine = [[MKNetworkEngine alloc] initWithHostName:RiistaHostname customHeaderFields:@{RiistaPlatformKey: RiistaPlatformValue, RiistaDeviceKey: [[UIDevice currentDevice] systemVersion], RiistaClientVersionKey: [RiistaUtils appVersion]}];
-        _imageNetworkEngine = [[MKNetworkEngine alloc] initWithHostName:RiistaHostname customHeaderFields:@{RiistaPlatformKey: RiistaPlatformValue, RiistaDeviceKey: [[UIDevice currentDevice] systemVersion], RiistaClientVersionKey: [RiistaUtils appVersion]}];
+        _networkEngine = [[MKNetworkEngine alloc] initWithHostName:Environment.apiHostName customHeaderFields:@{RiistaPlatformKey: RiistaPlatformValue, RiistaDeviceKey: [[UIDevice currentDevice] systemVersion], RiistaClientVersionKey: [RiistaUtils appVersion]}];
+        _imageNetworkEngine = [[MKNetworkEngine alloc] initWithHostName:Environment.apiHostName customHeaderFields:@{RiistaPlatformKey: RiistaPlatformValue, RiistaDeviceKey: [[UIDevice currentDevice] systemVersion], RiistaClientVersionKey: [RiistaUtils appVersion]}];
         [_imageNetworkEngine useCache];
         [_networkEngine registerOperationSubclass:[RiistaNetworkOperation class]];
-        dateFormatter = [NSDateFormatter new];
+        dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
+        [dateFormatter setDateFormat:ISO_8601];
     }
     return self;
 }
@@ -91,6 +106,11 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
         pInst = [RiistaNetworkManager new];
     });
     return pInst;
+}
+
++ (NSString*)getBaseApiPath
+{
+    return [NSString stringWithFormat:@"%@/%@", Environment.apiHostName, BASE_API_PATH];
 }
 
 - (void)login:(NSString*)username password:(NSString*)password completion:(RiistaLoginCompletionBlock)completion
@@ -108,6 +128,7 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
         [self saveUserInfo:[completedOperation responseJSON]];
         [[RiistaPermitManager sharedInstance] preloadPermits:nil];
         [[RiistaMetadataManager sharedInstance] fetchAll];
+        [self registerUserNotificationToken];
 
         if (completion)
             completion(nil);
@@ -135,9 +156,56 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
     }];
 }
 
+- (void)registerUserNotificationToken
+{
+    [[FIRInstanceID instanceID] instanceIDWithHandler:^(FIRInstanceIDResult * _Nullable result,
+                                                        NSError * _Nullable error) {
+      if (error != nil) {
+          NSLog(@"Error fetching remote instance ID: %@", error);
+      } else {
+          NSString *fcmToken = result.token;
+          NSLog(@"Remote instance ID token: %@", fcmToken);
+
+          if (fcmToken) {
+              NSDictionary *args = @{
+                                     @"platform": @"IOS",
+                                     @"pushToken": fcmToken,
+                                     @"deviceName": [[UIDevice currentDevice] systemName],
+                                     @"clientVersion": [RiistaUtils appVersion]
+                                     };
+              MKNetworkOperation *registerOperation = [self.networkEngine operationWithPath:RiistaRegisterPushTokenPath params:args httpMethod:@"POST" ssl:UseSSL];
+              registerOperation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
+
+              [registerOperation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+                  NSLog(@"Push token registration OK");
+              } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+                  NSLog(@"Push token registration error: %@", error);
+              }];
+              [self.networkEngine enqueueOperation:registerOperation];
+          }
+      }
+    }];
+}
+
 - (void)listAnnouncements:(RiistaAnnouncementsListCompletion)completion
 {
     MKNetworkOperation *operation = [self.networkEngine operationWithPath:RiistaListAnnouncementsPath params:@{} httpMethod:@"GET" ssl:UseSSL];
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSArray *items = [completedOperation responseJSON];
+            completion(items, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)listMhPermits:(RiistaJsonArrayCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:RiistaListMhPermitsPath params:@{} httpMethod:@"GET" ssl:UseSSL];
     [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
         if (completion) {
             NSArray *items = [completedOperation responseJSON];
@@ -228,11 +296,13 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
         completion(YES, nil);
         return;
     }
-    
-    [dateFormatter setDateFormat:ISO_8601];
+
     NSString *dateString = [dateFormatter stringFromDate:fetchDate];
 
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaYearUpdateCheckPath, (long)year, dateString] params:@{} httpMethod:@"GET" ssl:UseSSL];
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaYearUpdateCheckPath, (long)year, dateString]
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:UseSSL];
     [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
         if (completion) {
             NSError *err = nil;
@@ -249,7 +319,10 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
 - (void)diaryEntriesForYear:(NSInteger)year context:(NSManagedObjectContext*)context completion:(RiistaDiaryEntryFetchCompletion)completion
 {
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryEntriesPath, (long)year, HarvestSpecVersion] params:@{} httpMethod:@"GET" ssl:UseSSL];
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryEntriesPath, (long)year, (long)HarvestSpecVersion]
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:UseSSL];
     [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
         NSArray *entries = [completedOperation responseJSON];
         if (completion) {
@@ -321,7 +394,10 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 - (void)loadDiaryEntryImage:(NSString*)uuid completion:(RiistaDiaryEntryImageDownloadCompletion)completion
 {
     NSString *lowercaseUuid = [uuid lowercaseString];
-    MKNetworkOperation *operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryImageLoadPath, lowercaseUuid] params:@{} httpMethod:@"GET" ssl:UseSSL];
+    MKNetworkOperation *operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryImageLoadPath, lowercaseUuid]
+                                                                        params:@{}
+                                                                    httpMethod:@"GET"
+                                                                           ssl:UseSSL];
     [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
         if (completion) {
             completion(completedOperation.responseImage, nil);
@@ -338,11 +414,16 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 {
     MKNetworkOperation *operation;
     if ([image.status integerValue] == DiaryImageStatusInsertion) {
-        operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryImageUploadPath] params:@{@"harvestId": diaryEntry.remoteId,
-                                                                                                                               @"uuid": image.imageid} httpMethod:@"POST" ssl:UseSSL];
+        operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryImageUploadPath]
+                                                        params:@{@"harvestId": diaryEntry.remoteId, @"uuid": image.imageid}
+                                                    httpMethod:@"POST"
+                                                           ssl:UseSSL];
     } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
         NSString *lowercaseUuid = [image.imageid lowercaseString];
-        operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryImageDeletePath, lowercaseUuid] params:@{} httpMethod:@"DELETE" ssl:UseSSL];
+        operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryImageDeletePath, lowercaseUuid]
+                                                        params:@{}
+                                                    httpMethod:@"DELETE"
+                                                           ssl:UseSSL];
     }
     [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
         if (completion) {
@@ -376,7 +457,10 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
 - (void)preloadObservationMeta:(RiistaDiaryObservationMetaCompletion)completion
 {
-    MKNetworkOperation *preloadMetaOperation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaObservationMetaPath, ObservationSpecVersion] params:@{} httpMethod:@"GET" ssl:UseSSL];
+    MKNetworkOperation *preloadMetaOperation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaObservationMetaPath, (long)ObservationSpecVersion]
+                                                                              params:@{}
+                                                                          httpMethod:@"GET"
+                                                                                 ssl:UseSSL];
     [preloadMetaOperation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
         if (completion) {
             completion([completedOperation responseData], nil);
@@ -391,7 +475,10 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
 - (void)diaryObservationsForYear:(NSInteger)year completion:(RiistaDiaryObservationFetchCompletion)completion
 {
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryObservationsPath, (long)year, ObservationSpecVersion] params:@{} httpMethod:@"GET" ssl:UseSSL];
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryObservationsPath, (long)year, (long)ObservationSpecVersion]
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:UseSSL];
     [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
         NSArray *entries = [completedOperation responseJSON];
         if (completion) {
@@ -469,7 +556,10 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
                                                     httpMethod:@"POST" ssl:UseSSL];
     } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
         NSString *lowercaseUuid = [image.imageid lowercaseString];
-        operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryImageDeletePath, lowercaseUuid] params:@{} httpMethod:@"DELETE" ssl:UseSSL];
+        operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryImageDeletePath, lowercaseUuid]
+                                                        params:@{}
+                                                    httpMethod:@"DELETE"
+                                                           ssl:UseSSL];
     }
     [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
         if (completion) {
@@ -501,8 +591,11 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
 - (void)srvaEntries:(RiistaDiarySrvaFetchCompletion)completion
 {
-    NSString *path = [NSString stringWithFormat:RiistaSrvaEventsPath, SrvaSpecVersion];
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:path params:@{} httpMethod:@"GET" ssl:UseSSL];
+    NSString *path = [NSString stringWithFormat:RiistaSrvaEventsPath, (long)SrvaSpecVersion];
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:path
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:UseSSL];
 
     [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
         if (completion) {
@@ -519,7 +612,10 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
 - (void)preloadSrvaMeta:(RiistaDiarySrvaMetaCompletion)completion
 {
-    MKNetworkOperation *preloadMetaOperation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaSrvaMetaPath, SrvaSpecVersion] params:@{} httpMethod:@"GET" ssl:UseSSL];
+    MKNetworkOperation *preloadMetaOperation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaSrvaMetaPath, (long)SrvaSpecVersion]
+                                                                              params:@{}
+                                                                          httpMethod:@"GET"
+                                                                                 ssl:UseSSL];
     [preloadMetaOperation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
         if (completion) {
             completion([completedOperation responseData], nil);
@@ -624,6 +720,500 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
     } else {
         completion(nil);
     }
+}
+
+- (void)clubAreaMaps:(RiistaJsonArrayCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:RiistaClubAreaMapsPath params:@{} httpMethod:@"GET" ssl:UseSSL];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSArray *entries = [completedOperation responseJSON];
+            completion(entries, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)clubAreaMap:(NSString*) externalId completion:(RiistaJsonCompletion)completion
+{
+    NSString *path = [NSString stringWithFormat:RiistaClubAreaMapPath, externalId];
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:path params:@{} httpMethod:@"GET" ssl:UseSSL];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSDictionary *entry = [completedOperation responseJSON];
+            completion(entry, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)listMooseAreaMaps:(RiistaJsonArrayCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:RiistaMooseAreaMapsPath params:@{} httpMethod:@"GET" ssl:UseSSL];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSArray *entries = [completedOperation responseJSON];
+            completion(entries, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)listPienriistaAreaMaps:(RiistaJsonArrayCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:RiistaPienriistaAreaMapsPath params:@{} httpMethod:@"GET" ssl:UseSSL];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSArray *entries = [completedOperation responseJSON];
+            completion(entries, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)listShootingTestCalendarEvents:(RiistaJsonArrayCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:RiistaShootingTestCalendarEventsPath
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:UseSSL];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSArray *events = [completedOperation responseJSON];
+            completion(events, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)getShootingTestCalendarEvent:(long)eventId completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaShootingTestCalendarEventPath, eventId]
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:YES];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSDictionary *event = [completedOperation responseJSON];
+            completion(event, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)startEvent:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:body
+                                                               httpMethod:@"POST"
+                                                                      ssl:YES];
+    operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            completion(nil, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)closeEvent:(NSString*)url completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"POST"
+                                                                      ssl:YES];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            completion(nil, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)reopenEvent:(NSString*)url completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"POST"
+                                                                      ssl:YES];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            completion(nil, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)updateOfficials:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:body
+                                                               httpMethod:@"PUT"
+                                                                      ssl:YES];
+    operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            completion(nil, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)listAvailableOfficialsForEvent:(NSString*)url completion:(RiistaJsonArrayCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:YES];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSArray *response = [completedOperation responseJSON];
+            completion(response, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)listAvailableOfficialsForRhy:(NSString*)url completion:(RiistaJsonArrayCompletion)completion;
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:YES];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSArray *response = [completedOperation responseJSON];
+            completion(response, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)listSelectedOfficialsForEvent:(NSString*)url completion:(RiistaJsonArrayCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:YES];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSArray *response = [completedOperation responseJSON];
+            completion(response, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)searchWithHuntingNumberForEvent:(NSString*)url hunterNumber:(NSString*)hunterNumber completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"POST"
+                                                                      ssl:YES];
+    [operation setCustomPostDataEncodingHandler:^NSString *(NSDictionary *postDataDict) {
+        return [NSString stringWithFormat:@"hunterNumber=%@", hunterNumber];
+    } forType:@"application/x-www-form-urlencoded"];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSDictionary *response = [completedOperation responseJSON];
+            completion(response, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)searchWithSsnForEvent:(NSString*)url ssn:(NSString*)ssn completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"POST"
+                                                                      ssl:YES];
+    [operation setCustomPostDataEncodingHandler:^NSString *(NSDictionary *postDataDict) {
+        return [NSString stringWithFormat:@"ssn=%@", ssn];
+    } forType:@"application/x-www-form-urlencoded"];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSDictionary *response = [completedOperation responseJSON];
+            completion(response, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)addParticipant:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:body
+                                                               httpMethod:@"POST"
+                                                                      ssl:YES];
+    operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            completion(nil, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)getParticipantDetailed:(NSString*)url completion:(RiistaJsonCompletion)completion{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:YES];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSDictionary *response = [completedOperation responseJSON];
+            completion(response, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)getAttempt:(NSString*)url completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:YES];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSDictionary *response = [completedOperation responseJSON];
+            completion(response, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)addAttempt:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:body
+                                                               httpMethod:@"PUT"
+                                                                      ssl:YES];
+    operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            completion(nil, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)updateAttempt:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:body
+                                                               httpMethod:@"POST"
+                                                                      ssl:YES];
+    operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            completion(nil, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)deleteAttempt:(NSString*)url completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"DELETE"
+                                                                      ssl:YES];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            completion(nil, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)listParticipants:(NSString*)url unfinishedOnly:(BOOL)unfinishedOnly completion:(RiistaJsonArrayCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:YES];
+    [operation setCustomPostDataEncodingHandler:^NSString *(NSDictionary *postDataDict) {
+        return [NSString stringWithFormat:@"unfinishedOnly=%s", unfinishedOnly ? "true" : "false"];
+    } forType:@"application/x-www-form-urlencoded"];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSArray *response = [completedOperation responseJSON];
+            completion(response, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)getParticipantSummary:(NSString*)url completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:@{}
+                                                               httpMethod:@"GET"
+                                                                      ssl:YES];
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            NSDictionary *response = [completedOperation responseJSON];
+            completion(response, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)completeAllPayments:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:body
+                                                               httpMethod:@"PUT"
+                                                                      ssl:YES];
+    operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            completion(nil, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
+}
+
+- (void)updatePaymentState:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion
+{
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:url
+                                                                   params:body
+                                                               httpMethod:@"POST"
+                                                                      ssl:YES];
+    operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
+
+    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
+        if (completion) {
+            completion(nil, nil);
+        }
+    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        if (completion) {
+            completion(nil, error);
+        }
+    }];
+    [self.networkEngine enqueueOperation:operation];
 }
 
 @end

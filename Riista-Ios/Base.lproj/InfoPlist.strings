@@ -5,8 +5,10 @@
 	<key>NSCameraUsageDescription</key>
 	<string>You can attach pictures to your entries.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Display your location while browsing maps or editing entries.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
+	<string>You can attach pictures to your entries.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>You can attach pictures to your entries.</string>
 </dict>
 </plist>

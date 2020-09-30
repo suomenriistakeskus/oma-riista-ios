@@ -1,9 +1,11 @@
 "Frontpage" = "Home";
 "Gamelog" = "Journal";
+"Map" = "Map";
 "MyDetails" = "My Details";
 "Announcements" = "Messages";
 "ContactDetails" = "Contacts";
 "Settings" = "Settings";
+"Gallery" = "Gallery";
 "Logout" = "Logout";
 
 "MenuFrontPage" = "Home";
@@ -11,11 +13,15 @@
 "MenuMyDetails" = "My details";
 "MenuAnnouncements" = "Messages";
 "MenuSettings" = "Settings";
+"MenuShootingTests" = "Shooting tests";
 "MenuContactDetails" = "Contacts";
+"MenuEventSearch" = "Event search";
+"MenuReadMagazine" = "Read latest Metsästäjä magazine";
+"MenuOpenSeasons" = "Open seasons";
 "MenuMore" = "More";
 
 "LoginText" = "Login with username and password created in oma.riista.fi";
-"Username" = "Username";
+"Username" = "Email";
 "Password" = "Password";
 "Login" = "Login";
 "loginFailed" = "Login failed";
@@ -23,12 +29,17 @@
 "loginIncorrectCredentials" = "Wrong username or password. Please try again.";
 "loginOutdatedVersion" = "Update the application to newer version to continue to use it.";
 "OK" = "OK";
+"Yes" = "Yes";
+"No" = "No";
 
 "SeasonFormat" = "Hunting season %i - %i";
 "TotalCatchFormat" = "%d animal(s)";
 "TotalObservationsFormat" = "%d observation(s)";
 "TotalSrvasFormat" = "%d event(s)";
-"LogGameFormat" = "Add a harvest\n%@";
+"LogGameFormat" = "%@";
+
+"HomeHuntingLicense" = "Hunting license";
+"HomeShootingTests" = "Shooting tests";
 
 "MyDetailsTitlePerson" = "Personal information";
 "MyDetailsName" = "Name";
@@ -37,20 +48,67 @@
 "MyDetailsAddress" = "Address";
 "MyDetailsTitleRegistry" = "Hunter registry";
 "MyDetailsHunterId" = "Hunter number";
+"MyDetailsTitleShootingTests" = "Shooting tests";
+"MyDetailsNoShootingTestAttempts" = "No valid shooting tests";
 "MyDetailsTitleHuntingLicense" = "Hunting license";
-"MyDetailsInsurancePolicyText" = "The valid Hunting card includes the Hunter`s Insurance, which is valid in all Nordic Countries and in EU-Countries";
+"MyDetailsInsurancePolicyText" = "The valid Hunting card includes the Hunter`s Insurance, which is valid in all Nordic Countries, in Switzerland and in EU-Countries";
 "MyDetailsPayment" = "Game management fee";
 "MyDetailsExamDate" = "Exam date";
-"MyDetailsMembership" = "RHY membership";
+"MyDetailsMembership" = "GMA membership";
 "MyDetailsFeePaidFormat" = "Paid\n%@ - %@";
 "MyDetailsFeeNotPaid" = "Not paid";
 "MyDetailsNoValidLicense" = "No valid hunting license";
 "MyDetailsHuntingBan" = "Hunting ban";
 "MyDetailsAssignmentsTitle" = "Assignments";
+"MyDetailsMhPermitsTitle" = "Metsähallitus permits";
+"MyDetailsMhPermitTitle" = "Permit";
+"MyDetailsMhCardTitle" = "Metsähallitus";
+"MyDetailsMhPermitArea" = "Area";
+"MyDetailsMhPermitName" = "Permit type";
+"MyDetailsMhPermitPeriod" = "Time";
+"MyDetailsMhPermitHarvestFeedback" = "Submit harvest feedback";
+"MyDetailsMhFeedbackAlertTitle" = "Note";
+"MyDetailsMhFeedbackAlertMessage" = "You are navigating from Oma riista to Metsähallitus hunting feedback service.\n\nIf you encounter any issues submitting feedback or want additional information, contact Metsähallitus Wilderness permits service, p. 020 69 2424 (weekdays 9-16) or email eraluvat@metsa.fi.";
+"Duration" = "Duration";
 "DurationIndefinite" = "Indefinitely";
 
-"Loggame" = "Add a harvest";
-"Game" = "Harvest";
+"MapNoArea" = "No area";
+"MapAddArea" = "Add an area";
+"MapAddAreaError" = "Failed to add area";
+"MapHideArea" = "Hide";
+"MapRemoveArea" = "Delete";
+"MapRemoveAreaTitle" = "Delete area";
+"MapRemoveAreaConfirm" = "Are you sure you want to delete the area from showing?";
+"MapAreaCode" = "Area code";
+"MapAreaFilterHint" = "Area code / name";
+"MapSettingShowLocation" = "Show my location";
+"MapSettingInvertColors" = "Invert the colours of club area maps";
+"MapSettingHideButtons" = "Hide map buttons";
+"MapClubAreasTitle" = "Area borders";
+"MapSettingStateLands" = "State-owned lands";
+"MapSettingRhyBorders" = "GMA-borders";
+"MapSettingGameTriangles" = "Game triangles";
+"MapSettingAddAreaClub" = "Oma riista area";
+"MapSettingAddAreaMoose" = "Metsähallitus moose";
+"MapSettingAddAreaPienriista" = "Metsähallitus small game";
+"MapSettingAddWithAreaCode" = "Area id";
+"MapSettingSelectArea" = "Select area";
+"MapSettingGeneralTitle" = "General";
+"MapSettingSelectedAreas" = "Selected areas";
+"MadDisplayPins" = "Show log events";
+
+"FilterSelectCategory" = "Select category";
+"FilterSelectCategoryTwoLine" = "Select\ncategory";
+"FilterSelectSpecies" = "Select species";
+"FilterSelectedSpeciesCount" = " species";
+"FilterClearSelections" = "Clear selections";
+"FilterSelectAll" = "Select all";
+"FilterConfirmNoSelected" = "Select all";
+"FilterConfirmWithAmount" = "Select %d species";
+"FilterClearSpeciesFilter" = "Clear selections";
+
+"Loggame" = "New harvest";
+"Harvest" = "Harvest";
 "Dismiss" = "Discard";
 "Cancel" = "Undo";
 "CancelRemove" = "Cancel";
@@ -58,7 +116,7 @@
 "Species" = "Species";
 "Amount" = "Amount";
 "DateTime" = "Date";
-"ImagesAndDescription" = "Images and description";
+"AddDescription" = "Add description";
 "CoordinatesFormat" = "N %d, E %d (ETRS-TM35FIN)";
 "ChooseSpecies" = "Select species";
 "GPSGood" = "Good GPS signal";
@@ -107,25 +165,42 @@
 "PermitListAmountShort" = "pcs";
 "PermitListSectionHeader" = "Permit details";
 "PermitListNotAvailable" = "Permit not available";
+"PermitNumberRequired" = "Permit number required";
 
 "Observation" = "Observation";
-"LogObservation" = "Add an observation";
-"LogObservationFormat" = "Add an observation\n%@";
+"LogObservation" = "New observation";
+"LogObservationFormat" = "%@";
 "LogObservationsTotalFormat" = "%@ observations";
 
 "ObservationDetailsMarked" = "Tag";
 "ObservationDetailsState" = "Condition";
 "ObservationDetailsType" = "Observation type";
 "ObservationDetailsWithinMooseHunting" = "During moose hunt";
-"ObservationDetailsMooseFemale" = "F+0";
-"ObservationDetailsMooseFemale1Calf" = "F+1";
-"ObservationDetailsMooseFemale2Calf" = "F+2";
-"ObservationDetailsMooseFemale3Calf" = "F+3";
-"ObservationDetailsMooseFemale4Calf" = "F+4";
-"ObservationDetailsMooseMale" = "M";
-"ObservationDetailsMooseUnknown" = "U";
+"ObservationDetailsWithinDeerHunting" = "During deer hunt";
+"ObservationDetailsMooseFemale" = "Females without juveniles";
+"ObservationDetailsMooseFemale1Calf" = "Female + 1 juvenile";
+"ObservationDetailsMooseFemale2Calf" = "Females + 2 juveniles";
+"ObservationDetailsMooseFemale3Calf" = "Females + 3 juveniles";
+"ObservationDetailsMooseFemale4Calf" = "Females + 4 juveniles";
+"ObservationDetailsMooseMale" = "Adult males";
+"ObservationDetailsMooseCalf" = "Lonely calf";
+"ObservationDetailsMooseUnknown" = "Unknown";
 
-"LogSrva" = "Add SRVA-event";
+"DeerHuntingType" = "Hunting type";
+"DeerHuntingTypeDescription" = "Hunting type description";
+
+"TassuPawLength" = "Length of forepaw";
+"TassuPawWidth" = "Width of forepaw";
+"TassuObserverName" = "Observer's name";
+"TassuObserverPhoneNumber" = "Observer's phone number";
+"TassuOfficialAdditionalInfo" = "Additional information for research";
+"TassuVerifiedByCarnivoreAuthority" = "Confirmed by a large carnivore contact person";
+"TassuDistanceToResidence" = "Distance to residence (calculated automatically)";
+"TassuLitter" = "Litter (automatically derived)";
+"TassuPack" = "Pack (automatically derived)";
+
+"Srva" = "Srva";
+"LogSrva" = "SRVA-event";
 
 "SrvaOtherSpeciesShort" = "Other";
 "SrvaOtherSpeciesDescription" = "Other species";
@@ -141,36 +216,57 @@
 
 "SrvaApprover" = "Approver";
 "SrvaRejecter" = "Rejecter";
+"SrvaApproved" = "Approved";
+"SrvaRejected" = "Rejected";
+
+"OnboardingSkip" = "Skip";
+"OnboardingNext" = "Next";
+"OnboardingDone" = "Done";
+"OnboardingIntroduction" = "Welcome to the updated Oma riista app! Renewed app is now even more versatile tool for hunting and outdoor use.";
+"OnboardingNewFeaturesTitle" = "New features";
+"OnboardingNewFeatureMaps" = "Event filtering and showing on map";
+"OnboardingMapTitle" = "Events on map";
+"OnboardingGalleryTitle" = "Game log gallery";
+"OnboardingShootingTestTitle" = "Shooting test attempts";
+"OnboaringMetsahallitusTitle" = "Metsähallitus permits";
 
 "CustomerService" = "Oma riista help desk";
 "SupportAndFeedback" = "Support and feedback";
 "CustomerServiceTimesTemplate" = "Service hours: Mon to Fri, %@-%@";
 "Email" = "Email";
 "EmailTitle" = "Feedback about Oma riista mobile application";
-"EmailTemplate" = "\n\nApplication version:  %@\nIOS version: %@";
-"UsedThirdPartyLibraries" = "Application uses third party libraries";
-"ThirdPartyLibraries" = "Third party libraries used";
+"EmailTemplate" = "\n\nName: %@\nHunter number: %@\nApplication version:  %@\nIOS version: %@";
+"EmailLicenseTitle" = "Hunting license";
+"EmailLicenseTemplate" = "\n\nName: %@\nHunter number: %@";
+"ThirdPartyLibraries" = "Third party libraries";
+"PrivacyStatement" = "Privacy statement";
+"PrivacyStatementUrl" = "https://riista.fi/riistahallinto/sahkoinen-asiointi/oma-riista-rekisteriseloste/";
 "MakeCallMessage" = "Do you want to call Oma riista help desk?";
+"MakeLicenseCallMessage" = "Do you want to call hunter license help desk?";
 "MakeCall" = "Call";
+"PhoneShort" = "Phone";
+"ContactLicenseIssuesTitle" = "Hunting license issues";
 
 "Synchronization" = "Synchronization";
 "Manual" = "Manual";
 "Automatic" = "Automatic";
-"Version" = "Version";
+"Version" = "Version %@";
 "Language" = "Language";
 
-"SettingsMapTypeTitle" = "Map source";
-"SettingsMapTypeGoogle" = "Google";
-"SettingsMapTypeMml" = "MML";
 "MapTypeSelect" = "Map type";
 "MapTypeTopographic" = "Topographic";
 "MapTypeBackgound" = "Background";
 "MapTypeAerial" = "Aerial";
+"MapTypeGoogle" = "Google";
 "MapCopyrightMml" = "©Maanmittauslaitos";
 
 "ChooseImageSource" = "Choose image source";
 "CameraSource" = "Camera";
 "GallerySource" = "Gallery";
+"ImagePermissionRequiredTitle" = "Please Give Permission";
+"ImagePermissionRequiredMessage" = "Oma riista needs access to your photos";
+"ImageDialogButtonCancel" = "Cancel";
+"ImageDialogButtonSettings" = "Settings";
 
 "SavingDataFailed" = "Saving data failed. You can restart application and try again. If problem persists, contact support oma@riista.fi";
 
@@ -184,8 +280,101 @@
 "MooseAntlersPointsRight" = "Antler points right";
 "MooseAdditionalInfo" = "Additional information";
 
+"HarvestHuntingTypeTitle" = "Hunting type";
+"HarvestFeedingPlaceTitle" = "Shot at feeding place?";
+"HarvestTaigaBeanGooseTitle" = "Is taiga bean goose?";
+
 "DisplayAll" = "Show all";
 "AnnouncementsNone" = "No announcements";
 "AnnouncementsFetchFailed" = "Retrieving announcements failed";
 
 "KeyboardDone" = "Done";
+
+"UpdateAvailableTitle" = "Update available";
+"UpdateAvailableMessage" = "Download new Oma riista version from App Store.";
+
+"ButtonClearTitle" = "Clear";
+"NetworkOperationFailed" = "Operation failed (%d)";
+"ConfirmOperationPrompt" = "Confirm operation?";
+
+/*
+ Shooting test
+ */
+
+"ShootingTestViewTitle" = "Shooting test";
+"ShootingTestTabEventTitle" = "General";
+"ShootingTestTabRegisterTitle" = "Registration";
+"ShootingTestTabQueueTitle" = "Participants";
+"ShootingTestTabPaymentsTitle" = "Payments";
+
+/* Shooting test data values mapped to readable text */
+"ShootingTestTypeBearShort" = "B";
+"ShootingTestTypeMooseShort" = "M";
+"ShootingTestTypeRoeDeerShort" = "R";
+"ShootingTestTypeBowShort" = "A";
+"ShootingTestTypeBear" = "Bear";
+"ShootingTestTypeMoose" = "Moose/Deer";
+"ShootingTestTypeRoeDeer" = "Roe deer";
+"ShootingTestTypeBow" = "Archery";
+"ShootingTestResultQualified" = "Qualified";
+"ShootingTestResultUnqualified" = "Unqualified";
+"ShootingTestResultTimedOut" = "Timed out";
+"ShootingTestResultRebated" = "Rebated";
+
+/* Shooting test calendar event */
+"ShootingTestCalendarEventTypeNormal" = "Shooting test";
+"ShootingTestCalendarEventTypeBow" = "Bow shooting test";
+"ShootingTestStateClosed" = "Closed";
+"ShootingTestStateOngoing" = "Ongoing";
+"ShootingTestStateWaiting" = "Waiting";
+
+/* Shooting test event details and officials */
+"ShootingTestEventStart" = "Open event";
+"ShootingTestEventEdit" = "Edit officials";
+"ShootingTestEventFinish" = "Close event";
+"ShootingTestEventReopen" = "Reopen event";
+"ShootingTestOfficialsTitle" = "Event officials";
+"ShootingTestOfficialAdd" = "Add";
+"ShootingTestOfficialRemove" = "Remove";
+"ShootingTestTotalPaidAmount" = "Total paid amount %@";
+
+/* Shooting test Registration */
+"ShootingTestRegisterAddParticipant" = "Add participant";
+"ShootingTestRegisterHunterNumber" = "Hunter id";
+"ShootingTestRegisterReadQr" = "Scan QR or barcode";
+"ShootingTestRegisterReadQrFailed" = "Scanning code failed";
+"ShootingTestRegisterSearchWithScannedHunterNumber" = "Search with scanned hunter id: %@";
+"ShootingTestRegisterSearchWithScannedSsn" = "Search with scanned ssn: %@";
+"ShootingTestRegisterSearchNoResults" = "No results";
+"ShootingTestRegisterTestTypeTitle" = "Select intended test type(s)";
+
+"ShootingTestRegisterUserAlreadyRegistered" = "Person already registered but not yet finished or payment not done";
+"ShootingTestRegisterUserAlreadyCompleted" = "Persons shooting test attempt is finished";
+"ShootingTestRegisterUserAlreadyOfficial" = "Person can not register to event. Already official in the same shooting test event";
+"ShootingTestRegisterUserHuntingPaymentNotDone" = "Game management fee not paid. Verify payment from payment form and paper receipt. If fee has been paid then register participant normally.";
+"ShootingTestRegisterUserHuntingBan" = "Person is banned from hunting";
+"ShootingTestRegisterUserNotHunter" = "Person has no hunter id";
+"ShootingTestRegisterUserForeignHunter" = "Foreign hunter";
+
+/* Shooting test attempt */
+"ShootingTestAttemptListViewTitle" = "Log attempt";
+"ShootingTestAttemptListResultTitle" = "Result";
+"ShootingTestAttemptListHitsTitle" = "Hits";
+"ShootingTestAttemptListAdd" = "Add attempt";
+"ShootingTestAttemptEditViewTitle" = "Log attempt details";
+"ShootingTestAttemptTypeTitle" = "Select attempt type";
+"ShootingTestAttemptHitsTitle" = "Set hits";
+"ShootingTestAttemptResultTitle" = "Attempt result";
+"ShootingTestAttemptNoteTitle" = "Notes";
+"ShootingTestAttemptNoteHint" = "Log reason for rebated attempt or leave empty";
+"ShootingTestAttemptDeleteConfirm" = "Delete attempt?";
+
+/* Shooting test payment */
+"ShootingTestPaymentTitle" = "Payments";
+"ShootingTestPaymentTotal" = "Total";
+"ShootingTestPaymentPaid" = "Paid";
+"ShootingTestPaymentRemaining" = "Remaining";
+"ShootingTestPaymentParticipantTitle" = "Participant";
+"ShootingTestPaymentTestFinished" = "Test finished";
+"ShootingTestPaymentCompleteConfirm" = "Set test finished and payments completed for %@ %@ (%@)?";
+"ShootingTestPaymentEditTitle" = "Edit payment";

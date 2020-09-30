@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="RiistaValueListReadonlyText">
+            <connections>
+                <outlet property="titleTextLabel" destination="Vyn-aH-rWl" id="2S4-YF-5CD"/>
+                <outlet property="valueTextLabel" destination="hnw-Gs-b0F" id="Bru-Gc-hEi"/>
+                <outlet property="view" destination="iN0-l3-epB" id="ZST-UG-iei"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="80"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vyn-aH-rWl" userLabel="label">
+                    <rect key="frame" x="12" y="7" width="296" height="19.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <color key="textColor" red="0.12549019607843137" green="0.12549019607843137" blue="0.12549019607843137" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hnw-Gs-b0F" userLabel="value">
+                    <rect key="frame" x="12" y="32.5" width="39.5" height="19.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <color key="textColor" red="0.41568627450980394" green="0.41568627450980394" blue="0.41568627450980394" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="Vyn-aH-rWl" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="12" id="7u7-xh-xGX"/>
+                <constraint firstItem="hnw-Gs-b0F" firstAttribute="leading" secondItem="Vyn-aH-rWl" secondAttribute="leading" id="GZO-lJ-LoW"/>
+                <constraint firstAttribute="trailing" secondItem="Vyn-aH-rWl" secondAttribute="trailing" constant="12" id="Ser-Ud-ETb"/>
+                <constraint firstItem="Vyn-aH-rWl" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="7" id="bAc-wx-XmG"/>
+                <constraint firstItem="hnw-Gs-b0F" firstAttribute="top" secondItem="Vyn-aH-rWl" secondAttribute="bottom" constant="6" id="pZi-XP-6e8"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="131" y="153"/>
+        </view>
+    </objects>
+</document>

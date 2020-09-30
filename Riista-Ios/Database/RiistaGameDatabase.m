@@ -6,7 +6,6 @@
 #import "GeoCoordinate.h"
 #import "DiaryImage.h"
 #import "RiistaAppDelegate.h"
-#import "RiistaCalendarViewController.h"
 #import "RiistaSpeciesCategory.h"
 #import "RiistaSpecies.h"
 #import "RiistaSpecimen.h"
@@ -20,6 +19,8 @@
 #import "SrvaSync.h"
 #import "SrvaEntry.h"
 #import "AnnouncementsSync.h"
+#import "NSDateformatter+Locale.h"
+#import "Oma_riista-Swift.h"
 
 NSString *const RIISTA_FETCH_TIMES = @"FetchTimes";
 const CGFloat SYNC_INTERVAL_IN_MINUTES = 5.0;
@@ -77,7 +78,8 @@ NSInteger const RiistaCalendarStartMonth = 8;
     if (self) {
         _autosync = NO;
         syncing = NO;
-        dateFormatter = [NSDateFormatter new];
+        dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
+        [dateFormatter setDateFormat:ISO_8601];
     }
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appWillEnterForeground)
@@ -89,14 +91,14 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (void)initUserSession
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     delegate.username = [[RiistaSessionManager sharedInstance] userCredentials].username;
     [self initSync];
 }
 
 - (NSArray*)allEvents
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"DiaryEntry"];
 
     NSError *error = nil;
@@ -129,7 +131,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (DiaryEntry*)diaryEntryWithId:(NSInteger)remoteId
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     return [self diaryEntryWithId:remoteId context:delegate.managedObjectContext excludeObject:nil];
 }
 
@@ -158,9 +160,8 @@ NSInteger const RiistaCalendarStartMonth = 8;
     
     NSError *error = nil;
     if ([[diaryEntry managedObjectContext] save:&error]) {
-
         // Modifying child context. Save parent to persistent store
-        RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
         [delegate.managedObjectContext performBlock:^(void) {
             NSError *mErr;
             [delegate.managedObjectContext save:&mErr];
@@ -182,7 +183,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     if ([[diaryEntry managedObjectContext] save:&error]) {
 
         // Modifying child context. Save parent to persistent store
-        RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
         [delegate.managedObjectContext performBlock:^(void) {
             NSError *mErr;
             [delegate.managedObjectContext save:&mErr];
@@ -198,13 +199,13 @@ NSInteger const RiistaCalendarStartMonth = 8;
 - (BOOL)insertReceivedEvent:(DiaryEntry*)diaryEntry context:(NSManagedObjectContext*)context
 {
     // In main context the saves are not yet changed, use it to get the old values
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     DiaryEntry *existingEntry = [self diaryEntryWithId:[diaryEntry.remoteId integerValue] context:delegate.managedObjectContext excludeObject:nil];
 
     if (!existingEntry
         || [diaryEntry.rev integerValue] > [existingEntry.rev integerValue]
         || ([diaryEntry.rev integerValue] == [existingEntry.rev integerValue] && ([existingEntry.sent boolValue] || ![self sameReportInfoInEntry:existingEntry andNewEntry:diaryEntry]))
-        || (diaryEntry.harvestSpecVersion > existingEntry.harvestSpecVersion)
+        || ([diaryEntry.harvestSpecVersion integerValue] > [existingEntry.harvestSpecVersion integerValue])
         ) {
         diaryEntry.remote = @(YES);
         diaryEntry.sent = @(YES);
@@ -229,7 +230,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (void)clearEvents
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"DiaryEntry"];
 
     NSError *error = nil;
@@ -245,7 +246,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (NSArray*)clearSentEventsFromYear:(NSInteger)year
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"DiaryEntry"];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"((year = %d AND month >= %d) OR (year = %d AND month < %d)) AND remote = %@", year, RiistaCalendarStartMonth, year+1, RiistaCalendarStartMonth, @(YES)];
     [fetch setPredicate:predicate];
@@ -280,7 +281,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
         entityName = @"SrvaEntry";
     }
 
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSManagedObjectContext *ctx = delegate.managedObjectContext;
     NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:ctx];
     NSDictionary *entityProperties = [entity propertiesByName];
@@ -331,69 +332,51 @@ NSInteger const RiistaCalendarStartMonth = 8;
     return [NSArray new];
 }
 
-- (RiistaCalendarYear*)statisticsForYear:(NSInteger)startYear
+- (SeasonStats *)statsForHarvestSeason:(NSInteger)startYear
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
+
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"DiaryEntry"];
-    // Not deleted
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"((year = %d AND month >= %d) OR (year = %d AND month < %d)) AND (pendingOperation != %d)", startYear, RiistaCalendarStartMonth, startYear+1, RiistaCalendarStartMonth, DiaryEntryOperationDelete];
+    // Ignore deleted harvests
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"((year = %d AND month >= %d) OR (year = %d AND month < %d)) AND (pendingOperation != %d)",
+                              startYear,
+                              RiistaCalendarStartMonth,
+                              startYear + 1,
+                              RiistaCalendarStartMonth,
+                              DiaryEntryOperationDelete];
     [fetch setPredicate:predicate];
 
-    RiistaCalendarYear *calendarYear = nil;
+    SeasonStats *season = [SeasonStats empty];
+    season.startYear = startYear;
 
     NSError *error = nil;
     NSArray *results = [delegate.managedObjectContext executeFetchRequest:fetch error:&error];
+
     if(results) {
-        calendarYear = [RiistaCalendarYear new];
-        calendarYear.startYear = startYear;
-        NSMutableArray *data = [NSMutableArray new];
-        
-        NSMutableArray *categoryDataArray = [NSMutableArray new];
-        NSMutableDictionary *categoryData = [NSMutableDictionary new];
-        
-        for (int i=0; i<12; i++) {
-            [data addObject:[NSNumber numberWithInteger:0]];
-        }
-        
-        NSInteger totalCatches = 0;
-        for (int i=0; i<results.count; i++) {
-            NSDate *date = ((DiaryEntry*)results[i]).pointOfTime;
-            NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:date];
+        NSMutableArray *monthAmounts = [season mutableMonthArray];
+
+        for (int i = 0; i < results.count; i++) {
+            DiaryEntry *harvest = results[i];
+
+            NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:harvest.pointOfTime];
             // Month range is 1-12
-            NSInteger month = components.month-1;
-            data[month] = [NSNumber numberWithInteger:[data[month] integerValue]+[((DiaryEntry*)results[i]).amount integerValue]];
-            RiistaSpecies *species = [self speciesById:[((DiaryEntry*)results[i]).gameSpeciesCode integerValue]];
-            
-            // Only add harvests to statistics at this point
-            if ([((DiaryEntry*)results[i]).type isEqual:DiaryEntryTypeHarvest] && species) {
-                RiistaCalendarCategory *category = [categoryData objectForKey:@(species.categoryId)];
-                if (!category) {
-                    categoryData[@(species.categoryId)] = [RiistaCalendarCategory new];
-                    category = categoryData[@(species.categoryId)];
-                    category.amount = [((DiaryEntry*)results[i]).amount integerValue];
-                } else {
-                    category.amount += [((DiaryEntry*)results[i]).amount integerValue];
-                }
+            NSInteger monthIndex = components.month - 1;
+
+            monthAmounts[monthIndex] = [NSNumber numberWithInt:([monthAmounts[monthIndex] intValue] + [harvest.amount intValue])];
+
+            RiistaSpecies *species = [self speciesById:[harvest.gameSpeciesCode integerValue]];
+
+            if ([harvest.type isEqual:DiaryEntryTypeHarvest] && species) {
+                NSNumber *prevValue = season.catValues[species.categoryId - 1];
+                season.catValues[species.categoryId - 1] = [NSNumber numberWithInt: prevValue.intValue + [harvest.amount intValue]];
             }
-            totalCatches += [((DiaryEntry*)results[i]).amount integerValue];
+            season.totalAmount += [harvest.amount integerValue];
         }
-        
-        NSArray *categoryKeys = [self.categories allKeys];
-        NSSortDescriptor *categorySortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES];
-        NSArray *sortedCategoryKeys = [categoryKeys sortedArrayUsingDescriptors:@[categorySortDescriptor]];
-        for (int i=0; i<self.categories.count; i++) {
-            RiistaSpeciesCategory *category = self.categories[sortedCategoryKeys[i]];
-            if (!categoryData[@(category.categoryId)]) {
-                categoryData[@(category.categoryId)] = [RiistaCalendarCategory new];
-            }
-            ((RiistaCalendarCategory*)categoryData[@(category.categoryId)]).name = [RiistaUtils nameWithPreferredLanguage:category.name];
-            [categoryDataArray addObject:categoryData[@(category.categoryId)]];
-        }
-        calendarYear.monthData = [data copy];
-        calendarYear.categoryData = [categoryDataArray copy];
-        calendarYear.totalAmount = totalCatches;
+
+        season.monthAmounts = monthAmounts;
     }
-    return calendarYear;
+
+    return season;
 }
 
 #pragma mark - Species
@@ -412,6 +395,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
         category.name = (NSDictionary*)categoryList[i][@"name"];
         categories[[NSNumber numberWithInteger:category.categoryId]] = category;
     }
+
     _categories = categories;
     
     NSMutableDictionary *speciesDict = [NSMutableDictionary new];
@@ -454,7 +438,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (NSArray*)latestEventSpecies:(NSInteger)amount
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"DiaryEntry"];
     NSSortDescriptor *dateSort = [[NSSortDescriptor alloc] initWithKey:@"pointOfTime" ascending:NO];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"DiaryEntry" inManagedObjectContext:delegate.managedObjectContext];
@@ -503,9 +487,11 @@ NSInteger const RiistaCalendarStartMonth = 8;
                     [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:nil];
 
                     [[AnnouncementsSync new] sync:^(NSArray *items, NSError *error) {
-                        if (completion) {
-                            completion();
-                        }
+                        [MhPermitSync.shared syncWithCompletion:^(NSArray *items, NSError *error) {
+                            if (completion) {
+                                completion();
+                            }
+                        }];
                     }];
                 }];
             }];
@@ -531,6 +517,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
                 [self submitDiaryImagesFromEntry:diaryEntry completion:^(BOOL errors) {
                     // Mark successfully edited event as sent
                     NSError *err = nil;
+                    diaryEntry.remoteId = response[@"id"];
                     diaryEntry.rev = response[@"rev"];
                     diaryEntry.harvestSpecVersion = response[@"harvestSpecVersion"];
                     diaryEntry.harvestReportDone = response[@"harvestReportDone"];
@@ -547,7 +534,33 @@ NSInteger const RiistaCalendarStartMonth = 8;
                     else {
                         diaryEntry.stateAcceptedToHarvestPermit = nil;
                     }
+                    if ([response objectForKey:@"deerHuntingType"] && ![response[@"deerHuntingType"] isEqual:[NSNull null]]) {
+                        diaryEntry.deerHuntingType = response[@"deerHuntingType"];
+                    } else {
+                        diaryEntry.deerHuntingType = nil;
+                    }
+                    if ([response objectForKey:@"deerHuntingOtherTypeDescription"] && ![response[@"deerHuntingOtherTypeDescription"] isEqual:[NSNull null]]) {
+                        diaryEntry.deerHuntingTypeDescription = response[@"deerHuntingOtherTypeDescription"];
+                    } else {
+                        diaryEntry.deerHuntingTypeDescription = nil;
+                    }
+                    if ([response objectForKey:@"huntingMethod"] && ![response[@"huntingMethod"] isEqual:[NSNull null]]) {
+                        diaryEntry.huntingMethod = response[@"huntingMethod"];
+                    } else {
+                        diaryEntry.huntingMethod = nil;
+                    }
+                    if ([response objectForKey:@"feedingPlace"] && ![response[@"feedingPlace"] isEqual:[NSNull null]]) {
+                        diaryEntry.feedingPlace = response[@"feedingPlace"];
+                    } else {
+                        diaryEntry.feedingPlace = nil;
+                    }
+                    if ([response objectForKey:@"taigaBeanGoose"] && ![response[@"taigaBeanGoose"] isEqual:[NSNull null]]) {
+                        diaryEntry.taigaBeanGoose = response[@"taigaBeanGoose"];
+                    } else {
+                        diaryEntry.taigaBeanGoose = nil;
+                    }
                     diaryEntry.canEdit = response[@"canEdit"];
+                    diaryEntry.remote = [NSNumber numberWithBool:YES];
 
                     NSArray *specimens = response[@"specimens"];
                     [self setSpecimensFromJson:diaryEntry specimenItems:specimens];
@@ -611,6 +624,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
                 if ([image.status integerValue] == DiaryImageStatusInsertion) {
                     image.type = [NSNumber numberWithInteger:DiaryImageTypeRemote];
                     image.status = 0;
+
                     NSError *err = nil;
                     [[image managedObjectContext] save:&err];
                 } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
@@ -714,7 +728,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     [fetch setSortDescriptors:@[dateSort]];
 
     NSError *error = nil;
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSArray *results = [delegate.managedObjectContext executeFetchRequest:fetch error:&error];
     if (results) {
         NSMutableArray *resultImages = [NSMutableArray new];
@@ -749,7 +763,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     __weak RiistaGameDatabase *weakSelf = self;
     RiistaNetworkManager *manager = [RiistaNetworkManager sharedInstance];
     
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSManagedObjectContext *temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     temporaryContext.parentContext = delegate.managedObjectContext;
     
@@ -783,26 +797,15 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
         for (int i=0; i<years.count; i++) {
             NSInteger year = [years[i] integerValue];
-            NSDate *fetchDate = [weakSelf fetchDateForYear:year];
-            [manager updatesForYear:year lastFetch:fetchDate completion:^(BOOL updates, NSError* error) {
 
-                if (updates) {
-                    [weakSelf loadDiaryEntriesForYear:year context:temporaryContext completion:^(NSArray* loadedEntries, NSError* error) {
+            [weakSelf loadDiaryEntriesForYear:year context:temporaryContext completion:^(NSArray* loadedEntries, NSError* error) {
+                // Update latest fetch date
+                [weakSelf updateFetchDateForYear:year date:[NSDate date]];
 
-                        // Update latest fetch date
-                        [weakSelf updateFetchDateForYear:year date:[NSDate date]];
-
-                        [allLoadedEntries addObjectsFromArray:loadedEntries];
-                        yearsLoaded++;
-                        if (yearsLoaded == years.count && completion) {
-                            completion(allLoadedEntries, nil);
-                        }
-                    }];
-                } else {
-                    yearsLoaded++;
-                    if (yearsLoaded == years.count && completion) {
-                        completion(allLoadedEntries, nil);
-                    }
+                [allLoadedEntries addObjectsFromArray:loadedEntries];
+                yearsLoaded++;
+                if (yearsLoaded == years.count && completion) {
+                    completion(allLoadedEntries, nil);
                 }
             }];
         }
@@ -858,7 +861,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
             NSError *err = nil;
             if ([context save:&err]) {
                 // Save changes
-                RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+                RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
                 [delegate.managedObjectContext performBlock:^(void) {
                     NSError *mErr = nil;
                     if ([delegate.managedObjectContext save:&mErr]) {
@@ -879,7 +882,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (NSArray*)unsentDiaryEntries
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"DiaryEntry"];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"sent = %@", [NSNumber numberWithBool:NO]];
     [fetch setPredicate:predicate];
@@ -951,6 +954,31 @@ NSInteger const RiistaCalendarStartMonth = 8;
                 else {
                     entry.stateAcceptedToHarvestPermit = nil;
                 }
+                if ([response objectForKey:@"deerHuntingType"] && ![response[@"deerHuntingType"] isEqual:[NSNull null]]) {
+                    entry.deerHuntingType = response[@"deerHuntingType"];
+                } else {
+                    entry.deerHuntingType = nil;
+                }
+                if ([response objectForKey:@"deerHuntingOtherTypeDescription"] && ![response[@"deerHuntingOtherTypeDescription"] isEqual:[NSNull null]]) {
+                    entry.deerHuntingTypeDescription = response[@"deerHuntingOtherTypeDescription"];
+                } else {
+                    entry.deerHuntingTypeDescription = nil;
+                }
+                if ([response objectForKey:@"huntingMethod"] && ![response[@"huntingMethod"] isEqual:[NSNull null]]) {
+                    entry.huntingMethod = response[@"huntingMethod"];
+                } else {
+                    entry.huntingMethod = nil;
+                }
+                if ([response objectForKey:@"feedingPlace"] && ![response[@"feedingPlace"] isEqual:[NSNull null]]) {
+                    entry.feedingPlace = response[@"feedingPlace"];
+                } else {
+                    entry.feedingPlace = nil;
+                }
+                if ([response objectForKey:@"taigaBeanGoose"] && ![response[@"taigaBeanGoose"] isEqual:[NSNull null]]) {
+                    entry.taigaBeanGoose = response[@"taigaBeanGoose"];
+                } else {
+                    entry.taigaBeanGoose = nil;
+                }
                 entry.canEdit = response[@"canEdit"];
                 entry.remote = [NSNumber numberWithBool:YES];
 
@@ -958,7 +986,6 @@ NSInteger const RiistaCalendarStartMonth = 8;
                 [self setSpecimensFromJson:entry specimenItems:specimens];
 
                 [self submitDiaryImagesFromEntry:unsentEntries[i] completion:^(BOOL errors) {
-
                     entry.sent = @(!errors);
                     
                     NSError *err = nil;
@@ -1019,6 +1046,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
             specimen.antlerPointsLeft = ![item[@"antlerPointsLeft"] isEqual:[NSNull null]] ? item[@"antlerPointsLeft"] : nil;
             specimen.antlerPointsRight = ![item[@"antlerPointsRight"] isEqual:[NSNull null]] ? item[@"antlerPointsRight"] : nil;
             specimen.notEdible = ![item[@"notEdible"] isEqual:[NSNull null]] ? item[@"notEdible"] : nil;
+            specimen.alone = ![item[@"alone"] isEqual:[NSNull null]] ? item[@"alone"] : nil;
             specimen.additionalInfo = ![item[@"additionalInfo"] isEqual:[NSNull null]] ? item[@"additionalInfo"] : nil;
             [specimens addObject:specimen];
         }
@@ -1044,10 +1072,11 @@ NSInteger const RiistaCalendarStartMonth = 8;
         diaryEntry = (DiaryEntry*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
     }
 
-    [dateFormatter setDateFormat:ISO_8601];
     NSDate *date = [dateFormatter dateFromString:dict[@"pointOfTime"]];
     NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:date];
     diaryEntry.amount = dict[@"amount"];
+    diaryEntry.deerHuntingType = [RiistaUtils objectOrNilForKey:@"deerHuntingType" fromDictionary:dict];
+    diaryEntry.deerHuntingTypeDescription = [RiistaUtils objectOrNilForKey:@"deerHuntingOtherTypeDescription" fromDictionary:dict];
     diaryEntry.diarydescription = ![dict[@"description"] isEqual:[NSNull null]] ? dict[@"description"] : @"";
     diaryEntry.gameSpeciesCode = dict[@"gameSpeciesCode"];
     diaryEntry.harvestReportRequired = dict[@"harvestReportRequired"];
@@ -1070,13 +1099,15 @@ NSInteger const RiistaCalendarStartMonth = 8;
     [diaryEntry setSpecimens:[NSOrderedSet orderedSetWithArray:[specimens copy]]];
     diaryEntry.permitNumber = ![dict[@"permitNumber"] isEqual:[NSNull null]] ? dict[@"permitNumber"] : nil;
     diaryEntry.harvestSpecVersion = dict[@"harvestSpecVersion"];
+    diaryEntry.huntingMethod = dict[@"huntingMethod"];
+    diaryEntry.feedingPlace = dict[@"feedingPlace"];
+    diaryEntry.taigaBeanGoose = dict[@"taigaBeanGoose"];
 
     return diaryEntry;
 }
 
 - (NSDictionary*)dictFromDiaryEntry:(DiaryEntry*)diaryEntry isNew:(BOOL)isNew
 {
-    [dateFormatter setDateFormat:ISO_8601];
     NSString *dateString = [dateFormatter stringFromDate:diaryEntry.pointOfTime];
 
     // Source added in 1.2.0, older data has value nil
@@ -1112,8 +1143,25 @@ NSInteger const RiistaCalendarStartMonth = 8;
         dict[@"rev"] = diaryEntry.rev;
     }
 
+    if (diaryEntry.deerHuntingType != nil && [diaryEntry.deerHuntingType length] > 0) {
+        dict[@"deerHuntingType"] = diaryEntry.deerHuntingType;
+    }
+    if (diaryEntry.deerHuntingTypeDescription != nil && [diaryEntry.deerHuntingTypeDescription length] > 0) {
+        dict[@"deerHuntingOtherTypeDescription"] = diaryEntry.deerHuntingTypeDescription;
+    }
+
     if ([diaryEntry.permitNumber length] > 0) {
         dict[@"permitNumber"] = diaryEntry.permitNumber;
+    }
+
+    if (diaryEntry.huntingMethod != nil && [diaryEntry.huntingMethod length] > 0) {
+        dict[@"huntingMethod"] = diaryEntry.huntingMethod;
+    }
+    if (diaryEntry.feedingPlace != nil) {
+        dict[@"feedingPlace"] = diaryEntry.feedingPlace;
+    }
+    if (diaryEntry.taigaBeanGoose != nil) {
+        dict[@"taigaBeanGoose"] = diaryEntry.taigaBeanGoose;
     }
 
     return [dict copy];
@@ -1140,6 +1188,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
             specimen.antlerPointsLeft = ![item[@"antlerPointsLeft"] isEqual:[NSNull null]] ? item[@"antlerPointsLeft"] : nil;
             specimen.antlerPointsRight = ![item[@"antlerPointsRight"] isEqual:[NSNull null]] ? item[@"antlerPointsRight"] : nil;
             specimen.notEdible = ![item[@"notEdible"] isEqual:[NSNull null]] ? item[@"notEdible"] : nil;
+            specimen.alone = ![item[@"alone"] isEqual:[NSNull null]] ? item[@"alone"] : nil;
             specimen.additionalInfo = ![item[@"additionalInfo"] isEqual:[NSNull null]] ? item[@"additionalInfo"] : nil;
 
             [specimens addObject:specimen];
@@ -1171,6 +1220,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
                                           @"antlerPointsLeft":specimen.antlerPointsLeft != nil ? specimen.antlerPointsLeft : [NSNull null],
                                           @"antlerPointsRight":specimen.antlerPointsRight != nil ? specimen.antlerPointsRight : [NSNull null],
                                           @"notEdible":specimen.notEdible != nil ? specimen.notEdible : [NSNull null],
+                                          @"alone":specimen.alone != nil ? specimen.alone : [NSNull null],
                                           @"additionalInfo":specimen.additionalInfo != nil ? specimen.additionalInfo : [NSNull null],
                                           } mutableCopy];
 
@@ -1203,7 +1253,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
     [[NSNotificationCenter defaultCenter] postNotificationName:RiistaAutosyncKey object:nil userInfo:@{@"syncing": @YES}];
     [self synchronizeDiaryEntries:^(void) {
-        syncing = NO;
+        self->syncing = NO;
         [[NSNotificationCenter defaultCenter] postNotificationName:RiistaAutosyncKey object:nil userInfo:@{@"syncing": @NO}];
     }];
 }
@@ -1309,7 +1359,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (NSArray*)allObservations
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
 
     NSError *error = nil;
@@ -1342,7 +1392,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (ObservationEntry*)observationEntryWithId:(NSInteger)remoteId
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     return [self observationEntryWithId:remoteId context:delegate.managedObjectContext excludeObject:nil];
 }
 
@@ -1372,7 +1422,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     if ([[observationEntry managedObjectContext] save:&error]) {
 
         // Modifying child context. Save parent to persistent store
-        RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
         [delegate.managedObjectContext performBlock:^(void) {
             NSError *mErr;
             [delegate.managedObjectContext save:&mErr];
@@ -1394,7 +1444,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     if ([[observationEntry managedObjectContext] save:&error]) {
 
         // Modifying child context. Save parent to persistent store
-        RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
         [delegate.managedObjectContext performBlock:^(void) {
             NSError *mErr;
             [delegate.managedObjectContext save:&mErr];
@@ -1409,7 +1459,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (void)clearObservations
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
 
     NSError *error = nil;
@@ -1425,7 +1475,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (NSArray*)clearSentObservationsFromYear:(NSInteger)year
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"((year = %d AND month >= %d) OR (year = %d AND month < %d)) AND remote = %@", year, RiistaCalendarStartMonth, year+1, RiistaCalendarStartMonth, @(YES)];
     [fetch setPredicate:predicate];
@@ -1449,7 +1499,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (NSArray*)observationYears
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSManagedObjectContext *ctx = delegate.managedObjectContext;
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"ObservationEntry" inManagedObjectContext:ctx];
     NSDictionary *entityProperties = [entity propertiesByName];
@@ -1480,32 +1530,30 @@ NSInteger const RiistaCalendarStartMonth = 8;
     return [NSArray new];
 }
 
-- (RiistaCalendarYear*)observationStatisticsForYear:(NSInteger)startYear
+- (SeasonStats *)statsForObservationSeason:(NSInteger)startYear
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
+
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
-    // Not deleted
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"((year = %d AND month >= %d) OR (year = %d AND month < %d)) AND (pendingOperation != %d)", startYear, RiistaCalendarStartMonth, startYear+1, RiistaCalendarStartMonth, DiaryEntryOperationDelete];
+    // Ignore deleted observations
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"((year = %d AND month >= %d) OR (year = %d AND month < %d)) AND (pendingOperation != %d)",
+                              startYear,
+                              RiistaCalendarStartMonth,
+                              startYear + 1,
+                              RiistaCalendarStartMonth,
+                              DiaryEntryOperationDelete];
     [fetch setPredicate:predicate];
 
-    RiistaCalendarYear *calendarYear = nil;
+    SeasonStats *season = [SeasonStats empty];
+    season.startYear = startYear;
 
     NSError *error = nil;
     NSArray *results = [delegate.managedObjectContext executeFetchRequest:fetch error:&error];
+
     if(results) {
-        calendarYear = [RiistaCalendarYear new];
-        calendarYear.startYear = startYear;
-        NSMutableArray *data = [NSMutableArray new];
+        NSMutableArray *monthAmounts = [season mutableMonthArray];
 
-        NSMutableArray *categoryDataArray = [NSMutableArray new];
-        NSMutableDictionary *categoryData = [NSMutableDictionary new];
-
-        for (int i=0; i<12; i++) {
-            [data addObject:[NSNumber numberWithInteger:0]];
-        }
-
-        NSInteger totalCatches = 0;
-        for (int i=0; i<results.count; i++) {
+        for (int i = 0; i<results.count; i++) {
             ObservationEntry *observation = results[i];
 
             NSInteger amount = [observation.totalSpecimenAmount integerValue];
@@ -1514,48 +1562,31 @@ NSInteger const RiistaCalendarStartMonth = 8;
             }
             amount = MAX(amount, 1);
 
-            NSDate *date = observation.pointOfTime;
-            NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:date];
+            NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:observation.pointOfTime];
             // Month range is 1-12
-            NSInteger month = components.month-1;
-            data[month] = [NSNumber numberWithInteger:[data[month] integerValue]+amount];
+            NSInteger monthIndex = components.month - 1;
+
+            monthAmounts[monthIndex] = [NSNumber numberWithInteger:[monthAmounts[monthIndex] intValue] + amount];
+
             RiistaSpecies *species = [self speciesById:[observation.gameSpeciesCode integerValue]];
 
             if ([observation.type isEqual:DiaryEntryTypeObservation] && species) {
-                RiistaCalendarCategory *category = [categoryData objectForKey:@(species.categoryId)];
-
-                if (!category) {
-                    categoryData[@(species.categoryId)] = [RiistaCalendarCategory new];
-                    category = categoryData[@(species.categoryId)];
-                    category.amount = amount;
-                } else {
-                    category.amount += amount;
-                }
+                NSNumber *prevValue = season.catValues[species.categoryId - 1];
+                season.catValues[species.categoryId - 1] = [NSNumber numberWithLong: prevValue.intValue + amount];
             }
-            totalCatches += amount;
+
+            season.totalAmount += amount;
         }
 
-        NSArray *categoryKeys = [self.categories allKeys];
-        NSSortDescriptor *categorySortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES];
-        NSArray *sortedCategoryKeys = [categoryKeys sortedArrayUsingDescriptors:@[categorySortDescriptor]];
-        for (int i=0; i<self.categories.count; i++) {
-            RiistaSpeciesCategory *category = self.categories[sortedCategoryKeys[i]];
-            if (!categoryData[@(category.categoryId)]) {
-                categoryData[@(category.categoryId)] = [RiistaCalendarCategory new];
-            }
-            ((RiistaCalendarCategory*)categoryData[@(category.categoryId)]).name = [RiistaUtils nameWithPreferredLanguage:category.name];
-            [categoryDataArray addObject:categoryData[@(category.categoryId)]];
-        }
-        calendarYear.monthData = [data copy];
-        calendarYear.categoryData = [categoryDataArray copy];
-        calendarYear.totalAmount = totalCatches;
+        season.monthAmounts = monthAmounts;
     }
-    return calendarYear;
+
+    return season;
 }
 
 - (NSArray*)latestObservationSpecies:(NSInteger)amount
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
     NSSortDescriptor *dateSort = [[NSSortDescriptor alloc] initWithKey:@"pointOfTime" ascending:NO];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"ObservationEntry" inManagedObjectContext:delegate.managedObjectContext];
@@ -1730,45 +1761,46 @@ NSInteger const RiistaCalendarStartMonth = 8;
     return [[ObservationSync new] dictFromObservationEntry:observationEntry isNew:isNew];
 }
 
-- (RiistaCalendarYear*)srvaStatisticsForYear:(NSInteger)startYear
+- (SeasonStats *)statsForSrvaYear:(NSInteger)startYear
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
+
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"SrvaEntry"];
-    // Not deleted
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(year = %d) AND (pendingOperation != %d)", (startYear + 1), DiaryEntryOperationDelete];
+    // Ignore deleted srvas
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(year = %d) AND (pendingOperation != %d)",
+                              (startYear + 1),
+                              DiaryEntryOperationDelete];
     [fetch setPredicate:predicate];
 
-    RiistaCalendarYear *calendarYear = nil;
+    SeasonStats *season = [SeasonStats empty];
+    season.startYear = startYear;
 
     NSError *error = nil;
     NSArray *results = [delegate.managedObjectContext executeFetchRequest:fetch error:&error];
+
     if (results) {
-        calendarYear = [RiistaCalendarYear new];
-        calendarYear.startYear = startYear;
-        NSMutableArray *data = [NSMutableArray new];
+        NSMutableArray *monthData = [season mutableMonthArray];
 
-        for (int i=0; i < 12; i++) {
-            [data addObject:[NSNumber numberWithInteger:0]];
-        }
+        for (int i = 0; i < results.count; i++) {
+            SrvaEntry *srva = results[i];
 
-        for (int i=0; i < results.count; i++) {
-            NSDate *date = ((SrvaEntry*)results[i]).pointOfTime;
-            NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:date];
+            NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:srva.pointOfTime];
             // Month range is 1-12
-            NSInteger month = components.month-1;
-            data[month] = [NSNumber numberWithInteger:[data[month] integerValue] + 1];
+            NSInteger monthIndex = components.month - 1;
+
+            monthData[monthIndex] = [NSNumber numberWithInteger:[monthData[monthIndex] integerValue] + 1];
         }
 
-        calendarYear.monthData = [data copy];
-        calendarYear.categoryData = [NSMutableArray new];
-        calendarYear.totalAmount = results.count;;
+        season.monthAmounts = [monthData copy];
+        season.totalAmount = results.count;
     }
-    return calendarYear;
+
+    return season;
 }
 
 - (NSArray*)latestSrvaSpecies:(NSInteger)amount
 {
-    RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+    RiistaAppDelegate *delegate = (RiistaAppDelegate*)[[UIApplication sharedApplication] delegate];
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"SrvaEntry"];
     fetch.resultType = NSManagedObjectResultType;
 
@@ -1831,7 +1863,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     if ([[srvaEntry managedObjectContext] save:&error]) {
 
         // Modifying child context. Save parent to persistent store
-        RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
         [delegate.managedObjectContext performBlock:^(void) {
             NSError *mErr;
             [delegate.managedObjectContext save:&mErr];
@@ -1970,7 +2002,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     if ([[srvaEntry managedObjectContext] save:&error]) {
 
         // Modifying child context. Save parent to persistent store
-        RiistaAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
         [delegate.managedObjectContext performBlock:^(void) {
             NSError *mErr;
             [delegate.managedObjectContext save:&mErr];
@@ -2017,7 +2049,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     while (context != nil) {
         NSError *error;
         if (![context save:&error]) {
-            DLog(@"Context save failed: %@", [error localizedDescription]);
+            DDLog(@"Context save failed: %@", [error localizedDescription]);
             return NO;
         }
         context = context.parentContext;

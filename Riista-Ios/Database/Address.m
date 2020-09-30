@@ -1,4 +1,5 @@
 #import "Address.h"
+#import "RiistaUtils.h"
 
 
 NSString *const kAddressCity = @"city";
@@ -9,12 +10,6 @@ NSString *const kAddressRev = @"rev";
 NSString *const kAddressPostalCode = @"postalCode";
 NSString *const kAddressStreetAddress = @"streetAddress";
 
-
-@interface Address ()
-
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
-
-@end
 
 @implementation Address
 
@@ -39,13 +34,13 @@ NSString *const kAddressStreetAddress = @"streetAddress";
     // This check serves to make sure that a non-NSDictionary object
     // passed into the model class doesn't break the parsing.
     if(self && [dict isKindOfClass:[NSDictionary class]]) {
-            self.city = [self objectOrNilForKey:kAddressCity fromDictionary:dict];
-            self.editable = [[self objectOrNilForKey:kAddressEditable fromDictionary:dict] boolValue];
-            self.addressIdentifier = [[self objectOrNilForKey:kAddressId fromDictionary:dict] doubleValue];
-            self.country = [self objectOrNilForKey:kAddressCountry fromDictionary:dict];
-            self.rev = [[self objectOrNilForKey:kAddressRev fromDictionary:dict] doubleValue];
-            self.postalCode = [self objectOrNilForKey:kAddressPostalCode fromDictionary:dict];
-            self.streetAddress = [self objectOrNilForKey:kAddressStreetAddress fromDictionary:dict];
+            self.city = [RiistaUtils objectOrNilForKey:kAddressCity fromDictionary:dict];
+            self.editable = [[RiistaUtils objectOrNilForKey:kAddressEditable fromDictionary:dict] boolValue];
+            self.addressIdentifier = [[RiistaUtils objectOrNilForKey:kAddressId fromDictionary:dict] doubleValue];
+            self.country = [RiistaUtils objectOrNilForKey:kAddressCountry fromDictionary:dict];
+            self.rev = [[RiistaUtils objectOrNilForKey:kAddressRev fromDictionary:dict] doubleValue];
+            self.postalCode = [RiistaUtils objectOrNilForKey:kAddressPostalCode fromDictionary:dict];
+            self.streetAddress = [RiistaUtils objectOrNilForKey:kAddressStreetAddress fromDictionary:dict];
 
     }
 
@@ -69,13 +64,6 @@ NSString *const kAddressStreetAddress = @"streetAddress";
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"%@", [self dictionaryRepresentation]];
-}
-
-#pragma mark - Helper Method
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
-{
-    id object = [dict objectForKey:aKey];
-    return [object isEqual:[NSNull null]] ? nil : object;
 }
 
 

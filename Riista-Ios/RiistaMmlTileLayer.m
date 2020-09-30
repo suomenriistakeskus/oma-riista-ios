@@ -25,12 +25,34 @@ NSInteger const tileWidth = 256;
     self = [super init];
     if (self) {
         self.urlFormat = MmlTopographicTileUrlFormat;
+        [self setupTileSize];
     }
     return self;
 }
 
+- (void)setupTileSize
+{
+    int screenScale = round(UIScreen.mainScreen.scale);
+
+    // the default tileSize available on the server is 256x256. There's no point in rendering
+    // in smaller size. Also prevent rendering tiles as too large as this would cause tiles to blur
+    //
+    // this setting can be used as "map zoom" i.e. to help make texts more readable.
+    // - we could e.g. add a setting to UI ('easy to read map on/off') and we could add e.g. 128
+    //   to the extraZoom based on that value
+
+    // not really zoom but helps keeping current tile zoom level bit further when zooming in.
+    // This prevents displaying next zoom levels before their texts become readable
+    int extraZoom = 128;
+    int tileHeight = MIN(MAX(128 * screenScale, 256) + extraZoom, 512);
+    self.tileSize = tileHeight;
+    DDLog(@"Will use %dx%d tilesize", tileHeight, tileHeight);
+}
+
 - (void)setMapType:(RiistaMapType)type
 {
+    NSString *oldFormat = self.urlFormat;
+
     if (type == MmlAerialMapType) {
         self.urlFormat = MmlAerialTileUrlFormat;
     }
@@ -39,6 +61,10 @@ NSInteger const tileWidth = 256;
     }
     else {
         self.urlFormat = MmlTopographicTileUrlFormat;
+    }
+
+    if (![oldFormat isEqualToString:self.urlFormat]) {
+        [self clearTileCache];
     }
 }
 
@@ -63,18 +89,16 @@ NSInteger const tileWidth = 256;
 
     NSURLRequest *request = [mutableRequest copy];
 
-    [NSURLConnection sendAsynchronousRequest:request
-                                       queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-
-                               if (connectionError) {
-                                   [receiver receiveTileWithX:x y:y zoom:zoom image:kGMSTileLayerNoTile];
-                               }
-                               else {
-                                   UIImage *image = [UIImage imageWithData:data];
-                                   [receiver receiveTileWithX:x y:y zoom:zoom image:image];
-                               }
-                           } ];
+    [[NSURLSession.sharedSession dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error) {
+            //Try again later
+            [receiver receiveTileWithX:x y:y zoom:zoom image:nil];
+        }
+        else {
+            UIImage *image = [UIImage imageWithData:data];
+            [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+        }
+    }] resume];
 }
 
 @end

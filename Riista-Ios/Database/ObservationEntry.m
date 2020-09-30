@@ -31,6 +31,7 @@
     if (self.mooselikeFemale4CalfsAmount) {
         count += [self.mooselikeFemale4CalfsAmount integerValue] * (1 + 4);
     }
+    count += [self.mooselikeCalfAmount integerValue];
     count += [self.mooselikeUnknownSpecimenAmount integerValue];
 
     return count;

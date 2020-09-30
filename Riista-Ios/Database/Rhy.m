@@ -1,16 +1,11 @@
 #import "Rhy.h"
+#import "RiistaUtils.h"
 
 
 NSString *const kRhyId = @"id";
 NSString *const kRhyName = @"name";
 NSString *const kRhyOfficialCode = @"officialCode";
 
-
-@interface Rhy ()
-
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
-
-@end
 
 @implementation Rhy
 
@@ -31,9 +26,9 @@ NSString *const kRhyOfficialCode = @"officialCode";
     // This check serves to make sure that a non-NSDictionary object
     // passed into the model class doesn't break the parsing.
     if(self && [dict isKindOfClass:[NSDictionary class]]) {
-        self.rhyIdentifier = [[self objectOrNilForKey:kRhyId fromDictionary:dict] doubleValue];
-        self.name = [self objectOrNilForKey:kRhyName fromDictionary:dict];
-        self.officialCode = [self objectOrNilForKey:kRhyOfficialCode fromDictionary:dict];
+        self.rhyIdentifier = [[RiistaUtils objectOrNilForKey:kRhyId fromDictionary:dict] doubleValue];
+        self.name = [RiistaUtils objectOrNilForKey:kRhyName fromDictionary:dict];
+        self.officialCode = [RiistaUtils objectOrNilForKey:kRhyOfficialCode fromDictionary:dict];
     }
 
     return self;
@@ -52,13 +47,6 @@ NSString *const kRhyOfficialCode = @"officialCode";
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"%@", [self dictionaryRepresentation]];
-}
-
-#pragma mark - Helper Method
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
-{
-    id object = [dict objectForKey:aKey];
-    return [object isEqual:[NSNull null]] ? nil : object;
 }
 
 

@@ -5,11 +5,15 @@
 #import "RiistaSessionManager.h"
 #import "RiistaPermitManager.h"
 #import "RiistaSettings.h"
+#import "RiistaUtils.h"
 #import "RiistaLoginViewController.h"
 #import "RiistaNavigationController.h"
-#import "RiistaThirdPartyLibraryViewController.h"
 #import "RiistaPageViewController.h"
+#import "RiistaClubAreaMapManager.h"
 #import "DiaryEntryBase.h"
+#import "Oma_riista-Swift.h"
+
+@import Firebase;
 
 @interface RiistaTabBarViewController () <LoginDelegate>
 
@@ -27,6 +31,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(logout) name:RiistaReloginFailedKey object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateMenuTexts) name:RiistaLanguageSelectionUpdatedKey object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(logEntrySaved) name:RiistaLogEntrySavedKey object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateMenuTexts) name:RiistaPushAnnouncementKey object:nil];
     }
 
     [self.moreNavigationController.navigationBar setHidden:YES];
@@ -87,8 +92,15 @@
     // Only show login form if user hasn't stored credentials
     if (![[RiistaSessionManager sharedInstance] userCredentials]) {
         [self showLoginControllerAnimated:NO];
-    } else {
-        [[RiistaGameDatabase sharedInstance] initUserSession];
+    }
+    else {
+        //Always relogin to get updated session cookies and also update metadata, push tokens etc.
+        RiistaCredentials *credentials = [[RiistaSessionManager sharedInstance] userCredentials];
+        if (credentials) {
+            [[RiistaNetworkManager sharedInstance] relogin:credentials.username password:credentials.password completion:^(NSError *error) {
+                    [[RiistaGameDatabase sharedInstance] initUserSession];
+            }];
+        };
     }
 }
 
@@ -109,8 +121,15 @@
 {
     [[RiistaSessionManager sharedInstance] removeCredentials];
     [RiistaSettings setUserInfo:nil];
+    [RiistaSettings setOnboardingShownVersion:nil];
+
     [[RiistaPermitManager sharedInstance] clearPermits];
     [RiistaGameDatabase sharedInstance].autosync = NO;
+    [RiistaUtils markAllAnnouncementsAsRead];
+    [RiistaClubAreaMapManager clearCache];
+    [[FIRInstanceID instanceID] deleteIDWithHandler:^(NSError * _Nullable error) {
+        NSLog(@"Deleted Firebase id: %@", error);
+    }];
 
     [self.navigationController popToRootViewControllerAnimated:NO];
     [self showLoginControllerAnimated:YES];
@@ -145,13 +164,21 @@
 
 - (void)confirmLogout
 {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[RiistaLocalizedString(@"Logout", nil) stringByAppendingString:@"?"]
-                                                    message:nil
-                                                   delegate:self
-                                          cancelButtonTitle:RiistaLocalizedString(@"CancelRemove", nil)
-                                          otherButtonTitles:RiistaLocalizedString(@"OK", nil), nil];
+    MDCAlertController *alert = [MDCAlertController alertControllerWithTitle:[RiistaLocalizedString(@"Logout", nil) stringByAppendingString:@"?"]
+                                                                     message:nil];
 
-    [alert show];
+    MDCAlertAction *okAction = [MDCAlertAction actionWithTitle:RiistaLocalizedString(@"OK", nil) handler:^(MDCAlertAction * _Nonnull action) {
+        [self logout];
+    }];
+    MDCAlertAction *cancelAction = [MDCAlertAction actionWithTitle:RiistaLocalizedString(@"CancelRemove", nil)
+                                                           handler:^(MDCAlertAction * _Nonnull action) {
+        // Do nothing
+    }];
+
+    [alert addAction:cancelAction];
+    [alert addAction:okAction];
+
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 # pragma mark - UITabBarControllerDelegate
@@ -215,19 +242,6 @@
                          [self.loginController removeFromParentViewController];
                          self.loginController = nil;
                      }];
-}
-
-# pragma mark - UIAlertViewDelegate
-
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    switch (buttonIndex) {
-        case 1:
-            [self logout];
-        case 0:
-        default:
-            break;
-    }
 }
 
 @end

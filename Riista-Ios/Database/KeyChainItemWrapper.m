@@ -49,7 +49,7 @@
 
 #define PASSWORD_USES_DATA
 
-#import "KeychainItemWrapper.h"
+#import "KeyChainItemWrapper.h"
 #import <Security/Security.h>
 
 /*
@@ -133,7 +133,7 @@
         
         CFMutableDictionaryRef outDictionary = NULL;
         
-        if (!SecItemCopyMatching((__bridge CFDictionaryRef)tempQuery, (CFTypeRef *)&outDictionary) == noErr)
+        if (SecItemCopyMatching((__bridge CFDictionaryRef)tempQuery, (CFTypeRef *)&outDictionary) != noErr)
         {
             // Stick these default values into keychain item if nothing found.
             [self resetKeychainItem];

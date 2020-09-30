@@ -1,20 +1,27 @@
 #import <AssetsLibrary/AssetsLibrary.h>
-#import <UIImage+Resize.h>
+#import "UIImage+Resize.h"
 #import "RiistaUtils.h"
 #import "DiaryImage.h"
-#import "RiistaDiaryImageManager.h"
 #import "DiaryEntry.h"
 #import "ObservationEntry.h"
 #import "RiistaNetworkManager.h"
 #import "RiistaGameDatabase.h"
 #import "RiistaSettings.h"
 
+#import "Oma_riista-Swift.h"
+
 @implementation RiistaUtils
+
++ (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
+{
+    id object = [dict objectForKey:aKey];
+    return [object isEqual:[NSNull null]] ? nil : object;
+}
 
 + (NSInteger)startYearFromDate:(NSDate*)date
 {
     NSCalendar* calendar = [NSCalendar currentCalendar];
-    NSDateComponents* components = [calendar components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:date];
+    NSDateComponents* components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:date];
     if ([components month] < RiistaCalendarStartMonth) {
         return [components year]-1;
     }
@@ -78,7 +85,7 @@
 {
     if (speciesCode == 0) {
         //SRVA other species
-        UIImage *image = [[UIImage imageNamed:@"ic_question_mark_green.png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *image = [[UIImage imageNamed:@"unknown_white"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         if (completion) {
             completion(image);
         }
@@ -197,6 +204,13 @@
         image = [UIImage imageNamed:@"ic_launcher.png"];
     }
     return image;
+}
+
++ (UIImage*)loadSpeciesImage:(NSInteger)gameSpeciesCode size:(CGSize)size
+{
+    UIImage *image = [self loadSpeciesImage:gameSpeciesCode];
+
+    return [image resizedImageToFitInSize:size scaleIfSmaller:NO];
 }
 
 + (NSLocale*)appLocale
@@ -325,8 +339,9 @@
 
 + (UIImage*)imageAsDownscaledImage:(UIImage*)image
 {
-    if (image.size.width > MAX_IMAGE_DIMEN || image.size.height > MAX_IMAGE_DIMEN) {
-        return [image resizedImageToFitInSize:CGSizeMake(MAX_IMAGE_DIMEN, MAX_IMAGE_DIMEN) scaleIfSmaller:NO];
+    if (image.size.width > AppConstants.MaxImageSizeDimen || image.size.height > AppConstants.MaxImageSizeDimen) {
+        return [image resizedImageToFitInSize:CGSizeMake(AppConstants.MaxImageSizeDimen, AppConstants.MaxImageSizeDimen)
+                               scaleIfSmaller:NO];
     }
     else {
         return image;
@@ -359,11 +374,8 @@
 
 + (NSString*)encodeToPercentEscapedString:(NSString *)originalString
 {
-    return (NSString*)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                (CFStringRef)originalString,
-                                                                                NULL,
-                                                                                CFSTR(":/?#[]@!$&'()*+,;="),
-                                                                                kCFStringEncodingUTF8));
+    NSCharacterSet *allowedSet = [NSCharacterSet characterSetWithCharactersInString:@":/?#[]@!$&'()%*+,;= "].invertedSet;
+    return [originalString stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
 }
 
 + (NSURL*)applicationDirectory
@@ -391,6 +403,64 @@
 + (BOOL)nilEqual:(id)a b:(id)b
 {
     return (a == nil && b == nil) || [a isEqual:b];
+}
+
++ (NSString*)userUnreadAnnouncementsKey
+{
+    return @"UnreadAnnouncementIds";
+}
+
++ (void)addUnreadAnnouncement:(NSNumber*)remoteId
+{
+    NSMutableSet* unread = [NSMutableSet new];
+
+    NSArray* stored = [[NSUserDefaults standardUserDefaults] objectForKey:[RiistaUtils userUnreadAnnouncementsKey]];
+    if (stored != nil) {
+        unread = [[NSMutableSet alloc] initWithArray:stored];
+    }
+    [unread addObject:remoteId];
+
+    [[NSUserDefaults standardUserDefaults] setObject:[unread allObjects] forKey:[RiistaUtils userUnreadAnnouncementsKey]];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++ (NSInteger)unreadAnnouncementCount
+{
+    NSArray* stored = [[NSUserDefaults standardUserDefaults] objectForKey:[RiistaUtils userUnreadAnnouncementsKey]];
+    if (stored != nil) {
+        return [stored count];
+    }
+    return 0;
+}
+
++ (void)markAllAnnouncementsAsRead
+{
+    [[NSUserDefaults standardUserDefaults] setObject:[NSArray new] forKey:[RiistaUtils userUnreadAnnouncementsKey]];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++ (NSArray*)decimalRangeAsText:(NSDecimalNumber*)minValue maxValue:(NSDecimalNumber*)maxValue increment:(NSDecimalNumber*)increment
+{
+    NSMutableArray *list = [NSMutableArray new];
+
+    for (NSDecimalNumber *value = minValue; [value compare:maxValue] != NSOrderedDescending; value = [value decimalNumberByAdding:increment]) {
+        [list addObject:[value stringValue]];
+    }
+
+    return list;
+}
+
++ (NSString*)getLocalizedString:(NSDictionary*)dict
+{
+    NSString *result = [dict objectForKey:[RiistaSettings language]];
+    if (result == nil) {
+        result = [dict objectForKey:@"fi"]; //Fallback
+    }
+
+    if (result == nil || result.length == 0) {
+        result = @"";
+    }
+    return result;
 }
 
 @end

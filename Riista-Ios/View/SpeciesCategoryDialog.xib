@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="SpeciesCategoryDialogController" customModule="Oma_riista" customModuleProvider="target">
+            <connections>
+                <outlet property="category1Button" destination="tsz-0r-cg3" id="qWL-6R-dla"/>
+                <outlet property="category2Button" destination="qRJ-ZF-5Lw" id="cUz-2t-7xC"/>
+                <outlet property="category3Button" destination="WvU-QU-pgv" id="ZyK-6c-VKY"/>
+                <outlet property="dialogTitle" destination="b5L-4q-wXX" id="9Ht-CZ-BNl"/>
+                <outlet property="view" destination="iN0-l3-epB" id="bnN-yu-pzy"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="400" height="250"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select Category" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b5L-4q-wXX" userLabel="Dialog Title">
+                    <rect key="frame" x="16" y="64" width="368" height="21"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tsz-0r-cg3" userLabel="Category1" customClass="MDCButton">
+                    <rect key="frame" x="0.0" y="95" width="400" height="50"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="50" id="7gu-vu-fkO"/>
+                    </constraints>
+                    <state key="normal" title="Category 1"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qRJ-ZF-5Lw" userLabel="Category2" customClass="MDCButton">
+                    <rect key="frame" x="0.0" y="145" width="400" height="50"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="50" id="lZD-Ov-Q7k"/>
+                    </constraints>
+                    <state key="normal" title="Category 2"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WvU-QU-pgv" userLabel="Category3" customClass="MDCButton">
+                    <rect key="frame" x="0.0" y="195" width="400" height="50"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="50" id="atZ-rl-vy7"/>
+                    </constraints>
+                    <state key="normal" title="Category 3"/>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="b5L-4q-wXX" secondAttribute="trailing" constant="16" id="7E9-m8-5lj"/>
+                <constraint firstItem="qRJ-ZF-5Lw" firstAttribute="trailing" secondItem="tsz-0r-cg3" secondAttribute="trailing" id="DOW-AM-eji"/>
+                <constraint firstItem="qRJ-ZF-5Lw" firstAttribute="leading" secondItem="tsz-0r-cg3" secondAttribute="leading" id="Hgh-Ub-lp6"/>
+                <constraint firstItem="b5L-4q-wXX" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="20" id="JSx-H5-KnM"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="tsz-0r-cg3" secondAttribute="trailing" id="NHu-62-ti6"/>
+                <constraint firstItem="tsz-0r-cg3" firstAttribute="top" secondItem="b5L-4q-wXX" secondAttribute="bottom" constant="10" id="QzO-Uq-PT9"/>
+                <constraint firstItem="b5L-4q-wXX" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="YF9-mG-6FC"/>
+                <constraint firstItem="WvU-QU-pgv" firstAttribute="leading" secondItem="qRJ-ZF-5Lw" secondAttribute="leading" id="Yjq-my-rur"/>
+                <constraint firstItem="tsz-0r-cg3" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="bpB-kV-vmd"/>
+                <constraint firstItem="qRJ-ZF-5Lw" firstAttribute="top" secondItem="tsz-0r-cg3" secondAttribute="bottom" id="i4d-hA-k5m"/>
+                <constraint firstItem="WvU-QU-pgv" firstAttribute="trailing" secondItem="qRJ-ZF-5Lw" secondAttribute="trailing" id="i5t-WY-oIX"/>
+                <constraint firstItem="WvU-QU-pgv" firstAttribute="top" secondItem="qRJ-ZF-5Lw" secondAttribute="bottom" id="o5Q-17-pjv"/>
+            </constraints>
+            <nil key="simulatedTopBarMetrics"/>
+            <nil key="simulatedBottomBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="132" y="136"/>
+        </view>
+    </objects>
+</document>

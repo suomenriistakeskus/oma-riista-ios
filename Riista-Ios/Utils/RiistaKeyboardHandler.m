@@ -31,6 +31,11 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+- (void)setCancelTouchesInView:(BOOL)cancelTouchesInView
+{
+    _recognizer.cancelsTouchesInView = cancelTouchesInView;
+}
+
 - (void)keyboardWillShow:(NSNotification*)notification
 {
     CGRect keyboardRect = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];

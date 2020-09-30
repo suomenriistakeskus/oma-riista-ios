@@ -11,5 +11,6 @@
 - (id)initWithView:(UIView*)view andBottomSpaceConstraint:(NSLayoutConstraint*)constraint;
 
 @property (weak, nonatomic) id<KeyboardHandlerDelegate> delegate;
+@property (assign, nonatomic) BOOL cancelTouchesInView;
 
 @end

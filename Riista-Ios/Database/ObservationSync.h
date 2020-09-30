@@ -2,7 +2,7 @@
 
 @class ObservationEntry;
 
-typedef void(^ObservationSynchronizationCompletion)();
+typedef void(^ObservationSynchronizationCompletion)(void);
 
 @interface ObservationSync : NSObject
 

@@ -7,6 +7,11 @@ typedef void(^RiistaDiaryEntryImageLoadCompletion)(UIImage *image);
 
 @interface RiistaUtils : NSObject
 
+/**
+ * Returns the object for a key if there's one in the give dict or nil if dict doesn't have a value for the key.
+ */
++ (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
+
 + (NSInteger)startYearFromDate:(NSDate*)date;
 
 + (NSString*)nameWithPreferredLanguage:(NSDictionary*)nameDictionary;
@@ -54,6 +59,8 @@ typedef void(^RiistaDiaryEntryImageLoadCompletion)(UIImage *image);
  */
 + (UIImage*)loadSpeciesImage:(NSInteger)gameSpeciesCode;
 
++ (UIImage*)loadSpeciesImage:(NSInteger)gameSpeciesCode size:(CGSize)size;
+
 + (NSLocale*)appLocale;
 
 + (NSString*)appVersion;
@@ -96,7 +103,7 @@ typedef void(^RiistaDiaryEntryImageLoadCompletion)(UIImage *image);
 /*
  * Encode string to URL safe representation.
  * Additionally escaped characters:
- * :/?#[]@!$&'()*+,;=
+ * ":/?#[]@!$&'()%*+,;= "
  *
  * @return encoded string
  */
@@ -112,5 +119,22 @@ typedef void(^RiistaDiaryEntryImageLoadCompletion)(UIImage *image);
  * Equality check which also considers both nil values as equal
  */
 + (BOOL)nilEqual:(id)a b:(id)b;
+
+/*
+ * Mark an announcement with the given remote id as unread.
+ */
++ (void)addUnreadAnnouncement:(NSNumber*)remoteId;
+
++ (NSInteger)unreadAnnouncementCount;
+
++ (void)markAllAnnouncementsAsRead;
+
+/*
+ * Return list of decimal number values as NSString. Min and max are inclusive.
+ */
++ (NSArray*)decimalRangeAsText:(NSDecimalNumber*)minValue maxValue:(NSDecimalNumber*)maxValue increment:(NSDecimalNumber*)increment;
+
+/* Return the localized string from a dict based on the currently set user locale. */
++(NSString*)getLocalizedString:(NSDictionary*)dict;
 
 @end

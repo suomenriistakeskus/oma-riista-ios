@@ -14,6 +14,8 @@ NSString *const SpecimenAgeEraus = @"ERAUS";
         && [self.gender isEqualToString:otherSpecimen.gender]
         && [self.state isEqualToString:otherSpecimen.state]
         && [self.marking isEqualToString:otherSpecimen.marking]
+        && [self.lengthOfPaw isEqualToNumber:otherSpecimen.lengthOfPaw]
+        && [self.widthOfPaw isEqualToNumber:otherSpecimen.widthOfPaw]
         )
     {
         return YES;
@@ -27,7 +29,9 @@ NSString *const SpecimenAgeEraus = @"ERAUS";
     return !self.age.length
     && !self.gender.length
     && !self.state.length
-    && !self.marking.length;
+    && !self.marking.length
+    && !self.lengthOfPaw
+    && !self.widthOfPaw;
 }
 
 @end

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14492.1" systemVersion="18G87" minimumToolsVersion="Xcode 4.3" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Announcement" representedClassName="Announcement" syncable="YES">
+        <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="pointOfTime" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="remoteId" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="rev" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="subject" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="sender" maxCount="1" deletionRule="Cascade" destinationEntity="AnnouncementSender" inverseName="announcement" inverseEntity="AnnouncementSender" syncable="YES"/>
+    </entity>
+    <entity name="AnnouncementSender" representedClassName="AnnouncementSender" syncable="YES">
+        <attribute name="fullName" attributeType="String" syncable="YES"/>
+        <attribute name="organisation" attributeType="Transformable" syncable="YES"/>
+        <attribute name="title" attributeType="Transformable" syncable="YES"/>
+        <relationship name="announcement" maxCount="1" deletionRule="Cascade" destinationEntity="Announcement" inverseName="sender" inverseEntity="Announcement" syncable="YES"/>
+    </entity>
+    <entity name="DiaryEntry" representedClassName="DiaryEntry" syncable="YES">
+        <attribute name="amount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="canEdit" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="diarydescription" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="feedingPlace" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="gameSpeciesCode" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="harvestReportDone" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="harvestReportRequired" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="harvestReportState" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="harvestSpecVersion" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="huntingMethod" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="mobileClientRefId" optional="YES" attributeType="Integer 64" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="month" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="pendingOperation" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="permitNumber" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="pointOfTime" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="remote" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="remoteId" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="rev" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="sent" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="stateAcceptedToHarvestPermit" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="taigaBeanGoose" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="year" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <relationship name="coordinates" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GeoCoordinate" inverseName="diaryEntry" inverseEntity="GeoCoordinate" syncable="YES"/>
+        <relationship name="diaryImages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="DiaryImage" inverseName="diaryEntry" inverseEntity="DiaryImage" syncable="YES"/>
+        <relationship name="specimens" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Specimen" inverseName="diaryEntry" inverseEntity="Specimen" syncable="YES"/>
+    </entity>
+    <entity name="DiaryImage" representedClassName="DiaryImage" syncable="YES">
+        <attribute name="imageid" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="uri" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="diaryEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DiaryEntry" inverseName="diaryImages" inverseEntity="DiaryEntry" syncable="YES"/>
+        <relationship name="observationEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ObservationEntry" inverseName="diaryImages" inverseEntity="ObservationEntry" syncable="YES"/>
+        <relationship name="srvaEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SrvaEntry" inverseName="diaryImages" inverseEntity="SrvaEntry" syncable="YES"/>
+    </entity>
+    <entity name="GeoCoordinate" representedClassName="GeoCoordinate" syncable="YES">
+        <attribute name="accuracy" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="altitude" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="altitudeAccuracy" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="latitude" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="source" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="diaryEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DiaryEntry" inverseName="coordinates" inverseEntity="DiaryEntry" syncable="YES"/>
+        <relationship name="observationEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ObservationEntry" inverseName="coordinates" inverseEntity="ObservationEntry" syncable="YES"/>
+        <relationship name="srvaEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SrvaEntry" inverseName="coordinates" inverseEntity="SrvaEntry" syncable="YES"/>
+    </entity>
+    <entity name="MhPermit" representedClassName=".MhPermit" syncable="YES">
+        <attribute name="areaName" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="areaNumber" attributeType="String" syncable="YES"/>
+        <attribute name="beginDate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="endDate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="harvestFeedbackUrl" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="permitIdentifier" attributeType="String" syncable="YES"/>
+        <attribute name="permitName" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="permitType" optional="YES" attributeType="Transformable" syncable="YES"/>
+    </entity>
+    <entity name="ObservationEntry" representedClassName="ObservationEntry" syncable="YES">
+        <attribute name="canEdit" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="diarydescription" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="gameSpeciesCode" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="inYardDistanceToResidence" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="linkedToGroupHuntingDay" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="litter" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mobileClientRefId" optional="YES" attributeType="Integer 64" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="month" optional="YES" attributeType="Integer 16" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mooselikeCalfAmount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mooselikeFemale1CalfAmount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mooselikeFemale2CalfsAmount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mooselikeFemale3CalfsAmount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mooselikeFemale4CalfsAmount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mooselikeFemaleAmount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mooselikeMaleAmount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mooselikeUnknownSpecimenAmount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="observationSpecVersion" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="observationType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="observerName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="observerPhoneNumber" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="officialAdditionalInfo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="pack" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="pendingOperation" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="pointOfTime" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="remote" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="remoteId" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="rev" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="sent" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="totalSpecimenAmount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="verifiedByCarnivoreAuthority" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="withinMooseHunting" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="year" optional="YES" attributeType="Integer 16" usesScalarValueType="NO" syncable="YES"/>
+        <relationship name="coordinates" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="GeoCoordinate" inverseName="observationEntry" inverseEntity="GeoCoordinate" syncable="YES"/>
+        <relationship name="diaryImages" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="DiaryImage" inverseName="observationEntry" inverseEntity="DiaryImage" syncable="YES"/>
+        <relationship name="specimens" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="ObservationSpecimen" inverseName="observationEntry" inverseEntity="ObservationSpecimen" syncable="YES"/>
+    </entity>
+    <entity name="ObservationSpecimen" representedClassName="ObservationSpecimen" syncable="YES">
+        <attribute name="age" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="gender" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="lengthOfPaw" optional="YES" attributeType="Decimal" syncable="YES"/>
+        <attribute name="marking" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="remoteId" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="rev" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="widthOfPaw" optional="YES" attributeType="Decimal" syncable="YES"/>
+        <relationship name="observationEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ObservationEntry" inverseName="specimens" inverseEntity="ObservationEntry" syncable="YES"/>
+    </entity>
+    <entity name="Specimen" representedClassName="RiistaSpecimen" syncable="YES">
+        <attribute name="additionalInfo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="age" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="alone" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="antlerPointsLeft" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="antlerPointsRight" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="antlersType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="antlersWidth" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="fitnessClass" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="gender" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="notEdible" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="remoteId" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="rev" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="weight" optional="YES" attributeType="Double" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="weightEstimated" optional="YES" attributeType="Double" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="weightMeasured" optional="YES" attributeType="Double" usesScalarValueType="NO" syncable="YES"/>
+        <relationship name="diaryEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DiaryEntry" inverseName="specimens" inverseEntity="DiaryEntry" syncable="YES"/>
+    </entity>
+    <entity name="SrvaEntry" representedClassName="SrvaEntry" syncable="YES">
+        <attribute name="approverFirstName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="approverLastName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="authorByName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="authorId" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="authorLastName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="authorRev" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="canEdit" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="descriptionText" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="eventName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="eventResult" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="eventType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="gameSpeciesCode" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="methods" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="mobileClientRefId" optional="YES" attributeType="Integer 64" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="month" optional="YES" attributeType="Integer 16" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="otherMethodDescription" optional="YES" attributeType="String" maxValueString="255" syncable="YES"/>
+        <attribute name="otherSpeciesDescription" optional="YES" attributeType="String" maxValueString="255" syncable="YES"/>
+        <attribute name="otherTypeDescription" optional="YES" attributeType="String" maxValueString="255" syncable="YES"/>
+        <attribute name="pendingOperation" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="personCount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="pointOfTime" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="remoteId" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="rev" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="rhyId" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="sent" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="srvaEventSpecVersion" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="timeSpent" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="totalSpecimenAmount" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="year" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <relationship name="coordinates" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="GeoCoordinate" inverseName="srvaEntry" inverseEntity="GeoCoordinate" syncable="YES"/>
+        <relationship name="diaryImages" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="DiaryImage" inverseName="srvaEntry" inverseEntity="DiaryImage" syncable="YES"/>
+        <relationship name="specimens" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="SrvaSpecimen" inverseName="srvaEntry" inverseEntity="SrvaSpecimen" syncable="YES"/>
+    </entity>
+    <entity name="SrvaSpecimen" representedClassName="SrvaSpecimen" syncable="YES">
+        <attribute name="age" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="gender" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="srvaEntry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SrvaEntry" inverseName="specimens" inverseEntity="SrvaEntry" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Announcement" positionX="9" positionY="522" width="128" height="135"/>
+        <element name="AnnouncementSender" positionX="180" positionY="582" width="128" height="105"/>
+        <element name="DiaryEntry" positionX="-270" positionY="-0" width="128" height="435"/>
+        <element name="DiaryImage" positionX="-36" positionY="320" width="128" height="150"/>
+        <element name="GeoCoordinate" positionX="-65" positionY="54" width="128" height="178"/>
+        <element name="MhPermit" positionX="-243" positionY="144" width="128" height="165"/>
+        <element name="ObservationEntry" positionX="144" positionY="-0" width="128" height="585"/>
+        <element name="ObservationSpecimen" positionX="324" positionY="315" width="128" height="180"/>
+        <element name="Specimen" positionX="-441" positionY="279" width="128" height="285"/>
+        <element name="SrvaEntry" positionX="-243" positionY="504" width="153" height="555"/>
+        <element name="SrvaSpecimen" positionX="7" positionY="713" width="128" height="88"/>
+    </elements>
+</model>

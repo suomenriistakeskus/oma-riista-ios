@@ -1,7 +1,7 @@
 #import "RiistaNavigationController.h"
-#import "UIColor+ApplicationColor.h"
 #import "Styles.h"
 #import "RiistaLogGameViewController.h"
+#import "Oma_riista-Swift.h"
 
 NSInteger const TITLEVIEW_ADDITIONAL_WIDTH = 70;
 static NSString *const CONTROLLER_PROPERTY_ID = @"viewControllers";
@@ -33,16 +33,8 @@ static NSString *const CONTROLLER_PROPERTY_ID = @"viewControllers";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self setupNavigationBarStyle];
     [self styleBackButtons];
-    [self.navigationBar setTintColor:[UIColor whiteColor]];
     [self addObserver:self forKeyPath:CONTROLLER_PROPERTY_ID options:NSKeyValueObservingOptionNew context:NULL];
-}
-
-- (void)setupNavigationBarStyle
-{
-    [self.navigationBar setBarTintColor:[UIColor applicationColor:RiistaApplicationColorNavigationBackground]];
-    self.navigationBar.translucent = NO;
 }
 
 - (void)setTitle:(NSString *)title
@@ -52,38 +44,18 @@ static NSString *const CONTROLLER_PROPERTY_ID = @"viewControllers";
 
 - (void)changeTitle:(NSString*)title
 {
-    [self changeTitle:title withFont:[UIFont systemFontOfSize:15]];
+    [self changeTitle:title withFont:[UIFont systemFontOfSize:AppFont.NavigationBarTitle]];
 }
 
 - (void)changeTitle:(NSString*)title withFont:(UIFont*)font
 {
     UINavigationItem *item = [[self.viewControllers lastObject] navigationItem ];
     RiistaNavigationTitle *titleView = [[[NSBundle mainBundle] loadNibNamed:@"RiistaNavigationTitleView" owner:self options:nil] firstObject];
-    titleView.menuIcon.image = [UIImage imageNamed:@"ic_menu_logo"];
     titleView.navTitle.font = font;
     titleView.navTitle.text = title;
     CGFloat width = [title sizeWithAttributes:@{NSFontAttributeName:font}].width;
     titleView.frame = CGRectMake(titleView.frame.origin.x, 0, width + TITLEVIEW_ADDITIONAL_WIDTH, self.navigationBar.frame.size.height);
     item.titleView = titleView;
-}
-
-- (void)changeTitle:(NSString*)title andDescription:(NSString*)description
-{
-    UINavigationItem *item = [[self.viewControllers lastObject] navigationItem ];
-    RiistaNavigationTitle *titleView = [[[NSBundle mainBundle] loadNibNamed:@"RiistaNavigationTitleView2" owner:self options:nil] firstObject];
-    titleView.menuIcon.image = [UIImage imageNamed:@"ic_menu_logo"];
-    titleView.navTitle.text = title;
-    titleView.navDescription.text = description;
-    CGFloat titleWidth = [title sizeWithAttributes:@{NSFontAttributeName:titleView.navTitle.font}].width;
-    CGFloat descriptionWidth = [description sizeWithAttributes:@{NSFontAttributeName:titleView.navDescription.font}].width;
-    CGFloat width = MAX(titleWidth, descriptionWidth);
-    titleView.frame = CGRectMake(titleView.frame.origin.x, 0, width + TITLEVIEW_ADDITIONAL_WIDTH, self.navigationBar.frame.size.height);
-    item.titleView = titleView;
-}
-
-- (void)setupCustomTitleView:(UIView*)titleView forNavigationItem:(UINavigationItem*)navigationItem
-{
-    navigationItem.titleView = titleView;
 }
 
 - (void)setRightBarItems:(NSArray*)items
@@ -96,6 +68,12 @@ static NSString *const CONTROLLER_PROPERTY_ID = @"viewControllers";
     }
     currentRightBarItems = items;
     item.rightBarButtonItems = finalItems;
+}
+
+- (void)setLeftBarItem:(UIBarButtonItem*)button
+{
+    UINavigationItem *item = [[self.viewControllers lastObject] navigationItem];
+    item.leftBarButtonItem = button;
 }
 
 - (void)styleBackButtons
@@ -116,7 +94,6 @@ static NSString *const CONTROLLER_PROPERTY_ID = @"viewControllers";
 
 - (void)pushViewController:(UIViewController*)viewController animated:(BOOL)animated
 {
-    [self setupNavigationBarStyle];
     [self willChangeValueForKey:@"viewControllers"];
     [super pushViewController:viewController animated:animated];
     [self didChangeValueForKey:@"viewControllers"];
@@ -125,7 +102,6 @@ static NSString *const CONTROLLER_PROPERTY_ID = @"viewControllers";
 
 - (UIViewController*)popViewControllerAnimated:(BOOL)animated
 {
-    [self setupNavigationBarStyle];
     UIViewController *controller = [super popViewControllerAnimated:animated];
     [self setRightBarItems:currentRightBarItems];
     return controller;
@@ -175,29 +151,16 @@ static NSString *const CONTROLLER_PROPERTY_ID = @"viewControllers";
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
-    if([self.topViewController respondsToSelector:@selector(supportedInterfaceOrientationsForThisContorller)])
-    {
-        return(NSInteger)[self.topViewController performSelector:@selector(supportedInterfaceOrientationsForThisContorller) withObject:nil];
-    }
-    else if ([self.topViewController isKindOfClass:NSClassFromString(@"CustomPhotoBrowser")]) {
+    if ([self.topViewController isKindOfClass:NSClassFromString(@"CustomPhotoBrowser")]) {
         return UIInterfaceOrientationMaskAllButUpsideDown;
     }
+
     return UIInterfaceOrientationMaskPortrait;
 }
 
 - (BOOL)shouldAutorotate
 {
-    if([self.visibleViewController respondsToSelector:@selector(shouldAutorotateNow)])
-    {
-        BOOL autoRotate = (BOOL)[self.visibleViewController
-                                 performSelector:@selector(shouldAutorotateNow)
-                                 withObject:nil];
-        return autoRotate;
-    }
-    else if ([self.visibleViewController isKindOfClass:NSClassFromString(@"CustomPhotoBrowser")]) {
-        return YES;
-    }
-    return NO;
+    return YES;
 }
 
 @end

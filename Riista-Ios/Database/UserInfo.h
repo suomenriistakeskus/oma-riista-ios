@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-@class Rhy, Address;
+@class Rhy, Address, Occupation;
 
 @interface UserInfo : NSObject <NSCoding, NSCopying>
 
@@ -20,13 +20,21 @@
 @property (nonatomic, strong) NSString *username;
 @property (nonatomic, strong) NSArray *gameDiaryYears;
 @property (nonatomic, strong) NSArray *occupations;
+@property (nonatomic, assign) BOOL deerPilotUser;
 @property (nonatomic, strong) NSDictionary *homeMunicipality;
 @property (nonatomic, strong) NSArray *harvestYears;
 @property (nonatomic, strong) NSArray *observationYears;
 @property (nonatomic, strong) NSNumber *enableSrva;
+@property (nonatomic, strong) NSNumber *enableShootingTests;
+@property (nonatomic, strong) NSString *qrCode;
+@property (nonatomic, strong) NSArray *shootingTests;
 
 + (instancetype)modelObjectWithDictionary:(NSDictionary *)dict;
 - (instancetype)initWithDictionary:(NSDictionary *)dict;
 - (NSDictionary *)dictionaryRepresentation;
+
+- (BOOL)isCarnivoreAuthority;
+- (BOOL)isShootingTestOfficial;
+- (Occupation*)findOccupationOfType:(NSString*)occupationType forRhyId:(int)rhyId;
 
 @end

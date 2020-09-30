@@ -2,6 +2,8 @@
 
 @interface RiistaDateTimeUtils : NSObject
 
++ (NSTimeZone*)finnishTimezone;
+
 + (NSDate*)removeTime:(NSDate*)originalDate;
 + (NSDate*)addDays:(NSDate*)originalDate daysToAdd:(int)numberOfDays;
 

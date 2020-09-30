@@ -1,20 +1,19 @@
-//
-//  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
-//  to delete and recreate this implementation file for your updated model.
-//
-
 #import "ObservationSpecimen.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ObservationSpecimen (CoreDataProperties)
 
-@property (nullable, nonatomic, retain) NSString *age;
-@property (nullable, nonatomic, retain) NSString *gender;
-@property (nullable, nonatomic, retain) NSString *marking;
-@property (nullable, nonatomic, retain) NSNumber *remoteId;
-@property (nullable, nonatomic, retain) NSNumber *rev;
-@property (nullable, nonatomic, retain) NSString *state;
++ (NSFetchRequest<ObservationSpecimen *> *)fetchRequest;
+
+@property (nullable, nonatomic, copy) NSString *age;
+@property (nullable, nonatomic, copy) NSString *gender;
+@property (nullable, nonatomic, copy) NSDecimalNumber *lengthOfPaw;
+@property (nullable, nonatomic, copy) NSString *marking;
+@property (nullable, nonatomic, copy) NSNumber *remoteId;
+@property (nullable, nonatomic, copy) NSNumber *rev;
+@property (nullable, nonatomic, copy) NSString *state;
+@property (nullable, nonatomic, copy) NSDecimalNumber *widthOfPaw;
 @property (nullable, nonatomic, retain) ObservationEntry *observationEntry;
 
 @end

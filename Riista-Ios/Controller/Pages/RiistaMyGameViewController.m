@@ -9,26 +9,31 @@
 #import "RiistaSpecies.h"
 #import "RiistaNavigationController.h"
 #import "RiistaSettings.h"
-#import "RiistaGameLogViewController.h"
 #import "RiistaLocalization.h"
 #import "RiistaMetadataManager.h"
 #import "DetailsViewController.h"
 #import "UIColor+ApplicationColor.h"
 #import "UserInfo.h"
+#import "RiistaSettings.h"
+#import "Oma_riista-Swift.h"
 
 @interface RiistaMyGameViewController ()
 
-@property (weak, nonatomic) IBOutlet UIButton *logHarvestButton;
-@property (weak, nonatomic) IBOutlet UIButton *quickHarvestButton1;
-@property (weak, nonatomic) IBOutlet UIButton *quickHarvestButton2;
+@property (weak, nonatomic) IBOutlet MaterialVerticalButton *logHarvestButton;
+@property (weak, nonatomic) IBOutlet MDCButton *quickHarvestButton1;
+@property (weak, nonatomic) IBOutlet MDCButton *quickHarvestButton2;
 
-@property (weak, nonatomic) IBOutlet UIButton *logObservationButton;
-@property (weak, nonatomic) IBOutlet UIButton *quickObservationButton1;
-@property (weak, nonatomic) IBOutlet UIButton *quickObservationButton2;
+@property (weak, nonatomic) IBOutlet MaterialVerticalButton *logObservationButton;
+@property (weak, nonatomic) IBOutlet MDCButton *quickObservationButton1;
+@property (weak, nonatomic) IBOutlet MDCButton *quickObservationButton2;
 
-@property (weak, nonatomic) IBOutlet UIButton *logSrvaButton;
-@property (weak, nonatomic) IBOutlet UIButton *quickSrvaButton1;
-@property (weak, nonatomic) IBOutlet UIButton *quickSrvaButton2;
+@property (weak, nonatomic) IBOutlet MDCCard *srvaCard;
+@property (weak, nonatomic) IBOutlet MaterialVerticalButton *logSrvaButton;
+@property (weak, nonatomic) IBOutlet MaterialVerticalButton *mapButton;
+
+@property (weak, nonatomic) IBOutlet MaterialVerticalButton *myDetailButton;
+@property (weak, nonatomic) IBOutlet MDCButton *shootingTestsButton;
+@property (weak, nonatomic) IBOutlet MDCButton *huntingLicenseButton;
 
 @property (nonatomic, strong) NSArray *latestHarvestSpecies;
 @property (nonatomic, strong) NSArray *latestObservationSpecies;
@@ -81,17 +86,42 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 {
     [super viewDidLoad];
 
-    [self setupButtonStyle:_logHarvestButton textResource:@"Loggame" imageResource:@"ic_button_saalis.png" onClick:@selector(logHarvestButtonClick:)];
-    [Styles styleButton:_quickHarvestButton1];
-    [Styles styleButton:_quickHarvestButton2];
+    [self setupButtonStyle:_logHarvestButton
+              textResource:@"Loggame"
+             imageResource:@"harvest"
+                   onClick:@selector(logHarvestButtonClick:)];
+    [self setupButtonStyle:_quickHarvestButton1 textResource:nil imageResource:nil onClick:nil];
+    [self setupButtonStyle:_quickHarvestButton2 textResource:nil imageResource:nil onClick:nil];
 
-    [self setupButtonStyle:_logObservationButton textResource:@"LogObservation" imageResource:@"ic_button_observation.png" onClick:@selector(logObservationButtonClick:)];
-    [Styles styleButton:_quickObservationButton1];
-    [Styles styleButton:_quickObservationButton2];
+    [self setupButtonStyle:_logObservationButton
+              textResource:@"LogObservation"
+             imageResource:@"observation"
+                   onClick:@selector(logObservationButtonClick:)];
+    [self setupButtonStyle:_quickObservationButton1 textResource:nil imageResource:nil onClick:nil];
+    [self setupButtonStyle:_quickObservationButton2 textResource:nil imageResource:nil onClick:nil];
 
-    [self setupButtonStyle:_logSrvaButton textResource:@"LogSrva" imageResource:@"ic_srva.png" onClick:@selector(logSrvaButtonClick:)];
-    [Styles styleButton:_quickSrvaButton1];
-    [Styles styleButton:_quickSrvaButton2];
+    [self setupButtonStyle:_logSrvaButton
+              textResource:@"LogSrva"
+             imageResource:@"srva"
+                   onClick:@selector(logSrvaButtonClick:)];
+    [self setupButtonStyle:_mapButton textResource:@"Map" imageResource:@"map_pin" onClick:@selector(navigateToMap:)];
+
+    [self setupButtonStyle:_myDetailButton
+              textResource:@"MyDetails"
+             imageResource:@"person"
+                   onClick:@selector(navigateToMyDetails:)];
+    [self setupButtonStyle:_huntingLicenseButton
+              textResource:@"HomeHuntingLicense"
+             imageResource:nil
+                   onClick:@selector(navigateToHuntingLicense:)];
+    [self setupButtonStyle:_shootingTestsButton
+              textResource:@"HomeShootingTests"
+             imageResource:nil
+                   onClick:@selector(navigateToShootingTests:)];
+    // reduce left/right edge insets as Swedish content is wrapped ugly (last line contains only 1 char)
+    UIEdgeInsets currentContentInsets = [_shootingTestsButton contentEdgeInsets];
+    [_shootingTestsButton setContentEdgeInsets:UIEdgeInsetsMake(
+        currentContentInsets.top, currentContentInsets.left / 2, currentContentInsets.bottom, currentContentInsets.right / 2)];
 
     previousLanguage = LocalizationGetLanguage;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(calendarEntriesUpdated:) name:RiistaCalendarEntriesUpdatedKey object:nil];
@@ -112,24 +142,34 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     [self updateSrvaVisibility];
 }
 
-- (void)setupButtonStyle:(UIButton*)button textResource:(NSString*)textResource imageResource:(NSString*)imageResource onClick:(SEL)onClick
+- (void)setupButtonStyle:(MDCButton*)button textResource:(NSString*)textResource imageResource:(NSString*)imageResource onClick:(SEL)onClick
 {
-    [Styles styleButton:button];
-    button.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    [AppTheme.shared setupCardTextButtonThemeWithButton:button];
+    [button applyTextThemeWithScheme:AppTheme.shared.cardButtonScheme];
 
     [button setTitle:RiistaLocalizedString(textResource, nil) forState:UIControlStateNormal];
-    [button setImage:[[UIImage imageNamed:imageResource] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    [button setImage:[[UIImage imageNamed:imageResource] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateHighlighted];
-    [button setTintColor:[UIColor whiteColor]];
     [button setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 0)];
-    [button setImageEdgeInsets:UIEdgeInsetsMake(17, 0, 17, 0)];
-    [button addTarget:self action:onClick forControlEvents:UIControlEventTouchUpInside];
+
+    button.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    button.titleLabel.textAlignment = NSTextAlignmentCenter;
+
+    if (imageResource != nil) {
+        button.imageView.contentMode = UIViewContentModeScaleAspectFit;
+
+        UIImage *image = [UIImage imageNamed:imageResource];
+        [button setImage:image forState:UIControlStateNormal];
+    }
+
+    if (onClick != nil) {
+        [button addTarget:self action:onClick forControlEvents:UIControlEventTouchUpInside];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self setupLocalizedTexts];
+
+    [self refreshLocalizedContent];
     [self updateSrvaVisibility];
 }
 
@@ -137,6 +177,19 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 {
     [super viewDidAppear:animated];
     [self pageSelected];
+
+    if (![[RiistaSettings onboardingShownVersion] isEqualToString:OnboardingLatestAppVersion]) {
+        [RiistaSettings setOnboardingShownVersion:OnboardingLatestAppVersion];
+        [self showOnboarding:YES];
+    }
+}
+
+- (void)showOnboarding:(BOOL)animated
+{
+    RiistaOnbardingController* dest = [[RiistaOnbardingController alloc] init];
+    dest.modalPresentationStyle = UIModalPresentationFullScreen;
+
+    [self presentViewController:dest animated:YES completion:nil];
 }
 
 - (void)dealloc
@@ -146,12 +199,15 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)pageSelected
 {
-    self.navigationController.title = RiistaLocalizedString(@"Frontpage", nil);
+    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
+    [navController setLeftBarItem:nil];
+    [navController setRightBarItems:nil];
+
     [self setupSyncButton];
-    [self setupLocalizedTexts];
+    [self refreshLocalizedContent];
 }
 
-- (void)setupLocalizedTexts
+- (void)refreshLocalizedContent
 {
     RiistaLanguageRefresh;
     NSString* activeLanguage = [RiistaSettings language];
@@ -165,10 +221,28 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
         [_logObservationButton setTitle:RiistaLocalizedString(@"LogObservation", nil) forState:UIControlStateNormal];
         [_logSrvaButton setTitle:RiistaLocalizedString(@"LogSrva", nil) forState:UIControlStateNormal];
 
+        [_mapButton setTitle:RiistaLocalizedString(@"Map", nil) forState:UIControlStateNormal];
+
+        [_myDetailButton setTitle:RiistaLocalizedString(@"MyDetails", nil) forState:UIControlStateNormal];
+        [_shootingTestsButton setTitle:RiistaLocalizedString(@"HomeShootingTests", nil) forState:UIControlStateNormal];
+        [_huntingLicenseButton setTitle:RiistaLocalizedString(@"HomeHuntingLicense", nil) forState:UIControlStateNormal];
+
         [self calendarEntriesUpdated:nil];
     }
 
-    self.navigationController.title = RiistaLocalizedString(@"Frontpage", nil);
+    UIImageView *titleImageView;
+
+    if ([@"sv" isEqualToString:activeLanguage]) {
+        titleImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"header_home_sv"]];
+    }
+    else if ([@"en" isEqualToString:activeLanguage]) {
+        titleImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"header_home_en"]];
+    }
+    else {
+        titleImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"header_home_fi"]];
+    }
+
+    self.tabBarController.navigationItem.titleView = titleImageView;
 }
 
 - (void)setupSyncButton
@@ -212,7 +286,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 - (void)logObservationButtonClick:(id)sender
 {
     if (![[RiistaMetadataManager sharedInstance] hasObservationMetadata]) {
-        DLog(@"No metadata");
+        DDLog(@"No metadata");
         return;
     }
 
@@ -229,7 +303,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 - (void)logSrvaButtonClick:(id)sender
 {
     if (![[RiistaMetadataManager sharedInstance] hasSrvaMetadata]) {
-        DLog(@"No metadata");
+        DDLog(@"No metadata");
         return;
     }
 
@@ -256,14 +330,14 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)updateSrvaVisibility
 {
-    BOOL hide = YES;
+    BOOL hideSrva = YES;
+
     UserInfo *userInfo = [RiistaSettings userInfo];
     if ([userInfo.enableSrva boolValue]) {
-        hide = NO;
+        hideSrva = NO;
     }
-    self.logSrvaButton.hidden = hide;
-    self.quickSrvaButton1.hidden = hide;
-    self.quickSrvaButton2.hidden = hide;
+
+    self.srvaCard.hidden = hideSrva;
 }
 
 - (void)setupQuickButtons
@@ -279,30 +353,6 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     defaultItems = [@[@(quickObservation1Default), @(quickObservation2Default)] mutableCopy];
     latestSpecies = [[RiistaGameDatabase sharedInstance] latestObservationSpecies:quickButtons.count];
     [self setupQuickButtonGroup:quickButtons species:latestSpecies defaults:defaultItems isHarvest:NO];
-
-    // Srva buttons
-    [self setupSrvaQuickButtons];
-}
-
-- (void)setupSrvaQuickButtons
-{
-    [self setupSrvaButton:_quickSrvaButton1 speciesCode:quickSrva1Default eventName:@"ACCIDENT" eventType:@"TRAFFIC_ACCIDENT"];
-    [self setupSrvaButton:_quickSrvaButton2 speciesCode:quickSrva2Default eventName:@"ACCIDENT" eventType:@"TRAFFIC_ACCIDENT"];
-
-    NSArray *results = [[RiistaGameDatabase sharedInstance] latestSrvaSpecies:2];
-    if (results.count > 0) {
-        SrvaEntry* first = results[0];
-        [self setupSrvaButton:_quickSrvaButton1 speciesCode:[first.gameSpeciesCode integerValue] eventName:first.eventName eventType:first.eventType];
-
-        if (results.count > 1) {
-            SrvaEntry* second = results[1];
-            [self setupSrvaButton:_quickSrvaButton2 speciesCode:[second.gameSpeciesCode integerValue] eventName:second.eventName eventType:second.eventType];
-        }
-        else if ([first.gameSpeciesCode integerValue] == quickSrva2Default) {
-            //Only one valid user created entry and it's species is the same as our second default, so move default 2 to use default 1
-            [self setupSrvaButton:_quickSrvaButton2 speciesCode:quickSrva1Default eventName:@"ACCIDENT" eventType:@"TRAFFIC_ACCIDENT"];
-        }
-    }
 }
 
 - (void)setupSrvaButton:(UIButton*)button speciesCode:(NSInteger)speciesCode eventName:(NSString*)eventName eventType:(NSString*)eventType
@@ -315,16 +365,6 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     button.titleLabel.textAlignment = NSTextAlignmentCenter;
     [button setTitle:text forState:UIControlStateNormal];
 
-    if (button == _quickSrvaButton1) {
-        self.srvaQuick1SpeciesCode = [NSNumber numberWithInteger:speciesCode];
-        self.srvaQuick1EventName = eventName;
-        self.srvaQuick1EventType = eventType;
-    }
-    else if (button == _quickSrvaButton2) {
-        self.srvaQuick2SpeciesCode = [NSNumber numberWithInteger:speciesCode];
-        self.srvaQuick2EventName = eventName;
-        self.srvaQuick2EventType = eventType;
-    }
     [button addTarget:self action:@selector(logSrvaSpecies:) forControlEvents:UIControlEventTouchUpInside];
 }
 
@@ -371,8 +411,6 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
             [self setupQuickButton:quickButtons[i] ordinal:i titleResource:@"LogObservationFormat" speciesList:self.latestObservationSpecies presetSpecies:@selector(logObservationSpecies:)];
         }
     }
-
-
 }
 
 /**
@@ -415,7 +453,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 - (void)logObservationSpecies:(id)sender
 {
     if (![[RiistaMetadataManager sharedInstance] hasObservationMetadata]) {
-        DLog(@"No metadata");
+        DDLog(@"No metadata");
         return;
     }
 
@@ -433,7 +471,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 - (void)logSrvaSpecies:(id)sender
 {
     if (![[RiistaMetadataManager sharedInstance] hasSrvaMetadata]) {
-        DLog(@"No metadata");
+        DDLog(@"No metadata");
         return;
     }
 
@@ -441,21 +479,39 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     DetailsViewController *destination = (DetailsViewController*)[sb instantiateInitialViewController];
     destination.srvaNew = [NSNumber numberWithBool:YES];
 
-    if (sender == _quickSrvaButton1) {
-        destination.species = [[RiistaGameDatabase sharedInstance] speciesById:[self.srvaQuick1SpeciesCode integerValue]];
-        destination.srvaEventName = self.srvaQuick1EventName;
-        destination.srvaEventType = self.srvaQuick1EventType;
-    }
-    else if (sender == _quickSrvaButton2) {
-        destination.species = [[RiistaGameDatabase sharedInstance] speciesById:[self.srvaQuick2SpeciesCode integerValue]];
-        destination.srvaEventName = self.srvaQuick2EventName;
-        destination.srvaEventType = self.srvaQuick2EventType;
-    }
-
     UIStoryboardSegue *segue = [UIStoryboardSegue segueWithIdentifier:@"" source:self destination:destination performHandler:^(void) {
         [self.navigationController pushViewController:destination animated:YES];
     }];
     [segue perform];
+}
+
+- (void)navigateToMap:(id)sender
+{
+    [self.tabBarController setSelectedIndex:2];
+}
+
+- (void)navigateToMyDetails:(id)sender
+{
+    UIViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"MyDetailsController"];
+    [self.navigationController pushViewController:controller animated:YES];
+}
+
+- (void)navigateToShootingTests:(id)sender
+{
+//    let dest = self.storyboard?.instantiateViewController(withIdentifier:"ShootingTestsController") as!
+
+    ShootingTestsViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"ShootingTestsController"];
+    controller.user = [RiistaSettings userInfo];
+
+    [self.navigationController pushViewController:controller animated:YES];
+}
+
+- (void)navigateToHuntingLicense:(id)sender
+{
+    HuntingLicenseViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"HuntingLicenseController"];
+    controller.user = [RiistaSettings userInfo];
+
+    [self.navigationController pushViewController:controller animated:YES];
 }
 
 @end

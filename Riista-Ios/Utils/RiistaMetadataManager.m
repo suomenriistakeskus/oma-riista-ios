@@ -49,7 +49,7 @@ NSString *const SrvaSpecFile = @"srvametadata_%ld.json";
             }
         }
 
-        observationMeta = [self loadObservationMetadata:ObservationSpecFile];
+        self->observationMeta = [self loadObservationMetadata:ObservationSpecFile];
     }];
 }
 
@@ -151,7 +151,7 @@ NSString *const SrvaSpecFile = @"srvametadata_%ld.json";
             }
         }
 
-        srvaMeta = [self loadSrvaMetadata:SrvaSpecFile];
+        self->srvaMeta = [self loadSrvaMetadata:SrvaSpecFile];
     }];
 }
 

@@ -1,13 +1,23 @@
 #import "RiistaAppDelegate.h"
 #import "RiistaLocalization.h"
 #import "RiistaSessionManager.h"
+#import "RiistaSettings.h"
+#import "RiistaUtils.h"
+#import "UILabel+CustomFont.h"
+#import "AnnouncementsSync.h"
 #import <GoogleMaps/GoogleMaps.h>
 #import <KCOrderedAccessorFix/NSManagedObjectModel+KCOrderedAccessorFix.h>
+#import <UserNotifications/UserNotifications.h>
+#import "Oma_riista-Swift.h"
+
+@import Firebase;
 
 @implementation RiistaAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [self setupGlobalAppearance];
+
     _username = @"";
 
     NSString *path = [[NSBundle mainBundle] pathForResource:@"Keys" ofType:@"plist"];
@@ -24,7 +34,71 @@
     // Load previous session information
     [[RiistaSessionManager sharedInstance] initializeSession];
 
+    [FIRApp configure];
+    [FIRMessaging messaging].delegate = self;
+    [self registerFirebaseNotifications];
+
+    NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+    if (notification) {
+        //We are launching because the user clicked a notification. Sync announcements.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            //Execute after app delegate init, doesn't really matter when.
+            [self syncAnnouncements];
+        });
+    }
+
     return YES;
+}
+
+- (void)setupGlobalAppearance
+{
+    [[UILabel appearance] setSubstituteFontName:AppFont.Name];
+    [self setupStatusBarColors];
+}
+
+- (void)setupStatusBarColors
+{
+    [[UINavigationBar appearance] setBarStyle:UIBarStyleBlack];
+}
+
+- (void)registerFirebaseNotifications
+{
+    // Adapted from https://firebase.google.com/docs/cloud-messaging/ios/client
+    [UNUserNotificationCenter currentNotificationCenter].delegate = self;
+    UNAuthorizationOptions authOptions =
+      UNAuthorizationOptionAlert |
+      UNAuthorizationOptionSound |
+      UNAuthorizationOptionBadge;
+    [[UNUserNotificationCenter currentNotificationCenter]
+      requestAuthorizationWithOptions:authOptions
+      completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        // ...
+    }];
+
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    [self handlePushNotification:application userInfo:userInfo];
+    completionHandler(UIBackgroundFetchResultNewData);
+}
+
+- (void)handlePushNotification:(UIApplication *)application userInfo:(NSDictionary*)userInfo
+{
+    NSString *announcement = [userInfo valueForKey:@"announcement"];
+    if (announcement) {
+        [self syncAnnouncements];
+    }
+}
+
+- (void)syncAnnouncements
+{
+    AnnouncementsSync *syncer = [AnnouncementsSync new];
+    [syncer sync:^(NSArray *items, NSError *error) {
+        NSNotification *notification = [NSNotification notificationWithName:RiistaPushAnnouncementKey object:nil];
+        [[NSNotificationCenter defaultCenter] postNotification:notification];
+    }];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
@@ -60,6 +134,8 @@
     // Setting username resets core data context & coordinator
     self.managedObjectContext = nil;
     self.persistentStoreCoordinator = nil;
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:ManagedObjectContextChangedNotification object:nil];
 }
 
 - (void)saveContext
@@ -75,17 +151,37 @@
 
 - (void)showAlert {
     RiistaLanguageRefresh;
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:RiistaLocalizedString(@"Error", nil)
-                                                        message:RiistaLocalizedString(@"SavingDataFailed", nil)
-                                                       delegate:self
-                                              cancelButtonTitle:@"Ok"
-                                              otherButtonTitles:nil];
-    [alertView show];
+
+    MDCAlertController *alert = [MDCAlertController alertControllerWithTitle:RiistaLocalizedString(@"Error", nil)
+                                                                     message:RiistaLocalizedString(@"SavingDataFailed", nil)];
+    MDCAlertAction *okAction = [MDCAlertAction actionWithTitle:@"Ok"
+                                                       handler:^(MDCAlertAction * _Nonnull action) {
+        abort();
+    }];
+
+    [alert addAction:okAction];
+
+    [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)alertView:(UIAlertView*)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    abort();
+#pragma mark - UNUserNotificationCenterDelegate
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
+{
+    // Show push messages when app is active.
+    completionHandler(UNNotificationPresentationOptionAlert
+                      + UNNotificationPresentationOptionSound
+                      + UNNotificationPresentationOptionBadge);
 }
+
+#pragma mark - FIRMessagingDelegate
+
+- (void)messaging:(FIRMessaging *)messaging didReceiveRegistrationToken:(NSString *)fcmToken
+{
+    // Implemented but left empty to silence log warnings.
+    // FCM token is retrieved in RiistaNetworkManager::registerUserNotificationToken when needed.
+}
+
 
 #pragma mark - Core Data stack
 
@@ -157,3 +253,5 @@
 }
 
 @end
+
+NSString *const ManagedObjectContextChangedNotification = @"RiistaAppDelegate.ManagedObjectContextChangedNotification";

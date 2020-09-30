@@ -2,6 +2,8 @@
 #import "RiistaViewUtils.h"
 #import "RiistaUtils.h"
 
+#import "Oma_riista-Swift.h"
+
 @interface RiistaValueListButton ()
 
 @property (weak, nonatomic) IBOutlet UILabel *titleTextLabel;
@@ -40,11 +42,14 @@
 - (void)initializeView
 {
     self.view = [[[NSBundle mainBundle] loadNibNamed:NSStringFromClass([self class]) owner:self options:nil] firstObject];
-    [RiistaViewUtils addTopAndBottomBorders:self.view];
     [self addSubview:self.view];
 
-    // FIXME: Pressed hilight is not working
-    [self setBackgroundImage:[RiistaUtils imageWithColor:[UIColor colorWithRed:123 green:123 blue:123 alpha:1] width:1 height:1] forState:UIControlStateHighlighted];
+    [self.view constraintToSuperviewBounds];
+    [AppTheme.shared setupLabelFontWithLabel:self.titleTextLabel];
+    [AppTheme.shared setupValueFontWithLabel:self.valueTextLabel];
+
+    [self setBackgroundImage:[RiistaUtils imageWithColor:[UIColor applicationColor:GreyLight] width:1 height:1]
+                    forState:UIControlStateHighlighted];
 }
 
 - (void)setTitleText:(NSString *)titleText

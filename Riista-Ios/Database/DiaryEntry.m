@@ -17,6 +17,8 @@ NSString *const DiaryEntryHarvestPermitRejected = @"REJECTED";
 @implementation DiaryEntry
 
 @dynamic amount;
+@dynamic deerHuntingType;
+@dynamic deerHuntingTypeDescription;
 @dynamic diarydescription;
 @dynamic gameSpeciesCode;
 @dynamic harvestReportRequired;
@@ -39,6 +41,9 @@ NSString *const DiaryEntryHarvestPermitRejected = @"REJECTED";
 @dynamic specimens;
 @dynamic permitNumber;
 @dynamic harvestSpecVersion;
+@dynamic huntingMethod;
+@dynamic feedingPlace;
+@dynamic taigaBeanGoose;
 
 - (id)init
 {
@@ -57,12 +62,18 @@ NSString *const DiaryEntryHarvestPermitRejected = @"REJECTED";
     return yearMonth;
 }
 
+- (BOOL)hasNonDefaultLocation
+{
+    return self.coordinates.longitude != nil && [self.coordinates.longitude intValue] != 0 &&
+        self.coordinates.latitude != nil && [self.coordinates.latitude intValue] != 0;
+}
+
 #pragma mark - DiaryEntryBase
 
 - (BOOL)isEditable
 {
     // Allow nil value to support older backend version.
-    return (self.canEdit == nil || [self.canEdit boolValue]) && ![self.harvestReportDone boolValue];
+    return (self.canEdit == nil || [self.canEdit boolValue]);
 }
 
 @end

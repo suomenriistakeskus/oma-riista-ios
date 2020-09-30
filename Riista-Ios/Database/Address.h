@@ -1,6 +1,5 @@
 #import <Foundation/Foundation.h>
 
-
 @interface Address : NSObject <NSCoding, NSCopying>
 
 @property (nonatomic, strong) NSString *city;

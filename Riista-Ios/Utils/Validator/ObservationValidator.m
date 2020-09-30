@@ -7,6 +7,12 @@
 #import "ObservationContextSensitiveFieldSets.h"
 #import "MetadataManager.h"
 #import "GeoCoordinate.h"
+#import "RiistaModelUtils.h"
+#import "PhoneNumberValidator.h"
+#import "Oma_riista-Swift.h"
+
+NSString *const kDeerHuntingType = @"deerHuntingType";
+NSString *const kDeerHuntingTypeDescription = @"deerHuntingTypeDescription";
 
 @implementation ObservationValidator
 
@@ -14,17 +20,21 @@
 {
     ObservationSpecimenMetadata *metadata = [metadataManager getObservationMetadataForSpecies:[entry.gameSpeciesCode integerValue]];
     if (!metadata) {
-        DLog(@"%s: No metadata", __PRETTY_FUNCTION__);
+        DDLog(@"%s: No metadata", __PRETTY_FUNCTION__);
         return NO;
     }
 
-    ObservationContextSensitiveFieldSets *fieldset = [metadata findFieldSetByType:entry.observationType withinMooseHunting:[entry.withinMooseHunting boolValue]];
+    ObservationContextSensitiveFieldSets *fieldset = [metadata findFieldSetByType:entry.observationType observationCategoryStr:entry.observationCategory];
     if (!fieldset) {
-        DLog(@"%s: No species metadata", __PRETTY_FUNCTION__);
+        DDLog(@"%s: No species metadata", __PRETTY_FUNCTION__);
         return NO;
     }
+
+    BOOL isDeerPilotUser = [[RiistaSettings userInfo] deerPilotUser];
 
     BOOL isValid = [self validateSpeciesId:[entry.gameSpeciesCode integerValue]] &&
+        [self validateObservationCategory:entry.observationCategory] &&
+        [self validateDeerHuntingType:entry fieldset:fieldset isDeerPilotUser:isDeerPilotUser] &&
         [self validateEntryType:entry.type] &&
         [self validatePosition:entry.coordinates] &&
         [self validateTimestamp:entry.pointOfTime] &&
@@ -36,33 +46,37 @@
         if ([fieldset requiresMooselikeAmounts:fieldset.baseFields]) {
             isValid = mooselikeCount > 0 && entry.totalSpecimenAmount == nil && [entry.specimens count] == 0;
 
-            DLog(@"Valid: %@ (Amount: %@, specimens: %ld)", isValid ? @"YES" :@"NO", entry.totalSpecimenAmount, [entry.specimens count]);
+            DDLog(@"Valid: %@ (Amount: %@, specimens: %ld)", isValid ? @"YES" :@"NO", entry.totalSpecimenAmount, (long)[entry.specimens count]);
         }
         else if (mooselikeCount > 0) {
             isValid = false;
 
-            DLog(@"Valid: %@ (mooselikeCount: %ld)", isValid ? @"YES" :@"NO", (long)mooselikeCount);
+            DDLog(@"Valid: %@ (mooselikeCount: %ld)", isValid ? @"YES" :@"NO", (long)mooselikeCount);
         }
         else {
-            if ([fieldset hasFieldSet:fieldset.baseFields name:@"amount"]) {
+            if ([fieldset hasFieldSet:fieldset.baseFields name:@"amount"] || [RiistaModelUtils isFieldCarnivoreAuthorityVoluntaryForUser:fieldset fieldName:@"amount"]) {
                 isValid = [entry.totalSpecimenAmount integerValue] > 0 &&
-                    [entry.totalSpecimenAmount integerValue] <= 999 &&
+                    [entry.totalSpecimenAmount integerValue] <= [AppConstants ObservationMaxAmount] &&
                     [entry.specimens count] <= DiaryEntrySpecimenDetailsMax &&
                     (([entry.totalSpecimenAmount integerValue] <= DiaryEntrySpecimenDetailsMax && [entry.specimens count] <= [entry.totalSpecimenAmount integerValue]) ||
                      ([entry.totalSpecimenAmount integerValue] > DiaryEntrySpecimenDetailsMax && [entry.specimens count] == 0));
 
-                DLog(@"Valid: %@ (Amount: %@, specimens: %ld)", isValid ? @"YES" :@"NO", entry.totalSpecimenAmount, [entry.specimens count]);
+                DDLog(@"Valid: %@ (Amount: %@, specimens: %ld)", isValid ? @"YES" :@"NO", entry.totalSpecimenAmount, (long)[entry.specimens count]);
             }
             else {
                 isValid = entry.totalSpecimenAmount == nil && [entry.specimens count] == 0;
 
-                DLog(@"Valid: %@ (Amount: %@, specimens: %ld)", isValid ? @"YES" :@"NO", entry.totalSpecimenAmount, [entry.specimens count]);
+                DDLog(@"Valid: %@ (Amount: %@, specimens: %ld)", isValid ? @"YES" :@"NO", entry.totalSpecimenAmount, (long)[entry.specimens count]);
             }
         }
     }
 
+    if (isValid) {
+        isValid = [PhoneNumberValidator isValid:entry.observerPhoneNumber];
+    }
+
     if (!isValid) {
-        DLog(@"Failed to validate observation");
+        DDLog(@"Failed to validate observation");
     }
 
     return isValid;
@@ -74,8 +88,63 @@
         return YES;
     }
 
-    DLog(@"Illegal species id; %ld", value);
+    DDLog(@"Illegal species id; %ld", (long)value);
     return NO;
+}
+
++ (BOOL)validateObservationCategory:(NSString*)observationCategory
+{
+    ObservationCategory category = [ObservationCategoryHelper parseWithCategoryString:observationCategory fallback:ObservationCategoryUnknown];
+    if (category != ObservationCategoryUnknown) {
+        return YES;
+    }
+
+    DDLog(@"Illegal observation category: %@", observationCategory);
+    return NO;
+}
+
++ (BOOL)validateDeerHuntingType:(ObservationEntry*)observationEntry fieldset:(ObservationContextSensitiveFieldSets*)fieldset isDeerPilotUser:(BOOL)isDeerPilotUser
+{
+    DeerHuntingType deerHuntingType = [DeerHuntingTypeHelper parseWithHuntingTypeString:observationEntry.deerHuntingType
+                                                                               fallback:DeerHuntingTypeNone];
+
+    BOOL isDeerHuntingTypeRequired = [fieldset hasRequiredBaseField:kDeerHuntingType] ||
+        (isDeerPilotUser && [fieldset hasRequiredDeerPilotBaseField:kDeerHuntingType]);
+
+    BOOL isDeerHuntingTypeVoluntary = [fieldset hasVoluntaryBaseField:kDeerHuntingType] ||
+        (isDeerPilotUser && [fieldset hasVoluntaryDeerPilotBaseField:kDeerHuntingType]);
+
+    if (isDeerHuntingTypeRequired) {
+        if (deerHuntingType == DeerHuntingTypeNone) {
+            DDLog(@"no deerHuntingType even though required");
+            return NO;
+        }
+    } else if (!isDeerHuntingTypeVoluntary && deerHuntingType != DeerHuntingTypeNone) {
+        DDLog(@"deer hunting type set even though not voluntary");
+        return NO;
+    }
+
+    NSString *deerHuntingTypeDescription = observationEntry.deerHuntingTypeDescription;
+
+    BOOL isDescriptionRequired = [fieldset hasRequiredBaseField:kDeerHuntingTypeDescription] ||
+        (isDeerPilotUser && [fieldset hasRequiredDeerPilotBaseField:kDeerHuntingTypeDescription]);
+
+    BOOL isDescriptionVoluntary = [fieldset hasVoluntaryBaseField:kDeerHuntingTypeDescription] ||
+        (isDeerPilotUser && [fieldset hasVoluntaryDeerPilotBaseField:kDeerHuntingTypeDescription]);
+
+    if (isDescriptionRequired) {
+        if (deerHuntingTypeDescription == nil) {
+            DDLog(@"nil deerHuntingTypeDescription even though required");
+            return NO;
+        }
+    } else if (!isDescriptionVoluntary && deerHuntingTypeDescription != nil) {
+        DDLog(@"deer hunting type set even though not voluntary");
+        return NO;
+    }
+
+    // description must not be present if deerHuntingType is NOT DeerHuntingTypeOther (cannot be expressed by metadata)
+    // - i.e. description is only allowed to be nil if type IS Other
+    return deerHuntingTypeDescription == nil || deerHuntingType == DeerHuntingTypeOther;
 }
 
 + (BOOL)validateEntryType:(NSString*)value
@@ -84,7 +153,7 @@
         return YES;
     }
 
-    DLog(@"Illegal entry type: %@", value);
+    DDLog(@"Illegal entry type: %@", value);
     return NO;
 }
 
@@ -97,7 +166,7 @@
         return YES;
     }
 
-    DLog(@"Illegal position");
+    DDLog(@"Illegal position");
     return NO;
 }
 
@@ -107,7 +176,7 @@
         return YES;
     }
 
-    DLog(@"Illegal datetime");
+    DDLog(@"Illegal datetime");
     return NO;
 }
 
@@ -117,36 +186,7 @@
         return YES;
     }
 
-    DLog(@"Illegal observation type");
-    return NO;
-}
-
-+ (BOOL)validateAmount:(NSNumber*)value metadata:(ObservationSpecimenMetadata*)metadata observationType:(NSString*)observationType withinMooseHunting:(BOOL)withinMooseHunting;
-{
-    if (metadata == nil) {
-        return NO;
-    }
-
-    ObservationContextSensitiveFieldSets *fieldset = [metadata findFieldSetByType:observationType withinMooseHunting:withinMooseHunting];
-    if (fieldset == nil) {
-        return NO;
-    }
-
-    if ([fieldset hasFieldSet:fieldset.baseFields name:@"amount"]) {
-        return [value intValue] > 0 && [value intValue] <= 999;
-    }
-    else {
-        return value == nil;
-    }
-}
-
-+ (BOOL)validateSpecimens:(NSOrderedSet*)value amount:(NSInteger)amount
-{
-    if (value != nil && [value count] <= amount) {
-        return YES;
-    }
-
-    DLog(@"Illegal specimen information");
+    DDLog(@"Illegal observation type");
     return NO;
 }
 

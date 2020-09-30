@@ -7,6 +7,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Announcement : NSManagedObject
 
+- (NSString *)senderAsText;
+- (NSString *)timeAsText;
+
 @end
 
 NS_ASSUME_NONNULL_END

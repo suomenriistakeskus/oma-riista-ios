@@ -1,9 +1,11 @@
 "Frontpage" = "Första sidan";
 "Gamelog" = "Viltlogg";
+"Map" = "Karta";
 "MyDetails" = "Egna uppgifter";
 "Announcements" = "Meddelanden";
 "ContactDetails" = "Kontaktuppgifter";
 "Settings" = "Inställningar";
+"Gallery" = "Galleri";
 "Logout" = "Logga ut";
 
 "MenuFrontPage" = "Hemms.";
@@ -11,11 +13,15 @@
 "MenuMyDetails" = "Egna uppg.";
 "MenuAnnouncements" = "Medd.";
 "MenuSettings" = "Inställningar";
+"MenuShootingTests" = "Skjutprov";
 "MenuContactDetails" = "Kontaktuppgifter";
+"MenuEventSearch" = "Sök evenemang";
+"MenuReadMagazine" = "Läs senaste numret av Jägaren";
+"MenuOpenSeasons" = "Jakttider";
 "MenuMore" = "Mer";
 
 "LoginText" = "Logga in med koderna som skapats i oma.riista.fi";
-"Username" = "Användarnamn";
+"Username" = "E-post";
 "Password" = "Lösenord";
 "Login" = "Logga in";
 "loginFailed" = "Inloggning misslyckades";
@@ -23,12 +29,17 @@
 "loginIncorrectCredentials" = "Fel användarnamn eller lösenord. Var god och försök igen.";
 "loginOutdatedVersion" = "Programversionen är föråldrad. Uppdatera programmet till en ny version för att fortsätta användningen.";
 "OK" = "OK";
+"Yes" = "Ja";
+"No" = "Nej";
 
 "SeasonFormat" = "Jaktperiod %i - %i";
 "TotalCatchFormat" = "%d byte totalt";
 "TotalObservationsFormat" = "%d observationen";
 "TotalSrvasFormat" = "%d händelser";
-"LogGameFormat" = "Anteckna byte\n%@";
+"LogGameFormat" = "%@";
+
+"HomeHuntingLicense" = "Jaktkort";
+"HomeShootingTests" = "Skjutprovs-\nprestationerna";
 
 "MyDetailsTitlePerson" = "Personuppgifter";
 "MyDetailsName" = "Namn";
@@ -38,7 +49,9 @@
 "MyDetailsTitleRegistry" = "Jägarregistret";
 "MyDetailsHunterId" = "Jägarnummer";
 "MyDetailsTitleHuntingLicense" = "Jaktkort";
-"MyDetailsInsurancePolicyText" = "I detta kort nämnda jägare har en jägarförsäkring, som är giltig i alla nordiska länder och EU-länder.";
+"MyDetailsTitleShootingTests" = "Skjutprovsprestationerna";
+"MyDetailsNoShootingTestAttempts" = "Inga ikraftvarande elektroniska skjutprovsprestationer";
+"MyDetailsInsurancePolicyText" = "I detta kort nämnda jägare har en jägarförsäkring, som är giltig i alla nordiska länder, Schweiz och EU-länder.";
 "MyDetailsPayment" = "Jaktvårdsavgift";
 "MyDetailsExamDate" = "Datum för avläggande av examen";
 "MyDetailsMembership" = "JVF medlemsskap";
@@ -47,10 +60,55 @@
 "MyDetailsNoValidLicense" = "Jaktkort inte giltig";
 "MyDetailsHuntingBan" = "Jaktförbud";
 "MyDetailsAssignmentsTitle" = "Uppdrag";
+"MyDetailsMhPermitsTitle" = "Forststyrelsens licenser";
+"MyDetailsMhPermitTitle" = "Licens";
+"MyDetailsMhCardTitle" = "Forststyrelsen";
+"MyDetailsMhPermitArea" = "Område";
+"MyDetailsMhPermitName" = "Typ av licens";
+"MyDetailsMhPermitPeriod" = "Tid";
+"MyDetailsMhPermitHarvestFeedback" = "Skicka bytesrespons";
+"MyDetailsMhFeedbackAlertTitle" = "Obs";
+"MyDetailsMhFeedbackAlertMessage" = "Du håller på att flytta dig från Oma riista -tjänsten till Forststyrelsens fångstresponssystem.\n\nOm det uppstår problem vid givandet av fångstresponsen eller om du vill ha tilläggsinformation om ärendet, ta kontakt med kundtjänsten för vildmarkstillstånd vid Forststyrelsen, t. 020 69 2424 (vardagar kl. 9-16) eller per e-post till adressen eraluvat@metsa.fi.";
+"Duration" = "I kraft";
 "DurationIndefinite" = "Tills vidare";
 
-"Loggame" = "Anteckna byte";
-"Game" = "Byte";
+"MapNoArea" = "Inget område";
+"MapAddArea" = "Lägg till område";
+"MapAddAreaError" = "Att lägga till område misslyckades";
+"MapHideArea" = "Dölja";
+"MapRemoveArea" = "Ta bort";
+"MapRemoveAreaTitle" = "Ta bort område";
+"MapRemoveAreaConfirm" = "Vill du säkert ta bort området?";
+"MapAreaCode" = "Områdeskod";
+"MapAreaFilterHint" = "Områdeskod / namn";
+"MapSettingShowLocation" = "Visa den egna positionen";
+"MapSettingInvertColors" = "Vänd färgen på föreningarnas områdeskartor";
+"MapSettingHideButtons" = "Göm kartknapparna";
+"MapClubAreasTitle" = "Områdesgränser";
+"MapSettingStateLands" = "Statens mark";
+"MapSettingRhyBorders" = "JVF-gränser";
+"MapSettingGameTriangles" = "Vilttrianglar";
+"MapSettingAddAreaClub" = "Oma riista områdena";
+"MapSettingAddAreaMoose" = "Forststyrelsen älgområdena";
+"MapSettingAddAreaPienriista" = "Forststyrelsen småviltområdena";
+"MapSettingAddWithAreaCode" = "Områdets kod";
+"MapSettingSelectArea" = "Välj området";
+"MapSettingGeneralTitle" = "General";
+"MapSettingSelectedAreas" = "De valda områdena";
+"MadDisplayPins" = "Visa händelser";
+
+"FilterSelectCategory" = "Välj kategori";
+"FilterSelectCategoryTwoLine" = "Välj\nkategori";
+"FilterSelectSpecies" = "Välj art";
+"FilterSelectedSpeciesCount" = " art";
+"FilterClearSelections" = "Rensa val";
+"FilterSelectAll" = "Välj alla";
+"FilterConfirmNoSelected" = "Bekräfta alla";
+"FilterConfirmWithAmount" = "Välj %d arter";
+"FilterClearSpeciesFilter" = "Rensa val";
+
+"Loggame" = "Nytt byte";
+"Harvest" = "Byte";
 "Dismiss" = "Förkasta";
 "Cancel" = "Ångra";
 "CancelRemove" = "Ångra";
@@ -58,7 +116,7 @@
 "Species" = "Art";
 "Amount" = "Antal";
 "DateTime" = "Tidpunkt";
-"ImagesAndDescription" = "Bilder och beskrivning";
+"AddDescription" = "Lägg till beskrivning";
 "CoordinatesFormat" = "N %d, E %d (ETRS-TM35FIN)";
 "ChooseSpecies" = "Välj art";
 "GPSGood" = "GPS BRA";
@@ -107,25 +165,42 @@
 "PermitListAmountShort" = "st.";
 "PermitListSectionHeader" = "Detaljer licenser";
 "PermitListNotAvailable" = "Dispens finns inte att tillgå. Tag kontakt med dispensmottagaren";
+"PermitNumberRequired" = "Tillståndsnummer krävs";
 
 "Observation" = "Observation";
-"LogObservation" = "Anteckna observation";
-"LogObservationFormat" = "Anteckna observation\n%@";
+"LogObservation" = "Ny observation";
+"LogObservationFormat" = "%@";
 "LogObservationsTotalFormat" = "%@ observationen";
 
 "ObservationDetailsMarked" = "Djuret märkts";
 "ObservationDetailsState" = "Djurets kondition";
 "ObservationDetailsType" = "Typ av observation";
 "ObservationDetailsWithinMooseHunting" = "I samband med älgjakten";
+"ObservationDetailsWithinDeerHunting" = "I samband med jakt på vitsvanshjort";
 "ObservationDetailsMooseFemale" = "Kor utan kalvar";
 "ObservationDetailsMooseFemale1Calf" = "Ko + 1 kalv";
 "ObservationDetailsMooseFemale2Calf" = "Ko + 2 kalvar";
 "ObservationDetailsMooseFemale3Calf" = "Ko + 3 kalvar";
 "ObservationDetailsMooseFemale4Calf" = "Ko + 4 kalvar";
 "ObservationDetailsMooseMale" = "Vuxna tjurar";
+"ObservationDetailsMooseCalf" = "Ensam kalv";
 "ObservationDetailsMooseUnknown" = "Okända";
 
-"LogSrva" = "Anteckna SRVA-händelse";
+"DeerHuntingType" = "Jaktmetod";
+"DeerHuntingTypeDescription" = "Beskrivning av jaktmetoden";
+
+"TassuPawLength" = "Framtassens längd";
+"TassuPawWidth" = "Framtassens bredd";
+"TassuObserverName" = "Rovdjursobservatörens namn";
+"TassuObserverPhoneNumber" = "Rovdjursobservatörens telefonnummer";
+"TassuOfficialAdditionalInfo" = "Tilläggsuppgifter för forskningen";
+"TassuVerifiedByCarnivoreAuthority" = "Konstaterad av rovdjurskontaktperson";
+"TassuDistanceToResidence" = "Avstånd till bebyggelse (beräknat automatiskt)";
+"TassuLitter" = "Kull (automatisk konklusion)";
+"TassuPack" = "Flock (automatisk konklusion)";
+
+"Srva" = "Srva";
+"LogSrva" = "SRVA-händelse";
 
 "SrvaOtherSpeciesShort" = "Övrigt";
 "SrvaOtherSpeciesDescription" = "Annan art";
@@ -141,36 +216,57 @@
 
 "SrvaApprover" = "Godkännare";
 "SrvaRejecter" = "Förkastare";
+"SrvaApproved" = "Godkänd";
+"SrvaRejected" = "Förkastad";
+
+"OnboardingSkip" = "Hoppa";
+"OnboardingNext" = "Nästa";
+"OnboardingDone" = "Färdig";
+"OnboardingIntroduction" = "Välkommen till den uppdaterade Oma riista -terrängapplikationen! Den förnyade applikationen är nu ett ännu mer mångsidigt arbetsredskap i fickformat i terrängen och jaktsituationer.";
+"OnboardingNewFeaturesTitle" = "Nya funktionaliteter";
+"OnboardingNewFeatureMaps" = "Filtrering av händelser och visning på karta";
+"OnboardingMapTitle" = "Händelserna på kartan";
+"OnboardingGalleryTitle" = "Viltloggens fotogalleri";
+"OnboardingShootingTestTitle" = "Skjutprovsprestationerna";
+"OnboaringMetsahallitusTitle" = "Forststyrelsens licenser";
 
 "CustomerService" = "Oma riista information";
 "SupportAndFeedback" = "Stöd och respons";
 "CustomerServiceTimesTemplate" = "Vi betjänar vardagar kl %@-%@";
 "Email" = "E-post";
 "EmailTitle" = "Återkoppling på Oma riista mobilapplikation";
-"EmailTemplate" = "\n\nApplikationsversion: %@\nIOS-version: %@";
-"UsedThirdPartyLibraries" = "Tredjeparts-biblioteker som användes i programmet";
+"EmailTemplate" = "\n\nNamn: %@\nJägarnummer: %@\nApplikationsversion: %@\nIOS-version: %@";
+"EmailLicenseTitle" = "Jaktkort";
+"EmailLicenseTemplate" = "\n\nNamn: %@\nJägarnummer: %@";
 "ThirdPartyLibraries" = "Tredjeparts-biblioteker";
+"PrivacyStatement" = "Dataskyddbeskrivning";
+"PrivacyStatementUrl" = "https://riista.fi/sv/viltforvaltningen/elektroniska-tjanster/registerbeskrivningen/";
 "MakeCallMessage" = "Vill du ringa till Oma riista information?";
+"MakeLicenseCallMessage" = "Vill du ringa till jägarnummer information?";
 "MakeCall" = "Ringa";
+"PhoneShort" = "Tel.";
+"ContactLicenseIssuesTitle" = "Jaktkortsärenden";
 
 "Synchronization" = "Synkronisering";
 "Manual" = "Manuell";
 "Automatic" = "Automatisk";
-"Version" = "Version";
+"Version" = "Version %@";
 "Language" = "Språk";
 
-"SettingsMapTypeTitle" = "Kartor";
-"SettingsMapTypeGoogle" = "Google";
-"SettingsMapTypeMml" = "MML";
 "MapTypeSelect" = "Karta typ";
 "MapTypeTopographic" = "Terrängkarta";
 "MapTypeBackgound" = "Grundkarta";
 "MapTypeAerial" = "Ortofoton";
+"MapTypeGoogle" = "Google";
 "MapCopyrightMml" = "©Maanmittauslaitos";
 
 "ChooseImageSource" = "Välj bildkällan";
 "CameraSource" = "Kamera";
 "GallerySource" = "Galleri";
+"ImagePermissionRequiredTitle" = "Ge behörighet";
+"ImagePermissionRequiredMessage" = "Oma riista behöver åtkomst till dina photon";
+"ImageDialogButtonCancel" = "Avbryt";
+"ImageDialogButtonSettings" = "Inställningar";
 
 "SavingDataFailed" = "Lagringen av data misslyckades. Du kan starta om programmet att försöka igen. Om det här händar igen, kontakt oma@riista.fi";
 
@@ -184,8 +280,101 @@
 "MooseAntlersPointsRight" = "Horntaggar höger";
 "MooseAdditionalInfo" = "Tilläggsuppgifter";
 
+"HarvestHuntingTypeTitle" = "Jaktmetod";
+"HarvestFeedingPlaceTitle" = "Skjuten på utfodringsplats?";
+"HarvestTaigaBeanGooseTitle" = "Är det en taigasädgås?";
+
 "DisplayAll" = "Visa hela";
 "AnnouncementsNone" = "Inga meddelanden";
 "AnnouncementsFetchFailed" = "Hämtning av meddelanden misslyckadesi";
 
 "KeyboardDone" = "Klar";
+
+"UpdateAvailableTitle" = "Uppdatering finns att få";
+"UpdateAvailableMessage" = "Ladda ner en ny version av Oma riista från App Store.";
+
+"ButtonClearTitle" = "Tyhjennä";
+"NetworkOperationFailed" = "Toiminto epäonnistui (%d)";
+"ConfirmOperationPrompt" = "Är du säker att du vill genomföra åtgärden?";
+
+/*
+ Shooting test
+ */
+
+"ShootingTestViewTitle" = "Skjutprov";
+"ShootingTestTabEventTitle" = "Evenemang";
+"ShootingTestTabRegisterTitle" = "Anmälning";
+"ShootingTestTabQueueTitle" = "Prestationskö";
+"ShootingTestTabPaymentsTitle" = "Betalningar";
+
+/* Shooting test data values mapped to readable text */
+"ShootingTestTypeBearShort" = "B";
+"ShootingTestTypeMooseShort" = "Ä";
+"ShootingTestTypeRoeDeerShort" = "R";
+"ShootingTestTypeBowShort" = "PB";
+"ShootingTestTypeBear" = "Björn";
+"ShootingTestTypeMoose" = "Älg/Hjort";
+"ShootingTestTypeRoeDeer" = "Rådjur";
+"ShootingTestTypeBow" = "Pilbåge";
+"ShootingTestResultQualified" = "Godkänd";
+"ShootingTestResultUnqualified" = "Avslagen";
+"ShootingTestResultTimedOut" = "Övertid";
+"ShootingTestResultRebated" = "Avgiftsfri";
+
+/* Shooting test calendar event */
+"ShootingTestCalendarEventTypeNormal" = "Skjutprov";
+"ShootingTestCalendarEventTypeBow" = "Bågskytteprov";
+"ShootingTestStateClosed" = "Stängd";
+"ShootingTestStateOngoing" = "I gång";
+"ShootingTestStateWaiting" = "Väntar";
+
+/* Shooting test event details and officials */
+"ShootingTestEventStart" = "Öppna skjutprovstillfället";
+"ShootingTestEventEdit" = "Redigera mottagare";
+"ShootingTestEventFinish" = "Stäng skjutprovstillfället";
+"ShootingTestEventReopen" = "Öppna igen";
+"ShootingTestOfficialsTitle" = "Skjutprovets examinator";
+"ShootingTestOfficialAdd" = "Lägg till";
+"ShootingTestOfficialRemove" = "Radera";
+"ShootingTestTotalPaidAmount" = "Erlagda betalningar %@";
+
+/* Shooting test Registration */
+"ShootingTestRegisterAddParticipant" = "Lägg till deltagare";
+"ShootingTestRegisterHunterNumber" = "Jägarnummer";
+"ShootingTestRegisterReadQr" = "Skanna QR-kod eller streckkod";
+"ShootingTestRegisterReadQrFailed" = "Skanning QR-kod misslyckades eller inte jaktkort";
+"ShootingTestRegisterSearchWithScannedHunterNumber" = "Sök med jägarnummer: %@";
+"ShootingTestRegisterSearchWithScannedSsn" = "Sök med personbeteckning: %@";
+"ShootingTestRegisterSearchNoResults" = "Inga resultat";
+"ShootingTestRegisterTestTypeTitle" = "Välj tilltänkt provform";
+
+"ShootingTestRegisterUserAlreadyRegistered" = "Personen har redan anmält sig men inte ännu bestämt eller betalat skjutprovsprestationen";
+"ShootingTestRegisterUserAlreadyCompleted" = "Personens skjutprovsprestation är avslutad";
+"ShootingTestRegisterUserAlreadyOfficial" = "Personen kan inte anmäla sig som deltagare, för att hen är examinator vid samma skjutprovstillfälle";
+"ShootingTestRegisterUserHuntingPaymentNotDone" = "Viltvårdsavgiften obetald. Kontrollera från inbetalningskortet och papperskvittot att betalningen är gjord. Om betalningen är erlagd, så lägg till deltagaren på normalt sätt till skjutprovet.";
+"ShootingTestRegisterUserHuntingBan" = "Jaktförbud";
+"ShootingTestRegisterUserNotHunter" = "Person har inget jägarnummer";
+"ShootingTestRegisterUserForeignHunter" = "Utländsk jägare";
+
+/* Shooting test attempt */
+"ShootingTestAttemptListViewTitle" = "Anteckna prestation";
+"ShootingTestAttemptListResultTitle" = "Resultat";
+"ShootingTestAttemptListHitsTitle" = "Träffar";
+"ShootingTestAttemptListAdd" = "Anteckna prestation";
+"ShootingTestAttemptEditViewTitle" = "Anteckna prestationens uppgifter";
+"ShootingTestAttemptTypeTitle" = "Välj provform";
+"ShootingTestAttemptHitsTitle" = "Markera träffarna";
+"ShootingTestAttemptResultTitle" = "Provets resultat";
+"ShootingTestAttemptNoteTitle" = "Anteckningar";
+"ShootingTestAttemptNoteHint" = "Anteckna orsak till obetald prestation: vapenstörning, patron inte avfyrats, tavlan fallit ner under prestationen … eller lämna tomt";
+"ShootingTestAttemptDeleteConfirm" = "Radera prestation?";
+
+/* Shooting test payment */
+"ShootingTestPaymentTitle" = "Betalningar";
+"ShootingTestPaymentTotal" = "Totalt";
+"ShootingTestPaymentPaid" = "Betald";
+"ShootingTestPaymentRemaining" = "Kvar";
+"ShootingTestPaymentParticipantTitle" = "Skytt";
+"ShootingTestPaymentTestFinished" = "Skutprovet avslutats";
+"ShootingTestPaymentCompleteConfirm" = "Vill du anteckna personens %@ %@ (%@) skjutprov och betalningar som erlagda?";
+"ShootingTestPaymentEditTitle" = "Redigera betalningen";

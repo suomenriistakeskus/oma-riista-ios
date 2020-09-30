@@ -27,6 +27,7 @@ extern NSString *const SpecimenAgeUnknown;
 @property (nonatomic, retain) NSNumber *antlerPointsLeft;
 @property (nonatomic, retain) NSNumber *antlerPointsRight;
 @property (nonatomic, retain) NSNumber *notEdible;
+@property (nonatomic, retain) NSNumber *alone;
 @property (nonatomic, retain) NSString *additionalInfo;
 
 @property (nonatomic, retain) DiaryEntry *diaryEntry;

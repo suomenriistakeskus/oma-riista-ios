@@ -23,7 +23,26 @@ typedef enum {
     RiistaApplicationColorHarvestStatusProposed,
     RiistaApplicationColorHarvestStatusSentForApproval,
     RiistaApplicationColorHarvestStatusApproved,
-    RiistaApplicationColorHarvestStatusRejected
+    RiistaApplicationColorHarvestStatusRejected,
+    ShootingTestQualifiedColor,
+    ShootingTestUnqualifiedColor,
+    ShootingTestIntendedColor,
+    ShootingTestNotIntendedColor,
+
+    // Updated facelift colors after this
+
+    Primary,
+    PrimaryDark,
+    PrimaryVariant,
+    TextPrimary,
+    TextSecondary,
+    TextOnPrimary,
+    ViewBackground,
+    GreyDark,
+    GreyMedium,
+    GreyLight,
+    Destructive
+
 } RiistaApplicationColor;
 
 @interface UIColor (ApplicationColor)

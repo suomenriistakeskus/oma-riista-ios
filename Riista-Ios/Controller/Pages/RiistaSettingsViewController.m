@@ -5,17 +5,17 @@
 #import "RiistaNavigationController.h"
 #import "Styles.h"
 
+#import "Oma_riista-Swift.h"
+
 @interface RiistaSettingsViewController ()
 
 @property (weak, nonatomic) IBOutlet UILabel *syncLabel;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *syncSegmentedControl;
-@property (weak, nonatomic) IBOutlet UILabel *versionSettingLabel;
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
-@property (weak, nonatomic) IBOutlet UIButton *thirdPartyLicenseButton;
+@property (weak, nonatomic) IBOutlet MDCButton *privacyTermsButton;
+@property (weak, nonatomic) IBOutlet MDCButton *thirdPartyLicenseButton;
 @property (weak, nonatomic) IBOutlet UILabel *languageSettingLabel;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *languageSegmentedControl;
-@property (weak, nonatomic) IBOutlet UILabel *mapSourceLabel;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *mapSourceSegmentedControl;
 
 @end
 
@@ -40,6 +40,9 @@
 {
     [super viewDidLoad];
 
+    self.view.backgroundColor = [UIColor applicationColor:ViewBackground];
+    [AppTheme.shared setupSegmentedControllerWithSegmentedController:self.syncSegmentedControl];
+
     RiistaSyncMode mode = [RiistaSettings syncMode];
     if (mode == RiistaSyncModeManual) {
         [self.syncSegmentedControl setSelectedSegmentIndex:0];
@@ -48,13 +51,11 @@
     }
     [self.syncSegmentedControl addTarget:self action:@selector(syncModeChanged:) forControlEvents:UIControlEventValueChanged];
 
+    // will also refresh version, no need to it separately here
     [self setupLanguageSelect];
-    [self setupMapTypeSelect];
 
-    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
-    NSString *version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
-    self.versionLabel.text = [NSString stringWithFormat:@"%@%@", version, @""];
 
+    [self setupPrivacyTermsButton];
     [self setupThirdPartyLibrariesButton];
 }
 
@@ -70,8 +71,18 @@
     [self pageSelected];
 }
 
+- (void)refreshVersionText
+{
+    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    NSString *versionFormat = RiistaLocalizedString(@"Version", nil);
+    NSString *version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
+    self.versionLabel.text = [[NSString alloc] initWithFormat:versionFormat, version];
+}
+
 - (void)setupLanguageSelect
 {
+    [AppTheme.shared setupSegmentedControllerWithSegmentedController:self.languageSegmentedControl];
+
     [self.languageSegmentedControl setTitle:RiistaLocalizedString(@"Suomi", nil) forSegmentAtIndex:0];
     [self.languageSegmentedControl setTitle:RiistaLocalizedString(@"Svenska", nil) forSegmentAtIndex:1];
     [self.languageSegmentedControl setTitle:RiistaLocalizedString(@"English", nil) forSegmentAtIndex:2];
@@ -89,23 +100,15 @@
     [self.languageSegmentedControl addTarget:self action:@selector(languageChanged:) forControlEvents:UIControlEventValueChanged];
 }
 
-- (void)setupMapTypeSelect
+- (void)setupPrivacyTermsButton
 {
-    RiistaMapType mapTypeSetting = [RiistaSettings mapType];
-    if (mapTypeSetting == GoogleMapType) {
-        [self.mapSourceSegmentedControl setSelectedSegmentIndex:0];
-    }
-    else {
-        [self.mapSourceSegmentedControl setSelectedSegmentIndex:1];
-    }
-
-    [self.mapSourceSegmentedControl addTarget:self action:@selector(mapTypeChanged:) forControlEvents:UIControlEventValueChanged];
+    [_privacyTermsButton applyTextThemeWithScheme:AppTheme.shared.outlineButtonScheme];
+    [_privacyTermsButton addTarget:self action:@selector(openPrivacyTerms:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)setupThirdPartyLibrariesButton
 {
-    [Styles styleLinkButton:_thirdPartyLicenseButton];
-    _thirdPartyLicenseButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    [_thirdPartyLicenseButton applyTextThemeWithScheme:AppTheme.shared.outlineButtonScheme];
     [_thirdPartyLicenseButton addTarget:self action:@selector(openThirdPartyLibrariesPage:) forControlEvents:UIControlEventTouchUpInside];
 }
 
@@ -117,13 +120,14 @@
     [self.syncSegmentedControl setTitle:RiistaLocalizedString(@"Automatic", nil) forSegmentAtIndex:1];
 
     self.languageSettingLabel.text = RiistaLocalizedString(@"Language", nil);
-    self.versionSettingLabel.text = RiistaLocalizedString(@"Version", nil);
+    [self refreshVersionText];
 
-    self.mapSourceLabel.text = RiistaLocalizedString(@"SettingsMapTypeTitle", nil);
-    [self.mapSourceSegmentedControl setTitle:RiistaLocalizedString(@"SettingsMapTypeGoogle", nil) forSegmentAtIndex:0];
-    [self.mapSourceSegmentedControl setTitle:RiistaLocalizedString(@"SettingsMapTypeMml", nil) forSegmentAtIndex:1];
+    [self.thirdPartyLicenseButton setTitle:RiistaLocalizedString(@"ThirdPartyLibraries", nil)
+                                  forState:UIControlStateNormal];
+    [self.privacyTermsButton setTitle:RiistaLocalizedString(@"PrivacyStatement", nil)
+                             forState:UIControlStateNormal];
 
-    [self.thirdPartyLicenseButton setTitle:RiistaLocalizedString(@"UsedThirdPartyLibraries", nil) forState:UIControlStateNormal];
+
     [self pageSelected];
 }
 
@@ -157,20 +161,6 @@
     }
 }
 
-- (void)mapTypeChanged:(id)sender
-{
-    if (self.mapSourceSegmentedControl) {
-        NSInteger selectedIndex = self.mapSourceSegmentedControl.selectedSegmentIndex;
-
-        if (selectedIndex == 0) {
-            [RiistaSettings setMapTypeSetting:GoogleMapType];
-        }
-        else if (selectedIndex == 1) {
-            [RiistaSettings setMapTypeSetting:MmlTopographicMapType];
-        }
-    }
-}
-
 - (void)pageSelected
 {
     UIViewController *vc = self.navigationController;
@@ -183,9 +173,15 @@
     }
 }
 
+- (void)openPrivacyTerms:(id)sender
+{
+    NSURL *privacyStatementUrl = [NSURL URLWithString:RiistaLocalizedString(@"PrivacyStatementUrl", nil)];
+    [[UIApplication sharedApplication] openURL:privacyStatementUrl options:@{} completionHandler:nil];
+}
+
 - (void)openThirdPartyLibrariesPage:(id)sender
 {
-    UIViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"ThirdPartyLibrariesController"];
+    UIViewController *controller = [[ThirdPartyLicensesController alloc] init];
     [self.navigationController pushViewController:controller animated:YES];
 }
 

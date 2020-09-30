@@ -3,10 +3,10 @@
 @class DiaryEntry;
 @class DiaryImage;
 @class ObservationEntry;
-@class RiistaCalendarYear;
 @class RiistaSpecies;
 @class RiistaDiaryEntryUpdate;
 @class SrvaEntry;
+@class SeasonStats;
 
 extern NSString *const RiistaCalendarEntriesUpdatedKey;
 extern NSString *const RiistaLanguageSelectionUpdatedKey;
@@ -20,7 +20,7 @@ typedef void(^RiistaDiaryEntryDeleteCompletion)(NSError *error);
 typedef void(^RiistaObservationEntryUploadCompletion)(NSArray *updates, NSError *error);
 typedef void(^RiistaObservationEntryEditCompletion)(NSDictionary *response, NSError *error);
 typedef void(^RiistaObservationEntryDeleteCompletion)(NSError *error);
-typedef void(^RiistaSynchronizationCompletion)();
+typedef void(^RiistaSynchronizationCompletion)(void);
 typedef void(^DiaryImageSubmitCompletion)(BOOL errors);
 typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger currentIndex);
 
@@ -93,7 +93,7 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
 /**
  * Gets statistics for given years
  */
-- (RiistaCalendarYear*)statisticsForYear:(NSInteger)startYear;
+- (SeasonStats*)statsForHarvestSeason:(NSInteger)startYear;
 
 /**
  * Gets list of species with given category id
@@ -170,7 +170,7 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
 - (void)clearObservations;
 
 - (NSArray*)observationYears;
-- (RiistaCalendarYear*)observationStatisticsForYear:(NSInteger)startYear;
+- (SeasonStats*)statsForObservationSeason:(NSInteger)startYear;
 - (NSArray*)latestObservationSpecies:(NSInteger)amount;
 
 - (void)editObservationEntry:(ObservationEntry *)observationEntry completion:(RiistaDiaryEntryEditCompletion)completion;
@@ -181,7 +181,7 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
 
 #pragma mark - Srva
 
-- (RiistaCalendarYear*)srvaStatisticsForYear:(NSInteger)startYear;
+- (SeasonStats*)statsForSrvaYear:(NSInteger)startYear;
 - (NSArray*)latestSrvaSpecies:(NSInteger)amount;
 - (SrvaEntry*)srvaEntryWithObjectId:(NSManagedObjectID*)objectId context:(NSManagedObjectContext*)context;
 - (void)addLocalSrva:(SrvaEntry*)srvaEntry;

@@ -37,6 +37,9 @@ typedef void(^RiistaDiarySrvaSendCompletion)(NSDictionary *response, NSError *er
 
 typedef void(^RiistaAnnouncementsListCompletion)(NSArray *items, NSError *error);
 
+typedef void(^RiistaJsonArrayCompletion)(NSArray *items, NSError *error);
+typedef void(^RiistaJsonCompletion)(NSDictionary *item, NSError *error);
+
 @interface RiistaNetworkOperation : MKNetworkOperation
 
 @end
@@ -47,6 +50,8 @@ typedef void(^RiistaAnnouncementsListCompletion)(NSArray *items, NSError *error)
 @property (strong, nonatomic) MKNetworkEngine *imageNetworkEngine;
 
 + (RiistaNetworkManager*)sharedInstance;
+
++ (NSString*)getBaseApiPath;
 
 - (void)login:(NSString*)username password:(NSString*)password completion:(RiistaLoginCompletionBlock)completion;
 
@@ -59,10 +64,21 @@ typedef void(^RiistaAnnouncementsListCompletion)(NSArray *items, NSError *error)
 - (void)relogin:(NSString*)username password:(NSString*)password completion:(RiistaLoginCompletionBlock)completion;
 
 /**
+ * Send and register user Firebase notification token to the server.
+ */
+- (void)registerUserNotificationToken;
+
+/**
  * Fetch user announcements
  * @param completion Completion block
  */
 - (void)listAnnouncements:(RiistaAnnouncementsListCompletion)completion;
+
+/**
+ * Fetch user MH permits
+ * @param completion Completion block
+ */
+- (void)listMhPermits:(RiistaJsonArrayCompletion)completion;
 
 /**
  * Get list of permits associated with user
@@ -181,5 +197,42 @@ typedef void(^RiistaAnnouncementsListCompletion)(NSArray *items, NSError *error)
  * @param completion Completion block
  */
 - (void)diarySrvaImageOperationForImage:(DiaryImage*)image srvaEntry:(SrvaEntry*)srvaEntry completion:(RiistaDiaryEntryImageOperationCompletion)completion;
+
+
+- (void)clubAreaMaps:(RiistaJsonArrayCompletion)completion;
+
+- (void)clubAreaMap:(NSString*) externalId completion:(RiistaJsonCompletion)completion;
+
+- (void)listMooseAreaMaps:(RiistaJsonArrayCompletion)completion;
+- (void)listPienriistaAreaMaps:(RiistaJsonArrayCompletion)completion;
+
+- (void)listShootingTestCalendarEvents:(RiistaJsonArrayCompletion)completion;
+- (void)getShootingTestCalendarEvent:(long)eventId completion:(RiistaJsonCompletion)completion;
+
+- (void)startEvent:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
+- (void)closeEvent:(NSString*)url completion:(RiistaJsonCompletion)completion;
+- (void)reopenEvent:(NSString*)url completion:(RiistaJsonCompletion)completion;
+- (void)updateOfficials:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
+
+- (void)listAvailableOfficialsForEvent:(NSString*)url completion:(RiistaJsonArrayCompletion)completion;
+- (void)listAvailableOfficialsForRhy:(NSString*)url completion:(RiistaJsonArrayCompletion)completion;
+- (void)listSelectedOfficialsForEvent:(NSString*)url completion:(RiistaJsonArrayCompletion)completion;
+
+- (void)searchWithHuntingNumberForEvent:(NSString*)url hunterNumber:(NSString*)hunterNumber completion:(RiistaJsonCompletion)completion;
+- (void)searchWithSsnForEvent:(NSString*)url ssn:(NSString*)ssn completion:(RiistaJsonCompletion)completion;
+- (void)addParticipant:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
+
+- (void)getParticipantDetailed:(NSString*)url completion:(RiistaJsonCompletion)completion;
+- (void)getAttempt:(NSString*)url completion:(RiistaJsonCompletion)completion;
+
+- (void)addAttempt:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
+- (void)updateAttempt:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
+- (void)deleteAttempt:(NSString*)url completion:(RiistaJsonCompletion)completion;
+- (void)listParticipants:(NSString*)url unfinishedOnly:(BOOL)unfinishedOnly completion:(RiistaJsonArrayCompletion)completion;
+
+- (void)getParticipantSummary:(NSString*)url completion:(RiistaJsonCompletion)completion;
+- (void)completeAllPayments:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
+
+- (void)updatePaymentState:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
 
 @end

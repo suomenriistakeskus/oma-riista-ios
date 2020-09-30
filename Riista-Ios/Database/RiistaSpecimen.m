@@ -25,6 +25,7 @@ NSString *const SpecimenAgeUnknown = @"UNKNOWN";
 @dynamic antlerPointsLeft;
 @dynamic antlerPointsRight;
 @dynamic notEdible;
+@dynamic alone;
 @dynamic additionalInfo;
 
 @dynamic diaryEntry;
@@ -44,6 +45,7 @@ NSString *const SpecimenAgeUnknown = @"UNKNOWN";
         && [RiistaUtils nilEqual:self.antlerPointsLeft b:otherSpecimen.antlerPointsLeft]
         && [RiistaUtils nilEqual:self.antlerPointsRight b:otherSpecimen.antlerPointsRight]
         && [RiistaUtils nilEqual:self.notEdible b:otherSpecimen.notEdible]
+        && [RiistaUtils nilEqual:self.alone b:otherSpecimen.alone]
         && [RiistaUtils nilEqual:self.additionalInfo b:otherSpecimen.additionalInfo]
         ) {
 
@@ -67,6 +69,7 @@ NSString *const SpecimenAgeUnknown = @"UNKNOWN";
         && self.antlerPointsLeft == nil
         && self.antlerPointsRight == nil
         && self.notEdible == nil
+        && self.alone == nil
         && !self.additionalInfo.length;
 }
 

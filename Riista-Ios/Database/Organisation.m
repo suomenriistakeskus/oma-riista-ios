@@ -1,16 +1,11 @@
 #import "Organisation.h"
+#import "RiistaUtils.h"
 
 
 NSString *const kOrganisationId = @"id";
 NSString *const kOrganisationName = @"name";
 NSString *const kOrganisationOfficialCode = @"officialCode";
 
-
-@interface Organisation ()
-
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
-
-@end
 
 @implementation Organisation
 
@@ -31,9 +26,9 @@ NSString *const kOrganisationOfficialCode = @"officialCode";
     // This check serves to make sure that a non-NSDictionary object
     // passed into the model class doesn't break the parsing.
     if(self && [dict isKindOfClass:[NSDictionary class]]) {
-            self.organisationIdentifier = [[self objectOrNilForKey:kOrganisationId fromDictionary:dict] doubleValue];
-            self.name = [self objectOrNilForKey:kOrganisationName fromDictionary:dict];
-            self.officialCode = [self objectOrNilForKey:kOrganisationOfficialCode fromDictionary:dict];
+            self.organisationIdentifier = [RiistaUtils objectOrNilForKey:kOrganisationId fromDictionary:dict];
+            self.name = [RiistaUtils objectOrNilForKey:kOrganisationName fromDictionary:dict];
+            self.officialCode = [RiistaUtils objectOrNilForKey:kOrganisationOfficialCode fromDictionary:dict];
 
     }
 
@@ -43,7 +38,7 @@ NSString *const kOrganisationOfficialCode = @"officialCode";
 - (NSDictionary *)dictionaryRepresentation
 {
     NSMutableDictionary *mutableDict = [NSMutableDictionary dictionary];
-    [mutableDict setValue:[NSNumber numberWithDouble:self.organisationIdentifier] forKey:kOrganisationId];
+    [mutableDict setValue:self.organisationIdentifier forKey:kOrganisationId];
     [mutableDict setValue:self.name forKey:kOrganisationName];
     [mutableDict setValue:self.officialCode forKey:kOrganisationOfficialCode];
 
@@ -55,13 +50,6 @@ NSString *const kOrganisationOfficialCode = @"officialCode";
     return [NSString stringWithFormat:@"%@", [self dictionaryRepresentation]];
 }
 
-#pragma mark - Helper Method
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
-{
-    id object = [dict objectForKey:aKey];
-    return [object isEqual:[NSNull null]] ? nil : object;
-}
-
 
 #pragma mark - NSCoding Methods
 
@@ -69,7 +57,7 @@ NSString *const kOrganisationOfficialCode = @"officialCode";
 {
     self = [super init];
 
-    self.organisationIdentifier = [aDecoder decodeDoubleForKey:kOrganisationId];
+    self.organisationIdentifier = [aDecoder decodeObjectForKey:kOrganisationId];
     self.name = [aDecoder decodeObjectForKey:kOrganisationName];
     self.officialCode = [aDecoder decodeObjectForKey:kOrganisationOfficialCode];
     return self;
@@ -78,7 +66,7 @@ NSString *const kOrganisationOfficialCode = @"officialCode";
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
 
-    [aCoder encodeDouble:_organisationIdentifier forKey:kOrganisationId];
+    [aCoder encodeObject:_organisationIdentifier forKey:kOrganisationId];
     [aCoder encodeObject:_name forKey:kOrganisationName];
     [aCoder encodeObject:_officialCode forKey:kOrganisationOfficialCode];
 }
@@ -89,7 +77,7 @@ NSString *const kOrganisationOfficialCode = @"officialCode";
 
     if (copy) {
 
-        copy.organisationIdentifier = self.organisationIdentifier;
+        copy.organisationIdentifier = [self.organisationIdentifier copyWithZone:zone];
         copy.name = [self.name copyWithZone:zone];
         copy.officialCode = [self.officialCode copyWithZone:zone];
     }

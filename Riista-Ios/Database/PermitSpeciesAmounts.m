@@ -1,4 +1,6 @@
 #import "PermitSpeciesAmounts.h"
+#import "NSDateformatter+Locale.h"
+#import "RiistaUtils.h"
 
 NSString *const kPermitSpeciesAmountsGameSpeciesCode = @"gameSpeciesCode";
 NSString *const kPermitSpeciesAmountsAmount = @"amount";
@@ -14,7 +16,6 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
 
 @interface PermitSpeciesAmounts ()
 
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
 - (NSDate *)dateOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
 
 @end
@@ -44,21 +45,21 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
 {
     self = [super init];
 
-    dateFormatter = [NSDateFormatter new];
+    dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
     [dateFormatter setDateFormat:DATE_FORMAT_NO_TIME];
 
     // This check serves to make sure that a non-NSDictionary object
     // passed into the model class doesn't break the parsing.
     if(self && [dict isKindOfClass:[NSDictionary class]]) {
-            self.amount = [[self objectOrNilForKey:kPermitSpeciesAmountsAmount fromDictionary:dict] doubleValue];
+            self.amount = [[RiistaUtils objectOrNilForKey:kPermitSpeciesAmountsAmount fromDictionary:dict] doubleValue];
             self.endDate = [self dateOrNilForKey:kPermitSpeciesAmountsEndDate fromDictionary:dict];
             self.beginDate2 = [self dateOrNilForKey:kPermitSpeciesAmountsBeginDate2 fromDictionary:dict];
-            self.genderRequired = [[self objectOrNilForKey:kPermitSpeciesAmountsGenderRequired fromDictionary:dict] boolValue];
+            self.genderRequired = [[RiistaUtils objectOrNilForKey:kPermitSpeciesAmountsGenderRequired fromDictionary:dict] boolValue];
             self.beginDate = [self dateOrNilForKey:kPermitSpeciesAmountsBeginDate fromDictionary:dict];
             self.endDate2 = [self dateOrNilForKey:kPermitSpeciesAmountsEndDate2 fromDictionary:dict];
-            self.gameSpeciesCode = [[self objectOrNilForKey:kPermitSpeciesAmountsGameSpeciesCode fromDictionary:dict] doubleValue];
-            self.ageRequired = [[self objectOrNilForKey:kPermitSpeciesAmountsAgeRequired fromDictionary:dict] boolValue];
-            self.weightRequired = [[self objectOrNilForKey:kPermitSpeciesAmountsWeightRequired fromDictionary:dict] boolValue];
+            self.gameSpeciesCode = [[RiistaUtils objectOrNilForKey:kPermitSpeciesAmountsGameSpeciesCode fromDictionary:dict] doubleValue];
+            self.ageRequired = [[RiistaUtils objectOrNilForKey:kPermitSpeciesAmountsAgeRequired fromDictionary:dict] boolValue];
+            self.weightRequired = [[RiistaUtils objectOrNilForKey:kPermitSpeciesAmountsWeightRequired fromDictionary:dict] boolValue];
     }
     
     return self;
@@ -87,15 +88,10 @@ static NSString *const DATE_FORMAT_NO_TIME = @"yyyy-MM-dd";
 }
 
 #pragma mark - Helper Method
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
-{
-    id object = [dict objectForKey:aKey];
-    return [object isEqual:[NSNull null]] ? nil : object;
-}
 
 - (NSDate *)dateOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
 {
-    id object = [self objectOrNilForKey:aKey fromDictionary:dict];
+    id object = [RiistaUtils objectOrNilForKey:aKey fromDictionary:dict];
     return [dateFormatter dateFromString:object];
 }
 

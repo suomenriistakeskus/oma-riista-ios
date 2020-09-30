@@ -18,6 +18,8 @@ extern NSString *const DiaryEntryHarvestPermitRejected;
 
 @property (nonatomic, retain) NSNumber * amount;
 @property (nonatomic, retain) NSString * diarydescription;
+@property (nonatomic, retain) NSString * deerHuntingType;
+@property (nonatomic, retain) NSString * deerHuntingTypeDescription;
 @property (nonatomic, retain) NSNumber * gameSpeciesCode;
 @property (nonatomic, retain) NSNumber * harvestReportRequired;
 @property (nonatomic, retain) NSNumber * harvestReportDone;
@@ -39,8 +41,12 @@ extern NSString *const DiaryEntryHarvestPermitRejected;
 @property (nonatomic, retain) NSOrderedSet *specimens;
 @property (nonatomic, retain) NSString *permitNumber;
 @property (nonatomic, retain) NSNumber *harvestSpecVersion;
+@property (nonatomic, retain) NSString *huntingMethod;
+@property (nonatomic, retain) NSNumber *feedingPlace;
+@property (nonatomic, retain) NSNumber *taigaBeanGoose;
 
 - (NSInteger)yearMonth;
+- (BOOL)hasNonDefaultLocation;
 
 @end
 

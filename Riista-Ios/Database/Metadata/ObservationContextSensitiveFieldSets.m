@@ -1,20 +1,15 @@
 #import "ObservationContextSensitiveFieldSets.h"
+#import "Oma_riista-Swift.h"
 
 
 NSString *const kContextSensitiveFieldSetsSpecimenFields = @"specimenFields";
 NSString *const kContextSensitiveFieldSetsBaseFields = @"baseFields";
 NSString *const kContextSensitiveFieldSetsAllowedStates = @"allowedStates";
 NSString *const kContextSensitiveFieldSetsType = @"type";
-NSString *const kContextSensitiveFieldSetsWithinMooseHunting = @"withinMooseHunting";
+NSString *const kContextSensitiveFieldSetsCategory = @"category"; // Observation category
 NSString *const kContextSensitiveFieldSetsAllowedMarkings = @"allowedMarkings";
 NSString *const kContextSensitiveFieldSetsAllowedAges = @"allowedAges";
 
-
-@interface ObservationContextSensitiveFieldSets ()
-
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict;
-
-@end
 
 @implementation ObservationContextSensitiveFieldSets
 
@@ -22,7 +17,7 @@ NSString *const kContextSensitiveFieldSetsAllowedAges = @"allowedAges";
 @synthesize baseFields = _baseFields;
 @synthesize allowedStates = _allowedStates;
 @synthesize type = _type;
-@synthesize withinMooseHunting = _withinMooseHunting;
+@synthesize category = _category;
 @synthesize allowedMarkings = _allowedMarkings;
 @synthesize allowedAges = _allowedAges;
 
@@ -39,13 +34,16 @@ NSString *const kContextSensitiveFieldSetsAllowedAges = @"allowedAges";
     // This check serves to make sure that a non-NSDictionary object
     // passed into the model class doesn't break the parsing.
     if(self && [dict isKindOfClass:[NSDictionary class]]) {
-        self.specimenFields = [self objectOrNilForKey:kContextSensitiveFieldSetsSpecimenFields fromDictionary:dict];
-        self.baseFields = [self objectOrNilForKey:kContextSensitiveFieldSetsBaseFields fromDictionary:dict];
-        self.allowedStates = [self objectOrNilForKey:kContextSensitiveFieldSetsAllowedStates fromDictionary:dict];
-        self.type = [self objectOrNilForKey:kContextSensitiveFieldSetsType fromDictionary:dict];
-        self.withinMooseHunting = [[self objectOrNilForKey:kContextSensitiveFieldSetsWithinMooseHunting fromDictionary:dict] boolValue];
-        self.allowedMarkings = [self objectOrNilForKey:kContextSensitiveFieldSetsAllowedMarkings fromDictionary:dict];
-        self.allowedAges = [self objectOrNilForKey:kContextSensitiveFieldSetsAllowedAges fromDictionary:dict];
+        self.specimenFields = [RiistaUtils objectOrNilForKey:kContextSensitiveFieldSetsSpecimenFields fromDictionary:dict];
+        self.baseFields = [RiistaUtils objectOrNilForKey:kContextSensitiveFieldSetsBaseFields fromDictionary:dict];
+        self.allowedStates = [RiistaUtils objectOrNilForKey:kContextSensitiveFieldSetsAllowedStates fromDictionary:dict];
+        self.type = [RiistaUtils objectOrNilForKey:kContextSensitiveFieldSetsType fromDictionary:dict];
+        // treat unknown observation categories as normal. This the code won't crash if we're receiving unknown
+        // categories within metadata
+        self.category = [ObservationCategoryHelper parseWithCategoryString:[RiistaUtils objectOrNilForKey:kContextSensitiveFieldSetsCategory fromDictionary:dict]
+                                                                  fallback:ObservationCategoryNormal];
+        self.allowedMarkings = [RiistaUtils objectOrNilForKey:kContextSensitiveFieldSetsAllowedMarkings fromDictionary:dict];
+        self.allowedAges = [RiistaUtils objectOrNilForKey:kContextSensitiveFieldSetsAllowedAges fromDictionary:dict];
     }
     
     return self;
@@ -69,7 +67,7 @@ NSString *const kContextSensitiveFieldSetsAllowedAges = @"allowedAges";
     }
     [mutableDict setValue:[NSArray arrayWithArray:tempArrayForAllowedStates] forKey:kContextSensitiveFieldSetsAllowedStates];
     [mutableDict setValue:self.type forKey:kContextSensitiveFieldSetsType];
-    [mutableDict setValue:[NSNumber numberWithBool:self.withinMooseHunting] forKey:kContextSensitiveFieldSetsWithinMooseHunting];
+    [mutableDict setValue:[ObservationCategoryHelper categoryStringForCategory:self.category] forKey:kContextSensitiveFieldSetsCategory];
     NSMutableArray *tempArrayForAllowedMarkings = [NSMutableArray array];
     for (NSObject *subArrayObject in self.allowedMarkings) {
         if([subArrayObject respondsToSelector:@selector(dictionaryRepresentation)]) {
@@ -101,14 +99,6 @@ NSString *const kContextSensitiveFieldSetsAllowedAges = @"allowedAges";
     return [NSString stringWithFormat:@"%@", [self dictionaryRepresentation]];
 }
 
-#pragma mark - Helper Method
-- (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
-{
-    id object = [dict objectForKey:aKey];
-    return [object isEqual:[NSNull null]] ? nil : object;
-}
-
-
 #pragma mark - NSCoding Methods
 
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -119,7 +109,8 @@ NSString *const kContextSensitiveFieldSetsAllowedAges = @"allowedAges";
     self.baseFields = [aDecoder decodeObjectForKey:kContextSensitiveFieldSetsBaseFields];
     self.allowedStates = [aDecoder decodeObjectForKey:kContextSensitiveFieldSetsAllowedStates];
     self.type = [aDecoder decodeObjectForKey:kContextSensitiveFieldSetsType];
-    self.withinMooseHunting = [aDecoder decodeBoolForKey:kContextSensitiveFieldSetsWithinMooseHunting];
+    self.category = [ObservationCategoryHelper parseWithCategoryString:[aDecoder decodeObjectForKey:kContextSensitiveFieldSetsCategory]
+                                                              fallback:ObservationCategoryNormal];
     self.allowedMarkings = [aDecoder decodeObjectForKey:kContextSensitiveFieldSetsAllowedMarkings];
     self.allowedAges = [aDecoder decodeObjectForKey:kContextSensitiveFieldSetsAllowedAges];
     return self;
@@ -132,7 +123,7 @@ NSString *const kContextSensitiveFieldSetsAllowedAges = @"allowedAges";
     [aCoder encodeObject:_baseFields forKey:kContextSensitiveFieldSetsBaseFields];
     [aCoder encodeObject:_allowedStates forKey:kContextSensitiveFieldSetsAllowedStates];
     [aCoder encodeObject:_type forKey:kContextSensitiveFieldSetsType];
-    [aCoder encodeBool:_withinMooseHunting forKey:kContextSensitiveFieldSetsWithinMooseHunting];
+    [aCoder encodeObject:[ObservationCategoryHelper categoryStringForCategory:_category] forKey:kContextSensitiveFieldSetsCategory];
     [aCoder encodeObject:_allowedMarkings forKey:kContextSensitiveFieldSetsAllowedMarkings];
     [aCoder encodeObject:_allowedAges forKey:kContextSensitiveFieldSetsAllowedAges];
 }
@@ -147,17 +138,41 @@ NSString *const kContextSensitiveFieldSetsAllowedAges = @"allowedAges";
         copy.baseFields = [self.baseFields copyWithZone:zone];
         copy.allowedStates = [self.allowedStates copyWithZone:zone];
         copy.type = [self.type copyWithZone:zone];
-        copy.withinMooseHunting = self.withinMooseHunting;
+        copy.category = self.category;
         copy.allowedMarkings = [self.allowedMarkings copyWithZone:zone];
         copy.allowedAges = [self.allowedAges copyWithZone:zone];
     }
-    
+
     return copy;
+}
+
+- (BOOL)hasFieldWithValue:(NSDictionary*)fields fieldName:(NSString*)fieldName value:(NSString*)value
+{
+    NSString *fieldValue = [fields objectForKey:fieldName];
+    if (fieldValue != nil) {
+        return [value isEqualToString:fieldValue];
+    }
+    return NO;
 }
 
 - (BOOL)hasFieldSet:(NSDictionary*)fields name:(NSString*)name
 {
-    return [fields objectForKey:name];
+    return [fields objectForKey:name] != nil;
+}
+
+- (BOOL)hasRequiredBaseField:(NSString*)name
+{
+    return [self hasFieldWithValue:self.baseFields fieldName:name value:@"YES"];
+}
+
+- (BOOL)hasVoluntaryBaseField:(NSString*)name
+{
+    return [self hasFieldWithValue:self.baseFields fieldName:name value:@"VOLUNTARY"];
+}
+
+- (BOOL)hasFieldCarnivoreAuthorityVoluntary:(NSDictionary*)fields name:(NSString*)name
+{
+    return [self hasFieldWithValue:fields fieldName:name value:@"VOLUNTARY_CARNIVORE_AUTHORITY"];
 }
 
 - (BOOL)requiresMooselikeAmounts:(NSDictionary*)fields
@@ -165,4 +180,18 @@ NSString *const kContextSensitiveFieldSetsAllowedAges = @"allowedAges";
     return [self hasFieldSet:fields name:@"mooselikeFemaleAmount"];
 }
 
+- (BOOL)hasDeerPilotBaseField:(NSString*)name
+{
+    return [self hasRequiredDeerPilotBaseField:name] || [self hasVoluntaryDeerPilotBaseField:name];
+}
+
+- (BOOL)hasRequiredDeerPilotBaseField:(NSString*)name
+{
+    return [self hasFieldWithValue:self.baseFields fieldName:name value:@"YES_DEER_PILOT"];
+}
+
+- (BOOL)hasVoluntaryDeerPilotBaseField:(NSString*)name
+{
+    return [self hasFieldWithValue:self.baseFields fieldName:name value:@"VOLUNTARY_DEER_PILOT"];
+}
 @end

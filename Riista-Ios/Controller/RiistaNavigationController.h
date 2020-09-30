@@ -12,8 +12,8 @@
 
 - (void)changeTitle:(NSString*)title;
 - (void)changeTitle:(NSString*)title withFont:(UIFont*)font;
-- (void)changeTitle:(NSString*)title andDescription:(NSString*)description;
 - (void)setRightBarItems:(NSArray*)items;
+- (void)setLeftBarItem:(UIBarButtonItem*)button;
 - (UIViewController*)rootViewController;
 
 @end

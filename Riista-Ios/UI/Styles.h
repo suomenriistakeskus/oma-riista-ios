@@ -9,5 +9,6 @@ extern NSInteger const RiistaRefreshImageSize;
 + (void)styleNegativeButton:(UIButton*)button;
 + (void)styleLinkButton:(UIButton*)button;
 + (void)styleButtonView:(UIView*)view highlighted:(BOOL)highlighted;
++ (void)styleMapButton:(UIButton*)button;
 
 @end

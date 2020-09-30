@@ -27,6 +27,11 @@
     return 0.0f;
 }
 
+- (void)refreshDateTime:(NSString*)dateTimeString
+{
+    [NSException raise:@"Invoked abstract method" format:@"Invoked abstract method"];
+}
+
 - (void)disableUserControls
 {
     [NSException raise:@"Invoked abstract method" format:@"Invoked abstract method"];

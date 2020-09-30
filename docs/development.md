@@ -7,7 +7,7 @@ Using macOS based development environment is required
 ### Prerequisites
 The following dependencies must be installed to successfully compile, test and run the project:
 
-  - Xcode >= 8.3
+  - Xcode >= 11.0
   - Cocoapods
 
 ### Download source code
@@ -24,6 +24,15 @@ Install pods
 
 Open project with Xcode
 
-Create Riista-ios/Keys.plist
-  - Add key MapsApiKey with the value of your Google Maps API key
-  - Value can be left empty if you don’t want to display map tiles
+Add necessary plist files
+
+1. Create Riista-ios/Keys.plist
+    - Add key MapsApiKey with the value of your Google Maps API key
+    - Value can be left empty if you don’t want to display map tiles
+2. Add necessary GoogleServices plist files under Firebase directory.
+    - GoogleService-Info-Production.plist
+    - GoogleService-Info-Staging.plist
+    - GoogleService-Info-Dev.plist
+    - these can be found e.g. from Firebase console
+
+(Optional) Change backend if necessary (Riista-Ios/Environment.swift)

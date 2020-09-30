@@ -24,6 +24,8 @@
 
     RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
     [navController changeTitle:self.titlePrompt];
+
+    self.tableView.tableFooterView = [UIView new];
 }
 
 - (void)viewWillAppear:(BOOL)animated

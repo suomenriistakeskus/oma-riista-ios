@@ -1,5 +1,6 @@
 #import "ObservationEntry.h"
 #import "ObservationSpecimen.h"
+#import "ObservationSpecimenMetadata.h"
 #import "ObservationContextSensitiveFieldSets.h"
 #import "ObservationSpecimensViewController.h"
 #import "RiistaKeyboardHandler.h"
@@ -10,8 +11,12 @@
 #import "RiistaSpecimen.h"
 #import "RiistaUtils.h"
 #import "RiistaValueListButton.h"
+#import "RiistaModelUtils.h"
+#import "UserInfo.h"
 #import "UIColor+ApplicationColor.h"
 #import "ValueListViewController.h"
+
+#import "Oma_riista-Swift.h"
 
 @protocol ObservationSpecimenCellDelegate
 
@@ -27,14 +32,9 @@
 @property (weak, nonatomic) IBOutlet RiistaValueListButton *ageSelect;
 @property (weak, nonatomic) IBOutlet RiistaValueListButton *stateSelect;
 @property (weak, nonatomic) IBOutlet RiistaValueListButton *markingSelect;
-@property (weak, nonatomic) IBOutlet UIButton *removeButton;
-
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *genderHeightConstraint;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *ageHeightConstraint;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *stateHeightConstraint;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *markingHeightConstraint;
-
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *buttonWidthConstraint;
+@property (weak, nonatomic) IBOutlet RiistaValueListButton *pawLengthSelect;
+@property (weak, nonatomic) IBOutlet RiistaValueListButton *pawWidthSelect;
+@property (weak, nonatomic) IBOutlet MDCButton *removeButton;
 
 @property (weak, nonatomic) id<ObservationSpecimenCellDelegate> delegate;
 @property (weak, nonatomic) ObservationSpecimen *specimen;
@@ -50,6 +50,8 @@
 static NSString * const AGE_FIELD_KEY = @"AgeFieldKey";
 static NSString * const STATE_FIELD_KEY = @"StateFieldKey";
 static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
+static NSString * const PAW_LENGTH_FIELD_KEY = @"PawLengthFieldKey";
+static NSString * const PAW_WIDTH_FIELD_KEY = @"PawWidthFieldKey";
 
 @interface ObservationSpecimensViewController () <ObservationSpecimenCellDelegate, KeyboardHandlerDelegate>
 
@@ -66,6 +68,8 @@ static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    self.tableView.tableFooterView = [UIView new];
 
     self.keyboardHandler = [[RiistaKeyboardHandler alloc] initWithView:self.view andBottomSpaceConstraint:self.bottomPaneBottomSpace];
     self.keyboardHandler.delegate = self;
@@ -154,15 +158,15 @@ static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
     [cell updateVisibleFields:self.metadata];
 
     // Hide remove button when not editing
-    cell.buttonWidthConstraint.constant = self.editMode ? 40.f : 0.f;
-    [cell.removeButton setBackgroundImage:[RiistaUtils imageWithColor:[UIColor applicationColor:RiistaApplicationColorWhiteButtonHilight] width:1 height:1]
-                                 forState:UIControlStateHighlighted];
+    [cell.removeButton setHidden:!self.editMode];
     [cell.removeButton setEnabled:self.editMode];
 
     [cell.genderSelect setEnabled:self.editMode];
     [cell.ageSelect setEnabled:self.editMode];
     [cell.stateSelect setEnabled:self.editMode];
     [cell.markingSelect setEnabled:self.editMode];
+    [cell.pawLengthSelect setEnabled:self.editMode];
+    [cell.pawWidthSelect setEnabled:self.editMode];
 }
 
 
@@ -205,6 +209,18 @@ static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
             [controller setTextKeyOverride:SpecimenAge1To2Years overrideKey:SpecimenAgeEraus];
         }
     }
+    else if ([key isEqualToString:PAW_LENGTH_FIELD_KEY]) {
+        controller.titlePrompt = RiistaLocalizedString(@"TassuPawLength", nil);
+        controller.values = [RiistaUtils decimalRangeAsText:[NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%ld", (long)self.specimenMeta.minLengthOfPaw]]
+                                                   maxValue:[NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%ld", (long)self.specimenMeta.maxLengthOfPaw]]
+                                                  increment:[NSDecimalNumber decimalNumberWithString:@"0.5"]];
+    }
+    else if ([key isEqualToString:PAW_WIDTH_FIELD_KEY]) {
+        controller.titlePrompt = RiistaLocalizedString(@"TassuPawWidth", nil);
+        controller.values = [RiistaUtils decimalRangeAsText:[NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%ld", (long)self.specimenMeta.minWidthOfPaw]]
+                                                   maxValue:[NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%ld", (long)self.specimenMeta.maxWidthOfPaw]]
+                                                  increment:[NSDecimalNumber decimalNumberWithString:@"0.5"]];
+    }
     else if ([key isEqualToString:STATE_FIELD_KEY]) {
         controller.titlePrompt = RiistaLocalizedString(@"ObservationDetailsState", nil);
         controller.values = self.metadata.allowedStates;
@@ -227,6 +243,8 @@ static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
         specimen.remoteId = nil;
         specimen.rev = nil;
         specimen.state = nil;
+        specimen.lengthOfPaw = nil;
+        specimen.widthOfPaw = nil;
     }
     else if ([self.entry.specimens count] > 1) {
         [self.entry removeSpecimensObject:specimen];
@@ -254,15 +272,37 @@ static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
 {
     [super layoutSubviews];
 
+    [AppTheme.shared setupSegmentedControllerWithSegmentedController:self.genderSelect];
+
+    [_genderSelect setImage:[UIImage textEmbededImageWithImage:[UIImage imageNamed:@"female"]
+                                                        string:RiistaLocalizedString(@"SpecimenGenderFemale", nil)
+                                                         color:UIColor.blackColor
+                                                imageAlignment:0
+                                                       segFont:[UIFont fontWithName:AppFont.Name size:AppFont.ButtonSmall]]
+          forSegmentAtIndex:0];
+    [_genderSelect setImage:[UIImage textEmbededImageWithImage:[UIImage imageNamed:@"male"]
+                                                        string:RiistaLocalizedString(@"SpecimenGenderMale", nil)
+                                                         color:[UIColor applicationColor:Primary]
+                                                imageAlignment:0
+                                                       segFont:[UIFont fontWithName:AppFont.Name size:AppFont.ButtonSmall]]
+          forSegmentAtIndex:1];
+    [_genderSelect setImage:[UIImage textEmbededImageWithImage:[UIImage imageNamed:@"unknown_white"]
+                                                        string:RiistaLocalizedString(@"SpecimenValueUnknown", nil)
+                                                         color:[UIColor applicationColor:Primary]
+                                                imageAlignment:0
+                                                       segFont:[UIFont fontWithName:AppFont.Name size:AppFont.ButtonSmall]]
+          forSegmentAtIndex:2];
+
     [self.genderSelect addTarget:self action:@selector(genderValueChanged:) forControlEvents:UIControlEventValueChanged];
 
     [self.ageSelect addTarget:self action:@selector(onAgeClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.stateSelect addTarget:self action:@selector(onStateClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.markingSelect addTarget:self action:@selector(onMarkingClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.pawLengthSelect addTarget:self action:@selector(onPawLengthClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.pawWidthSelect addTarget:self action:@selector(onPawWidthClick:) forControlEvents:UIControlEventTouchUpInside];
 
+    [AppTheme.shared setupImageButtonThemeWithButton:self.removeButton];
     [self.removeButton addTarget:self action:@selector(removeSpecimenItem:) forControlEvents:UIControlEventTouchUpInside];
-    [self.removeButton.layer setCornerRadius:5.0];
-    [self.removeButton setClipsToBounds:YES];
 }
 
 - (void)updateLocalizedTexts
@@ -270,6 +310,8 @@ static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
     self.ageSelect.titleText = RiistaLocalizedString(@"SpecimenAgeTitle", nil);
     self.stateSelect.titleText = RiistaLocalizedString(@"ObservationDetailsState", nil);
     self.markingSelect.titleText = RiistaLocalizedString(@"ObservationDetailsMarked", nil);
+    self.pawLengthSelect.titleText = RiistaLocalizedString(@"TassuPawLength", nil);
+    self.pawWidthSelect.titleText = RiistaLocalizedString(@"TassuPawWidth", nil);
 }
 
 - (void)updateItemTitle:(NSString*)titleText
@@ -302,45 +344,23 @@ static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
     }
     self.stateSelect.valueText = RiistaMappedValueString(self.specimen.state, nil);
     self.markingSelect.valueText = RiistaMappedValueString(self.specimen.marking, nil);
+    self.pawLengthSelect.valueText = [self.specimen.lengthOfPaw stringValue];
+    self.pawWidthSelect.valueText = [self.specimen.widthOfPaw stringValue];
 }
 
 -(void)updateVisibleFields:(ObservationContextSensitiveFieldSets *)metadata
 {
-    if ([metadata hasFieldSet:metadata.specimenFields name:@"gender"]) {
-        self.genderHeightConstraint.constant = 43;
-        self.genderSelect.hidden = NO;
-    }
-    else {
-        self.genderHeightConstraint.constant = 0;
-        self.genderSelect.hidden = YES;
-    }
+    self.genderSelect.hidden = ![metadata hasFieldSet:metadata.specimenFields name:@"gender"];
 
-    if ([metadata hasFieldSet:metadata.specimenFields name:@"age"]) {
-        self.ageHeightConstraint.constant = 63;
-        self.ageSelect.hidden = NO;
-    }
-    else {
-        self.ageHeightConstraint.constant = 0;
-        self.ageSelect.hidden = YES;
-    }
+    self.ageSelect.hidden = ![metadata hasFieldSet:metadata.specimenFields name:@"age"];
 
-    if ([metadata hasFieldSet:metadata.specimenFields name:@"state"]) {
-        self.stateHeightConstraint.constant = 63;
-        self.stateSelect.hidden = NO;
-    }
-    else {
-        self.stateHeightConstraint.constant = 0;
-        self.stateSelect.hidden = YES;
-    }
+    self.pawLengthSelect.hidden = ![metadata hasFieldSet:metadata.specimenFields name:@"lengthOfPaw"];
 
-    if ([metadata hasFieldSet:metadata.specimenFields name:@"marking"]) {
-        self.markingHeightConstraint.constant = 63;
-        self.markingSelect.hidden = NO;
-    }
-    else {
-        self.markingHeightConstraint.constant = 0;
-        self.markingSelect.hidden = YES;
-    }
+    self.pawWidthSelect.hidden = ![metadata hasFieldSet:metadata.specimenFields name:@"widthOfPaw"];
+
+    self.stateSelect.hidden = ![metadata hasFieldSet:metadata.specimenFields name:@"state"];
+
+    self.markingSelect.hidden = ![metadata hasFieldSet:metadata.specimenFields name:@"marking"];
 
     [self layoutIfNeeded];
 }
@@ -376,6 +396,16 @@ static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
     [self.delegate showValueSelect:MARKING_FIELD_KEY delegate:self];
 }
 
+- (void)onPawLengthClick:(id)sender
+{
+    [self.delegate showValueSelect:PAW_LENGTH_FIELD_KEY delegate:self];
+}
+
+- (void)onPawWidthClick:(id)sender
+{
+    [self.delegate showValueSelect:PAW_WIDTH_FIELD_KEY delegate:self];
+}
+
 - (void)valueSelectedForKey:(NSString *)key value:(NSString *)value
 {
     if ([key isEqualToString:AGE_FIELD_KEY]) {
@@ -386,6 +416,12 @@ static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
     }
     else if ([key isEqualToString:MARKING_FIELD_KEY]) {
         self.specimen.marking = value;
+    }
+    else if ([key isEqualToString:PAW_LENGTH_FIELD_KEY]) {
+        self.specimen.lengthOfPaw = [NSDecimalNumber decimalNumberWithString:value];
+    }
+    else if ([key isEqualToString:PAW_WIDTH_FIELD_KEY]) {
+        self.specimen.widthOfPaw = [NSDecimalNumber decimalNumberWithString:value];
     }
 
     [self updateValueSelections];

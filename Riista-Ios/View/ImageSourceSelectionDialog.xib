@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ImageSourceSelectionDialogController" customModule="Oma_riista" customModuleProvider="target">
+            <connections>
+                <outlet property="cameraSourceButton" destination="38O-Mf-6Ph" id="Gm1-pu-vKf"/>
+                <outlet property="dialogTitle" destination="vqA-c6-CIC" id="Rbj-4F-4rv"/>
+                <outlet property="gallerySourceButton" destination="JdS-dw-FCZ" id="SDp-Sb-52o"/>
+                <outlet property="view" destination="iN0-l3-epB" id="X1n-Og-rsc"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="450" height="225"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Dialog title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vqA-c6-CIC">
+                    <rect key="frame" x="16" y="64" width="418" height="20.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="38O-Mf-6Ph" userLabel="ButtonCameraSource" customClass="MDCButton">
+                    <rect key="frame" x="16" y="94.5" width="418" height="50"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="50" id="ug2-TV-aJs"/>
+                    </constraints>
+                    <state key="normal" title="Camera"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JdS-dw-FCZ" userLabel="ButtonGallerySource" customClass="MDCButton">
+                    <rect key="frame" x="16" y="144.5" width="418" height="50"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="50" id="awm-qV-Z8W"/>
+                    </constraints>
+                    <state key="normal" title="Gallery"/>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="vqA-c6-CIC" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="20" id="0Lw-Sh-uii"/>
+                <constraint firstItem="JdS-dw-FCZ" firstAttribute="leading" secondItem="38O-Mf-6Ph" secondAttribute="leading" id="3b2-cn-QSi"/>
+                <constraint firstItem="vqA-c6-CIC" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="8DO-Rl-4Jp"/>
+                <constraint firstItem="38O-Mf-6Ph" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="M3T-R8-V3V"/>
+                <constraint firstItem="JdS-dw-FCZ" firstAttribute="trailing" secondItem="38O-Mf-6Ph" secondAttribute="trailing" id="dLc-cA-N5n"/>
+                <constraint firstItem="38O-Mf-6Ph" firstAttribute="top" secondItem="vqA-c6-CIC" secondAttribute="bottom" constant="10" id="kJ9-17-cMY"/>
+                <constraint firstItem="38O-Mf-6Ph" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" constant="-16" id="noc-gN-MAY"/>
+                <constraint firstItem="JdS-dw-FCZ" firstAttribute="top" secondItem="38O-Mf-6Ph" secondAttribute="bottom" id="wfm-fm-LYw"/>
+                <constraint firstItem="vqA-c6-CIC" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" constant="-16" id="zxY-aH-kLJ"/>
+            </constraints>
+            <nil key="simulatedTopBarMetrics"/>
+            <nil key="simulatedBottomBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="132" y="110"/>
+        </view>
+    </objects>
+</document>

@@ -5,8 +5,10 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Du kan bifoga bilder till av dig gjorda anteckningar.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Visa din plats på kartan.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Du kan bifoga bilder till av dig gjorda anteckningar.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Du kan bifoga bilder till av dig gjorda anteckningar.</string>
 </dict>
 </plist>

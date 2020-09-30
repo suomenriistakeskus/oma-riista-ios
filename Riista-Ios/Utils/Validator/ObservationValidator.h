@@ -14,6 +14,5 @@
 + (BOOL)validateTimestamp:(NSDate*)value;
 
 + (BOOL)validateObservationType:(NSString*)value;
-+ (BOOL)validateAmount:(NSNumber*)value metadata:(ObservationSpecimenMetadata*)metadata observationType:(NSString*)observationType withinMooseHunting:(BOOL)withinMooseHunting;
 
 @end

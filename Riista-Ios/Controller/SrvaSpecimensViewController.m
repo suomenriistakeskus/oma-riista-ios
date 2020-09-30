@@ -12,6 +12,8 @@
 #import "ValueListViewController.h"
 #import "RiistaNavigationController.h"
 
+#import "Oma_riista-Swift.h"
+
 static NSString * const SPECIMEN_AGE_KEY = @"SpecimenAgeKey";
 
 @interface SrvaSpecimenCell : UITableViewCell
@@ -19,13 +21,37 @@ static NSString * const SPECIMEN_AGE_KEY = @"SpecimenAgeKey";
 @property (weak, nonatomic) IBOutlet UILabel *itemTitle;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *genderSelect;
 @property (weak, nonatomic) IBOutlet RiistaValueListButton *ageSelect;
-@property (weak, nonatomic) IBOutlet UIButton *removeButton;
-
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *buttonWidthConstraint;
+@property (weak, nonatomic) IBOutlet MDCButton *removeButton;
 
 @end
 
 @implementation SrvaSpecimenCell
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+
+    [AppTheme.shared setupSegmentedControllerWithSegmentedController:self.genderSelect];
+
+    [_genderSelect setImage:[UIImage textEmbededImageWithImage:[UIImage imageNamed:@"female"]
+                                                        string:RiistaLocalizedString(@"SpecimenGenderFemale", nil)
+                                                         color:UIColor.blackColor
+                                                imageAlignment:0
+                                                       segFont:[UIFont fontWithName:AppFont.Name size:AppFont.ButtonSmall]]
+          forSegmentAtIndex:0];
+    [_genderSelect setImage:[UIImage textEmbededImageWithImage:[UIImage imageNamed:@"male"]
+                                                        string:RiistaLocalizedString(@"SpecimenGenderMale", nil)
+                                                         color:[UIColor applicationColor:Primary]
+                                                imageAlignment:0
+                                                       segFont:[UIFont fontWithName:AppFont.Name size:AppFont.ButtonSmall]]
+          forSegmentAtIndex:1];
+    [_genderSelect setImage:[UIImage textEmbededImageWithImage:[UIImage imageNamed:@"unknown_white"]
+                                                        string:RiistaLocalizedString(@"SpecimenValueUnknown", nil)
+                                                         color:[UIColor applicationColor:Primary]
+                                                imageAlignment:0
+                                                       segFont:[UIFont fontWithName:AppFont.Name size:AppFont.ButtonSmall]]
+          forSegmentAtIndex:2];
+}
 
 @end
 
@@ -41,6 +67,8 @@ static NSString * const SPECIMEN_AGE_KEY = @"SpecimenAgeKey";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    self.tableView.tableFooterView = [UIView new];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -141,11 +169,11 @@ static NSString * const SPECIMEN_AGE_KEY = @"SpecimenAgeKey";
     cell.ageSelect.tag = rowIndex;
     [cell.ageSelect addTarget:self action:@selector(onAgeClick:) forControlEvents:UIControlEventTouchUpInside];
 
+    [AppTheme.shared setupImageButtonThemeWithButton:cell.removeButton];
+
     cell.removeButton.hidden = !self.editMode;
     cell.removeButton.tag = rowIndex;
     [cell.removeButton addTarget:self action:@selector(removeSpecimenItem:) forControlEvents:UIControlEventTouchUpInside];
-
-    cell.buttonWidthConstraint.constant = self.editMode ? 40: 0;
 }
 
 - (void)removeSpecimenItem:(UIButton*)sender

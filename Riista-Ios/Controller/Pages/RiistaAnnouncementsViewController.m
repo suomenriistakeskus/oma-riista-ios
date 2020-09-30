@@ -1,5 +1,6 @@
 #import "Announcement.h"
 #import "AnnouncementSender.h"
+#import "AnnouncementsSync.h"
 #import "RiistaAnnouncementsViewController.h"
 #import "RiistaAppDelegate.h"
 #import "RiistaLocalization.h"
@@ -7,21 +8,21 @@
 #import "RiistaSettings.h"
 #import "RiistaUtils.h"
 #import "UIColor+ApplicationColor.h"
+#import "CheckOsVersionMacros.h"
+#import "NSDateformatter+Locale.h"
+#import "Oma_riista-Swift.h"
 
 @interface AnnouncementCell : UITableViewCell
 
-@property (weak, nonatomic) IBOutlet UIView *cardView;
-@property (weak, nonatomic) IBOutlet UILabel *titleView;
-@property (weak, nonatomic) IBOutlet UILabel *timeView;
-@property (weak, nonatomic) IBOutlet UILabel *senderNameView;
-@property (weak, nonatomic) IBOutlet UILabel *roleView;
-@property (weak, nonatomic) IBOutlet UILabel *organisationView;
+@property (weak, nonatomic) IBOutlet UILabel *subjectLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *senderLabel;
 @property (weak, nonatomic) IBOutlet UILabel *messageView;
 @property (weak, nonatomic) IBOutlet UILabel *showAllView;
 
 @end
 
-@interface RiistaAnnouncementsViewController () <RiistaPageDelegate, NSFetchedResultsControllerDelegate, UITableViewDelegate, UITableViewDataSource>
+@interface RiistaAnnouncementsViewController () <RiistaPageDelegate, NSFetchedResultsControllerDelegate, UITableViewDataSource, UITableViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UILabel *stateMessageLagel;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -48,23 +49,43 @@
 - (void)refreshTabItem
 {
     self.tabBarItem.title = RiistaLocalizedString(@"MenuAnnouncements", nil);
+
+    [self refreshBadge];
+}
+
+- (void)refreshBadge
+{
+    NSInteger unread = [RiistaUtils unreadAnnouncementCount];
+    if (unread > 0) {
+        self.tabBarItem.badgeValue = [@(unread) stringValue];
+    }
+    else {
+        self.tabBarItem.badgeValue = nil;
+    }
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    self.tableView.delegate = self;
     self.tableView.dataSource = self;
+    self.tableView.delegate = self;
     self.tableView.tableHeaderView = nil;
-    self.tableView.tableFooterView = nil;
+    self.tableView.tableFooterView = [UIView new];
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = 120;
 
     NSError *error = nil;
     [self.fetchedResultController performFetch:&error];
 
-    dateFormatter = [NSDateFormatter new];
-    [dateFormatter setLocale:[RiistaUtils appLocale]];
+    dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
+    [dateFormatter setDateFormat:@"dd.MM.yyyy"];
+
+    self.tableView.refreshControl = [[UIRefreshControl alloc] init];
+    self.tableView.refreshControl.backgroundColor = [UIColor whiteColor];
+    self.tableView.refreshControl.tintColor = [UIColor blackColor];
+    [self.tableView.refreshControl addTarget:self
+                                      action:@selector(pullToRefresh)
+                            forControlEvents:UIControlEventValueChanged];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -88,24 +109,33 @@
 
 - (void)pageSelected
 {
-    self.navigationController.title = RiistaLocalizedString(@"Announcements", nil);
+    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
+    [navController setLeftBarItem:nil];
+    [navController setRightBarItems:nil];
+
+    navController.title = RiistaLocalizedString(@"Announcements", nil);
+
     self.stateMessageLagel.text = RiistaLocalizedString(@"AnnouncementsNone", nil);
+
+    [RiistaUtils markAllAnnouncementsAsRead];
+    [self refreshBadge];
 }
 
-- (void)toggleAnnouncementExpand:(UITableView *)tableView indexPath:(NSIndexPath*)indexPath
+- (void)pullToRefresh
 {
-    AnnouncementCell *cell = (AnnouncementCell*)[tableView cellForRowAtIndexPath:indexPath];
-
-    if (cell.messageView.numberOfLines == 0) {
-        cell.messageView.numberOfLines = 3;
-        cell.showAllView.hidden = NO;
-    }
-    else {
-        cell.messageView.numberOfLines = 0;
-        cell.showAllView.hidden = YES;
+    if (self.tableView.refreshControl) {
+        NSString *title = @"";
+        NSDictionary *attrsDictionary = [NSDictionary dictionaryWithObject:[UIColor blackColor]
+                                                                    forKey:NSForegroundColorAttributeName];
+        NSAttributedString *attributedTitle = [[NSAttributedString alloc] initWithString:title attributes:attrsDictionary];
+        self.tableView.refreshControl.attributedTitle = attributedTitle;
     }
 
-    [self.tableView reloadData];
+    [[AnnouncementsSync new] sync:^(NSArray *items, NSError *error) {
+        [self.tableView.refreshControl endRefreshing];
+
+        // Ignore all errors including common ones like no network and session expired
+    }];
 }
 
 #pragma mark - UITableView
@@ -139,19 +169,15 @@
     }
 
     cell.showAllView.text = RiistaLocalizedString(@"DisplayAll", nil);
-    [self addBordersForCell:cell];
 
     id item = [self.fetchedResultController objectAtIndexPath:indexPath];
-    return [self setupCell:cell item:item];
+    return [self setupCell:cell item:item index:indexPath];
 }
 
-- (UITableViewCell*)setupCell:(AnnouncementCell*)cell item:(Announcement*)item
+- (UITableViewCell*)setupCell:(AnnouncementCell*)cell item:(Announcement*)item index:(NSIndexPath*)index
 {
-    cell.titleView.text = item.subject;
-
-    [dateFormatter setDateFormat:@"dd.MM.yyyy HH:mm"];
-    cell.timeView.text = [dateFormatter stringFromDate:item.pointOfTime];
-
+    cell.subjectLabel.text = item.subject;
+    cell.timeLabel.text = [dateFormatter stringFromDate:item.pointOfTime];
     cell.messageView.text = item.body;
 
     AnnouncementSender *sender = item.sender;
@@ -159,18 +185,9 @@
     NSString *titleText = [sender.title objectForKey:langCode] ? [sender.title objectForKey:langCode] : [sender.title objectForKey:@"fi"];
     NSString *organisationText = [sender.organisation objectForKey:langCode] ? [sender.organisation objectForKey:langCode] : [sender.organisation objectForKey:@"fi"];
 
-    cell.senderNameView.text = sender.fullName;
-    cell.roleView.text = titleText;
-    cell.organisationView.text = organisationText;
+    cell.senderLabel.text = [NSString stringWithFormat:@"%@ - %@", titleText, organisationText];
 
     return cell;
-}
-
-- (void)addBordersForCell:(AnnouncementCell*)cell
-{
-    cell.cardView.layer.borderColor = [UIColor applicationColor:RiistaApplicationColorDiaryCellBorder].CGColor;
-    cell.cardView.layer.borderWidth = 1.0f;
-    cell.cardView.layer.cornerRadius = 5.0f;
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell*)cell forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -178,11 +195,16 @@
     [cell setBackgroundColor:[UIColor clearColor]];
 }
 
-#pragma mark - UITableViewDelegate
-
-- (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 {
-    [self toggleAnnouncementExpand:tableView indexPath:indexPath];
+    Announcement *item = [self.fetchedResultController objectAtIndexPath:indexPath];
+    if (!item) {
+        return;
+    }
+
+    AnnouncementViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"AnnouncementController"];
+    controller.item = item;
+    [self.navigationController pushViewController:controller animated:true];
 }
 
 #pragma mark - Fetched result controller

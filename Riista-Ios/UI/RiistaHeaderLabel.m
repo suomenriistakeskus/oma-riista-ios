@@ -1,4 +1,5 @@
 #import "RiistaHeaderLabel.h"
+#import "Oma_riista-Swift.h"
 
 @implementation RiistaHeaderLabel
 
@@ -6,7 +7,7 @@
 {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        [self setFont:[UIFont boldSystemFontOfSize:13]];
+        [self setFont:[UIFont boldSystemFontOfSize:AppFont.LabelMedium]];
     }
     return self;
 }

@@ -2,7 +2,7 @@
 
 @interface Organisation : NSObject <NSCoding, NSCopying>
 
-@property (nonatomic, assign) double organisationIdentifier;
+@property (nonatomic, strong) NSNumber *organisationIdentifier;
 @property (nonatomic, strong) NSDictionary *name;
 @property (nonatomic, strong) NSString *officialCode;
 
