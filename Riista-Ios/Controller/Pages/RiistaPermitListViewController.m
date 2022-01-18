@@ -42,7 +42,7 @@ const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
 
 @end
 
-@interface RiistaPermitListViewController () <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, KeyboardHandlerDelegate>
+@interface RiistaPermitListViewController () <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, RiistaKeyboardHandlerDelegate>
 
 @property (weak, nonatomic) IBOutlet UILabel *helpText;
 @property (weak, nonatomic) IBOutlet UILabel *inputPrompt;
@@ -290,7 +290,7 @@ const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
     return YES;
 }
 
-# pragma mark - KeyboardHandlerDelegate
+# pragma mark - RiistaKeyboardHandlerDelegate
 
 - (void)hideKeyboard
 {

@@ -1,11 +1,3 @@
-//
-//  Environment.swift
-//  Riista
-//
-//  Created by Heikki Hautala on 28.5.2020.
-//  Copyright © 2020 Riistakeskus. All rights reserved.
-//
-
 import Foundation
 
 enum Env {
@@ -28,11 +20,15 @@ class Environment: NSObject {
     static var apiHostName: String {
         switch env {
         case .dev:
-            return "<add your url here>"
+            return SettingsBundleHelper.getBackendHostname(fallback: "<add your url here>")
         case .staging:
-            return "<add your url here>"
+            return SettingsBundleHelper.getBackendHostname(fallback: "<add your url here>")
         case .production:
             return "oma.riista.fi"
         }
+    }
+
+    static var serverBaseAddress: String {
+        return "https://" + apiHostName
     }
 }

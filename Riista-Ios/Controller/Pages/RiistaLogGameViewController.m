@@ -22,7 +22,6 @@
 #import "RiistaDiaryEntryUpdate.h"
 #import "RiistaLocalization.h"
 #import "RiistaSpecimenView.h"
-#import "RiistaMmlTileLayer.h"
 #import "RMDateSelectionViewController.h"
 #import "RiistaPermitListViewController.h"
 #import "Permit.h"
@@ -38,7 +37,7 @@
 #import "Oma_riista-Swift.h"
 #import "NSManagedObject+RiistaCopying.h"
 
-@interface RiistaLogGameViewController () <CLLocationManagerDelegate, GMSMapViewDelegate, UIGestureRecognizerDelegate, SpeciesSelectionDelegate, KeyboardHandlerDelegate, UITextFieldDelegate, UITextViewDelegate, SpecimensUpdatedDelegate, MapPageDelegate, PermitPageDelegate, ValueSelectionDelegate, ImageEditUtilDelegate>
+@interface RiistaLogGameViewController () <CLLocationManagerDelegate, GMSMapViewDelegate, UIGestureRecognizerDelegate, SpeciesSelectionDelegate, RiistaKeyboardHandlerDelegate, UITextFieldDelegate, UITextViewDelegate, SpecimensUpdatedDelegate, MapPageDelegate, PermitPageDelegate, ValueSelectionDelegate, RiistaImagePickerDelegate, RiistaImagePickerDelegate, InstructionsButtonDelegate>
 
 @property (strong, nonatomic) UIBarButtonItem *deleteBarButton;
 @property (strong, nonatomic) UIBarButtonItem *editBarButton;
@@ -109,8 +108,6 @@
 @property (strong, nonatomic) NSString *selectedPermitNumber;
 @property (strong, nonatomic) NSString *selectedPermitType;
 
-@property (strong, nonatomic) NSString *mooseFitnessClass;
-@property (strong, nonatomic) NSString *mooseAntlersType;
 @property (strong, nonatomic) NSString *harvestHuntingType;
 // Nullable bool
 @property (strong, nonatomic) NSNumber *harvestFeedingPlace;
@@ -148,7 +145,6 @@ static const NSInteger MOOSE_INFO_EXTRA_HEIGHT = 0;
 static const NSInteger DEER_HUNTING_TYPE = 60;
 static const NSInteger DEER_HUNTING_TYPE_DESCRIPTION = 61;
 
-static const NSInteger MOOSE_NOT_EDIBLE_TAG = 100;
 static const NSInteger MOOSE_WEIGHT_ESTIMATED_TAG = 101;
 static const NSInteger MOOSE_WEIGHT_MEASURED_TAG = 102;
 static const NSInteger MOOSE_FITNESS_TAG = 103;
@@ -157,11 +153,16 @@ static const NSInteger MOOSE_ANTLERS_WIDTH_TAG = 105;
 static const NSInteger MOOSE_ANTLERS_POINTS_LEFT_TAG = 106;
 static const NSInteger MOOSE_ANTLERS_POINTS_RIGHT_TAG = 107;
 static const NSInteger MOOSE_ADDITIONAL_INFO_TAG = 108;
-static const NSInteger MOOSE_LONE_CALF_TAG = 109;
+
+static const NSInteger MOOSE_ANTLERS_GIRTH_TAG = 110;
+static const NSInteger MOOSE_ANTLERS_LENGTH_TAG = 111;
+static const NSInteger MOOSE_ANTLERS_INNER_WIDTH_TAG = 112;
+static const NSInteger MOOSE_ANTLERS_SHAFT_WIDTH_TAG = 113;
 
 static const NSInteger HARVEST_FEEDING_PLACE_TAG = 120;
 static const NSInteger HARVEST_TAIGA_BEAN_GOOSE_TAG = 121;
 static const NSInteger HARVEST_HUNTING_TYPE_TAG = 122;
+
 
 static NSString * const DEER_HUNTING_TYPE_KEY = @"DeerHuntingTypeKey";
 static NSString * const MOOSE_FITNESS_KEY = @"MooseFitnessKey";
@@ -317,7 +318,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 - (void)initializeDeerHuntingTypeFieldsWithEntry:(DiaryEntry*)entry
 {
     self.selectedDeerHuntingType = [DeerHuntingTypeHelper parseWithHuntingTypeString:entry.deerHuntingType
-                                                                        fallback:DeerHuntingTypeNone];
+                                                                            fallback:DeerHuntingTypeNone];
     self.selectedDeerHuntingTypeDescription = entry.deerHuntingTypeDescription;
 
     [self setupDeerHuntingTypeFields];
@@ -355,8 +356,8 @@ NSString* RiistaEditDomain = @"RiistaEdit";
         if (self.selectedDeerHuntingType == DeerHuntingTypeOther) {
             RiistaValueListTextField *descriptionView = [self createValueListTextField:RiistaLocalizedString(@"DeerHuntingTypeDescription", nil)
                                                                                  value:self.selectedDeerHuntingTypeDescription
-                                                                                 y:VIEW_HEIGHT
-                                                                                 grow:0
+                                                                                     y:VIEW_HEIGHT
+                                                                                  grow:0
                                                                                  width:self.deerHuntingTypeFields.frame.size.width];
             descriptionView.textField.tag = DEER_HUNTING_TYPE_DESCRIPTION;
             descriptionView.textField.keyboardType = UIKeyboardTypeDefault;
@@ -507,7 +508,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     RiistaSpecies *species = [[RiistaGameDatabase sharedInstance] speciesById:[self.event.gameSpeciesCode integerValue]];
     [self setSelectedSpecies:species];
 
-    [_cancelButton setTitle:RiistaLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
+    [_cancelButton setTitle:RiistaLocalizedString(@"Undo", nil) forState:UIControlStateNormal];
     [_cancelButton addTarget:self action:@selector(editCancelButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     [_submitButton addTarget:self action:@selector(saveChangesButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     [_specimenButton addTarget:self action:@selector(specimenButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
@@ -579,22 +580,47 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 
 - (void)refreshImage
 {
-    DiaryImage *displayImage;
+    DiaryImage *displayImage = nil;
     if (addedImage != nil) {
         displayImage = addedImage;
-    }
-    else if (self.event.diaryImages != nil && [self.event.diaryImages count] > 0) {
-        displayImage = self.event.diaryImages.allObjects[0];
+    } else {
+        displayImage = [self selectDisplayedImage];
     }
 
     if (displayImage != nil) {
-        [RiistaUtils loadDiaryImage:displayImage size:CGSizeMake(50.0f, 50.0f) completion:^(UIImage *image) {
-            [self.imagesButton setBackgroundImage:[image scaleImageToSize:CGSizeMake(50.0f, 50.0f)]
-                                         forState:UIControlStateNormal];
+        [ImageUtils loadDiaryImage:displayImage
+                           options:[ImageLoadOptions aspectFilledWithSize:CGSizeMake(50.0f, 50.0f)]
+                         onSuccess:^(UIImage * _Nonnull image) {
+            [self.imagesButton setImageLoadedSuccessfully];
+
+            [self.imagesButton setBackgroundImage:image forState:UIControlStateNormal];
             [self.imagesButton setImage:nil forState:UIControlStateNormal];
             [self.imagesButton setBorderWidth:0 forState:UIControlStateNormal];
+        }
+                          onFailure:^(PhotoAccessFailureReason reason) {
+            // currently selected image cnnot be loaded. Indicate this to the user
+            UIImage *displayedIcon = nil;
+            if (!self.editMode) {
+                displayedIcon = [[UIImage imageNamed:@"missing-image-error"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            } else {
+                displayedIcon = [[UIImage imageNamed:@"camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            }
+            [self.imagesButton setImage:displayedIcon forState:UIControlStateNormal];
+            [self.imagesButton setImageTintColor:[UIColor whiteColor] forState:UIControlStateNormal];
+
+            [self.imagesButton setBackgroundImage:nil forState:UIControlStateNormal];
+            [self.imagesButton setImageLoadFailedWithReason:reason];
         }];
     }
+}
+
+- (DiaryImage*)selectDisplayedImage
+{
+    if (self.event.diaryImages != nil && [self.event.diaryImages count] > 0) {
+        return [ImageUtils selectDisplayedImage:self.event.diaryImages.allObjects];
+    }
+
+    return nil;
 }
 
 - (void)setupAmountInfo
@@ -775,84 +801,151 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     }
 
     RiistaSpecies* species = self.species;
-    if (species && specimen && species.speciesId == MooseId) {
-        //A moose
-        specimen.weight = nil;
-
-        if (specimen.fitnessClass && !self.mooseFitnessClass) {
-            self.mooseFitnessClass = specimen.fitnessClass;
-        }
-        if (specimen.antlersType && !self.mooseAntlersType) {
-            self.mooseAntlersType = specimen.antlersType;
-        }
-
-        CGFloat H = RiistaDefaultValueElementHeight;
-        int viewCount = 0;
-        if ([specimen.age isEqualToString:SpecimenAgeYoung]) {
-            [self.mooseFields addSubview:[self createMooseLoneCalfChoice:specimen y:viewCount++]];
-        }
-        [self.mooseFields addSubview:[self createMooseNotEdibleChoice:specimen y:H*viewCount++]];
-        [self.mooseFields addSubview:[self createMooseWeightEstimatedItem:specimen y:H*viewCount++]];
-        [self.mooseFields addSubview:[self createMooseWeightMeasuredItem:specimen y:H*viewCount++]];
-        [self.mooseFields addSubview:[self createMooseFitnessClassItem:specimen y:H*viewCount++]];
-
-        if ([specimen.gender isEqualToString:SpecimenGenderMale] && [specimen.age isEqualToString:SpecimenAgeAdult]) {
-            [self.mooseFields addSubview:[self createMooseAntlersTypeItem:specimen y:H*viewCount++]];
-            [self.mooseFields addSubview:[self createMooseAntlersWidthItem:specimen y:H*viewCount++]];
-            [self.mooseFields addSubview:[self createMooseAntlersPointsLeft:specimen y:H*viewCount++]];
-            [self.mooseFields addSubview:[self createMooseAntlersPointsRight:specimen y:H*viewCount++]];
-        }
-        [self.mooseFields addSubview:[self createMooseAdditionalInfoField:specimen y:H*viewCount++]];
-
-        CGFloat height = ([self.mooseFields subviews].count * H) + MOOSE_INFO_EXTRA_HEIGHT;
-
-        [self.specimenDetail hideWeightInput:YES];
-
-        [self.mooseFields setHidden:NO];
-        [self.mooseFieldsHeightConstraint setConstant:height];
-    }
-    else if (species && specimen &&
-             (species.speciesId == FallowDeerId ||
-              species.speciesId == WhiteTailedDeerId ||
-              species.speciesId == WildForestDeerId)) {
-        [self createDeerChoiseFields:specimen];
-    }
-    else {
+    if (!species || !specimen) {
         [self.specimenDetail hideWeightInput:NO];
 
         [self.mooseFields setHidden:YES];
         [self.mooseFieldsHeightConstraint setConstant:0.f];
+
+        [self.mooseFields setUserInteractionEnabled:(self.editMode && (self.event == nil || [self.event isEditable]))];
+        return;
     }
 
-    [self.mooseFields setUserInteractionEnabled:(self.editMode && (self.event == nil || [self.event isEditable]))];
-}
+    // moose or mooselike
+    HarvestContext *harvestContext = [HarvestContext createWithSpeciesId:species.speciesId
+                                                      harvestPointOfTime:self.startTime
+                                                                specimen:specimen];
+    HarvestSpecimenFields *fields = [HarvestSpecimenFieldsProvider getFieldsForHarvestContext:harvestContext];
 
-- (void)createDeerChoiseFields:(RiistaSpecimen*)specimen
-{
-    specimen.weight = nil;
+    // display the fields according to visibility settings. Clear the corresponding specimen
+    // value if field is not visible --> this ensures we're not going to send invalid data to the backend
 
-    self.mooseFitnessClass = nil;
-    self.mooseAntlersType = nil;
-
-    CGFloat H = RiistaDefaultValueElementHeight;
-    int viewCount = 0;
-    [self.mooseFields addSubview:[self createMooseNotEdibleChoice:specimen y:viewCount++]];
-    [self.mooseFields addSubview:[self createMooseWeightEstimatedItem:specimen y:H*viewCount++]];
-    [self.mooseFields addSubview:[self createMooseWeightMeasuredItem:specimen y:H*viewCount++]];
-
-    if ([specimen.gender isEqualToString:SpecimenGenderMale] && [specimen.age isEqualToString:SpecimenAgeAdult]) {
-        [self.mooseFields addSubview:[self createMooseAntlersWidthItem:specimen y:H*viewCount++]];
-        [self.mooseFields addSubview:[self createMooseAntlersPointsLeft:specimen y:H*viewCount++]];
-        [self.mooseFields addSubview:[self createMooseAntlersPointsRight:specimen y:H*viewCount++]];
+    if ([fields contains:HarvestSpecimenFieldTypeWeight]) {
+        [self.specimenDetail hideWeightInput:NO];
+    } else {
+        [self.specimenDetail hideWeightInput:YES];
+        specimen.weight = nil;
     }
-    [self.mooseFields addSubview:[self createMooseAdditionalInfoField:specimen y:H*viewCount++]];
 
-    CGFloat height = ([self.mooseFields subviews].count * H) + MOOSE_INFO_EXTRA_HEIGHT;
+    // dynamic mooselike fields
+    CGFloat accumulatedHeight = 8; // little bit of top margin here
+    if ([fields contains:HarvestSpecimenFieldTypeLoneCalf]) {
+        [self.mooseFields addSubview:[self createMooseLoneCalfChoice:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaCheckboxElementHeight;
+    } else {
+        specimen.alone = nil;
+    }
 
-    [self.specimenDetail hideWeightInput:YES];
+    if ([fields contains:HarvestSpecimenFieldTypeNotEdible]) {
+        [self.mooseFields addSubview:[self createMooseNotEdibleChoice:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaCheckboxElementHeight;
+    } else {
+        specimen.notEdible = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeWeightEstimated]) {
+        [self.mooseFields addSubview:[self createMooseWeightEstimatedItem:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.weightEstimated = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeWeightMeasured]) {
+        [self.mooseFields addSubview:[self createMooseWeightMeasuredItem:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.weightMeasured = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeFitnessClass]) {
+        [self.mooseFields addSubview:[self createMooseFitnessClassItem:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.fitnessClass = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAntlersLost]) {
+        [self.mooseFields addSubview:[self createMooseAntlersLostChoice:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaCheckboxElementHeight;
+    } else {
+        specimen.antlersLost = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAntlersInstructions] && self.editMode) {
+        UIView *instructionsView = [self createAntlersInstructions:species.speciesId y:accumulatedHeight];
+        if (instructionsView != nil) {
+            [self.mooseFields addSubview:instructionsView];
+            accumulatedHeight += RiistaInstructionsViewHeight;
+        }
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAntlersType]) {
+        [self.mooseFields addSubview:[self createMooseAntlersTypeItem:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.antlersType = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAntlersWidth]) {
+        [self.mooseFields addSubview:[self createMooseAntlersWidthItem:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.antlersWidth = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAntlerPointsLeft]) {
+        [self.mooseFields addSubview:[self createMooseAntlersPointsLeft:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.antlerPointsLeft = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAntlerPointsRight]) {
+        [self.mooseFields addSubview:[self createMooseAntlersPointsRight:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.antlerPointsRight = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAntlersGirth]) {
+        [self.mooseFields addSubview:[self createMooseAntlersGirthItem:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.antlersGirth = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAntlersLength]) {
+        [self.mooseFields addSubview:[self createMooseAntlersLengthItem:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.antlersLength = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAntlersInnerWidth]) {
+        [self.mooseFields addSubview:[self createMooseAntlersInnerWidthItem:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.antlersInnerWidth = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAntlersShaftWidth]) {
+        [self.mooseFields addSubview:[self createMooseAntlersShaftWidthItem:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+       specimen.antlersShaftWidth = nil;
+    }
+
+    if ([fields contains:HarvestSpecimenFieldTypeAdditionalInfo]) {
+        [self.mooseFields addSubview:[self createMooseAdditionalInfoField:specimen y:accumulatedHeight]];
+        accumulatedHeight += RiistaDefaultValueElementHeight;
+    } else {
+        specimen.additionalInfo = nil;
+    }
 
     [self.mooseFields setHidden:NO];
-    [self.mooseFieldsHeightConstraint setConstant:height];
+    [self.mooseFieldsHeightConstraint setConstant:accumulatedHeight];
+
+    [self.mooseFields setUserInteractionEnabled:(self.editMode && (self.event == nil || [self.event isEditable]))];
 }
 
 - (RiistaValueListButton*)createSpeciesExtraItem:(NSString*)name value:(NSString*)value y:(int)y
@@ -875,6 +968,20 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 - (RiistaValueListButton*)createMooseItem:(NSString*)name value:(NSString*)value y:(int)y
 {
     return [self createValueListButton:name value:value y:y width:self.mooseFields.frame.size.width];
+}
+
+- (RiistaValueListTextField*)createNumericMooseTextField:(NSString*)name value:(NSNumber*)value maxValue:(NSNumber*)maxValue y:(int)y grow:(int)grow
+{
+    NSNumber *safeValue = value != nil ? value : [NSNumber numberWithInt:0];
+    NSNumber *displayedValue = [safeValue compare:maxValue] == NSOrderedDescending ? maxValue : value;
+    RiistaValueListTextField *item = [self createMooseTextField:name
+                                                           value:[displayedValue stringValue]
+                                                               y:y
+                                                            grow:grow];
+    item.textField.keyboardType = UIKeyboardTypeNumberPad;
+    item.maxNumberValue = maxValue;
+    item.nonNegativeIntNumberOnly = YES;
+    return item;
 }
 
 - (RiistaValueListTextField*)createMooseTextField:(NSString*)name value:(NSString*)value y:(int)y grow:(int)grow
@@ -904,39 +1011,58 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     return control;
 }
 
-- (UIView*)createMooseLoneCalfChoice:(RiistaSpecimen*)specimen y:(int)y
+- (UIView*)createCheckbox:(BOOL)checked
+               frameWidth:(CGFloat)frameWidth
+                        y:(int)y
+                    title:(NSString*)title
+                      tag:(NSInteger)tag
+                   action:(SEL)action
 {
-    BOOL alone = (specimen.alone != nil) ? [specimen.alone boolValue] : false;
-
-    UIView *item = [[UIView alloc] initWithFrame: CGRectMake (0, 8, self.mooseFields.frame.size.width, 43)];
+    UIView *item = [[UIView alloc] initWithFrame: CGRectMake (0, y, frameWidth, RiistaCheckboxElementHeight)];
     item.backgroundColor = [UIColor whiteColor];
 
-    M13Checkbox* box = [[M13Checkbox alloc] initWithFrame:CGRectMake (LEFT_MARGIN, 0, item.frame.size.width - LEFT_MARGIN - RIGHT_MARGIN, 43)
-                                                    title:RiistaLocalizedString(@"ObservationDetailsMooseCalf", nil)];
+    M13Checkbox* box = [[M13Checkbox alloc] initWithFrame:CGRectMake (LEFT_MARGIN, 0, item.frame.size.width - LEFT_MARGIN - RIGHT_MARGIN, RiistaCheckboxElementHeight)
+                                                    title:title];
     box.titleLabel.font = [UIFont fontWithName:AppFont.Name size:AppFont.LabelMedium];
-    box.tag = MOOSE_LONE_CALF_TAG;
-    box.checkState = alone ? M13CheckboxStateChecked : M13CheckboxStateUnchecked;
+    box.tag = tag;
+    box.checkState = checked ? M13CheckboxStateChecked : M13CheckboxStateUnchecked;
     box.enabled = self.editMode;
     [RiistaViewUtils setCheckboxStyle:box];
-    [box addTarget:self action:@selector(loneCalfCheckboxDidChange:) forControlEvents:UIControlEventValueChanged];
+    [box addTarget:self action:action forControlEvents:UIControlEventValueChanged];
     [item addSubview:box];
 
     return item;
 }
 
+- (UIView*)createMooseLoneCalfChoice:(RiistaSpecimen*)specimen y:(int)y
+{
+    BOOL alone = (specimen.alone != nil) ? [specimen.alone boolValue] : false;
+
+    return [self createCheckbox:alone
+                     frameWidth:self.mooseFields.frame.size.width
+                              y:y
+                          title:RiistaLocalizedString(@"ObservationDetailsMooseCalf", nil)
+                            tag:0
+                         action:@selector(loneCalfCheckboxDidChange:)];
+}
+
 - (void)loneCalfCheckboxDidChange:(id)sender
 {
     RiistaSpecimen *specimen = self.specimenData[0];
+    specimen.alone = [self resolveCheckboxValue:sender];
+}
 
-    M13Checkbox *box = (M13Checkbox*)sender;
+- (NSNumber*)resolveCheckboxValue:(id)checkbox
+{
+    M13Checkbox *box = (M13Checkbox*)checkbox;
     if (box.checkState == M13CheckboxStateChecked) {
-        specimen.alone = [NSNumber numberWithBool:YES];
+        return [NSNumber numberWithBool:YES];
     }
     else if (box.checkState == M13CheckboxStateUnchecked) {
-        specimen.alone = [NSNumber numberWithBool:NO];
+        return [NSNumber numberWithBool:NO];
     }
     else {
-        specimen.alone = nil;
+        return nil;
     }
 }
 
@@ -944,36 +1070,70 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 {
     BOOL notEdible = (specimen.notEdible != nil) ? [specimen.notEdible boolValue] : false;
 
-    UIView *item = [[UIView alloc] initWithFrame: CGRectMake (0, y == 0 ? 8 : y, self.mooseFields.frame.size.width, 43)];
-    item.backgroundColor = [UIColor whiteColor];
-
-    M13Checkbox* box = [[M13Checkbox alloc] initWithFrame:CGRectMake (LEFT_MARGIN, 0, item.frame.size.width - LEFT_MARGIN - RIGHT_MARGIN, 43)
-                                                    title:RiistaLocalizedString(@"MooseNotEdible", nil)];
-    box.titleLabel.font = [UIFont fontWithName:AppFont.Name size:AppFont.LabelMedium];
-    box.tag = MOOSE_NOT_EDIBLE_TAG;
-    box.checkState = notEdible ? M13CheckboxStateChecked : M13CheckboxStateUnchecked;
-    box.enabled = self.editMode;
-    [RiistaViewUtils setCheckboxStyle:box];
-    [box addTarget:self action:@selector(notEdibleCheckboxDidChange:) forControlEvents:UIControlEventValueChanged];
-    [item addSubview:box];
-
-    return item;
+    return [self createCheckbox:notEdible
+                     frameWidth:self.mooseFields.frame.size.width
+                              y:y
+                          title:RiistaLocalizedString(@"MooseNotEdible", nil)
+                            tag:0
+                         action:@selector(notEdibleCheckboxDidChange:)];
 }
 
 - (void)notEdibleCheckboxDidChange:(id)sender
 {
     RiistaSpecimen *specimen = self.specimenData[0];
+    specimen.notEdible = [self resolveCheckboxValue:sender];
+}
 
-    M13Checkbox *box = (M13Checkbox*)sender;
-    if (box.checkState == M13CheckboxStateChecked) {
-        specimen.notEdible = [NSNumber numberWithBool:YES];
+- (UIView*)createMooseAntlersLostChoice:(RiistaSpecimen*)specimen y:(int)y
+{
+    BOOL antlersLost = (specimen.antlersLost != nil) ? [specimen.antlersLost boolValue] : false;
+
+    return [self createCheckbox:antlersLost
+                     frameWidth:self.mooseFields.frame.size.width
+                              y:y
+                          title:RiistaLocalizedString(@"AntlersLost", nil)
+                            tag:0
+                         action:@selector(antlersLostCheckboxDidChange:)];
+}
+
+- (void)antlersLostCheckboxDidChange:(id)sender
+{
+    RiistaSpecimen *specimen = self.specimenData[0];
+    specimen.antlersLost = [self resolveCheckboxValue:sender];
+
+    [self setupMooseInfo];
+
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
+}
+
+- (UIView*)createAntlersInstructions:(NSInteger)speciesId y:(int)y
+{
+    InstructionsButton *instructionsButton =
+        [[InstructionsButton alloc] initWithFrame:CGRectMake(0, y, self.mooseFields.frame.size.width, RiistaInstructionsViewHeight)];
+    instructionsButton.titleLabel.text = RiistaLocalizedString(@"Instructions", nil);
+    instructionsButton.delegate = self;
+    return instructionsButton;
+}
+
+- (void)onInstructionsRequested
+{
+    NSArray *instructions = [AntlerInstructions getInstructionsForSpeciesCode:self.species.speciesId];
+    if (instructions.count == 0) {
+        DDLog(@"No instructions for the current species, doing nothing");
+        return;
     }
-    else if (box.checkState == M13CheckboxStateUnchecked) {
-        specimen.notEdible = [NSNumber numberWithBool:NO];
-    }
-    else {
-        specimen.alone = nil;
-    }
+
+    UINavigationController *containerVC = [self.storyboard instantiateViewControllerWithIdentifier:@"InstructionsControllerContainer"];
+
+    InstructionsViewController *instructionsVC = (InstructionsViewController*)containerVC.rootViewController;
+    [instructionsVC setInstructionsItems:instructions];
+    NSString *instructionsFormat = RiistaLocalizedString(@"InstructionsFormat", nil);
+    NSString *speciesName = [RiistaUtils nameWithPreferredLanguage:self.species.name];
+    [instructionsVC setTitle:[NSString stringWithFormat:instructionsFormat, speciesName]];
+    instructionsVC.modalPresentationStyle = UIModalPresentationPopover;
+
+    [self presentViewController:containerVC animated:YES completion:nil];
 }
 
 - (RiistaValueListTextField*)createMooseWeightEstimatedItem:(RiistaSpecimen*)specimen y:(int)y
@@ -1003,7 +1163,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 
 - (RiistaValueListButton*)createMooseFitnessClassItem:(RiistaSpecimen*)specimen y:(int)y
 {
-    RiistaValueListButton *item = [self createMooseItem:RiistaLocalizedString(@"MooseFitnessClass", nil) value:RiistaMappedValueString(self.mooseFitnessClass, nil) y:y];
+    RiistaValueListButton *item = [self createMooseItem:RiistaLocalizedString(@"MooseFitnessClass", nil) value:RiistaMappedValueString(specimen.fitnessClass, nil) y:y];
     item.tag = MOOSE_FITNESS_TAG;
     [item addTarget:self action:@selector(mooseFitnessClassClicked:) forControlEvents:UIControlEventTouchUpInside];
     return item;
@@ -1021,7 +1181,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 
 - (RiistaValueListButton*)createMooseAntlersTypeItem:(RiistaSpecimen*)specimen y:(int)y
 {
-    RiistaValueListButton *item = [self createMooseItem:RiistaLocalizedString(@"MooseAntlersType", nil) value:RiistaMappedValueString(self.mooseAntlersType, nil) y:y];
+    RiistaValueListButton *item = [self createMooseItem:RiistaLocalizedString(@"MooseAntlersType", nil) value:RiistaMappedValueString(specimen.antlersType, nil) y:y];
     item.tag = MOOSE_ANTLERS_TYPE_TAG;
     [item addTarget:self action:@selector(mooseAntlersTypeClicked:) forControlEvents:UIControlEventTouchUpInside];
     return item;
@@ -1058,70 +1218,33 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 
 - (UIView*)createFeedingPlaceChoice:(BOOL)value y:(int)y
 {
-    UIView *item = [[UIView alloc] initWithFrame: CGRectMake (0, y == 0 ? 10 : y, self.speciesExtraFields.frame.size.width, 50)];
-    item.backgroundColor = [UIColor whiteColor];
+    return [self createCheckbox:value
+                     frameWidth:self.speciesExtraFields.frame.size.width
+                              y:y
+                          title:RiistaLocalizedString(@"HarvestFeedingPlaceTitle", nil)
+                            tag:HARVEST_FEEDING_PLACE_TAG
+                         action:@selector(feedingPlaceCheckboxDidChange:)];
 
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake (LEFT_MARGIN, 0, item.frame.size.width, 50)];
-    label.text = RiistaLocalizedString(@"HarvestFeedingPlaceTitle", nil);
-    [item addSubview:label];
-
-    M13Checkbox* box = [[M13Checkbox alloc] initWithFrame:CGRectMake (item.frame.size.width - 40, 13, 25, 25)];
-    box.tag = HARVEST_FEEDING_PLACE_TAG;
-    box.checkState = value ? M13CheckboxStateChecked : M13CheckboxStateUnchecked;
-    box.enabled = self.editMode;
-    [RiistaViewUtils setCheckboxStyle:box];
-    [box addTarget:self action:@selector(feedingPlaceCheckboxDidChange:) forControlEvents:UIControlEventValueChanged];
-    [item addSubview:box];
-
-    return item;
 }
 
 - (void)feedingPlaceCheckboxDidChange:(id)sender
 {
-    M13Checkbox *box = (M13Checkbox*)sender;
-    if (box.checkState == M13CheckboxStateChecked) {
-        self.harvestFeedingPlace = [NSNumber numberWithBool:YES];
-    }
-    else if (box.checkState == M13CheckboxStateUnchecked) {
-        self.harvestFeedingPlace = [NSNumber numberWithBool:NO];
-    }
-    else {
-        self.harvestFeedingPlace = nil;
-    }
+    self.harvestFeedingPlace = [self resolveCheckboxValue:sender];
 }
 
 - (UIView*)createTaigaBeanGooseChoice:(BOOL)value y:(int)y
 {
-    UIView *item = [[UIView alloc] initWithFrame: CGRectMake (0, y == 0 ? 10 : y, self.speciesExtraFields.frame.size.width, 50)];
-    item.backgroundColor = [UIColor whiteColor];
-
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake (LEFT_MARGIN, 0, item.frame.size.width, 50)];
-    label.text = RiistaLocalizedString(@"HarvestTaigaBeanGooseTitle", nil);
-    [item addSubview:label];
-
-    M13Checkbox* box = [[M13Checkbox alloc] initWithFrame:CGRectMake (item.frame.size.width - 40, 13, 25, 25)];
-    box.tag = HARVEST_TAIGA_BEAN_GOOSE_TAG;
-    box.checkState = value ? M13CheckboxStateChecked : M13CheckboxStateUnchecked;
-    box.enabled = self.editMode;
-    [RiistaViewUtils setCheckboxStyle:box];
-    [box addTarget:self action:@selector(taigaBeanGooseCheckboxDidChange:) forControlEvents:UIControlEventValueChanged];
-    [item addSubview:box];
-
-    return item;
+    return [self createCheckbox:value
+                     frameWidth:self.speciesExtraFields.frame.size.width
+                              y:y
+                          title:RiistaLocalizedString(@"HarvestTaigaBeanGooseTitle", nil)
+                            tag:HARVEST_TAIGA_BEAN_GOOSE_TAG
+                         action:@selector(taigaBeanGooseCheckboxDidChange:)];
 }
 
 - (void)taigaBeanGooseCheckboxDidChange:(id)sender
 {
-    M13Checkbox *box = (M13Checkbox*)sender;
-    if (box.checkState == M13CheckboxStateChecked) {
-        self.harvestTaigaBeanGoose = [NSNumber numberWithBool:YES];
-    }
-    else if (box.checkState == M13CheckboxStateUnchecked) {
-        self.harvestTaigaBeanGoose = [NSNumber numberWithBool:NO];
-    }
-    else {
-        self.harvestTaigaBeanGoose = nil;
-    }
+    self.harvestTaigaBeanGoose = [self resolveCheckboxValue:sender];
 }
 
 - (ValueListViewController*)loadListViewController:(NSArray*)values
@@ -1151,10 +1274,12 @@ NSString* RiistaEditDomain = @"RiistaEdit";
             }
         }
         else if ([key isEqualToString:MOOSE_FITNESS_KEY]) {
-            self.mooseFitnessClass = value;
+            RiistaSpecimen *specimen = self.specimenData[0];
+            specimen.fitnessClass = value;
         }
         else if ([key isEqualToString:MOOSE_ANTLERS_TYPE_KEY]) {
-            self.mooseAntlersType = value;
+            RiistaSpecimen *specimen = self.specimenData[0];
+            specimen.antlersType = value;
         }
         else if ([key isEqualToString:HARVEST_HUNTING_TYPE_KEY]) {
             self.harvestHuntingType = value;
@@ -1168,33 +1293,84 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 
 - (RiistaValueListTextField*)createMooseAntlersWidthItem:(RiistaSpecimen*)specimen y:(int)y
 {
-    RiistaValueListTextField *item = [self createMooseTextField:RiistaLocalizedString(@"MooseAntlersWidth", nil) value:[specimen.antlersWidth stringValue] y:y grow:0];
+    RiistaValueListTextField *item = [self createNumericMooseTextField:RiistaLocalizedString(@"MooseAntlersWidth", nil)
+                                                                 value:specimen.antlersWidth
+                                                              maxValue:[NSNumber numberWithInt:200]
+                                                                     y:y
+                                                                  grow:0];
     item.textField.tag = MOOSE_ANTLERS_WIDTH_TAG;
-    item.textField.keyboardType = UIKeyboardTypeNumberPad;
-    item.maxNumberValue = [NSNumber numberWithInt:999];
-    item.nonNegativeIntNumberOnly = YES;
     item.delegate = self;
     return item;
 }
 
 - (RiistaValueListTextField*)createMooseAntlersPointsLeft:(RiistaSpecimen*)specimen y:(int)y
 {
-    RiistaValueListTextField *item = [self createMooseTextField:RiistaLocalizedString(@"MooseAntlersPointsLeft", nil) value:[specimen.antlerPointsLeft stringValue] y:y grow:0];
+    RiistaValueListTextField *item = [self createNumericMooseTextField:RiistaLocalizedString(@"MooseAntlersPointsLeft", nil)
+                                                                 value:specimen.antlerPointsLeft
+                                                              maxValue:[NSNumber numberWithInt:30]
+                                                                     y:y
+                                                                  grow:0];
     item.textField.tag = MOOSE_ANTLERS_POINTS_LEFT_TAG;
-    item.textField.keyboardType = UIKeyboardTypeNumberPad;
-    item.maxNumberValue = [NSNumber numberWithInt:50];
-    item.nonNegativeIntNumberOnly = YES;
     item.delegate = self;
     return item;
 }
 
 - (RiistaValueListTextField*)createMooseAntlersPointsRight:(RiistaSpecimen*)specimen y:(int)y
 {
-    RiistaValueListTextField *item = [self createMooseTextField:RiistaLocalizedString(@"MooseAntlersPointsRight", nil) value:[specimen.antlerPointsRight stringValue] y:y grow:0];
+    RiistaValueListTextField *item = [self createNumericMooseTextField:RiistaLocalizedString(@"MooseAntlersPointsRight", nil)
+                                                                 value:specimen.antlerPointsRight
+                                                              maxValue:[NSNumber numberWithInt:30]
+                                                                     y:y
+                                                                  grow:0];
     item.textField.tag = MOOSE_ANTLERS_POINTS_RIGHT_TAG;
-    item.textField.keyboardType = UIKeyboardTypeNumberPad;
-    item.maxNumberValue = [NSNumber numberWithInt:50];
-    item.nonNegativeIntNumberOnly = YES;
+    item.delegate = self;
+    return item;
+}
+
+- (RiistaValueListTextField*)createMooseAntlersGirthItem:(RiistaSpecimen*)specimen y:(int)y
+{
+    RiistaValueListTextField *item = [self createNumericMooseTextField:RiistaLocalizedString(@"AntlersGirth", nil)
+                                                                 value:specimen.antlersGirth
+                                                              maxValue:[NSNumber numberWithInt:50]
+                                                                     y:y
+                                                                  grow:0];
+    item.textField.tag = MOOSE_ANTLERS_GIRTH_TAG;
+    item.delegate = self;
+    return item;
+}
+
+- (RiistaValueListTextField*)createMooseAntlersLengthItem:(RiistaSpecimen*)specimen y:(int)y
+{
+    RiistaValueListTextField *item = [self createNumericMooseTextField:RiistaLocalizedString(@"AntlersLength", nil)
+                                                                 value:specimen.antlersLength
+                                                              maxValue:[NSNumber numberWithInt:100]
+                                                                     y:y
+                                                                  grow:0];
+    item.textField.tag = MOOSE_ANTLERS_LENGTH_TAG;
+    item.delegate = self;
+    return item;
+}
+
+- (RiistaValueListTextField*)createMooseAntlersInnerWidthItem:(RiistaSpecimen*)specimen y:(int)y
+{
+    RiistaValueListTextField *item = [self createNumericMooseTextField:RiistaLocalizedString(@"AntlersInnerWidth", nil)
+                                                                 value:specimen.antlersInnerWidth
+                                                              maxValue:[NSNumber numberWithInt:100]
+                                                                     y:y
+                                                                  grow:0];
+    item.textField.tag = MOOSE_ANTLERS_INNER_WIDTH_TAG;
+    item.delegate = self;
+    return item;
+}
+
+- (RiistaValueListTextField*)createMooseAntlersShaftWidthItem:(RiistaSpecimen*)specimen y:(int)y
+{
+    RiistaValueListTextField *item = [self createNumericMooseTextField:RiistaLocalizedString(@"AntlerShaftDiameter", nil)
+                                                                 value:specimen.antlersShaftWidth
+                                                              maxValue:[NSNumber numberWithInt:10]
+                                                                     y:y
+                                                                  grow:0];
+    item.textField.tag = MOOSE_ANTLERS_SHAFT_WIDTH_TAG;
     item.delegate = self;
     return item;
 }
@@ -1524,8 +1700,6 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 }
 
 - (void)editCancelButtonClicked:(id)sender {
-    self.mooseFitnessClass = nil;
-    self.mooseAntlersType = nil;
     self.harvestHuntingType = nil;
     self.harvestFeedingPlace = nil;
     self.harvestTaigaBeanGoose = nil;
@@ -1551,6 +1725,8 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 
     [self refreshPermitViewVisibility];
     [self updatePermitInfo];
+    // try to load the image. Will indicate load failure to the user appropriately
+    [self refreshImage];
 
     self.descriptionField.enabled = YES;
     [self.imagesButton setEnabled:YES animated:YES];
@@ -1597,7 +1773,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     diaryEntry.sent = @(NO);
     diaryEntry.mobileClientRefId = [RiistaUtils generateMobileClientRefId];
     diaryEntry.permitNumber = self.selectedPermitNumber;
-    diaryEntry.harvestSpecVersion = [NSNumber numberWithInteger:HarvestSpecVersion];
+    [self saveHarvestSpecVersionToDiaryEntry:diaryEntry];
 
     [self saveDeerHuntingTypeTo:diaryEntry];
     [self saveSpecimenExtraFieldsTo:diaryEntry];
@@ -1693,7 +1869,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     self.event.amount = [NSNumber numberWithInteger:[self.amountTextField.text integerValue]];
     self.event.diarydescription = self.descriptionField.text;
     self.event.permitNumber = self.selectedPermitNumber;
-    self.event.harvestSpecVersion = [NSNumber numberWithInteger:HarvestSpecVersion];
+    [self saveHarvestSpecVersionToDiaryEntry:self.event];
     [self saveDeerHuntingTypeTo:self.event];
 
     NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitYear | NSCalendarUnitMonth fromDate:self.event.pointOfTime];
@@ -1759,6 +1935,19 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     }
 }
 
+- (void)saveHarvestSpecVersionToDiaryEntry:(DiaryEntry*)diaryEntry
+{
+    // Explicitly check only feature availability and DON'T take harvest point of time into account.
+    // All users should be able to create/update harvests with harvest spec version 8 once the deer pilot
+    // functionality is enabled for all users. Entries for previous hunting years should then be sent with
+    // HarvestSpecVersion 8 even though new antler fields won't be available there.
+    if ([FeatureAvailabilityChecker.shared isEnabled:FeatureAntlers2020Fields]) {
+        diaryEntry.harvestSpecVersion = [NSNumber numberWithInteger:HarvestSpecVersionAntlers2020];
+    } else {
+        diaryEntry.harvestSpecVersion = [NSNumber numberWithInteger:HarvestSpecVersion];
+    }
+}
+
 - (NSNumber*)parseMooseValue:(NSString*)text
 {
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
@@ -1780,7 +1969,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 - (void)saveDeerHuntingTypeTo:(DiaryEntry*)entry
 {
     entry.deerHuntingType = self.selectedDeerHuntingType != DeerHuntingTypeNone ?
-        [DeerHuntingTypeHelper stringForDeerHuntingType:self.selectedDeerHuntingType] : nil;
+    [DeerHuntingTypeHelper stringForDeerHuntingType:self.selectedDeerHuntingType] : nil;
     // description only used when hunting type == other
     entry.deerHuntingTypeDescription = self.selectedDeerHuntingType == DeerHuntingTypeOther ? self.selectedDeerHuntingTypeDescription : nil;
 }
@@ -1843,6 +2032,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
         self.startTime = selectedDate;
         [self updateTitle];
         [self setupSpeciesExtraFields];
+        [self setupMooseInfo];
         [self updatePermitInfo];
         [self updateSubmitButton];
     }];
@@ -1862,6 +2052,9 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     dateSelectionVC.datePicker.maximumDate = [NSDate date];
     dateSelectionVC.datePicker.locale = [RiistaSettings locale];
     dateSelectionVC.datePicker.datePickerMode = UIDatePickerModeDateAndTime;
+    if (@available(iOS 13.4, *)) {
+        dateSelectionVC.datePicker.preferredDatePickerStyle = UIDatePickerStyleWheels;
+    }
 
     [self presentViewController:dateSelectionVC animated:YES completion:nil];
 }
@@ -2207,6 +2400,18 @@ NSString* RiistaEditDomain = @"RiistaEdit";
         [imageUtil editImageWithPickerDelegate:self];
     }
     else if ([imageUtil hasImagesWithEntry:self.event]) {
+        if (self.imagesButton.imageLoadStatus == LoadStatusFailure) {
+            ImageLoadRequest *loadRequest = [ImageLoadRequest fromDiaryImage:[self selectDisplayedImage]
+                                                                     options:[ImageLoadOptions aspectFilledWithSize:CGSizeMake(50.f, 50.f)]];
+
+            [imageUtil displayImageLoadFailedDialog:self
+                                             reason:self.imagesButton.imageLoadFailureReason
+                                   imageLoadRequest:loadRequest
+                         allowAnotherPhotoSelection:NO];
+
+            return;
+        }
+
         UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
         ImageFullViewController *dest = (ImageFullViewController*)[sb instantiateViewControllerWithIdentifier:@"ImageFullController"];
         dest.item = self.event;
@@ -2319,6 +2524,18 @@ NSString* RiistaEditDomain = @"RiistaEdit";
         case MOOSE_ANTLERS_POINTS_RIGHT_TAG:
             specimen.antlerPointsRight = [self parseMooseValue:textField.text];
             break;
+        case MOOSE_ANTLERS_GIRTH_TAG:
+            specimen.antlersGirth = [self parseMooseValue:textField.text];
+            break;
+        case MOOSE_ANTLERS_LENGTH_TAG:
+            specimen.antlersLength = [self parseMooseValue:textField.text];
+            break;
+        case MOOSE_ANTLERS_INNER_WIDTH_TAG:
+            specimen.antlersInnerWidth = [self parseMooseValue:textField.text];
+            break;
+        case MOOSE_ANTLERS_SHAFT_WIDTH_TAG:
+            specimen.antlersShaftWidth = [self parseMooseValue:textField.text];
+            break;
         case MOOSE_ADDITIONAL_INFO_TAG:
             specimen.additionalInfo = textField.text;
             break;
@@ -2333,7 +2550,8 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 {
     self.species = species;
 
-    UIImage *speciesImage = [RiistaUtils loadSpeciesImage:species.speciesId size:CGSizeMake(42.0f, 42.0f)];
+    UIImage *speciesImage = [ImageUtils loadSpeciesImageWithSpeciesCode:species.speciesId
+                                                                   size:CGSizeMake(42.0f, 42.0f)];
 
     [self.speciesButton setImage:speciesImage forState:UIControlStateNormal];
     [self.speciesButton setTitle:[RiistaUtils nameWithPreferredLanguage:species.name] forState:UIControlStateNormal];
@@ -2386,7 +2604,8 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 {
     self.species = species;
 
-    UIImage *speciesImage = [RiistaUtils loadSpeciesImage:species.speciesId size:CGSizeMake(42.0f, 42.0f)];
+    UIImage *speciesImage = [ImageUtils loadSpeciesImageWithSpeciesCode:species.speciesId
+                                                                   size:CGSizeMake(42.0f, 42.0f)];
 
     [self.speciesButton setImage:speciesImage forState:UIControlStateNormal];
     [self.speciesButton setTitle:[RiistaUtils nameWithPreferredLanguage:species.name] forState:UIControlStateNormal];
@@ -2424,7 +2643,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     [self.amountTextField setText:[NSString stringWithFormat:@"%lu", (unsigned long)[_specimenData count]]];
 }
 
-# pragma mark - KeyboardHandlerDelegate
+# pragma mark - RiistaKeyboardHandlerDelegate
 
 - (void)hideKeyboard
 {
@@ -2444,9 +2663,9 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     return newLength <= [AppConstants HarvestMaxAmountLength] || ([string rangeOfString: @"\n"].location != NSNotFound);
 }
 
-#pragma mark - ImageUtilDelegate
+#pragma mark - RiistaImagePickerDelegate
 
-- (void)didFinishPickingImageWithInfo:(NSDictionary<UIImagePickerControllerInfoKey,id> *)info
+- (void)imagePickedWithImage:(IdentifiableImage *)image
 {
     // reuse addedImage if one exists. addedImage will not be persisted unless data is submitted
     if (addedImage == nil) {
@@ -2461,24 +2680,26 @@ NSString* RiistaEditDomain = @"RiistaEdit";
         addedImage.type = [NSNumber numberWithInteger:DiaryImageTypeLocal];
     }
 
-    // we're reusing addedImage. Ensure uri does not point to previous image
-    addedImage.uri = nil;
-
-    NSURL *imageUrl = [(NSURL*)info valueForKey:UIImagePickerControllerReferenceURL];
-    if (imageUrl) {
-        [self didSaveImageWithAssetUrlStr:[imageUrl absoluteString]];
-    }
-    else {
-        [imageUtil saveImageToPhotoLibraryWithInfo:info delegate:self];
-    }
+    [image.imageIdentifier saveIdentifierTo:addedImage];
     [self refreshImage];
 }
 
-- (void)didSaveImageWithAssetUrlStr:(NSString *)assetUrlStr
+- (void)imagePickCancelled
 {
-    addedImage.uri = assetUrlStr;
-    [self refreshImage];
+    NSLog(@"imagePickCancelled");
 }
+
+- (void)imagePickFailed:(enum PhotoAccessFailureReason)reason loadRequest:(ImageLoadRequest *)loadRequest
+{
+    if (self.editMode) {
+        // user may have edited photo permissions during photo pick process. Ensure we can still
+        // load the current image
+        [self refreshImage];
+
+        [imageUtil displayImageLoadFailedDialog:self reason:reason imageLoadRequest:loadRequest allowAnotherPhotoSelection:YES];
+    }
+}
+
 
 #pragma mark - NSNotificationCenter
 

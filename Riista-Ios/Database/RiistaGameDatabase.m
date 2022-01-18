@@ -22,6 +22,9 @@
 #import "NSDateformatter+Locale.h"
 #import "Oma_riista-Swift.h"
 
+#import <FirebaseCrashlytics/FirebaseCrashlytics.h>
+
+
 NSString *const RIISTA_FETCH_TIMES = @"FetchTimes";
 const CGFloat SYNC_INTERVAL_IN_MINUTES = 5.0;
 const CGFloat MIN_SYNC_INTERVAL_IN_SECONDS = 5.0;
@@ -221,6 +224,13 @@ NSInteger const RiistaCalendarStartMonth = 8;
         return YES;
     }
     else if (existingEntry && ([diaryEntry.rev integerValue] == [existingEntry.rev integerValue] && ![existingEntry.sent boolValue])) {
+        // in most cases we want to preserve local changes that have not yet been sent. There are, however, few
+        // log entries in the backend logs that describe a situation where diary entries have same revision but
+        // the backend has a newer specimen than what the client seems to have.
+        // -> replace local diary entries in these cases
+        if ([existingEntry shouldSpecimensBeUpdatedWithRemoteEntry:diaryEntry]) {
+            return YES;
+        }
         // Special case: existing event needs to preserved since it contains changes that have not yet been sent
         [[diaryEntry managedObjectContext] refreshObject:diaryEntry mergeChanges:NO];
     }
@@ -471,6 +481,8 @@ NSInteger const RiistaCalendarStartMonth = 8;
     }
     lastSyncDate = [NSDate date];
 
+    [CrashlyticsHelper logWithMsg:@"Synchronizing diary entries.."];
+
     __weak RiistaGameDatabase *weakSelf = self;
     [self loadDiaryEntries:YES completion:^(NSArray *received, NSError* loadError) {
         [weakSelf sendUnsentDiaryEntries:NO completion:^(NSArray *sent, NSError* sendError) {
@@ -489,6 +501,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
                     [[AnnouncementsSync new] sync:^(NSArray *items, NSError *error) {
                         [MhPermitSync.shared syncWithCompletion:^(NSArray *items, NSError *error) {
                             if (completion) {
+                                [CrashlyticsHelper logWithMsg:@"Diary entry synchronization completed!"];
                                 completion();
                             }
                         }];
@@ -758,6 +771,8 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
 - (void)loadDiaryEntries:(BOOL)retry completion:(RiistaDiaryEntryLoadCompletion)completion
 {
+    [CrashlyticsHelper logWithMsg:@"Loading diary entries.."];
+
     NSMutableArray *allLoadedEntries = [NSMutableArray new];
     __block NSInteger yearsLoaded = 0;
     __weak RiistaGameDatabase *weakSelf = self;
@@ -783,13 +798,16 @@ NSInteger const RiistaCalendarStartMonth = 8;
         }
 
         if (error) {
-            if (completion)
+            if (completion) {
+                [CrashlyticsHelper logWithMsg:@"Failed to load diary entry years!"];
                 completion(nil, error);
+            }
             return;
         }
 
         if (years.count == 0) {
             if (completion) {
+                [CrashlyticsHelper logWithMsg:@"No diary entry years -> nothing to load!"];
                 completion([allLoadedEntries copy], nil);
             }
             return;
@@ -797,7 +815,6 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
         for (int i=0; i<years.count; i++) {
             NSInteger year = [years[i] integerValue];
-
             [weakSelf loadDiaryEntriesForYear:year context:temporaryContext completion:^(NSArray* loadedEntries, NSError* error) {
                 // Update latest fetch date
                 [weakSelf updateFetchDateForYear:year date:[NSDate date]];
@@ -805,6 +822,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
                 [allLoadedEntries addObjectsFromArray:loadedEntries];
                 yearsLoaded++;
                 if (yearsLoaded == years.count && completion) {
+                    [CrashlyticsHelper logWithMsg:@"Finished loading diary entries for all years"];
                     completion(allLoadedEntries, nil);
                 }
             }];
@@ -907,13 +925,17 @@ NSInteger const RiistaCalendarStartMonth = 8;
         return;
     }
 
+    [[FIRCrashlytics crashlytics] logWithFormat:@"Synchronizing %lu unsent diary entries..", (unsigned long)unsentEntries.count];
+
     __block BOOL finished = NO;
     for (int i=0; i<unsentEntries.count; i++) {
         DiaryEntry *entry = unsentEntries[i];
         [[RiistaNetworkManager sharedInstance] sendDiaryEntry:entry completion:^(NSDictionary *response, NSError *error) {
-            
+
             // When user doesn't have a session, it is pointless to continue sending events
             if (!finished && (error.code == 401 || error.code == 403)) {
+                [[FIRCrashlytics crashlytics] logWithFormat:@"Failed to synchronize unsent diary entry at index %d (error code = %ld)", i, (long)error.code];
+
                 finished = YES;
                 if (retry) {
                     RiistaCredentials *credentials = [[RiistaSessionManager sharedInstance] userCredentials];
@@ -1045,6 +1067,12 @@ NSInteger const RiistaCalendarStartMonth = 8;
             specimen.antlersWidth = ![item[@"antlersWidth"] isEqual:[NSNull null]] ? item[@"antlersWidth"] : nil;
             specimen.antlerPointsLeft = ![item[@"antlerPointsLeft"] isEqual:[NSNull null]] ? item[@"antlerPointsLeft"] : nil;
             specimen.antlerPointsRight = ![item[@"antlerPointsRight"] isEqual:[NSNull null]] ? item[@"antlerPointsRight"] : nil;
+            specimen.antlersLost = ![item[@"antlersLost"] isEqual:[NSNull null]] ? item[@"antlersLost"] : nil;
+            specimen.antlersGirth = ![item[@"antlersGirth"] isEqual:[NSNull null]] ? item[@"antlersGirth"] : nil;
+            specimen.antlersLength = ![item[@"antlersLength"] isEqual:[NSNull null]] ? item[@"antlersLength"] : nil;
+            specimen.antlersInnerWidth = ![item[@"antlersInnerWidth"] isEqual:[NSNull null]] ? item[@"antlersInnerWidth"] : nil;
+            // note different field in DTO / JSON
+            specimen.antlersShaftWidth = ![item[@"antlerShaftWidth"] isEqual:[NSNull null]] ? item[@"antlerShaftWidth"] : nil;
             specimen.notEdible = ![item[@"notEdible"] isEqual:[NSNull null]] ? item[@"notEdible"] : nil;
             specimen.alone = ![item[@"alone"] isEqual:[NSNull null]] ? item[@"alone"] : nil;
             specimen.additionalInfo = ![item[@"additionalInfo"] isEqual:[NSNull null]] ? item[@"additionalInfo"] : nil;
@@ -1064,9 +1092,22 @@ NSInteger const RiistaCalendarStartMonth = 8;
     NSArray *results = [context executeFetchRequest:fetch error:&error];
 
     if (results && results.count == 1) {
+        // by default update the existing entry..
         diaryEntry = results[0];
+
+        // but don't update if we have local modifications that can be sent to the backend
         if ([diaryEntry.rev integerValue] == [dict[@"rev"] integerValue] && ![diaryEntry.sent boolValue]) {
-            return diaryEntry;
+            // revisions are the same and thus the received diary entry probably contains the same data
+            // as what we have locally in the database. In the backend logs, however, there are few entries
+            // describing a situation where diary entry revisions are the same but the backend has newer
+            // specimen data.
+            // -> check if there's newer data in remote specimens. In that case we _need_ to update
+            //    specimens as otherwise our local changes can never be sent to backend
+            if (![diaryEntry shouldSpecimensBeUpdatedWithRemoteSpecimens:specimens]) {
+                // specimens are same and thus we can consider this and remote diary entry as same.
+                // Specifically this means that we can keep local changes and try send them later to the backend
+                return diaryEntry;
+            }
         }
     } else {
         diaryEntry = (DiaryEntry*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
@@ -1106,6 +1147,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     return diaryEntry;
 }
 
+// returns nil if missing required data
 - (NSDictionary*)dictFromDiaryEntry:(DiaryEntry*)diaryEntry isNew:(BOOL)isNew
 {
     NSString *dateString = [dateFormatter stringFromDate:diaryEntry.pointOfTime];
@@ -1129,6 +1171,14 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
     if (diaryEntry.harvestSpecVersion != nil) {
         dict[@"harvestSpecVersion"] = diaryEntry.harvestSpecVersion;
+    } else {
+        // missing harvestSpecVersion produces errors in the backend so don't even try sending
+        // harvests with missing spec version.
+        //
+        // HarvestSpecVersion can be nil if user has locally stored harvests that have been made
+        // with really old app version (probably around 1.3 or like). Those harvests were never
+        // migrated to newer data model and thus they lack harvest spec version.
+        return nil;
     }
 
     // Check for zero because in version <1.1 the value defaults to zeros
@@ -1187,6 +1237,11 @@ NSInteger const RiistaCalendarStartMonth = 8;
             specimen.antlersWidth = ![item[@"antlersWidth"] isEqual:[NSNull null]] ? item[@"antlersWidth"] : nil;
             specimen.antlerPointsLeft = ![item[@"antlerPointsLeft"] isEqual:[NSNull null]] ? item[@"antlerPointsLeft"] : nil;
             specimen.antlerPointsRight = ![item[@"antlerPointsRight"] isEqual:[NSNull null]] ? item[@"antlerPointsRight"] : nil;
+            specimen.antlersLost = ![item[@"antlersLost"] isEqual:[NSNull null]] ? item[@"antlersLost"] : nil;
+            specimen.antlersGirth = ![item[@"antlersGirth"] isEqual:[NSNull null]] ? item[@"antlersGirth"] : nil;
+            specimen.antlersLength = ![item[@"antlersLength"] isEqual:[NSNull null]] ? item[@"antlersLength"] : nil;
+            specimen.antlersInnerWidth = ![item[@"antlersInnerWidth"] isEqual:[NSNull null]] ? item[@"antlersInnerWidth"] : nil;
+            specimen.antlersShaftWidth = ![item[@"antlerShaftWidth"] isEqual:[NSNull null]] ? item[@"antlerShaftWidth"] : nil;
             specimen.notEdible = ![item[@"notEdible"] isEqual:[NSNull null]] ? item[@"notEdible"] : nil;
             specimen.alone = ![item[@"alone"] isEqual:[NSNull null]] ? item[@"alone"] : nil;
             specimen.additionalInfo = ![item[@"additionalInfo"] isEqual:[NSNull null]] ? item[@"additionalInfo"] : nil;
@@ -1215,10 +1270,16 @@ NSInteger const RiistaCalendarStartMonth = 8;
                                           @"weightEstimated":specimen.weightEstimated != nil ? specimen.weightEstimated : [NSNull null],
                                           @"weightMeasured":specimen.weightMeasured != nil ? specimen.weightMeasured : [NSNull null],
                                           @"fitnessClass":specimen.fitnessClass != nil ? specimen.fitnessClass : [NSNull null],
+                                          @"antlersLost":specimen.antlersLost != nil ? specimen.antlersLost : [NSNull null],
                                           @"antlersType":specimen.antlersType != nil ? specimen.antlersType : [NSNull null],
                                           @"antlersWidth":specimen.antlersWidth != nil ? specimen.antlersWidth : [NSNull null],
                                           @"antlerPointsLeft":specimen.antlerPointsLeft != nil ? specimen.antlerPointsLeft : [NSNull null],
                                           @"antlerPointsRight":specimen.antlerPointsRight != nil ? specimen.antlerPointsRight : [NSNull null],
+                                          @"antlersGirth":specimen.antlersGirth != nil ? specimen.antlersGirth : [NSNull null],
+                                          @"antlersLength":specimen.antlersLength != nil ? specimen.antlersLength : [NSNull null],
+                                          @"antlersInnerWidth":specimen.antlersInnerWidth != nil ? specimen.antlersInnerWidth : [NSNull null],
+                                          // note different field name in json / DTO
+                                          @"antlerShaftWidth":specimen.antlersShaftWidth != nil ? specimen.antlersShaftWidth : [NSNull null],
                                           @"notEdible":specimen.notEdible != nil ? specimen.notEdible : [NSNull null],
                                           @"alone":specimen.alone != nil ? specimen.alone : [NSNull null],
                                           @"additionalInfo":specimen.additionalInfo != nil ? specimen.additionalInfo : [NSNull null],

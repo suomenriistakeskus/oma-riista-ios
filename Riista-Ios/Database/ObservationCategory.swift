@@ -33,3 +33,7 @@ import Foundation
         }
     }
 }
+
+@objc protocol ObservationCategoryChangedDelegate: AnyObject {
+    func onObservationCategoryChanged(_ newObservationCategory: ObservationCategory)
+}

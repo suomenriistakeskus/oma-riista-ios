@@ -74,17 +74,14 @@ class FilterSpeciesViewController: UIViewController, UITableViewDataSource, UITa
         let cell = tableView.dequeueReusableCell(withIdentifier: "filterSpeciesCell") as! FilterSpeciesCell
         cell.frame = CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: (cell.frame.size.height))
 
-        let item = tableViewItems[indexPath.row]
-
-        if (item == nil) {
+        if let item = tableViewItems[indexPath.row] {
+            cell.speciesImage.image = ImageUtils.loadSpeciesImage(speciesCode: item.speciesId)
+            cell.speciesName.text = RiistaUtils.name(withPreferredLanguage: item.name)
+        } else {
             // SRVA "other" species
             cell.speciesImage.image = UIImage.init(named: "unknown_white")
             cell.speciesImage.tintColor = UIColor.black
             cell.speciesName.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "SrvaOtherSpeciesDescription")
-        }
-        else {
-            cell.speciesImage.image = RiistaUtils.loadSpeciesImage(item!.speciesId)
-            cell.speciesName.text = RiistaUtils.name(withPreferredLanguage: item?.name)
         }
 
         let selectedIndexPaths = tableView.indexPathsForSelectedRows

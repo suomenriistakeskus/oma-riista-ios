@@ -23,9 +23,15 @@ extern NSString *const SpecimenAgeUnknown;
 @property (nonatomic, retain) NSNumber *weightMeasured;
 @property (nonatomic, retain) NSString *fitnessClass;
 @property (nonatomic, retain) NSString *antlersType;
-@property (nonatomic, retain) NSNumber *antlersWidth;
-@property (nonatomic, retain) NSNumber *antlerPointsLeft;
-@property (nonatomic, retain) NSNumber *antlerPointsRight;
+@property (nonatomic, retain) NSNumber *antlersWidth; // 0-200cm
+@property (nonatomic, retain) NSNumber *antlerPointsLeft; // 0-30
+@property (nonatomic, retain) NSNumber *antlerPointsRight; // 0-30
+// 2020 antlers updates
+@property (nonatomic, retain) NSNumber *antlersLost;
+@property (nonatomic, retain) NSNumber *antlersGirth; // 0-50cm
+@property (nonatomic, retain) NSNumber *antlersLength; // 0-100cm
+@property (nonatomic, retain) NSNumber *antlersInnerWidth; // 0-100cm
+@property (nonatomic, retain) NSNumber *antlersShaftWidth; // 0-10cm
 @property (nonatomic, retain) NSNumber *notEdible;
 @property (nonatomic, retain) NSNumber *alone;
 @property (nonatomic, retain) NSString *additionalInfo;

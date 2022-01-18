@@ -93,15 +93,17 @@ class HuntingLicenseViewController: UIViewController {
                                        huntingCardStart, huntingCardEnd)
 
             if (user.rhy != nil) {
-                if let rhyName = user.rhy.name[RiistaSettings.language()] as? String {
+                // default to "fi" if language is missing
+                let language: String = RiistaSettings.language() ?? "fi"
+                // default to Finnish name if no name for language is found
+                let rhyName = user.rhy.name[language] ?? user.rhy.name["fi"]
+                if let rhyName = rhyName {
                     rhyMembershipValue.text = String(format: "%@ (%@)",
-                    rhyName,
+                    rhyName as! String,
                     user.rhy.officialCode)
                 }
                 else {
-                    rhyMembershipValue.text = String(format: "%@ (%@)",
-                                                     user.rhy.name["fi"] as! String,
-                                                     user.rhy.officialCode)
+                    rhyMembershipValue.text = nil
                 }
             }
             else {

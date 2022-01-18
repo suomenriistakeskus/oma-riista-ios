@@ -1,4 +1,5 @@
 import Foundation
+import SnapKit
 
 class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -13,6 +14,9 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
         tableView.delegate = self
         tableView.dataSource = self
         tableView.tableFooterView = UIView()
+
+        addUserNameAndHunterNumber()
+
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -25,6 +29,46 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
         tableView.reloadData()
     }
 
+    private func addUserNameAndHunterNumber() {
+        guard let user = user else { return }
+
+        let stackViewContainer = UIView()
+        tableView.tableHeaderView = stackViewContainer
+        stackViewContainer.snp.makeConstraints { make in
+            make.width.equalToSuperview()
+        }
+
+        let stackView = UIStackView()
+        stackViewContainer.addSubview(stackView)
+        stackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(12)
+        }
+        stackView.axis = .vertical
+        stackView.spacing = 4
+
+        let label = UILabel()
+        stackView.addArrangedSubview(label)
+        AppTheme.shared.setupLabelFont(label: label)
+        label.numberOfLines = 1
+        label.lineBreakMode = .byTruncatingTail
+        label.textColor = .black
+        label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestsNameAndHunterNumber")
+
+        let nameAndNumber = UILabel()
+        stackView.addArrangedSubview(nameAndNumber)
+        AppTheme.shared.setupValueFont(label: nameAndNumber)
+        nameAndNumber.numberOfLines = 0
+        nameAndNumber.lineBreakMode = .byWordWrapping
+        nameAndNumber.textColor = .black
+        nameAndNumber.text = "\(user.firstName ?? "") \(user.lastName ?? ""), \(user.hunterNumber ?? "-")"
+        nameAndNumber.snp.makeConstraints { make in
+            make.left.right.equalToSuperview()
+        }
+
+        // layout so that header gets the space it needs
+        tableView.layoutIfNeeded()
+    }
+
     func updateTitle() {
         let navController = self.navigationController as? RiistaNavigationController
         navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "MyDetailsTitleShootingTests"))
@@ -33,9 +77,11 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
     func updateNoContentIndicator() {
         let itemCount = items?.count ?? 0
         if (itemCount > 0) {
-            tableView.tableHeaderView = nil
+            addUserNameAndHunterNumber()
             return
         }
+
+        tableView.tableHeaderView = nil
 
         let label = UILabel()
         label.font = label.font.withSize(AppConstants.Font.LabelMedium)

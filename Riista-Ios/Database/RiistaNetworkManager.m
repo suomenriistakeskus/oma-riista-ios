@@ -12,6 +12,7 @@
 #import "SrvaEntry.h"
 #import "AnnouncementsSync.h"
 #import "NSDateformatter+Locale.h"
+#import "RiistaCommon/RiistaCommon.h"
 
 #import "Oma_riista-Swift.h"
 
@@ -19,7 +20,6 @@
 
 #define BASE_API_PATH @"api/mobile/v2/"
 
-NSString *const RiistaLoginPath = @"login";
 NSString *const RiistaRegisterPushTokenPath = BASE_API_PATH @"push/register";
 NSString *const RiistaAccountPath = BASE_API_PATH @"gamediary/account";
 NSString *const RiistaYearUpdateCheckPath = @"api/mobile/v1/gamediary/entries/haschanges/%ld/%@";
@@ -115,29 +115,67 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
 - (void)login:(NSString*)username password:(NSString*)password completion:(RiistaLoginCompletionBlock)completion
 {
-    MKNetworkOperation *loginOperation = [self.networkEngine operationWithPath:RiistaLoginPath params:@{} httpMethod:@"POST" ssl:UseSSL];
-    [loginOperation setCustomPostDataEncodingHandler:^NSString *(NSDictionary *postDatadict) {
-        return [NSString stringWithFormat:@"username=%@&password=%@&client=%@",
-                [RiistaUtils encodeToPercentEscapedString:username],
-                [RiistaUtils encodeToPercentEscapedString:password],
-                [RiistaUtils encodeToPercentEscapedString:RiistaMobileClient]];
-    } forType:@"application/x-www-form-urlencoded"];
-    [loginOperation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        [[RiistaSessionManager sharedInstance] storeUserLogin];
+    [CrashlyticsHelper logWithMsg:@"Logging in using RiistaSDK"];
 
-        [self saveUserInfo:[completedOperation responseJSON]];
-        [[RiistaPermitManager sharedInstance] preloadPermits:nil];
-        [[RiistaMetadataManager sharedInstance] fetchAll];
-        [self registerUserNotificationToken];
+    LoginAnalytics *analytics = [LoginAnalytics forRiistaSdk];
+    [analytics sendLoginBegin];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 
-        if (completion)
-            completion(nil);
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            completion(error);
+    [[RiistaCommonRiistaSDK riistaSDK] loginUsername:username
+                                            password:password
+                                   completionHandler:^(RiistaCommonNetworkResponse<RiistaCommonUserInfoDTO *> * _Nullable response, NSError * _Nullable error) {
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+
+        if (error != nil) {
+            [analytics sendLoginFailureWithStatusCode:-1];
+            [CrashlyticsHelper sendErrorWithDomain:@"RiistaSDKLogin" code:-1 data:nil error:error];
+            return;
         }
+
+        [response onSuccessHandler:^(RiistaCommonInt * _Nonnull statusCode, RiistaCommonNetworkResponseData<RiistaCommonUserInfoDTO *> * _Nonnull data) {
+            [analytics sendLoginSuccessWithStatusCode:statusCode.intValue];
+            [CrashlyticsHelper logWithMsg:@"Login using RiistaSDK succeeded"];
+
+            // copy authentication cookies so that further network requests made by MKNetworkKit
+            // have a change of succeeding
+            [RiistaSDKHelper copyAuthenticationCookiesFromRiistaSDK];
+
+            id userInfo = [JSONUtils parseString:data.raw];
+            [self onLoginSucceeded:userInfo completion:completion];
+        }];
+
+        [response onErrorHandler:^(RiistaCommonInt * _Nullable statusCode, RiistaCommonKotlinThrowable * _Nullable exception) {
+            NSInteger errorCode = statusCode != nil ? [statusCode integerValue] : 0;
+            [analytics sendLoginFailureWithStatusCode:statusCode.intValue];
+            [CrashlyticsHelper logWithMsg:@"Login using RiistaSDK failed"];
+
+            if (exception != nil) {
+                [CrashlyticsHelper logWithMsg:exception.message];
+            }
+            [CrashlyticsHelper sendErrorWithDomain:@"RiistaSDKLogin" code:statusCode.intValue data:nil];
+
+            NSError *error = [[NSError alloc] initWithDomain:NSURLErrorDomain code:errorCode userInfo:nil];
+            if (completion) {
+                completion(error);
+            }
+        }];
     }];
-    [self.networkEngine enqueueOperation:loginOperation];
+}
+
+- (void)onLoginSucceeded:(NSDictionary*)userInfo completion:(RiistaLoginCompletionBlock)completion
+{
+    [[RiistaSessionManager sharedInstance] storeUserLogin];
+    [[UserSession shared] checkHuntingDirectoryAvailabilityWithCompletionHandler:nil];
+
+    [self saveUserInfo:userInfo];
+    [[RiistaPermitManager sharedInstance] preloadPermits:nil];
+    [[RiistaMetadataManager sharedInstance] fetchAll];
+    [self registerUserNotificationToken];
+
+    if (completion) {
+        completion(nil);
+    }
+
 }
 
 - (void)saveUserInfo:(NSDictionary*)responseJSON
@@ -158,18 +196,15 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
 - (void)registerUserNotificationToken
 {
-    [[FIRInstanceID instanceID] instanceIDWithHandler:^(FIRInstanceIDResult * _Nullable result,
-                                                        NSError * _Nullable error) {
+    [[FIRMessaging messaging] tokenWithCompletion:^(NSString * _Nullable token, NSError * _Nullable error) {
       if (error != nil) {
           NSLog(@"Error fetching remote instance ID: %@", error);
       } else {
-          NSString *fcmToken = result.token;
-          NSLog(@"Remote instance ID token: %@", fcmToken);
-
-          if (fcmToken) {
+          NSLog(@"Remote instance ID token: %@", token);
+          if (token) {
               NSDictionary *args = @{
                                      @"platform": @"IOS",
-                                     @"pushToken": fcmToken,
+                                     @"pushToken": token,
                                      @"deviceName": [[UIDevice currentDevice] systemName],
                                      @"clientVersion": [RiistaUtils appVersion]
                                      };
@@ -319,7 +354,12 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
 - (void)diaryEntriesForYear:(NSInteger)year context:(NSManagedObjectContext*)context completion:(RiistaDiaryEntryFetchCompletion)completion
 {
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryEntriesPath, (long)year, (long)HarvestSpecVersion]
+    long harvestSpecVersion = HarvestSpecVersion;
+    if ([FeatureAvailabilityChecker.shared isEnabled:FeatureAntlers2020Fields]) {
+        harvestSpecVersion = HarvestSpecVersionAntlers2020;
+    }
+
+    MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryEntriesPath, (long)year, (long)harvestSpecVersion]
                                                                    params:@{}
                                                                httpMethod:@"GET"
                                                                       ssl:UseSSL];
@@ -349,8 +389,21 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
     } else {
         path = RiistaDiaryEntryInsertPath;
     }
-    
+
+    // Make sure the harvest contains valid data. iOS version 2.4.1.1 had a bug where new antler fields (e.g. antlersGirst) were
+    // initialized with value of 0 in core data (should've been nil). Sanitizing harvest clears these values and thus sending
+    // to backend should succeed.
+    //
+    // This should also fix sending some of the diary entries that were made with earlier app versions that had bugs.
+    [HarvestSanitizer sanitizeWithHarvest:diaryEntry];
+
     NSDictionary *diaryEntryDict = [[RiistaGameDatabase sharedInstance] dictFromDiaryEntry:diaryEntry isNew:![diaryEntry.remote boolValue]];
+    if (diaryEntryDict == nil) {
+        // harvest is missing required data, don't send this one
+        NSError *error = [NSError errorWithDomain:@"InvalidData" code:0 userInfo:nil];
+        completion(nil, error);
+        return;
+    }
     MKNetworkOperation *operation = [self.networkEngine operationWithPath:path params:diaryEntryDict httpMethod:httpMethod ssl:UseSSL];
     operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
 
@@ -434,23 +487,43 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
             completion(error);
         }
     }];
-    
+
     if ([image.status integerValue] == DiaryImageStatusInsertion) {
-        [RiistaUtils loadImagefromLocalUri:image.uri fullSize:YES fixRotation:YES completion:^(UIImage *image) {
-        if (image) {
-            NSData *imageData = [RiistaUtils imageAsDownscaledData:image];
-            [operation addData:imageData forKey:@"file" mimeType:@"image/jpeg" fileName:@"image.jpeg"];
-            [self.networkEngine enqueueOperation:operation];
-        } else {
-            NSError *error = [NSError errorWithDomain:@"image" code:0 userInfo:nil];
-            completion(error);
-        }
-    }];
+        [self sendImage:image networkOperation:operation completion:completion];
     } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
         [self.networkEngine enqueueOperation:operation];
     } else {
         completion(nil);
     }
+}
+
+- (void)sendImage:(DiaryImage*)image networkOperation:(MKNetworkOperation*)networkOperation completion:(RiistaDiaryEntryImageOperationCompletion)completion
+{
+    ImageLoadOptions *options = [[[ImageLoadOptions originalSized]
+                                  withFixRotation:YES]
+                                 withDeliveryMode:PHImageRequestOptionsDeliveryModeHighQualityFormat];
+    ImageLoadRequest *imageLoadRequest = [ImageLoadRequest fromDiaryImage:image options:options];
+    if (imageLoadRequest == nil) {
+        NSError *error = [NSError errorWithDomain:@"image" code:0 userInfo:nil];
+        completion(error);
+        return;
+    }
+
+    [[LocalImageManager instance] loadImage:imageLoadRequest
+                                  onSuccess:^(IdentifiableImage * _Nonnull identifiableImage) {
+        if (image) {
+            NSData *imageData = [RiistaUtils imageAsDownscaledData:identifiableImage.image];
+            [networkOperation addData:imageData forKey:@"file" mimeType:@"image/jpeg" fileName:@"image.jpeg"];
+            [self.networkEngine enqueueOperation:networkOperation];
+        } else {
+            NSError *error = [NSError errorWithDomain:@"image" code:0 userInfo:nil];
+            completion(error);
+        }
+    }
+                                    onError:^(enum PhotoAccessFailureReason reason, ImageLoadRequest * _Nullable loadRequest) {
+        NSError *error = [NSError errorWithDomain:@"image" code:0 userInfo:nil];
+        completion(error);
+    }];
 }
 
 #pragma mark - Observations
@@ -572,16 +645,7 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
     }];
 
     if ([image.status integerValue] == DiaryImageStatusInsertion) {
-        [RiistaUtils loadImagefromLocalUri:image.uri fullSize:YES fixRotation:YES completion:^(UIImage *image) {
-            if (image) {
-                NSData *imageData = [RiistaUtils imageAsDownscaledData:image];
-                [operation addData:imageData forKey:@"file" mimeType:@"image/jpeg" fileName:@"image.jpeg"];
-                [self.networkEngine enqueueOperation:operation];
-            } else {
-                NSError *error = [NSError errorWithDomain:@"image" code:0 userInfo:nil];
-                completion(error);
-            }
-        }];
+        [self sendImage:image networkOperation:operation completion:completion];
     } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
         [self.networkEngine enqueueOperation:operation];
     } else {
@@ -705,16 +769,7 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
     }];
 
     if ([image.status integerValue] == DiaryImageStatusInsertion) {
-        [RiistaUtils loadImagefromLocalUri:image.uri fullSize:YES fixRotation:YES completion:^(UIImage *image) {
-            if (image) {
-                NSData *imageData = [RiistaUtils imageAsDownscaledData:image];
-                [operation addData:imageData forKey:@"file" mimeType:@"image/jpeg" fileName:@"image.jpeg"];
-                [self.networkEngine enqueueOperation:operation];
-            } else {
-                NSError *error = [NSError errorWithDomain:@"image" code:0 userInfo:nil];
-                completion(error);
-            }
-        }];
+        [self sendImage:image networkOperation:operation completion:completion];
     } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
         [self.networkEngine enqueueOperation:operation];
     } else {

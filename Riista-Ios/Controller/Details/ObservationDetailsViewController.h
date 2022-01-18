@@ -50,5 +50,6 @@ typedef NS_ENUM(NSInteger, DeerHuntingType);
 
 - (CGFloat)refreshViews;
 - (void)saveValuesTo:(ObservationEntry*)entry cleanSpecimens:(BOOL)cleanSpecimens;
+- (ObservationCategory)selectObservationCategoryForSpecies:(NSNumber*)speciesCode preferredCategoryIfMultiple:(ObservationCategory)preferredCategoryIfMultiple;
 
 @end

@@ -30,13 +30,18 @@ import Foundation
                                  category2name.intrinsicContentSize.height,
                                  category3name.intrinsicContentSize.height)
 
-        return topContentPadding.constant
+        let topPadding = topContentPadding.constant
+        let bottomPadding = bottomContentPadding.constant
+        let spacingAbove = lineSpacingAbove.constant
+        let spacingBelow = lineSpacingBelow.constant
+
+        return topPadding
             + valueHeight
-            + lineSpacingAbove.constant
+            + spacingAbove
             + lineHeight.constant
-            + lineSpacingBelow.constant
+            + spacingBelow
             + maxLabelHeight
-            + bottomContentPadding.constant
+            + bottomPadding
     }
 
     required init?(coder: NSCoder) {

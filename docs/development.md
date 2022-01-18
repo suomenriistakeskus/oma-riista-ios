@@ -26,10 +26,7 @@ Open project with Xcode
 
 Add necessary plist files
 
-1. Create Riista-ios/Keys.plist
-    - Add key MapsApiKey with the value of your Google Maps API key
-    - Value can be left empty if you don’t want to display map tiles
-2. Add necessary GoogleServices plist files under Firebase directory.
+1. Add necessary GoogleServices plist files under Firebase directory.
     - GoogleService-Info-Production.plist
     - GoogleService-Info-Staging.plist
     - GoogleService-Info-Dev.plist

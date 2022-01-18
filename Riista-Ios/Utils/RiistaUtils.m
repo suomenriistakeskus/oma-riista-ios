@@ -1,4 +1,3 @@
-#import <AssetsLibrary/AssetsLibrary.h>
 #import "UIImage+Resize.h"
 #import "RiistaUtils.h"
 #import "DiaryImage.h"
@@ -43,176 +42,6 @@
     return [[[text substringToIndex:1] uppercaseString] stringByAppendingString:[text substringFromIndex:1]];
 }
 
-+ (void)loadEventImage:(DiaryEntryBase*)entry forImageView:(UIImageView*)imageView completion:(RiistaDiaryEntryImageLoadCompletion)completion
-{
-    NSSet *entryImages;
-    NSInteger entrySpeciesCode;
-
-    if ([entry class] == [ObservationEntry class]) {
-        ObservationEntry *item = (ObservationEntry*)entry;
-        entryImages = [item.diaryImages set];
-        entrySpeciesCode = [item.gameSpeciesCode integerValue];
-    }
-    else {
-        DiaryEntry *item = (DiaryEntry*)entry;
-        entryImages = item.diaryImages;
-        entrySpeciesCode =[item.gameSpeciesCode integerValue];
-    }
-
-    if ([entryImages count] > 0) {
-        // Select image that is not being deleted
-        DiaryImage *shownImage = nil;
-        NSArray *images = [entryImages allObjects];
-        for (int i=0; i<images.count; i++) {
-            DiaryImage *image = images[i];
-            if ([image.status integerValue] != DiaryImageStatusDeletion) {
-                shownImage = image;
-                break;
-            }
-        }
-        if (shownImage) {
-            [RiistaUtils loadDiaryImage:shownImage forImageView:imageView completion:completion];
-        } else {
-            [RiistaUtils loadSpeciesImage:entrySpeciesCode completion:completion];
-        }
-    } else {
-        [RiistaUtils loadSpeciesImage:entrySpeciesCode completion:completion];
-    }
-}
-
-// Helper function
-+ (void)loadSpeciesImage:(NSInteger)speciesCode completion:(RiistaDiaryEntryImageLoadCompletion)completion
-{
-    if (speciesCode == 0) {
-        //SRVA other species
-        UIImage *image = [[UIImage imageNamed:@"unknown_white"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        if (completion) {
-            completion(image);
-        }
-    }
-    else {
-        UIImage *image = [RiistaUtils loadSpeciesImage:speciesCode];
-        if (completion)
-            completion(image);
-    }
-}
-
-+ (void)loadDiaryImage:(DiaryImage*)image forImageView:(UIImageView*)imageView completion:(RiistaDiaryEntryImageLoadCompletion)completion
-{
-    if ([image.type integerValue] == DiaryImageTypeLocal) {
-        [RiistaUtils loadImagefromLocalUri:image.uri fullSize:NO fixRotation:NO completion:^(UIImage* image) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                UIImage *resizedImage = [RiistaUtils scaleImage:image toSize:imageView.frame.size];
-                if (completion)
-                    completion(resizedImage);
-            });
-        }];
-    } else if ([image.type integerValue] == DiaryImageTypeRemote) {
-        UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-        indicator.frame = imageView.bounds;
-        [imageView addSubview:indicator];
-        [indicator startAnimating];
-        [[RiistaNetworkManager sharedInstance] loadDiaryEntryImage:image.imageid completion:^(UIImage *image, NSError* error) {
-            if (imageView) {
-                [indicator stopAnimating];
-                [indicator removeFromSuperview];
-                if (!error) {
-                    if (completion)
-                        completion(image);
-                } else {
-                    if (completion)
-                        completion(nil);
-                }
-            }
-        }];
-    }
-}
-
-+ (void)loadDiaryImage:(DiaryImage*)image size:(CGSize)size completion:(RiistaDiaryEntryImageLoadCompletion)completion
-{
-    if ([image.type integerValue] == DiaryImageTypeLocal) {
-        [RiistaUtils loadImagefromLocalUri:image.uri fullSize:NO fixRotation:NO completion:^(UIImage* image) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                UIImage *resizedImage = [RiistaUtils scaleImage:image toSize:size];
-                completion(resizedImage);
-            });
-        }];
-    } else if ([image.type integerValue] == DiaryImageTypeRemote) {
-        [[RiistaNetworkManager sharedInstance] loadDiaryEntryImage:image.imageid completion:^(UIImage *image, NSError* error) {
-            completion(image);
-        }];
-    }
-}
-
-+ (void)loadImagefromLocalUri:(NSString*)uri fullSize:(BOOL)fullsize fixRotation:(BOOL)fixRotation completion:(RiistaDiaryEntryImageLoadCompletion)completion
-{
-    ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset)
-    {
-        ALAssetRepresentation *rep = [myasset defaultRepresentation];
-        CGImageRef iref;
-        if (fullsize) {
-            iref = [rep fullResolutionImage];
-        } else {
-            iref = [rep fullScreenImage];
-        }
-        if (iref) {
-            UIImageOrientation orientation = UIImageOrientationUp;
-            NSNumber* orientationValue = [myasset valueForProperty:@"ALAssetPropertyOrientation"];
-            if (orientationValue != nil) {
-                orientation = [orientationValue intValue];
-            }
-
-            if (completion) {
-                if (fixRotation) {
-                    UIImage *fixedImage = [RiistaUtils fixImageOrientation:[UIImage imageWithCGImage:iref scale:1 orientation:orientation] limitMaxSize:NO];
-                    completion(fixedImage);
-                } else {
-                    completion([UIImage imageWithCGImage:iref]);
-                }
-            }
-        }
-    };
-    ALAssetsLibraryAccessFailureBlock failureblock  = ^(NSError *myerror)
-    {
-        completion(nil);
-    };
-
-    if(uri && [uri length]) {
-        NSURL *asseturl = [NSURL URLWithString:uri];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            ALAssetsLibrary* assetslibrary = [ALAssetsLibrary new];
-                [assetslibrary assetForURL:asseturl
-                               resultBlock:resultblock
-                              failureBlock:failureblock];
-        });
-    }
-}
-
-+ (UIImage*)scaleImage:(UIImage*)image toSize:(CGSize)size
-{
-    UIGraphicsBeginImageContext(size);
-    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
-    UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return destImage;
-}
-
-+ (UIImage*)loadSpeciesImage:(NSInteger)gameSpeciesCode
-{
-    UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"species_%ld.jpg", (long)gameSpeciesCode]];
-    if (!image) {
-        image = [UIImage imageNamed:@"ic_launcher.png"];
-    }
-    return image;
-}
-
-+ (UIImage*)loadSpeciesImage:(NSInteger)gameSpeciesCode size:(CGSize)size
-{
-    UIImage *image = [self loadSpeciesImage:gameSpeciesCode];
-
-    return [image resizedImageToFitInSize:size scaleIfSmaller:NO];
-}
-
 + (NSLocale*)appLocale
 {
     NSString *identifier = [RiistaSettings language];
@@ -227,6 +56,10 @@
 
 + (UIImage*)fixImageOrientation:(UIImage*)imageIn limitMaxSize:(BOOL)limitSize
 {
+    if (imageIn == nil) {
+        return nil;
+    }
+
     int kMaxResolution = 3264;
     
     CGImageRef        imgRef    = imageIn.CGImage;

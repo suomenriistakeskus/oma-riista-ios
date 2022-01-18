@@ -2,22 +2,11 @@
 #import "DataModels.h"
 
 NSInteger const HarvestSpecVersion = 7;
+NSInteger const HarvestSpecVersionAntlers2020 = 8;
 NSInteger const ObservationSpecVersion = 4;
 // first observation spec version having observation category support
 NSInteger const ObservationSpecVersionWithObservationCategory = 4;
 NSInteger const SrvaSpecVersion = 1;
-
-NSString *const OnboardingLatestAppVersion = @"2.3.0";
-
-NSString *const MagazineUrlFi = @"https://www.metsastajalehti.fi";
-NSString *const MagazineUrlSv = @"https://www.jagarentidningen.fi";
-
-NSString *const HuntingSeasonsUrlFi = @"https://riista.fi/metsastys/metsastysajat";
-NSString *const HuntingSeasonsUrlSv = @"https://riista.fi/sv/jakt/jakttider";
-NSString *const HuntingSeasonsUrlEn = @"https://riista.fi/en/hunting/open-seasons";
-
-NSString *const EventSearchFi = @"https://riista.fi/metsastys/tapahtumahaku/";
-NSString *const EventSearchSv = @"https://riista.fi/sv/jakt/sok-evenemang/";
 
 NSInteger const MooseId = 47503;
 NSInteger const FallowDeerId = 47484;
@@ -29,6 +18,7 @@ NSString *const RiistaSettingsSyncModeKey = @"SyncMode";
 NSString *const RiistaSettingsLanguageKey = @"Language";
 NSString *const RiistaSettingsMapTypeKey = @"MapType";
 
+// synchronize with AppConstants
 NSString *const RiistaDefaultAppLanguage = @"en";
 
 NSString *const RiistaUserInfoUpdatedKey = @"UserInfoUpdated";
@@ -45,7 +35,7 @@ NSString *const RiistaShowGameTrianglesKey = @"RiistaShowGameTrianglesKey";
 NSString *const RiistaSelectedMooseAreaKey = @"RiistaSelectedMooseAreaKey";
 NSString *const RiistaSelectePienriistaAreaKey = @"RiistaSelectePienriistaAreaKey";
 
-NSString *const RiistaOnboardingShownVersionKey = @"RiistaOnboardingShownVersionKey";
+NSString *const RiistaUseExperimentalMode = @"RiistaUseExperimentalMode";
 
 NSString *const kUserInfoFileName = @"/user.json";
 
@@ -286,19 +276,6 @@ NSString *const kUserInfoFileName = @"/user.json";
     [userDefaults synchronize];
 }
 
-+ (NSString*)onboardingShownVersion
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    return [userDefaults valueForKey:RiistaOnboardingShownVersionKey];
-}
-
-+ (void)setOnboardingShownVersion:(NSString*)value
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults setValue:value forKey:RiistaOnboardingShownVersionKey];
-    [userDefaults synchronize];
-}
-
 + (UserInfo*)userInfo
 {
     UserInfo *retVal = nil;
@@ -330,6 +307,19 @@ NSString *const kUserInfoFileName = @"/user.json";
     NSString *filePath = [documentsDir stringByAppendingString:kUserInfoFileName];
 
     return filePath;
+}
+
++ (BOOL)useExperimentalMode
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    return [userDefaults boolForKey:RiistaUseExperimentalMode];
+}
+
++ (void)setUseExperimentalMode:(BOOL)useExperimentalMode
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setBool:useExperimentalMode forKey:RiistaUseExperimentalMode];
+    [userDefaults synchronize];
 }
 
 @end

@@ -5,6 +5,7 @@
 #import "RiistaNavigationController.h"
 #import "Styles.h"
 
+#import "RiistaCommon/RiistaCommon.h"
 #import "Oma_riista-Swift.h"
 
 @interface RiistaSettingsViewController ()
@@ -14,12 +15,17 @@
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @property (weak, nonatomic) IBOutlet MDCButton *privacyTermsButton;
 @property (weak, nonatomic) IBOutlet MDCButton *thirdPartyLicenseButton;
+@property (weak, nonatomic) IBOutlet MDCButton *termsOfServiceButton;
+@property (weak, nonatomic) IBOutlet MDCButton *accessibilityStatementButton;
 @property (weak, nonatomic) IBOutlet UILabel *languageSettingLabel;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *languageSegmentedControl;
 
 @end
 
 @implementation RiistaSettingsViewController
+{
+    int clickCountForExperimentalMode;
+}
 
 - (id) initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
@@ -54,8 +60,10 @@
     // will also refresh version, no need to it separately here
     [self setupLanguageSelect];
 
-
+    [self setupExperimentalModeToggle];
     [self setupPrivacyTermsButton];
+    [self setupTermsOfServiceButton];
+    [self setupAccessibilityStatementButton];
     [self setupThirdPartyLibrariesButton];
 }
 
@@ -73,10 +81,27 @@
 
 - (void)refreshVersionText
 {
-    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    NSString *appVersion = [[[RiistaCommonRiistaSDK riistaSDK] versionInfo] appVersion];
+
+    NSString *versionPostfix = [self determineVersionPostfix];
+    appVersion = [appVersion stringByAppendingString:versionPostfix];
+
     NSString *versionFormat = RiistaLocalizedString(@"Version", nil);
-    NSString *version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
-    self.versionLabel.text = [[NSString alloc] initWithFormat:versionFormat, version];
+    self.versionLabel.text = [[NSString alloc] initWithFormat:versionFormat, appVersion];
+}
+
+- (NSString*)determineVersionPostfix
+{
+    NSString *postfix = @"";
+    if ([FeatureAvailabilityChecker.shared isEnabled:FeatureExperimentalMode]) {
+        postfix = [postfix stringByAppendingString:@"e"];
+    }
+
+    if (postfix.length > 0) {
+        return [NSString stringWithFormat:@" (%@)", postfix];
+    } else {
+        return @"";
+    }
 }
 
 - (void)setupLanguageSelect
@@ -100,10 +125,51 @@
     [self.languageSegmentedControl addTarget:self action:@selector(languageChanged:) forControlEvents:UIControlEventValueChanged];
 }
 
+- (void)setupExperimentalModeToggle
+{
+    clickCountForExperimentalMode = 0;
+
+    UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] init];
+    [gestureRecognizer addTarget:self action:@selector(onVersionLabelClicked)];
+    _versionLabel.userInteractionEnabled = YES;
+    [_versionLabel addGestureRecognizer:gestureRecognizer];
+}
+
+- (void)onVersionLabelClicked
+{
+    if (![RemoteConfigurationManager.sharedInstance experimentalModeAllowed]) {
+        DDLog(@"Refusing to enable experimental mode, not allowed!");
+        return;
+    }
+
+    clickCountForExperimentalMode++;
+
+    DDLog(@"Version label clicked! (%d clicks so far)", clickCountForExperimentalMode);
+    if (clickCountForExperimentalMode >= 7) {
+        clickCountForExperimentalMode = 0;
+
+        [FeatureAvailabilityChecker.shared toggleExperimentalMode];
+        [self refreshVersionText];
+    }
+}
+
+
 - (void)setupPrivacyTermsButton
 {
     [_privacyTermsButton applyTextThemeWithScheme:AppTheme.shared.outlineButtonScheme];
     [_privacyTermsButton addTarget:self action:@selector(openPrivacyTerms:) forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)setupTermsOfServiceButton
+{
+    [_termsOfServiceButton applyTextThemeWithScheme:AppTheme.shared.outlineButtonScheme];
+    [_termsOfServiceButton addTarget:self action:@selector(displayTermsOfService:) forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)setupAccessibilityStatementButton
+{
+    [_accessibilityStatementButton applyTextThemeWithScheme:AppTheme.shared.outlineButtonScheme];
+    [_accessibilityStatementButton addTarget:self action:@selector(displayAccessibilityStatement:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)setupThirdPartyLibrariesButton
@@ -122,10 +188,15 @@
     self.languageSettingLabel.text = RiistaLocalizedString(@"Language", nil);
     [self refreshVersionText];
 
-    [self.thirdPartyLicenseButton setTitle:RiistaLocalizedString(@"ThirdPartyLibraries", nil)
-                                  forState:UIControlStateNormal];
     [self.privacyTermsButton setTitle:RiistaLocalizedString(@"PrivacyStatement", nil)
                              forState:UIControlStateNormal];
+    [self.termsOfServiceButton setTitle:RiistaLocalizedString(@"TermsOfService", nil)
+                             forState:UIControlStateNormal];
+    [self.accessibilityStatementButton setTitle:RiistaLocalizedString(@"AccessibilityStatement", nil)
+                                       forState:UIControlStateNormal];
+    [self.thirdPartyLicenseButton setTitle:RiistaLocalizedString(@"ThirdPartyLibraries", nil)
+                                  forState:UIControlStateNormal];
+
 
 
     [self pageSelected];
@@ -177,6 +248,18 @@
 {
     NSURL *privacyStatementUrl = [NSURL URLWithString:RiistaLocalizedString(@"PrivacyStatementUrl", nil)];
     [[UIApplication sharedApplication] openURL:privacyStatementUrl options:@{} completionHandler:nil];
+}
+
+- (void)displayTermsOfService:(id)sender
+{
+    NSURL *termsOfServiceUrl = [NSURL URLWithString:RiistaLocalizedString(@"TermsOfServiceUrl", nil)];
+    [[UIApplication sharedApplication] openURL:termsOfServiceUrl options:@{} completionHandler:nil];
+}
+
+- (void)displayAccessibilityStatement:(id)sender
+{
+    NSURL *accessibilityStatementUrl = [NSURL URLWithString:RiistaLocalizedString(@"AccessibilityStatementUrl", nil)];
+    [[UIApplication sharedApplication] openURL:accessibilityStatementUrl options:@{} completionHandler:nil];
 }
 
 - (void)openThirdPartyLibrariesPage:(id)sender

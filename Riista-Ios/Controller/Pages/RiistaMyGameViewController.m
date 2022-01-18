@@ -8,6 +8,7 @@
 #import "SrvaEntry.h"
 #import "RiistaSpecies.h"
 #import "RiistaNavigationController.h"
+#import "RiistaTabBarViewController.h"
 #import "RiistaSettings.h"
 #import "RiistaLocalization.h"
 #import "RiistaMetadataManager.h"
@@ -65,6 +66,9 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 {
     // Keeps track of language used when refreshing UI texts.
     NSString* previousLanguage;
+
+    // Is the viewcontroller currently visible
+    BOOL currentlyVisible;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder {
@@ -86,46 +90,50 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 {
     [super viewDidLoad];
 
-    [self setupButtonStyle:_logHarvestButton
-              textResource:@"Loggame"
-             imageResource:@"harvest"
-                   onClick:@selector(logHarvestButtonClick:)];
-    [self setupButtonStyle:_quickHarvestButton1 textResource:nil imageResource:nil onClick:nil];
-    [self setupButtonStyle:_quickHarvestButton2 textResource:nil imageResource:nil onClick:nil];
+    [self setupPrimaryButtonStyle:_logHarvestButton
+                     textResource:@"Loggame"
+                    imageResource:@"harvest"
+                          onClick:@selector(logHarvestButtonClick:)];
+    [self setupSecondaryButtonStyle:_quickHarvestButton1 textResource:nil imageResource:nil onClick:nil];
+    [self setupSecondaryButtonStyle:_quickHarvestButton2 textResource:nil imageResource:nil onClick:nil];
 
-    [self setupButtonStyle:_logObservationButton
-              textResource:@"LogObservation"
-             imageResource:@"observation"
-                   onClick:@selector(logObservationButtonClick:)];
-    [self setupButtonStyle:_quickObservationButton1 textResource:nil imageResource:nil onClick:nil];
-    [self setupButtonStyle:_quickObservationButton2 textResource:nil imageResource:nil onClick:nil];
+    [self setupPrimaryButtonStyle:_logObservationButton
+                     textResource:@"LogObservation"
+                    imageResource:@"observation"
+                          onClick:@selector(logObservationButtonClick:)];
+    [self setupSecondaryButtonStyle:_quickObservationButton1 textResource:nil imageResource:nil onClick:nil];
+    [self setupSecondaryButtonStyle:_quickObservationButton2 textResource:nil imageResource:nil onClick:nil];
 
-    [self setupButtonStyle:_logSrvaButton
-              textResource:@"LogSrva"
-             imageResource:@"srva"
-                   onClick:@selector(logSrvaButtonClick:)];
-    [self setupButtonStyle:_mapButton textResource:@"Map" imageResource:@"map_pin" onClick:@selector(navigateToMap:)];
+    [self setupPrimaryButtonStyle:_logSrvaButton
+                     textResource:@"LogSrva"
+                    imageResource:@"srva"
+                          onClick:@selector(logSrvaButtonClick:)];
+    [self setupPrimaryButtonStyle:_mapButton
+                     textResource:@"Map"
+                    imageResource:@"map_pin"
+                          onClick:@selector(navigateToMap:)];
 
-    [self setupButtonStyle:_myDetailButton
-              textResource:@"MyDetails"
-             imageResource:@"person"
-                   onClick:@selector(navigateToMyDetails:)];
-    [self setupButtonStyle:_huntingLicenseButton
-              textResource:@"HomeHuntingLicense"
-             imageResource:nil
-                   onClick:@selector(navigateToHuntingLicense:)];
-    [self setupButtonStyle:_shootingTestsButton
-              textResource:@"HomeShootingTests"
-             imageResource:nil
-                   onClick:@selector(navigateToShootingTests:)];
+    [self setupPrimaryButtonStyle:_myDetailButton
+                     textResource:@"MyDetails"
+                    imageResource:@"person"
+                          onClick:@selector(navigateToMyDetails:)];
+    [self setupSecondaryButtonStyle:_huntingLicenseButton
+                       textResource:@"HomeHuntingLicense"
+                      imageResource:nil
+                            onClick:@selector(navigateToHuntingLicense:)];
+    [self setupSecondaryButtonStyle:_shootingTestsButton
+                       textResource:@"HomeShootingTests"
+                      imageResource:nil
+                            onClick:@selector(navigateToShootingTests:)];
     // reduce left/right edge insets as Swedish content is wrapped ugly (last line contains only 1 char)
     UIEdgeInsets currentContentInsets = [_shootingTestsButton contentEdgeInsets];
     [_shootingTestsButton setContentEdgeInsets:UIEdgeInsetsMake(
-        currentContentInsets.top, currentContentInsets.left / 2, currentContentInsets.bottom, currentContentInsets.right / 2)];
+        currentContentInsets.top, currentContentInsets.left / 4, currentContentInsets.bottom, currentContentInsets.right / 4)];
 
     previousLanguage = LocalizationGetLanguage;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(calendarEntriesUpdated:) name:RiistaCalendarEntriesUpdatedKey object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userInfoUpdated:) name:RiistaUserInfoUpdatedKey object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tryDisplayAppStartupMessage) name:RiistaUserInfoUpdatedKey object:nil];
 
     self.refreshView = [UIView new];
     self.refreshView.frame = CGRectMake(0, 0, RiistaRefreshImageSize+RiistaRefreshPadding, RiistaRefreshImageSize);
@@ -142,10 +150,28 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     [self updateSrvaVisibility];
 }
 
-- (void)setupButtonStyle:(MDCButton*)button textResource:(NSString*)textResource imageResource:(NSString*)imageResource onClick:(SEL)onClick
+- (void)setupPrimaryButtonStyle:(MDCButton*)button textResource:(NSString*)textResource imageResource:(NSString*)imageResource onClick:(SEL)onClick
+{
+    [self setupButtonStyle:button
+                     theme:AppTheme.shared.cardButtonSchemeBolded
+              textResource:textResource
+             imageResource:imageResource
+                   onClick:onClick];
+}
+
+- (void)setupSecondaryButtonStyle:(MDCButton*)button textResource:(NSString*)textResource imageResource:(NSString*)imageResource onClick:(SEL)onClick
+{
+    [self setupButtonStyle:button
+                     theme:AppTheme.shared.cardButtonScheme
+              textResource:textResource
+             imageResource:imageResource
+                   onClick:onClick];
+}
+
+- (void)setupButtonStyle:(MDCButton*)button theme:(MDCContainerScheme*)theme textResource:(NSString*)textResource imageResource:(NSString*)imageResource onClick:(SEL)onClick
 {
     [AppTheme.shared setupCardTextButtonThemeWithButton:button];
-    [button applyTextThemeWithScheme:AppTheme.shared.cardButtonScheme];
+    [button applyTextThemeWithScheme:theme];
 
     [button setTitle:RiistaLocalizedString(textResource, nil) forState:UIControlStateNormal];
     [button setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 0)];
@@ -171,25 +197,27 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
     [self refreshLocalizedContent];
     [self updateSrvaVisibility];
+
+    // ensure the remote configuration is kept up-to-date
+    // - currently RiistaCommon initialization and related functionality require that remote configuration
+    //   does not change after app has been launched
+    [RemoteConfigurationManager.sharedInstance fetchRemoteConfigurationIfNotRecentWithCompletionHandler:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+
+    currentlyVisible = YES;
     [self pageSelected];
 
-    if (![[RiistaSettings onboardingShownVersion] isEqualToString:OnboardingLatestAppVersion]) {
-        [RiistaSettings setOnboardingShownVersion:OnboardingLatestAppVersion];
-        [self showOnboarding:YES];
-    }
+    [self tryDisplayAppStartupMessage];
 }
 
-- (void)showOnboarding:(BOOL)animated
+- (void)viewDidDisappear:(BOOL)animated
 {
-    RiistaOnbardingController* dest = [[RiistaOnbardingController alloc] init];
-    dest.modalPresentationStyle = UIModalPresentationFullScreen;
-
-    [self presentViewController:dest animated:YES completion:nil];
+    [super viewDidDisappear:animated];
+    currentlyVisible = NO;
 }
 
 - (void)dealloc
@@ -326,6 +354,18 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 {
     [self setupQuickButtons];
     [self updateSrvaVisibility];
+}
+
+- (void)tryDisplayAppStartupMessage
+{
+    RiistaTabBarViewController *tabController = (RiistaTabBarViewController*)self.tabBarController;
+
+    BOOL loggingIn = [tabController isDisplayingLoginScreen];
+    if (currentlyVisible == YES && loggingIn == NO) {
+        [CrashlyticsHelper logWithMsg:@"Trying to display app startup message"];
+
+        [RiistaSDKHelper displayAppStartupMessageWithParentViewController:self];
+    }
 }
 
 - (void)updateSrvaVisibility

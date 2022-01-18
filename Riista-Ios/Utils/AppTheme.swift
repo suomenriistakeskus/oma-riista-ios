@@ -1,4 +1,5 @@
 import Foundation
+import DropDown
 import MaterialComponents
 
 class AppTheme: NSObject {
@@ -11,30 +12,39 @@ class AppTheme: NSObject {
 
     private override init() {
         super.init()
+
+        configureDropDown()
     }
 
-    func createTypographyCheme(buttonTextSize: CGFloat = AppConstants.Font.ButtonMedium) -> MDCTypographyScheme {
+    func createTypographyCheme(buttonTextSize: CGFloat = AppConstants.Font.ButtonMedium, bolded: Bool = false) -> MDCTypographyScheme {
         let scheme = MDCTypographyScheme()
 
-        scheme.headline1 = fontForSize(size: AppConstants.Font.Headline)
-        scheme.headline2 = fontForSize(size: AppConstants.Font.Headline)
-        scheme.headline3 = fontForSize(size: AppConstants.Font.Headline)
-        scheme.headline4 = fontForSize(size: AppConstants.Font.Headline)
-        scheme.headline5 = fontForSize(size: AppConstants.Font.Headline)
-        scheme.headline6 = fontForSize(size: AppConstants.Font.Headline)
-        scheme.subtitle1 = fontForSize(size: AppConstants.Font.Headline)
-        scheme.subtitle2 = fontForSize(size: AppConstants.Font.Headline)
-        scheme.body1 = fontForSize(size: AppConstants.Font.LabelMedium)
-        scheme.body2 = fontForSize(size: AppConstants.Font.LabelMedium)
-        scheme.caption = fontForSize(size: AppConstants.Font.LabelMedium)
-        scheme.button = fontForSize(size: buttonTextSize)
-        scheme.overline = fontForSize(size: AppConstants.Font.LabelMedium)
+        scheme.headline1 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
+        scheme.headline2 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
+        scheme.headline3 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
+        scheme.headline4 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
+        scheme.headline5 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
+        scheme.headline6 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
+        scheme.subtitle1 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
+        scheme.subtitle2 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
+        scheme.body1 = fontForSize(size: AppConstants.Font.LabelMedium, bolded: bolded)
+        scheme.body2 = fontForSize(size: AppConstants.Font.LabelMedium, bolded: bolded)
+        scheme.caption = fontForSize(size: AppConstants.Font.LabelMedium, bolded: bolded)
+        scheme.button = fontForSize(size: buttonTextSize, bolded: bolded)
+        scheme.overline = fontForSize(size: AppConstants.Font.LabelMedium, bolded: bolded)
 
         return scheme
     }
 
-    func fontForSize(size: CGFloat) -> UIFont {
-        return UIFont.init(name: AppConstants.Font.Name, size: size)!
+    func fontForSize(size: CGFloat, bolded: Bool = false) -> UIFont {
+        let fontWeight: UIFont.Weight
+        if (bolded) {
+            fontWeight = .bold
+        } else {
+            fontWeight = .regular
+        }
+
+        return UIFont.appFont(fontSize: size, fontWeight: fontWeight)
     }
 
     @objc func buttonContainerScheme() -> MDCContainerScheme {
@@ -51,6 +61,15 @@ class AppTheme: NSObject {
 
         containerScheme.colorScheme = colorScheme()
         containerScheme.typographyScheme = createTypographyCheme()
+
+        return containerScheme
+    }
+
+    @objc func cardButtonSchemeBolded() -> MDCContainerScheme {
+        let containerScheme = MDCContainerScheme()
+
+        containerScheme.colorScheme = colorScheme()
+        containerScheme.typographyScheme = createTypographyCheme(buttonTextSize: AppConstants.Font.ButtonMedium, bolded: true)
 
         return containerScheme
     }
@@ -139,6 +158,21 @@ class AppTheme: NSObject {
 
         return colorScheme
     }
+
+    func colorSchemeInverted() -> MDCSemanticColorScheme {
+        let colorScheme = MDCSemanticColorScheme(defaults: .material201907)
+
+        colorScheme.primaryColor = UIColor.applicationColor(ViewBackground)
+        colorScheme.primaryColorVariant = UIColor.applicationColor(GreyLight)
+        colorScheme.onPrimaryColor = UIColor.applicationColor(TextOnPrimary)
+
+        colorScheme.backgroundColor = UIColor.applicationColor(Primary)
+        colorScheme.onBackgroundColor = UIColor.applicationColor(Destructive)
+
+        colorScheme.errorColor = UIColor.applicationColor(Destructive)
+
+        return colorScheme
+    }
 //    func textThemeScheme() -> MDCTextStyle {
 //        let style = MDCTextStyle()
 //
@@ -168,6 +202,19 @@ class AppTheme: NSObject {
         shapeGenerator.topRightCorner = cornerTreatment
         shapeGenerator.bottomLeftCorner = roundedCornerTreatment
         shapeGenerator.bottomRightCorner = cornerTreatment
+
+        return shapeGenerator
+    }
+
+    func roundedCornersShapeGenerator(radius: CGFloat) -> MDCRectangleShapeGenerator {
+        let shapeGenerator = MDCRectangleShapeGenerator()
+
+        let roundedCornerTreatment = MDCRoundedCornerTreatment(radius: radius)
+
+        shapeGenerator.topLeftCorner = roundedCornerTreatment
+        shapeGenerator.topRightCorner = roundedCornerTreatment
+        shapeGenerator.bottomLeftCorner = roundedCornerTreatment
+        shapeGenerator.bottomRightCorner = roundedCornerTreatment
 
         return shapeGenerator
     }
@@ -211,6 +258,10 @@ class AppTheme: NSObject {
     @objc func setupEditCancelButton(button: MDCButton) {
         button.applyOutlinedTheme(withScheme: primaryButtonScheme())
         button.setBorderColor(UIColor.applicationColor(Primary), for: .normal)
+    }
+
+    @objc func setupCardBoldTextButtonTheme(button: MDCButton) {
+        button.applyTextTheme(withScheme: cardButtonSchemeBolded())
     }
 
     @objc func setupCardTextButtonTheme(button: MDCButton) {
@@ -311,5 +362,11 @@ class AppTheme: NSObject {
         textFieldController.applyTheme(withScheme: AppTheme.shared.textFieldContainerScheme())
 
         return textFieldController
+    }
+
+    private func configureDropDown() {
+        DropDown.appearance().cellHeight = AppConstants.UI.ButtonHeightSmall
+        DropDown.appearance().textFont = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium)
+        DropDown.appearance().textColor = UIColor.applicationColor(TextPrimary)
     }
 }

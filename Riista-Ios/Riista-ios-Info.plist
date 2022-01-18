@@ -71,6 +71,8 @@
 	<string>${PRODUCT_NAME} uses photo library</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>${PRODUCT_NAME} uses photo library</string>
+	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>OpenSans-SemiBoldItalic.ttf</string>

@@ -16,6 +16,7 @@ extern const NSInteger DiaryImageStatusDeletion;
 @property (nonatomic, retain) NSNumber *type;
 @property (nonatomic, retain) NSString *imageid;
 @property (nonatomic, retain) NSString *uri;
+@property (nonatomic, retain) NSString *localIdentifier;
 @property (nonatomic, retain) NSNumber *status;
 @property (nonatomic, retain) DiaryEntry *diaryEntry;
 @property (nonatomic, retain) ObservationEntry *observationEntry;

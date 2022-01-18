@@ -14,23 +14,43 @@
 "MenuAnnouncements" = "Medd.";
 "MenuSettings" = "Inställningar";
 "MenuShootingTests" = "Skjutprov";
+"MenuHuntingDirector" = "Jaktledare";
 "MenuContactDetails" = "Kontaktuppgifter";
 "MenuEventSearch" = "Sök evenemang";
 "MenuReadMagazine" = "Läs senaste numret av Jägaren";
 "MenuOpenSeasons" = "Jakttider";
 "MenuMore" = "Mer";
 
-"LoginText" = "Logga in med koderna som skapats i oma.riista.fi";
+"LoginTabTitle" = "Logga in";
+"RegisterTabTitle" = "Skapa konto";
 "Username" = "E-post";
 "Password" = "Lösenord";
+"PasswordForgotten" = "Glömt lösenord?";
+"SendPasswordResetTitle" = "Har du glömt ditt lösenord?";
+"SendPasswordResetMessage" = "Skriv i fältet den e-postadress som användes vid registreringen av kontot.";
+"SendPasswordResetAction" = "Skicka återställande-länk";
+"PasswordResetSentMessage" = "Vi har skickat anvisningar om återställande av lösenord till angiven e-postadress. Kontrollera din skräppostbox om e-posten inte anländer inom några minuter.";
+"AuthenticationLinkSentTitle" = "Länk skickad";
+"AuthenticationLinkSentBackToLogin" = "Tillbaka til login";
 "Login" = "Logga in";
 "loginFailed" = "Inloggning misslyckades";
 "loginConnectFailed" = "Kontakt med servern ficks ej. Var god och försök senare igen.";
 "loginIncorrectCredentials" = "Fel användarnamn eller lösenord. Var god och försök igen.";
 "loginOutdatedVersion" = "Programversionen är föråldrad. Uppdatera programmet till en ny version för att fortsätta användningen.";
+"SendRegistrationLinkTitle" = "Registering till tjänst";
+"SendRegistrationLinkMessage" = "Vid registrering i tjänsten oma.riista.fi behöver du en personlig, fungerande e-postadress. Som en del av registreringsprocessen skickar vi en registreringslänk till din e-postadress och du verifierar din identitet (bankkontokoder / Suomi.fi-tjänst i Finland).";
+"SendRegistrationLinkAction" = "Starta registreringen";
+"RegistrationLinkSentMessage" = "Vi har skickat anvisningar om registrering till angiven e-postadress. Kontrollera din skräppostbox om e-posten inte anländer inom några minuter.";
+"LoginUsernameChanged" = "Har e-postadressen bytts?";
+"ChangeUsernameTitle" = "Att byta e-postadress";
+"ChangeUsernameMessage" = "Du kan byta den e-postadress som använts som Oma riista -användarsignum genom att registrera dig till tjänsten på nytt.\n\nAlla tidigare uppgifter du har antecknat i Oma riista -tjänsten bevaras då du registrerar dig på nytt.";
+"ChangeUsernameAction" = "Skapa ett konto";
 "OK" = "OK";
 "Yes" = "Ja";
 "No" = "Nej";
+
+"AmountFormat" = "%i\U00A0st.";
+"HoursAndMinutesFormat" = "%@\U00A0%@";
 
 "SeasonFormat" = "Jaktperiod %i - %i";
 "TotalCatchFormat" = "%d byte totalt";
@@ -80,6 +100,7 @@
 "MapRemoveAreaTitle" = "Ta bort område";
 "MapRemoveAreaConfirm" = "Vill du säkert ta bort området?";
 "MapAreaCode" = "Områdeskod";
+"MapAreaCodeFormat" = "Områdeskod: %@";
 "MapAreaFilterHint" = "Områdeskod / namn";
 "MapSettingShowLocation" = "Visa den egna positionen";
 "MapSettingInvertColors" = "Vänd färgen på föreningarnas områdeskartor";
@@ -88,6 +109,13 @@
 "MapSettingStateLands" = "Statens mark";
 "MapSettingRhyBorders" = "JVF-gränser";
 "MapSettingGameTriangles" = "Vilttrianglar";
+"MapSettingOfflineMaps" = "Offlinekartor";
+"MapSettingLabelBackgroundMaps" = "Bakgrundskarta";
+"MapSettingLabelMapLayers" = "Kartlager";
+"MapSettingLabelCacheUtilization" = "Cacheanvändning:";
+"MapSettingCacheUtilizationFormat" = "%.1fMB / %.0fMB";
+"MapSettingRemoveBackgroundMaps" = "Radera kartor";
+"MapSettingRemoveMapLayers" = "Radera kartlager";
 "MapSettingAddAreaClub" = "Oma riista områdena";
 "MapSettingAddAreaMoose" = "Forststyrelsen älgområdena";
 "MapSettingAddAreaPienriista" = "Forststyrelsen småviltområdena";
@@ -95,6 +123,7 @@
 "MapSettingSelectArea" = "Välj området";
 "MapSettingGeneralTitle" = "General";
 "MapSettingSelectedAreas" = "De valda områdena";
+"MapSettingNoSelectedAreas" = "Inga valda områdena";
 "MadDisplayPins" = "Visa händelser";
 
 "FilterSelectCategory" = "Välj kategori";
@@ -110,7 +139,8 @@
 "Loggame" = "Nytt byte";
 "Harvest" = "Byte";
 "Dismiss" = "Förkasta";
-"Cancel" = "Ångra";
+"Cancel" = "Avbryt";
+"Undo" = "Ångra";
 "CancelRemove" = "Ångra";
 "Save" = "Spara";
 "Species" = "Art";
@@ -185,6 +215,14 @@
 "ObservationDetailsMooseMale" = "Vuxna tjurar";
 "ObservationDetailsMooseCalf" = "Ensam kalv";
 "ObservationDetailsMooseUnknown" = "Okända";
+"ObservationDetailsMooseFemaleWithinDeerHunting" = "Vuxna hondjur utan kalvar";
+"ObservationDetailsMooseFemale1CalfWithinDeerHunting" = "Vuxna hondjur + 1 kalv";
+"ObservationDetailsMooseFemale2CalfWithinDeerHunting" = "Vuxna hondjur + 2 kalvar";
+"ObservationDetailsMooseFemale3CalfWithinDeerHunting" = "Vuxna hondjur + 3 kalvar";
+"ObservationDetailsMooseFemale4CalfWithinDeerHunting" = "Vuxna hondjur + 4 kalvar";
+"ObservationDetailsMooseMaleWithinDeerHunting" = "Vuxna handjur";
+"ObservationDetailsMooseCalfWithinDeerHunting" = "Ensam kalv";
+"ObservationDetailsMooseUnknownWithinDeerHunting" = "Okända";
 
 "DeerHuntingType" = "Jaktmetod";
 "DeerHuntingTypeDescription" = "Beskrivning av jaktmetoden";
@@ -219,17 +257,6 @@
 "SrvaApproved" = "Godkänd";
 "SrvaRejected" = "Förkastad";
 
-"OnboardingSkip" = "Hoppa";
-"OnboardingNext" = "Nästa";
-"OnboardingDone" = "Färdig";
-"OnboardingIntroduction" = "Välkommen till den uppdaterade Oma riista -terrängapplikationen! Den förnyade applikationen är nu ett ännu mer mångsidigt arbetsredskap i fickformat i terrängen och jaktsituationer.";
-"OnboardingNewFeaturesTitle" = "Nya funktionaliteter";
-"OnboardingNewFeatureMaps" = "Filtrering av händelser och visning på karta";
-"OnboardingMapTitle" = "Händelserna på kartan";
-"OnboardingGalleryTitle" = "Viltloggens fotogalleri";
-"OnboardingShootingTestTitle" = "Skjutprovsprestationerna";
-"OnboaringMetsahallitusTitle" = "Forststyrelsens licenser";
-
 "CustomerService" = "Oma riista information";
 "SupportAndFeedback" = "Stöd och respons";
 "CustomerServiceTimesTemplate" = "Vi betjänar vardagar kl %@-%@";
@@ -238,9 +265,13 @@
 "EmailTemplate" = "\n\nNamn: %@\nJägarnummer: %@\nApplikationsversion: %@\nIOS-version: %@";
 "EmailLicenseTitle" = "Jaktkort";
 "EmailLicenseTemplate" = "\n\nNamn: %@\nJägarnummer: %@";
-"ThirdPartyLibraries" = "Tredjeparts-biblioteker";
 "PrivacyStatement" = "Dataskyddbeskrivning";
 "PrivacyStatementUrl" = "https://riista.fi/sv/viltforvaltningen/elektroniska-tjanster/registerbeskrivningen/";
+"TermsOfService" = "Användarvillkor";
+"TermsOfServiceUrl" = "https://riista.fi/sv/viltforvaltningen/elektroniska-tjanster/anvandarvillkor/";
+"AccessibilityStatement" = "Tillgänglighetsutlåtande";
+"AccessibilityStatementUrl" = "https://riista.fi/sv/viltforvaltningen/elektroniska-tjanster/tillganglighetsutlatande/";
+"ThirdPartyLibraries" = "Tredjeparts-biblioteker";
 "MakeCallMessage" = "Vill du ringa till Oma riista information?";
 "MakeLicenseCallMessage" = "Vill du ringa till jägarnummer information?";
 "MakeCall" = "Ringa";
@@ -265,12 +296,17 @@
 "GallerySource" = "Galleri";
 "ImagePermissionRequiredTitle" = "Ge behörighet";
 "ImagePermissionRequiredMessage" = "Oma riista behöver åtkomst till dina photon";
+"ImageLoadFailedDialogTitle" = "Nerladdningen av bilden misslyckades";
+"ImageLoadFailedDialogMessage" = "Bilden finns inte eller så misslyckades nerladdningen av bilden på grund av annan orsak.";
+"ImageLoadFailedOrLimitedAccessDialogMessage" = "Oma riista -applikationen har inte rätt att avläsa bilden eller så misslyckades nerladdningen av bilden på grund av annan orsak.";
+"ImageLoadFailedSelectAnotherPhotoAction" = "Välj en annan bild";
+"ImageLoadFailedSelectAccessiblePhotosAction" = "Välj tillgängliga bilder";
 "ImageDialogButtonCancel" = "Avbryt";
 "ImageDialogButtonSettings" = "Inställningar";
 
 "SavingDataFailed" = "Lagringen av data misslyckades. Du kan starta om programmet att försöka igen. Om det här händar igen, kontakt oma@riista.fi";
 
-"MooseNotEdible" = "Människoföda oduglig";
+"MooseNotEdible" = "Oduglig som människoföda";
 "MooseWeightEstimated" = "Slaktvikt uppskattad (kg)";
 "MooseWeightWeighted" = "Slaktvikt vägd (kg)";
 "MooseFitnessClass" = "Konditionsklass";
@@ -279,6 +315,26 @@
 "MooseAntlersPointsLeft" = "Horntaggar vänster";
 "MooseAntlersPointsRight" = "Horntaggar höger";
 "MooseAdditionalInfo" = "Tilläggsuppgifter";
+"AntlersLost" = "Ena eller båda hornen tappade";
+"AntlersGirth" = "Rosenstångens omkrets (cm)";
+"AntlersLength" = "Hornhalvans längd  (cm)";
+"AntlersInnerWidth" = "Hornens inre bredd (cm)";
+"AntlerShaftDiameter" = "Hornstångens diameter (cm)";
+
+// Instructions
+"Instructions" = "Instruktioner";
+"InstructionsFormat" = "Instruktioner: %@";
+"InstructionsTitleAntlersLength" = "Hornhalvans längd";
+"InstructionsTitleAntlersGirth" = "Rosenstångens omkrets";
+"InstructionsTitleAntlersInnerWidth" = "Hornens inre bredd";
+"InstructionsTitleAntlerShaftDiameter" = "Hornstångens diameter";
+"InstructionsTitleAntlersWidth" = "Hornutläggets avstånd";
+// Details (generic or for certain species)
+"InstructionsAntlersLengthDetails" = "Hornstångens längd från hornbasen till hornspetsen längs med hornets utsida";
+"InstructionsAntlersGirthDetails" = "Hornstångens omkrets vid smalaste stället mellan rosenkransen och första taggen.";
+"InstructionsAntlersInnerWidthWhiteTailedDeer" = "Bredden mellan hornstängerna, innermåttet vid bredaste stället.";
+"InstructionsAntlerShaftDiameterRoeDeer" = "Hornstångens tjocklek direkt ovanför rosenkransen, pärlningen borträknad.";
+"InstructionsAntlersWidthMoose" = "Hela hornets bredd mätt rakt mellan de yttersta hornspetsarna.";
 
 "HarvestHuntingTypeTitle" = "Jaktmetod";
 "HarvestFeedingPlaceTitle" = "Skjuten på utfodringsplats?";
@@ -294,12 +350,14 @@
 "UpdateAvailableMessage" = "Ladda ner en ny version av Oma riista från App Store.";
 
 "ButtonClearTitle" = "Tyhjennä";
-"NetworkOperationFailed" = "Toiminto epäonnistui (%d)";
+"NetworkOperationFailed" = "Operationen misslyckades";
 "ConfirmOperationPrompt" = "Är du säker att du vill genomföra åtgärden?";
 
 /*
  Shooting test
  */
+
+"ShootingTestsNameAndHunterNumber" = "Namn och jägarnummer";
 
 "ShootingTestViewTitle" = "Skjutprov";
 "ShootingTestTabEventTitle" = "Evenemang";
@@ -378,3 +436,180 @@
 "ShootingTestPaymentTestFinished" = "Skutprovet avslutats";
 "ShootingTestPaymentCompleteConfirm" = "Vill du anteckna personens %@ %@ (%@) skjutprov och betalningar som erlagda?";
 "ShootingTestPaymentEditTitle" = "Redigera betalningen";
+
+/* Group hunting */
+
+"GenericLoadingContent" = "Nödvändiga uppgifter laddas..";
+"GenericContentLoadingFailed" = "Laddningen av uppgifterna misslyckades";
+
+"GroupHuntingLandingPageTitle" = "Jaktledare";
+"GroupHuntingLabelClub" = "Förening";
+"GroupHuntingLabelSeason" = "Säsong";
+"GroupHuntingLabelSpecies" = "Djurart";
+"GroupHuntingLabelHuntingGroup" = "Grupp";
+"GroupHuntingLabelPermitFormatted" = "Licens: %@";
+"GroupHuntingErrorHuntingHasFinished" = "Jakten avslutats";
+
+"GroupHuntingEntriesOnMap" = "Markeringar på kartan";
+"GroupHuntingHuntingDays" = "Jaktdagar";
+"GroupHuntingNewHarvest" = "Nytt byte";
+"GroupHuntingNewObservation" = "Ny observation";
+"GroupHuntingHuntingDay" = "Jaktdag";
+"GroupHuntingNoHarvestsNoObservations" = "Inga byten eller observationer";
+
+"GroupHuntingLoadingHuntingDays" = "Laddar jaktdagar..";
+"GroupHuntingFailedToLoadHuntingDays" = "Laddningen av jaktdagar misslyckades";
+"GroupHuntingNoHuntingDaysButCanCreate" = "För gruppen har ännu inga jaktdagar fastställts. Skapa jaktdag för att fortsätta.";
+"GroupHuntingNoHuntingDays" = "För gruppen har ännu inga jaktdagar fastställts.";
+"GroupHuntingNoHuntingDaysDeer" = "För hjortar skapas jaktdagar automatiskt utgående från bytes- och observationsanteckningarna.";
+"GroupHuntingSuggestedHuntingDay" = "Dagen föreslås, eftersom det inte hittas byten eller observationer för den.";
+"GroupHuntingSuggestedHuntingDayForEntry" = "För anteckningens datum %@ finns ännu ingen jaktdag.";
+"GroupHuntingAddHuntingDay" = "Skapa jaktdag";
+"GroupHuntingNoHuntingDaysAfterFilteringButCanCreate" = "För vald tidsperiod finns inga jaktdagar. Uppdatera vald tidsperiod.";
+"GroupHuntingNoHuntingDaysAfterFiltering" = "För vald tidsperiod finns inga jaktdagar.";
+
+"FilterStartDate" = "Från";
+"FilterEndDate" = "Till";
+"MapLocationHarvestsAndObservations" = "Kartpunktens byten och observationer";
+
+"GroupHuntingDiaryFilterDialogTitle" = "Filtrera";
+"GroupHuntingDiaryFilterEventTypeHarvestsAndObservations" = "Byten och observationer";
+"GroupHuntingDiaryFilterEventTypeHarvests" = "Byten";
+"GroupHuntingDiaryFilterEventTypeObservations" = "Observationer";
+"GroupHuntingDiaryFilterAcceptTypeAll" = "Alla";
+"GroupHuntingDiaryFilterAcceptTypeAccepted" = "Godkända";
+"GroupHuntingDiaryFilterAcceptTypeRejected" = "Förkastade";
+"GroupHuntingDiaryFilterAcceptTypeProposed" = "Föreslagna";
+
+"GroupHuntingProposedHarvest" = "Föreslaget byte";
+"GroupHuntingAcceptedHarvest" = "Godkänt byte";
+"GroupHuntingRejectedHarvest" = "Förkastat byte";
+"GroupHuntingProposedObservation" = "Föreslaget observationsanteckning";
+"GroupHuntingAcceptedObservation" = "Godkänt observation";
+"GroupHuntingRejectedObservation" = "Förkastat observation";
+
+"GroupHuntingContinueToApprove" = "Gå för att godkänna";
+"ApproveHarvest" = "Godkänn bytesanmälan";
+"ApproveObservation" = "Godkänn observation";
+"RejectHarvest" = "Avslå byte";
+"RejectObservation" = "Avslå observation";
+"RejectHarvestQuestion" = "Ska bytet förkastas?";
+"RejectObservationQuestion" = "Ska observationen förkastas?";
+"AreYouSure" = "Är du säker";
+"Approve" = "Godkänna";
+"Edit" = "Redigera";
+"Select" = "Välj";
+
+"GroupHuntingHarvestSaveFailedGeneric" = "Lagringen av byte misslyckades.";
+"GroupHuntingObservationSaveFailedGeneric" = "Lagringen av observationen misslyckades.";
+"GroupHuntingDaySaveFailedGeneric" = "Lagringen av jaktdagar misslyckades.";
+
+"GroupHuntingCreateObservationFromHarvestTitle" = "Ny observation?";
+"GroupHuntingCreateObservationFromHarvestMessage" = "Oma riista -tjänsten antecknar inte automatiskt fällda byten som observationer. Har den här fällda älgen redan antecknats som en observation?";
+
+"GroupHuntingDayErrorDatesNotWithinPermit" = "Dagen är ytterom den tillåtna licenstiden";
+"GroupHuntingErrorTimeNotWithinHuntingDay" = "Tiden är inte inom angivna gränser för jaktdagen.";
+"ErrorDateNotAllowed" = "Datum är inte tillåtet";
+
+"GroupHuntingSuggestedHuntingDay" = "Dagen föreslås, eftersom det inte hittas byten eller observationer för den.";
+"GroupHuntingAddHuntingDay" = "Skapa jaktdag";
+
+"GroupHuntingDayLabelNumberOfHunters" = "Jägarnas antal";
+"GroupHuntingDayLabelHuntingMethod" = "Jaktmetod";
+"GroupHuntingDayLabelNumberOfHounds" = "Hund antal";
+"GroupHuntingDayLabelSnowDepthCentimeters" = "Snödjupet (cm)";
+"GroupHuntingDayLabelBreakDurationMinutes" = "Pausernas längd";
+"GroupHuntingDaySelectBreakDuration" = "Välj pausernas varaktighet";
+"GroupHuntingDayNoBreaks" = "inga pauser";
+
+"GroupHuntingDayErrorDatesNotWithinPermit" = "Dagen är ytterom den tillåtna licenstiden";
+
+"GroupHuntingMethodPassilinjaKoiraOhjaajineenMetsassa" = "Passlinje, hund och hundförare i skogen";
+"GroupHuntingMethodHiipiminenPysayttavalleKoiralle" = "Smygning med ställande hund";
+"GroupHuntingMethodPassilinjaJaTiivisAjoketju" = "Passlinje och tät drevkedja";
+"GroupHuntingMethodPassilinjaJaMiesajoJaljityksena" = "Passlinje och spårande drevkarlar";
+"GroupHuntingMethodJaljitysEliNaakiminenIlmanPasseja" = "Spårningsjakt dvs pyrsch utan pass";
+"GroupHuntingMethodVaijyntaKulkupaikoilla" = "Vaktjakt vid djurens passager";
+"GroupHuntingMethodVaijyntaRavintokohteilla" = "Vaktjakt vid matplatser";
+"GroupHuntingMethodHoukuttelu" = "Lockjakt";
+"GroupHuntingMethodMuu" = "Annat";
+
+"GroupHuntingHunterId" = "Jägarnummer";
+"GroupHuntingEnterHunterId" = "Ge den 8-siffriga jägarnummern";
+"GroupHuntingInvalidHunterId" = "Jägarnumret är felaktigt";
+"GroupHuntingSearchingHunterById" = "Skyttens uppgifter söks..";
+"GroupHuntingSearchingObserverById" = "Observatörens uppgifter söks..";
+"GroupHuntingHunterSearchFailed" = "Med jägarnumret hittades ingen skytt.";
+"GroupHuntingObserverSearchFailed" = "Med jägarnumret hittades ingen observatör.";
+"GroupHuntingOtherHunter" = "Annat";
+"GroupHuntingOtherObserver" = "Annat";
+"GroupHuntingHarvestFieldActor" = "Skytt";
+"GroupHuntingHarvestFieldAuthor" = "Anmälare";
+"GroupHuntingHarvestShooterInformation" = "Skyttens uppgifter";
+"GroupHuntingHarvestFieldActorOrMember" = "Skytt/Medlem";
+"GroupHuntingSpecimenDetails" = "Individuppgifter";
+"GroupHuntingHuntingDayAndTime" = "Jaktdag och tid";
+"HarvestFieldLoneCalf" = "Ensam kalv";
+"HarvestAdditionalInformationInstructions" = "Tilläggsuppgifter, t.ex. foster, parasiter, sjukdomar, ärr efter rovdjursrivning, älgflugor, krockskador, färgförändringar, brunstuppgifter";
+"HarvestAdditionalInformationInstructionsWhiteTailedDeer" = "Tilläggsuppgifter, t.ex. foster, parasiter, sjukdomar, ärr efter rovdjursrivning, älgflugor, krockskador, färgförändringar, brunstuppgifter, avvikande från metod 4 eller 5, snödjupet cm";
+
+"FitnessClassExcellent" = "Utmärkt";
+"FitnessClassNormal" = "Normal";
+"FitnessClassThin" = "Mager";
+"FitnessClassStarved" = "Undernärd";
+
+"AntlersTypeHanko" = "Stång";
+"AntlersTypeLapio" = "Skovel";
+"AntlersTypeSeka" = "Bland";
+
+"DeerHuntingTypeStanding" = "Vaktjakt";
+"DeerHuntingTypeDog" = "Sällskapsjakt med hund";
+"DeerHuntingTypeOther" = "Annat";
+
+"GroupHuntingObservationFieldHuntingDayAndTime" = "Jaktdag och tid";
+"GroupHuntingObservationFieldActor" = "Observatör";
+"GroupHuntingObservationFieldAuthor" = "Anmälare";
+
+"ObservationTypeNako" = "Synobservation";
+"ObservationTypeJalki" = "Spårobservation";
+"ObservationTypeUloste" = "Exkrement";
+"ObservationTypeAani" = "Ljud";
+"ObservationTypeRiistakamera" = "Viltkamera";
+"ObservationTypeKoiranRiistatyo" = "Hundens viltarbete";
+"ObservationTypeMaastolaskenta" = "Markinventering";
+"ObservationTypeKolmiolaskenta" = "Triangelinventering";
+"ObservationTypeLentolaskenta" = "Flyginventering";
+"ObservationTypeHaaska" = "Åtel";
+"ObservationTypeSyonnos" = "Uppstötning";
+"ObservationTypeKelomispuu" = "Fejningsträd";
+"ObservationTypeKiimakuoppa" = "Brunstgrop";
+"ObservationTypeMakuupaikka" = "Daglega";
+"ObservationTypePato" = "Rede";
+"ObservationTypePesa" = "Bäckhydda";
+"ObservationTypePesaKeko" = "Bankhydda";
+"ObservationTypePesaPenkka" = "Älvhydda";
+"ObservationTypePesaSeka" = "Damm";
+"ObservationTypeSoidin" = "Spel";
+"ObservationTypeLuolasto" = "Gryt";
+"ObservationTypePesimaluoto" = "Häckningskär";
+"ObservationTypeLepailyluoto" = "Viloskär";
+"ObservationTypePesimasuo" = "Häckningsmyr";
+"ObservationTypeMuutonAikainenLepailyalue" = "Viloplats för flyttande fågel";
+"ObservationTypeRiistankulkupaikka" = "Viltpassage";
+"ObservationTypePoikueymparisto" = "Livsmiljö för skogshönsfågelkullar";
+"ObservationTypeVaihtelevarakenteinenMustikkametsa" = "Blåbärsskog med varierande struktur";
+"ObservationTypeKuusisekoitteinenMetsa" = "Tallblandad skog med varierande struktur";
+"ObservationTypeVaihtelevarakenteinenMantysekoitteinenMetsa" = "Betestall";
+"ObservationTypeVaihtelevarakenteinenLehtipuusekoitteinenMetsa" = "Lövträdsblandad skog med varierad struktur";
+"ObservationTypeSuonReunametsa" = "Födoplats i björkdungar";
+"ObservationTypeHakomamanty" = "Al-granskog eller björk-granskog";
+"ObservationTypeRuokailukoivikko" = "Granblandad skog (putsning)";
+"ObservationTypeLeppakuusimetsaTaiKoivikuusimetsa" = "Myrens kantskog";
+"ObservationTypeRuokailupajukkoTaiKoivikko" = "Födoplats bland vide- eller björkbestånd";
+"ObservationTypeMuu" = "Annat";
+
+/* Urls */
+
+"UrlEventSearch" = "https://riista.fi/sv/jakt/sok-evenemang/";
+"UrlHuntingSeasons" = "https://riista.fi/sv/jakt/jakttider";
+"UrlMagazine" = "https://www.jagarentidningen.fi";

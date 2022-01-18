@@ -53,7 +53,7 @@ static NSString * const MARKING_FIELD_KEY = @"MarkingFieldKey";
 static NSString * const PAW_LENGTH_FIELD_KEY = @"PawLengthFieldKey";
 static NSString * const PAW_WIDTH_FIELD_KEY = @"PawWidthFieldKey";
 
-@interface ObservationSpecimensViewController () <ObservationSpecimenCellDelegate, KeyboardHandlerDelegate>
+@interface ObservationSpecimensViewController () <ObservationSpecimenCellDelegate, RiistaKeyboardHandlerDelegate>
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomPaneBottomSpace;
 @property (strong, nonatomic) RiistaKeyboardHandler *keyboardHandler;
@@ -257,7 +257,7 @@ static NSString * const PAW_WIDTH_FIELD_KEY = @"PawWidthFieldKey";
     }
 }
 
-# pragma mark - KeyboardHandlerDelegate
+# pragma mark - RiistaKeyboardHandlerDelegate
 
 - (void)hideKeyboard
 {

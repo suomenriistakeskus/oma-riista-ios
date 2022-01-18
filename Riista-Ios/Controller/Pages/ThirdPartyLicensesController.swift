@@ -1,5 +1,6 @@
 import Foundation
 import AcknowList
+import GoogleMaps
 
 /**
  A view controller for managing and embedding AcknowListViewController (which only seems to support Swift).
@@ -11,6 +12,8 @@ import AcknowList
 
         let acknowListController = AcknowListViewController(fileNamed: "Pods-Riista-acknowledgements")
 
+        injectProperGoogleMapsLicense(acknowListController: acknowListController)
+
         // setup header and footer before adding as child
         acknowListController.headerText = nil
         acknowListController.footerText = nil
@@ -18,5 +21,26 @@ import AcknowList
         addChild(acknowListController)
         acknowListController.view.frame = self.view.frame
         view.addSubview(acknowListController.view)
+    }
+
+    private func injectProperGoogleMapsLicense(acknowListController: AcknowListViewController) {
+        let googleMapsTitle = "GoogleMaps"
+        let googlemapsAcknowledgement = Acknow(title: googleMapsTitle,
+                                               text: GMSServices.openSourceLicenseInfo())
+
+        var googleMapsLicenseInjected = false
+        if let acknowledgements = acknowListController.acknowledgements {
+            acknowListController.acknowledgements = acknowledgements.map { acknowledgement in
+                if (acknowledgement.title == googleMapsTitle) {
+                    googleMapsLicenseInjected = true
+                    return googlemapsAcknowledgement
+                }
+                return acknowledgement
+            }
+        }
+
+        if (!googleMapsLicenseInjected) {
+            acknowListController.acknowledgements = [googlemapsAcknowledgement]
+        }
     }
 }

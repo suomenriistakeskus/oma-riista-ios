@@ -10,6 +10,7 @@ class GalleryItemCell: MDCCardCollectionCell {
 
     var itemType: RiistaEntryType?
     var item: DiaryEntryBase?
+    var imageLoadedSuccessfully: Bool?
 
     weak var parent: UIViewController?
 
@@ -31,10 +32,7 @@ class GalleryItemCell: MDCCardCollectionCell {
 
         itemType = RiistaEntryTypeHarvest
         item = diaryEntry
-
-        RiistaUtils.loadEventImage(diaryEntry, for: imageView, completion: { image in
-            self.imageView.image = image
-        })
+        loadImage()
 
         return self
     }
@@ -44,10 +42,7 @@ class GalleryItemCell: MDCCardCollectionCell {
 
         itemType = RiistaEntryTypeObservation
         item = observation
-
-        RiistaUtils.loadEventImage(observation, for: imageView, completion: { image in
-            self.imageView.image = image
-        })
+        loadImage()
 
         return self
     }
@@ -57,12 +52,55 @@ class GalleryItemCell: MDCCardCollectionCell {
 
         itemType = RiistaEntryTypeSrva
         item = srva
-
-        RiistaUtils.loadEventImage(srva, for: imageView, completion: { image in
-            self.imageView.image = image
-        })
+        loadImage()
 
         return self
+    }
+
+    /**
+     * Loads the image from the current item. Only displays the loaded image if item is still the same.
+     */
+    func loadImage() {
+        let entry = self.item
+
+        // loading may take time, hide image that may remain from
+        // previous cell use
+        imageView.image = nil
+
+        ImageUtils.loadEventImage(
+            entry, for: imageView,
+            options: ImageLoadOptions.aspectFilled(size: imageView.bounds.size),
+            onSuccess: { [weak self, weak entry] image in
+                self?.setDisplayedImage(image, entry: entry)
+            },
+            onFailure: { [weak self] failureReason in
+                self?.displayImageLoadFailedIndicator(entry: entry)
+            }
+        )
+    }
+
+    func setDisplayedImage(_ image: UIImage, entry: DiaryEntryBase?) {
+        guard let entry = entry else { return }
+        if (entry != self.item) {
+            // image loaded but for a cell that was already reused
+            return
+        }
+
+        imageView.contentMode = .scaleAspectFill
+        imageView.image = image
+        imageLoadedSuccessfully = true
+    }
+
+    func displayImageLoadFailedIndicator(entry: DiaryEntryBase?) {
+        guard let entry = entry else { return }
+        if (entry != self.item) {
+            // image loaded but for a cell that was already reused
+            return
+        }
+
+        imageView.contentMode = .center
+        imageView.image = UIImage(named: "missing-image-error")
+        imageLoadedSuccessfully = false
     }
 
     @IBAction func leftButtomClick(_ sender: AnyObject?) {
@@ -100,6 +138,11 @@ class GalleryItemCell: MDCCardCollectionCell {
     }
 
     @IBAction func rightButtomClick(_ sender: AnyObject?) {
+        if (!(imageLoadedSuccessfully ?? false)) {
+            print("Cannot display image in fullscreen, image could not be loaded")
+            return
+        }
+
         let sb = UIStoryboard(name: "Main", bundle: nil)
         let dest = sb.instantiateViewController(withIdentifier: "ImageFullController") as? ImageFullViewController
         dest?.item = self.item

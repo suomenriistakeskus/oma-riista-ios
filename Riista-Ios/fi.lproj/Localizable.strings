@@ -14,23 +14,43 @@
 "MenuAnnouncements" = "Viestit";
 "MenuSettings" = "Asetukset";
 "MenuShootingTests" = "Ampumakokeet";
+"MenuHuntingDirector" = "Metsästyksen johtaja";
 "MenuContactDetails" = "Yhteystiedot";
 "MenuEventSearch" = "Tapahtumahaku";
 "MenuReadMagazine" = "Lue viimeisin Metsästäjä-lehti";
 "MenuOpenSeasons" = "Metsästysajat";
 "MenuMore" = "Lisää";
 
-"LoginText" = "Kirjaudu sisään oma.riista.fi:ssä luoduilla tunnuksilla";
+"LoginTabTitle" = "Kirjaudu";
+"RegisterTabTitle" = "Luo tili";
 "Username" = "Sähköposti";
 "Password" = "Salasana";
+"PasswordForgotten" = "Unohtuiko salasana?";
+"SendPasswordResetTitle" = "Unohditko salasanasi?";
+"SendPasswordResetMessage" = "Syötä kenttään sähköpostiosoite, jota käytettiin tilin rekisteröinnissä.";
+"SendPasswordResetAction" = "Lähetä palautuslinkki";
+"PasswordResetSentMessage" = "Olemme lähettäneet ohjeet salasanan palauttamiseen annettuun sähkö\U00ADposti\U00ADosoitteeseen. Tarkista roska\U00ADposti\U00ADlaatikkosi, jos sähkö\U00ADposti ei saavu muutaman minuutin kuluessa.";
+"AuthenticationLinkSentTitle" = "Pyyntö lähetetty";
+"AuthenticationLinkSentBackToLogin" = "Takaisin kirjautumiseen";
 "Login" = "Kirjaudu sisään";
 "loginFailed" = "Kirjautuminen epäonnistui";
 "loginConnectFailed" = "Palvelimeen ei saatu yhteyttä. Ole hyvä ja yritä myöhemmin uudelleen.";
 "loginIncorrectCredentials" = "Väärä käyttäjänimi tai salasana. Ole hyvä ja yritä uudelleen.";
 "loginOutdatedVersion" = "Ohjelmaversio on vanhentunut. Päivitä ohjelma uuteen versioon jatkaaksesi käyttöä.";
+"SendRegistrationLinkTitle" = "Tilin luonti";
+"SendRegistrationLinkMessage" = "Rekisteröityäksesi oma.riista.fi-palveluun tarvitset toimivan, henkilökohtaisen sähköpostiosoitteen, johon lähetämme linkin tunnuksen luomista varten. Osana tunnuksen luomista tunnistaudut pankkitunnuksillasi Suomi.fi-tunnistuspalvelussa.";
+"SendRegistrationLinkAction" = "Aloita rekisteröityminen";
+"RegistrationLinkSentMessage" = "Olemme lähettäneet rekisteröitymisohjeet annettuun sähkö\U00ADposti\U00ADosoitteeseen. Tarkista roska\U00ADposti\U00ADlaatikkosi, jos sähkö\U00ADposti ei saavu muutaman minuutin kuluessa.";
+"LoginUsernameChanged" = "Sähköposti vaihtunut?";
+"ChangeUsernameTitle" = "Vaihda sähköposti\U00ADosoitetta";
+"ChangeUsernameMessage" = "Voit vaihtaa Oma riista -tunnuksena käyttämäsi sähköposti\U00ADosoitteen rekisteröitymällä palveluun uudelleen.\n\nKaikki palveluun syöttämäsi tiedot säilyvät uudelleenrekisteröinnissä.";
+"ChangeUsernameAction" = "Siirry rekisteröitymään";
 "OK" = "OK";
 "Yes" = "Kyllä";
 "No" = "Ei";
+
+"AmountFormat" = "%i\U00A0kpl";
+"HoursAndMinutesFormat" = "%@\U00A0%@";
 
 "SeasonFormat" = "Metsästyskausi %i - %i";
 "TotalCatchFormat" = "%d saalista";
@@ -78,9 +98,10 @@
 "MapHideArea" = "Piilota";
 "MapRemoveArea" = "Poista";
 "MapRemoveAreaTitle" = "Poista alue";
-"MapRemoveAreaConfirm" = "Haluatko varmasti poistaa alueen näkyvistä?";
-"MapAreaCode" = "Aluekoodi";
-"MapAreaFilterHint" = "Aluekoodi / nimi";
+"MapRemoveAreaConfirm" = "Haluatko varmasti poistaa alueen?";
+"MapAreaCode" = "Aluetunnus";
+"MapAreaCodeFormat" = "Aluetunnus: %@";
+"MapAreaFilterHint" = "Aluetunnus / nimi";
 "MapSettingShowLocation" = "Näytä oma sijainti";
 "MapSettingInvertColors" = "Käännä seurojen aluekarttojen värit";
 "MapSettingHideButtons" = "Piilota karttapainikkeet";
@@ -88,6 +109,13 @@
 "MapSettingStateLands" = "Valtionmaat";
 "MapSettingRhyBorders" = "RHY-rajat";
 "MapSettingGameTriangles" = "Riistakolmiot";
+"MapSettingOfflineMaps" = "Offline-kartat";
+"MapSettingLabelBackgroundMaps" = "Taustakartta";
+"MapSettingLabelMapLayers" = "Karttatasot";
+"MapSettingLabelCacheUtilization" = "Välimuistin käyttöaste:";
+"MapSettingCacheUtilizationFormat" = "%.1fMt / %.0fMt";
+"MapSettingRemoveBackgroundMaps" = "Tyhjennä kartat";
+"MapSettingRemoveMapLayers" = "Tyhjennä karttatasot";
 "MapSettingAddAreaClub" = "Oma riista -alue";
 "MapSettingAddAreaMoose" = "Metsähallitus hirvi";
 "MapSettingAddAreaPienriista" = "Metsähallitus pienriista";
@@ -95,6 +123,7 @@
 "MapSettingSelectArea" = "Valitse alue";
 "MapSettingGeneralTitle" = "Yleiset";
 "MapSettingSelectedAreas" = "Valitut alueet";
+"MapSettingNoSelectedAreas" = "Ei valittuja alueita";
 "MadDisplayPins" = "Näytä tapahtumat";
 
 "FilterSelectCategory" = "Valitse kategoria";
@@ -110,7 +139,8 @@
 "Loggame" = "Uusi saalis";
 "Harvest" = "Saalis";
 "Dismiss" = "Hylkää";
-"Cancel" = "Peru";
+"Cancel" = "Peruuta";
+"Undo" = "Peru";
 "CancelRemove" = "Peru";
 "Save" = "Tallenna";
 "Species" = "Laji";
@@ -185,6 +215,14 @@
 "ObservationDetailsMooseMale" = "Aikuisia uroksia";
 "ObservationDetailsMooseCalf" = "Yksinäinen vasa";
 "ObservationDetailsMooseUnknown" = "Tuntemattomia";
+"ObservationDetailsMooseFemaleWithinDeerHunting" = "Vasattomia naaraita";
+"ObservationDetailsMooseFemale1CalfWithinDeerHunting" = "Naaras + 1 vasa";
+"ObservationDetailsMooseFemale2CalfWithinDeerHunting" = "Naaras + 2 vasaa";
+"ObservationDetailsMooseFemale3CalfWithinDeerHunting" = "Naaras + 3 vasaa";
+"ObservationDetailsMooseFemale4CalfWithinDeerHunting" = "Naaras + 4 vasaa";
+"ObservationDetailsMooseMaleWithinDeerHunting" = "Aikuisia uroksia";
+"ObservationDetailsMooseCalfWithinDeerHunting" = "Yksinäinen vasa";
+"ObservationDetailsMooseUnknownWithinDeerHunting" = "Tuntemattomia";
 
 "DeerHuntingType" = "Metsästystapa";
 "DeerHuntingTypeDescription" = "Metsästystavan kuvaus";
@@ -219,17 +257,6 @@
 "SrvaApproved" = "Hyväksytty";
 "SrvaRejected" = "Hylätty";
 
-"OnboardingSkip" = "Ohita";
-"OnboardingNext" = "Seuraava";
-"OnboardingDone" = "Valmis";
-"OnboardingIntroduction" = "Tervetuloa päivitettyyn Oma riista -maastosovellukseen! Uudistunut sovellus on nyt entistä monipuolisempi taskukokoinen työkalu maastoon ja metsästystilanteisiin.";
-"OnboardingNewFeaturesTitle" = "Uudet toiminnallisuudet";
-"OnboardingNewFeatureMaps" = "Tapahtumien suodatus ja näyttäminen kartalla";
-"OnboardingMapTitle" = "Tapahtumat kartalla";
-"OnboardingGalleryTitle" = "Riistalokin kuvagalleria";
-"OnboardingShootingTestTitle" = "Ampumakoesuoritukset";
-"OnboaringMetsahallitusTitle" = "Metsähallituksen luvat";
-
 "CustomerService" = "Oma riista neuvonta";
 "SupportAndFeedback" = "Tuki ja palaute";
 "CustomerServiceTimesTemplate" = "Palvelemme arkisin klo %@-%@";
@@ -238,9 +265,13 @@
 "EmailTemplate" = "\n\nNimi: %@\nMetsästäjänumero: %@\nSovellusversio: %@\nIOS-versio: %@";
 "EmailLicenseTitle" = "Metsästyskortti";
 "EmailLicenseTemplate" = "\n\Nimi: %@\nMetsästäjänumero: %@";
-"ThirdPartyLibraries" = "Kolmannen osapuolen kirjastot";
 "PrivacyStatement" = "Tietosuojaseloste";
 "PrivacyStatementUrl" = "https://riista.fi/riistahallinto/sahkoinen-asiointi/oma-riista-rekisteriseloste/";
+"TermsOfService" = "Käyttöehdot";
+"TermsOfServiceUrl" = "https://riista.fi/riistahallinto/sahkoinen-asiointi/oma-riista-kayttoehdot/";
+"AccessibilityStatement" = "Saavutettavuusseloste";
+"AccessibilityStatementUrl" = "https://riista.fi/riistahallinto/sahkoinen-asiointi/saavutettavuusselosteet/";
+"ThirdPartyLibraries" = "Kolmannen osapuolen kirjastot";
 "MakeCallMessage" = "Haluatko soittaa Oma riista neuvontaan?";
 "MakeLicenseCallMessage" = "Haluatko soittaa metsästäjänumero tukeen?";
 "MakeCall" = "Soita";
@@ -265,6 +296,11 @@
 "GallerySource" = "Galleria";
 "ImagePermissionRequiredTitle" = "Anna lupa";
 "ImagePermissionRequiredMessage" = "Oma riistan on päästävä valokuviisi";
+"ImageLoadFailedDialogTitle" = "Kuvan lataus epäonnistui";
+"ImageLoadFailedDialogMessage" = "Kuva on poistettu tai kuvan lataus epäonnistui muusta syystä";
+"ImageLoadFailedOrLimitedAccessDialogMessage" = "Oma Riista -sovelluksella ei ole oikeutta kuvan lukemiseen tai kuvan lataus epäonnistui muusta syystä.";
+"ImageLoadFailedSelectAnotherPhotoAction" = "Valitse toinen kuva";
+"ImageLoadFailedSelectAccessiblePhotosAction" = "Valitse käytettävissä olevat kuvat";
 "ImageDialogButtonCancel" = "Peruuta";
 "ImageDialogButtonSettings" = "Asetukset";
 
@@ -279,6 +315,26 @@
 "MooseAntlersPointsLeft" = "Sarvipiikit vasen";
 "MooseAntlersPointsRight" = "Sarvipiikit oikea";
 "MooseAdditionalInfo" = "Lisätiedot";
+"AntlersLost" = "Yksi tai molemmat sarvet pudonneet";
+"AntlersGirth" = "Tyven ympärysmitta (cm)";
+"AntlersLength" = "Sarvipuoliskon pituus (cm)";
+"AntlersInnerWidth" = "Sarvien sisäleveys (cm)";
+"AntlerShaftDiameter" = "Sarvirungon halkaisija (cm)";
+
+// Instructions
+"Instructions" = "Ohje";
+"InstructionsFormat" = "Ohje: %@";
+"InstructionsTitleAntlersLength" = "Sarvipuoliskon pituus";
+"InstructionsTitleAntlersGirth" = "Tyven ympärysmitta";
+"InstructionsTitleAntlersInnerWidth" = "Sarvien sisäleveys";
+"InstructionsTitleAntlerShaftDiameter" = "Sarvirungon halkaisija";
+"InstructionsTitleAntlersWidth" = "Sarvien kärkiväli";
+// Details (generic or for certain species)
+"InstructionsAntlersLengthDetails" = "Sarvipuoliskon pituus sarven tyvestä sarven kärkeen ulkosyrjää pitkin.";
+"InstructionsAntlersGirthDetails" = "Sarven tyven ympärys ohuimmasta kohdasta sarviruusukkeen ja ensimmäisen piikin välillä.";
+"InstructionsAntlersInnerWidthWhiteTailedDeer" = "Sarvien sisäleveys sarvien leveimmästä kohdasta.";
+"InstructionsAntlerShaftDiameterRoeDeer" = "Sarven paksuus välittömästi tyviruusukkeen yläpuolelta poislukien helmiäisyys.";
+"InstructionsAntlersWidthMoose" = "Sarvien kärkiväli kohtisuoraan mitattuna uloimpien piikkien kärjistä.";
 
 "HarvestHuntingTypeTitle" = "Saalistustapa";
 "HarvestFeedingPlaceTitle" = "Ammuttu ruokintapaikalta?";
@@ -294,12 +350,14 @@
 "UpdateAvailableMessage" = "Lataa uusi Oma riista versio App Storesta.";
 
 "ButtonClearTitle" = "Tyhjennä";
-"NetworkOperationFailed" = "Toiminto epäonnistui (%d)";
+"NetworkOperationFailed" = "Toiminto epäonnistui";
 "ConfirmOperationPrompt" = "Haluatko varmasti suorittaa toimenpiteen?";
 
 /*
  Shooting test
  */
+
+"ShootingTestsNameAndHunterNumber" = "Nimi ja metsästäjänumero";
 
 "ShootingTestViewTitle" = "Ampumakoe";
 "ShootingTestTabEventTitle" = "Tapahtuma";
@@ -378,3 +436,181 @@
 "ShootingTestPaymentTestFinished" = "Ampumakoe päättynyt";
 "ShootingTestPaymentCompleteConfirm" = "Haluatko merkitä henkilön %@ %@ (%@) ampumakokeen ja maksut suoritetuiksi?";
 "ShootingTestPaymentEditTitle" = "Muokkaa maksua";
+
+/* Group hunting */
+
+"GenericLoadingContent" = "Ladataan tarvittavia tietoja..";
+"GenericContentLoadingFailed" = "Tietojen lataaminen epäonnistui.";
+
+"GroupHuntingLandingPageTitle" = "Metsästyksen johtaja";
+"GroupHuntingLabelClub" = "Seura";
+"GroupHuntingLabelSeason" = "Kausi";
+"GroupHuntingLabelSpecies" = "Laji";
+"GroupHuntingLabelHuntingGroup" = "Ryhmä";
+"GroupHuntingLabelPermitFormatted" = "Lupa: %@";
+"GroupHuntingErrorHuntingHasFinished" = "Metsästys on päättynyt";
+
+"GroupHuntingEntriesOnMap" = "Merkinnät kartalla";
+"GroupHuntingHuntingDays" = "Metsästys\U00ADpäivät";
+"GroupHuntingNewHarvest" = "Kirjaa saalis";
+"GroupHuntingNewObservation" = "Kirjaa havainto";
+"GroupHuntingHuntingDay" = "Metsästys\U00ADpäivä";
+"GroupHuntingNoHarvestsNoObservations" = "Ei saaliita tai havaintoja";
+
+"GroupHuntingLoadingHuntingDays" = "Ladataan metsästyspäiviä..";
+"GroupHuntingFailedToLoadHuntingDays" = "Metsästyspäivien lataus epäonnistui.";
+"GroupHuntingNoHuntingDaysButCanCreate" = "Ryhmälle ei ole vielä määritetty metsästyspäiviä. Luo metsästyspäivä jatkaaksesi.";
+"GroupHuntingNoHuntingDays" = "Ryhmälle ei ole vielä määritetty metsästyspäiviä.";
+"GroupHuntingNoHuntingDaysDeer" = "Peuroille metsästyspäivät muodostuvat automaattisesti saalis- ja havaintokirjausten perusteella.";
+"GroupHuntingSuggestedHuntingDay" = "Päivä on ehdolla metsästyspäiväksi, koska sille löytyy saaliita tai havaintoja.";
+"GroupHuntingSuggestedHuntingDayForEntry" = "Merkinnän päivämäärälle %@ ei vielä ole metsästyspäivää.";
+"GroupHuntingAddHuntingDay" = "Luo metsästyspäivä";
+"GroupHuntingNoHuntingDaysAfterFilteringButCanCreate" = "Valitulla ajanjaksolla ei ole metsästyspäiviä. Päivitä valittua ajanjaksoa tai luo metsästyspäivä.";
+"GroupHuntingNoHuntingDaysAfterFiltering" = "Valitulla ajanjaksolla ei ole metsästyspäiviä.";
+
+"FilterStartDate" = "Alkupäivä";
+"FilterEndDate" = "Loppupäivä";
+"MapLocationHarvestsAndObservations" = "Karttapisteen saaliit ja havainnot";
+
+"GroupHuntingDiaryFilterDialogTitle" = "Suodata";
+"GroupHuntingDiaryFilterEventTypeHarvestsAndObservations" = "Saaliit ja havainnot";
+"GroupHuntingDiaryFilterEventTypeHarvests" = "Saaliit";
+"GroupHuntingDiaryFilterEventTypeObservations" = "Havainnot";
+"GroupHuntingDiaryFilterAcceptTypeAll" = "Kaikki";
+"GroupHuntingDiaryFilterAcceptTypeAccepted" = "Hyväksytyt";
+"GroupHuntingDiaryFilterAcceptTypeRejected" = "Hylätyt";
+"GroupHuntingDiaryFilterAcceptTypeProposed" = "Ehdotetut";
+
+"GroupHuntingProposedHarvest" = "Ehdotettu saalis";
+"GroupHuntingAcceptedHarvest" = "Hyväksytty saalis";
+"GroupHuntingRejectedHarvest" = "Hylätty saalis";
+"GroupHuntingProposedObservation" = "Ehdotettu havainto";
+"GroupHuntingAcceptedObservation" = "Hyväksytty havainto";
+"GroupHuntingRejectedObservation" = "Hylätty havainto";
+
+"GroupHuntingContinueToApprove" = "Siirry hyväksymään";
+"ApproveHarvest" = "Hyväksy saalis";
+"ApproveObservation" = "Hyväksy havainto";
+"RejectHarvest" = "Hylkää saalis";
+"RejectObservation" = "Hylkää havainto";
+"RejectHarvestQuestion" = "Hylätäänkö saalis?";
+"RejectObservationQuestion" = "Hylätäänkö havainto?";
+"AreYouSure" = "Oletko varma";
+"Approve" = "Hyväksy";
+"Edit" = "Muokkaa";
+"Select" = "Valitse";
+
+"GroupHuntingHarvestSaveFailedGeneric" = "Saaliin tallennus epäonnistui.";
+"GroupHuntingObservationSaveFailedGeneric" = "Havainnon tallennus epäonnistui.";
+"GroupHuntingDaySaveFailedGeneric" = "Metsästyspäivän tallennus epäonnistui.";
+
+"GroupHuntingCreateObservationFromHarvestTitle" = "Kirjaa havainto?";
+"GroupHuntingCreateObservationFromHarvestMessage" = "Oma riista -palvelu ei kirjaa kaatoja automaattisesti havainnoiksi. Onko tämä kaadettu hirvi jo kirjattu havaituksi?";
+
+"GroupHuntingDayErrorDatesNotWithinPermit" = "Päivä on sallitun lupa-ajan ulkopuolella";
+"GroupHuntingErrorTimeNotWithinHuntingDay" = "Aika ei ole metsästyspäivän määräämissä rajoissa.";
+"ErrorDateNotAllowed" = "Päiväys ei ole sallittu";
+
+"GroupHuntingSuggestedHuntingDay" = "Päivä on ehdolla metsästyspäiväksi, koska sille löytyy saaliita tai havaintoja.";
+"GroupHuntingAddHuntingDay" = "Luo metsästyspäivä";
+
+"GroupHuntingDayLabelNumberOfHunters" = "Metsästäjien määrä";
+"GroupHuntingDayLabelHuntingMethod" = "Metsästystapa";
+"GroupHuntingDayLabelNumberOfHounds" = "Koirien määrä";
+"GroupHuntingDayLabelSnowDepthCentimeters" = "Lumen syvyys (cm)";
+"GroupHuntingDayLabelBreakDurationMinutes" = "Taukojen kesto";
+"GroupHuntingDaySelectBreakDuration" = "Valitse taukojen kesto";
+"GroupHuntingDayNoBreaks" = "Ei taukoja";
+
+"GroupHuntingDayErrorDatesNotWithinPermit" = "Päivä on sallitun lupa-ajan ulkopuolella";
+
+"GroupHuntingMethodPassilinjaKoiraOhjaajineenMetsassa" = "Passilinja, koira ohjaajineen metsässä";
+"GroupHuntingMethodHiipiminenPysayttavalleKoiralle" = "Hiipiminen pysäyttävälle koiralle";
+"GroupHuntingMethodPassilinjaJaTiivisAjoketju" = "Passilinja ja tiivis ajoketju";
+"GroupHuntingMethodPassilinjaJaMiesajoJaljityksena" = "Passilinja ja miesajo jäljityksenä";
+"GroupHuntingMethodJaljitysEliNaakiminenIlmanPasseja" = "Jäljitys eli naakiminen ilman passeja";
+"GroupHuntingMethodVaijyntaKulkupaikoilla" = "Väijyntä kulkupaikoilta";
+"GroupHuntingMethodVaijyntaRavintokohteilla" = "Väijyntä ravintokohteilta";
+"GroupHuntingMethodHoukuttelu" = "Houkuttelu";
+"GroupHuntingMethodMuu" = "Muu";
+
+"GroupHuntingHunterId" = "Metsästäjänumero";
+"GroupHuntingEnterHunterId" = "Anna 8-numeroinen metsästäjänumero";
+"GroupHuntingInvalidHunterId" = "Metsästäjänumero on virheellinen";
+"GroupHuntingSearchingHunterById" = "Haetaan ampujan tietoja..";
+"GroupHuntingSearchingObserverById" = "Haetaan havaitsijan tietoja..";
+"GroupHuntingHunterSearchFailed" = "Metsästäjänumerolla ei löydetty ampujaa.";
+"GroupHuntingObserverSearchFailed" = "Metsästäjänumerolla ei löydetty havaitsijaa.";
+"GroupHuntingOtherHunter" = "Muu";
+"GroupHuntingOtherObserver" = "Muu";
+"GroupHuntingHarvestFieldActor" = "Ampuja";
+"GroupHuntingHarvestFieldAuthor" = "Ilmoittaja";
+"GroupHuntingHarvestShooterInformation" = "Ampujan tiedot";
+"GroupHuntingHarvestFieldActorOrMember" = "Ampuja/Jäsen";
+"GroupHuntingSpecimenDetails" = "Yksilön tiedot";
+"GroupHuntingHuntingDayAndTime" = "Metsästyspäivä ja -aika";
+"HarvestFieldLoneCalf" = "Yksinäinen vasa";
+"HarvestAdditionalInformationInstructions" = "Lisätiedot, esim. sikiöt, loiset, sairaudet, petojen raatelujäljet, hirvikärpäset, kolarivammat, värimuunnokset, kiimatiedot";
+"HarvestAdditionalInformationInstructionsWhiteTailedDeer" = "Lisätiedot, esim. sikiöt, loiset, sairaudet, petojen raatelujäljet, hirvikärpäset, kolarivammat, värimuunnokset, kiimatiedot, menetelmäpoikkeus 4 tai 5, lumen syvyys cm";
+
+"FitnessClassExcellent" = "Erinomainen";
+"FitnessClassNormal" = "Normaali";
+"FitnessClassThin" = "Laiha";
+"FitnessClassStarved" = "Nääntynyt";
+
+"AntlersTypeHanko" = "Hanko";
+"AntlersTypeLapio" = "Lapio";
+"AntlersTypeSeka" = "Seka";
+
+"DeerHuntingTypeStanding" = "Kyttääminen / vahtiminen";
+"DeerHuntingTypeDog" = "Seuruemetsästys koiran kanssa";
+"DeerHuntingTypeOther" = "Muu";
+
+"GroupHuntingObservationFieldHuntingDayAndTime" = "Metsästyspäivä ja -aika";
+"GroupHuntingObservationFieldActor" = "Havaitsija";
+"GroupHuntingObservationFieldAuthor" = "Ilmoittaja";
+
+"ObservationTypeNako" = "Näkö";
+"ObservationTypeJalki" = "Jälki";
+"ObservationTypeUloste" = "Uloste";
+"ObservationTypeAani" = "Ääni";
+"ObservationTypeRiistakamera" = "Riistakamera";
+"ObservationTypeKoiranRiistatyo" = "Koiran riistatyö";
+"ObservationTypeMaastolaskenta" = "Maastolaskenta";
+"ObservationTypeKolmiolaskenta" = "Kolmiolaskenta";
+"ObservationTypeLentolaskenta" = "Lentolaskenta";
+"ObservationTypeHaaska" = "Haaska";
+"ObservationTypeSyonnos" = "Syönnös";
+"ObservationTypeKelomispuu" = "Kelomispuu";
+"ObservationTypeKiimakuoppa" = "Kiimakuoppa";
+"ObservationTypeMakuupaikka" = "Makuupaikka";
+"ObservationTypePato" = "Pesä";
+"ObservationTypePesa" = "Kekopesä";
+"ObservationTypePesaKeko" = "Penkkapesä";
+"ObservationTypePesaPenkka" = "Sekapesä";
+"ObservationTypePesaSeka" = "Pato";
+"ObservationTypeSoidin" = "Soidin";
+"ObservationTypeLuolasto" = "Luolasto";
+"ObservationTypePesimaluoto" = "Pesimäluoto";
+"ObservationTypeLepailyluoto" = "Lepäilyluoto";
+"ObservationTypePesimasuo" = "Pesimäsuo";
+"ObservationTypeMuutonAikainenLepailyalue" = "Muuton aikainen lepäilyalue";
+"ObservationTypeRiistankulkupaikka" = "Riistankulkupaikka";
+"ObservationTypePoikueymparisto" = "Poikueympäristö";
+"ObservationTypeVaihtelevarakenteinenMustikkametsa" = "Vaihtelevarakenteinen mustikkametsä";
+"ObservationTypeKuusisekoitteinenMetsa" = "Vaihtelevarakenteinen mäntysekotteinen metsä";
+"ObservationTypeVaihtelevarakenteinenMantysekoitteinenMetsa" = "Hakomamänty";
+"ObservationTypeVaihtelevarakenteinenLehtipuusekoitteinenMetsa" = "Vaihtelevarakenteinen lehtipuusekotteinen metsä";
+"ObservationTypeSuonReunametsa" = "Ruokailukoivikko";
+"ObservationTypeHakomamanty" = "Leppä-kuusimetsä tai koivu-kuusimetsä";
+"ObservationTypeRuokailukoivikko" = "Kuusisekotteinen metsä (sukiminen)";
+"ObservationTypeLeppakuusimetsaTaiKoivikuusimetsa" = "Suon reunametsä";
+"ObservationTypeRuokailupajukkoTaiKoivikko" = "Ruokailupajukko tai -koivikko";
+"ObservationTypeMuu" = "Muu";
+
+
+/* Urls */
+
+"UrlEventSearch" = "https://riista.fi/metsastys/tapahtumahaku/";
+"UrlHuntingSeasons" = "https://riista.fi/metsastys/metsastysajat";
+"UrlMagazine" = "https://www.metsastajalehti.fi";

@@ -17,13 +17,17 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
 
 @interface RiistaVectorTileLayer ()
 
-@property(nonatomic, assign) AreaType areaType;
+// really AppConstants.AreaType
+@property(nonatomic, assign) NSInteger areaType;
 @property(atomic, strong) NSString *externalAreaId;
 @property BOOL invertAreaColors;
 
 @end
 
 @implementation RiistaVectorTileLayer
+{
+    TileCache* tileCache;
+}
 
 -(instancetype)init
 {
@@ -31,6 +35,7 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
     if (self) {
         _externalAreaId = nil;
         _invertAreaColors = NO;
+        tileCache = [[TileCacheProvider shared] getCacheWithType:CacheTypeVectorTiles];
     }
     return self;
 }
@@ -47,7 +52,18 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
     [self clearTileCache];
 }
 
-- (NSURL *)getTileUrl:(NSUInteger)x y:(NSUInteger)y zoom:(NSUInteger)zoom
+- (NSString*)getCacheKeyDiscriminator
+{
+    // discriminate tiles based on whether colors have been inverted or not
+    // -> allows storing multiple images for same x-y-zoom combination
+    if (self.invertAreaColors) {
+        return @"area-colors-inverted";
+    } else {
+        return @"normal-area-colors";
+    }
+}
+
+- (NSString *)getTileUrlString:(NSUInteger)x y:(NSUInteger)y zoom:(NSUInteger)zoom
 {
     NSString *base = [RiistaNetworkManager getBaseApiPath];
     NSString *api;
@@ -77,7 +93,7 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
             break;
     }
 
-    return [NSURL URLWithString:tileUrl];
+    return tileUrl;
 }
 
 - (void)requestTileForX:(NSUInteger)x y:(NSUInteger)y zoom:(NSUInteger)zoom receiver:(id<GMSTileReceiver>)receiver
@@ -87,9 +103,25 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
         return;
     }
 
-    NSURL *tileUrl = [self getTileUrl:x y:y zoom:zoom];
+    NSString *tileUrlString = [self getTileUrlString:x y:y zoom:zoom];
+
+    [tileCache retrieveTileWithTileUrl:tileUrlString
+                      keyDiscriminator:[self getCacheKeyDiscriminator]
+                            completion:^(UIImage * _Nullable image) {
+        if (image != nil) {
+            [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+        } else {
+            [self fetchAndProcessVectorTile:tileUrlString x:x y:y zoom:zoom receiver:receiver];
+        }
+    }];
+}
+
+- (void)fetchAndProcessVectorTile:(NSString*)urlString x:(NSUInteger)x y:(NSUInteger)y zoom:(NSUInteger)zoom receiver:(id<GMSTileReceiver>)receiver
+{
+    NSURL *tileUrl = [NSURL URLWithString:urlString];
 
     NSMutableURLRequest *mutableRequest = [NSMutableURLRequest requestWithURL:tileUrl];
+    mutableRequest.cachePolicy = NSURLRequestReloadRevalidatingCacheData;
     //[mutableRequest addValue:RefererValue forHTTPHeaderField:RefererKey];
 
     NSURLRequest *request = [mutableRequest copy];
@@ -106,6 +138,10 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
                     if (image && self.areaType == AreaTypeSeura && self->_invertAreaColors) {
                         image = [self invertImage:image];
                     }
+                    [self->tileCache storeTileWithTileUrl:urlString
+                                                     tile:image
+                                                 tileData:data
+                                         keyDiscriminator:[self getCacheKeyDiscriminator]];
                     [receiver receiveTileWithX:x y:y zoom:zoom image:image];
                 });
             });

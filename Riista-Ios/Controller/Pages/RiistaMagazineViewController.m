@@ -38,14 +38,4 @@
     [navController changeTitle:RiistaLocalizedString(@"Oma riista", nil)];
 }
 
-- (NSURL*)createMagazineUrl
-{
-    if ([[RiistaSettings language] isEqualToString:@"sv"]) {
-        return [NSURL URLWithString:MagazineUrlSv];
-    }
-    else {
-        return [NSURL URLWithString:MagazineUrlFi];
-    }
-}
-
 @end

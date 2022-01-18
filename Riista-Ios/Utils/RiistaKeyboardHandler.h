@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-@protocol KeyboardHandlerDelegate
+@protocol RiistaKeyboardHandlerDelegate
 
 - (void)hideKeyboard;
 
@@ -10,7 +10,7 @@
 
 - (id)initWithView:(UIView*)view andBottomSpaceConstraint:(NSLayoutConstraint*)constraint;
 
-@property (weak, nonatomic) id<KeyboardHandlerDelegate> delegate;
+@property (weak, nonatomic) id<RiistaKeyboardHandlerDelegate> delegate;
 @property (assign, nonatomic) BOOL cancelTouchesInView;
 
 @end

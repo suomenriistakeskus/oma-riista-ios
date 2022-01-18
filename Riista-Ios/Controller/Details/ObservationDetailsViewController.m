@@ -26,7 +26,7 @@
 
 #import "Oma_riista-Swift.h"
 
-@interface ObservationDetailsViewController () <SpeciesSelectionDelegate, UIGestureRecognizerDelegate, UITextFieldDelegate, ValueSelectionDelegate>
+@interface ObservationDetailsViewController () <SpeciesSelectionDelegate, UIGestureRecognizerDelegate, UITextFieldDelegate, ValueSelectionDelegate, ObservationCategoryChangedDelegate, ProvidesNavigationController>
 
 @property (weak, nonatomic) IBOutlet MDCButton *speciesButton;
 @property (weak, nonatomic) IBOutlet MDCButton *imagesButton;
@@ -50,7 +50,6 @@
 
 static CGFloat const FIELD_HEIGHT_SMALL = 43.0;
 
-static CGFloat const VERTICAL_SPACING = 8.0;
 static CGFloat const LEFT_MARGIN = 12.0;
 static CGFloat const RIGHT_MARGIN = 12.0;
 
@@ -72,12 +71,17 @@ static NSInteger const OBSERVER_PHONE_TAG = 222;
 static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
 
 
-
-
 @implementation ObservationDetailsViewController
 {
     ImageEditUtil *imageUtil;
 }
+
+#pragma mark - ProvidesNavigationController protocol
+
+// UIViewController implements ProvidesNavigationController requirements
+@dynamic navigationController;
+
+#pragma mark -
 
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
@@ -136,8 +140,9 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
     }
     else {
         [self.speciesButton setTitle:[RiistaUtils nameWithPreferredLanguage:species.name] forState:UIControlStateNormal];
-        [self.speciesButton setImage:[RiistaUtils loadSpeciesImage:species.speciesId
-                                                              size:CGSizeMake(42.0f, 42.0f)] forState:UIControlStateNormal];
+        [self.speciesButton setImage:[ImageUtils loadSpeciesImageWithSpeciesCode:species.speciesId
+                                                                            size:CGSizeMake(42.0f, 42.0f)]
+                            forState:UIControlStateNormal];
     }
     [self updateSpeciesButtonForSpecies:species];
 
@@ -156,11 +161,28 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
 - (void)refreshImage
 {
     if (self.diaryImage != nil) {
-        [RiistaUtils loadDiaryImage:self.diaryImage size:CGSizeMake(50.0f, 50.0f) completion:^(UIImage *image) {
-            [self.imagesButton setBackgroundImage:[image scaleImageToSize:CGSizeMake(50.0f, 50.0f)]
-                                         forState:UIControlStateNormal];
+        [ImageUtils loadDiaryImage:self.diaryImage
+                           options:[ImageLoadOptions aspectFilledWithSize:CGSizeMake(50.0f, 50.0f)]
+                         onSuccess:^(UIImage * _Nonnull image) {
+            [self.imagesButton setImageLoadedSuccessfully];
+
+            [self.imagesButton setBackgroundImage:image forState:UIControlStateNormal];
             [self.imagesButton setImage:nil forState:UIControlStateNormal];
             [self.imagesButton setBorderWidth:0 forState:UIControlStateNormal];
+        }
+                          onFailure:^(PhotoAccessFailureReason reason) {
+            // currently selected image cnnot be loaded. Indicate this to the user
+            UIImage *displayedIcon = nil;
+            if (!self.editMode) {
+                displayedIcon = [[UIImage imageNamed:@"missing-image-error"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            } else {
+                displayedIcon = [[UIImage imageNamed:@"camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            }
+            [self.imagesButton setImage:displayedIcon forState:UIControlStateNormal];
+            [self.imagesButton setImageTintColor:[UIColor whiteColor] forState:UIControlStateNormal];
+
+            [self.imagesButton setBackgroundImage:nil forState:UIControlStateNormal];
+            [self.imagesButton setImageLoadFailedWithReason:reason];
         }];
     }
 }
@@ -256,9 +278,9 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
     }
 }
 
-- (void)selectSingleObservationTypeOrClearSelection
+- (void)selectPreferredObservationTypeForCurrentObservationCategory
 {
-    // single observation type can be selected if there's only one observation type for the current
+    // singular observation type can be selected if there's only one observation type for the current
     // preconditions: species and observation category. This is e.g. the case for white tailed deer which
     // has been observed within deer hunting
     ObservationSpecimenMetadata *metadata = [[RiistaMetadataManager sharedInstance] getObservationMetadataForSpecies:[self.selectedSpeciesCode integerValue]];
@@ -271,7 +293,13 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
     if (observationTypes.count == 1) {
         [self changeObservationType:[observationTypes objectAtIndex:0] forceRefresh:YES];
     } else {
-        [self changeObservationType:nil];
+        // attempt to keep current selection
+        if (self.selectedObservationType != nil &&
+            [observationTypes containsObject:self.selectedObservationType]) {
+            [self changeObservationType:self.selectedObservationType forceRefresh:YES];
+        } else {
+            [self changeObservationType:nil];
+        }
     }
 }
 
@@ -383,9 +411,9 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
 {
     if (metadata) {
         if (self.selectedObservationCategory == ObservationCategoryMooseHunting) {
-            [self createMooseHuntingChoice];
+            [self createWithinMooseHuntingChoiceView];
         } else if (self.selectedObservationCategory == ObservationCategoryDeerHunting) {
-            [self createDeerHuntingChoice];
+            [self createWithinDeerHuntingChoiceView];
         }
 
         [self createObservationTypeChoiceView:metadata];
@@ -396,13 +424,14 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
             }
         } else {
             if (self.selectedDeerHuntingType != DeerHuntingTypeNone) {
-                [self createDeerHuntingChoiceView:metadata];
+                [self createDeerHuntingTypeChoiceView:metadata];
                 if (self.selectedDeerHuntingTypeDescription != nil) {
                     [self createDeerHuntingTypeDescription:metadata];
                 }
             }
 
-            [self createMooselikeChoiceViewsReadOnly];
+            BOOL withinDeerHunting = self.selectedObservationCategory == ObservationCategoryDeerHunting;
+            [self createMooselikeChoiceViewsReadOnly:withinDeerHunting];
         }
 
         if ([[RiistaSettings userInfo] isCarnivoreAuthority]) {
@@ -431,20 +460,17 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
     if (metadata) {
         [self resetDeprecatedObservationCategoryForEdit:metadata];
 
-        ObservationWithinHuntingCapability mooseHuntingCapability = [metadata getMooseHuntingCapability];
-        if (mooseHuntingCapability == ObservationWithinHuntingCapabilityYes) {
-            [self createMooseHuntingChoice];
+        if ([self canObservationBeMadeWithinMooseHunting:metadata]) {
+            [self createWithinMooseHuntingChoiceView];
         }
 
-        ObservationWithinHuntingCapability deerHuntingCapability = [metadata getDeerHuntingCapability];
-        BOOL isDeerPilot = [[RiistaSettings userInfo] deerPilotUser] && deerHuntingCapability == ObservationWithinHuntingCapabilityDeerPilot;
-        if (deerHuntingCapability == ObservationWithinHuntingCapabilityYes || isDeerPilot) {
-            [self createDeerHuntingChoice];
+        if ([self canObservationBeMadeWithinDeerHunting:metadata]) {
+            [self createWithinDeerHuntingChoiceView];
         }
 
         [self createObservationTypeChoiceView:metadata];
         if (self.selectedObservationCategory == ObservationCategoryDeerHunting) {
-            [self createDeerHuntingChoiceView:metadata];
+            [self createDeerHuntingTypeChoiceView:metadata];
             if (self.selectedDeerHuntingType == DeerHuntingTypeOther) {
                 [self createDeerHuntingTypeDescription:metadata];
             }
@@ -473,78 +499,92 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
     [self.specimensView layoutIfNeeded];
 }
 
-- (void)createMooseHuntingChoice
+- (void)createWithinMooseHuntingChoiceView
 {
-    UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0.0, VERTICAL_SPACING, self.variableContentContainer.frame.size.width, FIELD_HEIGHT_SMALL)];
-    container.backgroundColor = [UIColor whiteColor];
+    UIView *choiceView = [[WithinMooseHuntingChoiceView alloc] initWithFrame:CGRectMake(0, 0, self.variableContentContainer.frame.size.width, RiistaDefaultValueElementHeight)
+                                                         observationCategory:self.selectedObservationCategory
+                                                                    delegate:self];
 
-    M13Checkbox *checkbox = [[M13Checkbox alloc] initWithFrame:CGRectMake(LEFT_MARGIN, 0.0, container.frame.size.width - LEFT_MARGIN - RIGHT_MARGIN, FIELD_HEIGHT_SMALL)
-                                                         title:RiistaLocalizedString(@"ObservationDetailsWithinMooseHunting", nil)
-                                                   checkHeight:20.0f];
-    [checkbox setStrokeColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:1]];
-    [checkbox setCheckColor:[UIColor applicationColor:RiistaApplicationColorButtonBackground]];
-
-    checkbox.titleLabel.font = [UIFont fontWithName:AppFont.Name size:AppFont.LabelMedium];
-    checkbox.checkState = self.selectedObservationCategory == ObservationCategoryMooseHunting ?
-        M13CheckboxStateChecked : M13CheckboxStateUnchecked;
-
-    [checkbox addTarget:self action:@selector(mooseHuntingCheckboxDidChange:) forControlEvents:UIControlEventValueChanged];
-
-    [container addSubview:checkbox];
-
-    container.translatesAutoresizingMaskIntoConstraints = NO;
-    [container.heightAnchor constraintEqualToConstant:container.frame.size.height].active = YES;
-    [container.widthAnchor constraintEqualToConstant:container.frame.size.width].active = YES;
-    [self.variableContentContainer addArrangedSubview:container];
+    choiceView.translatesAutoresizingMaskIntoConstraints = NO;
+    [choiceView.heightAnchor constraintEqualToConstant:choiceView.frame.size.height].active = YES;
+    [choiceView.widthAnchor constraintEqualToConstant:choiceView.frame.size.width].active = YES;
+    [self.variableContentContainer addArrangedSubview:choiceView];
 }
 
-- (void)createDeerHuntingChoice
+- (void)createWithinDeerHuntingChoiceView
 {
-    UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0.0, VERTICAL_SPACING, self.variableContentContainer.frame.size.width, FIELD_HEIGHT_SMALL)];
-    container.backgroundColor = [UIColor whiteColor];
+    UIView *choiceView = [[WithinDeerHuntingChoiceView alloc] initWithFrame:CGRectMake(0, 0, self.variableContentContainer.frame.size.width, RiistaDefaultValueElementHeight)
+                                                        observationCategory:self.selectedObservationCategory
+                                                                   delegate:self];
 
-    M13Checkbox *checkbox = [[M13Checkbox alloc] initWithFrame:CGRectMake(LEFT_MARGIN, 0.0, container.frame.size.width - LEFT_MARGIN - RIGHT_MARGIN, FIELD_HEIGHT_SMALL)
-                                                         title:RiistaLocalizedString(@"ObservationDetailsWithinDeerHunting", nil)
-                                                   checkHeight:20.0f];
-    [checkbox setStrokeColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:1]];
-    [checkbox setCheckColor:[UIColor applicationColor:RiistaApplicationColorButtonBackground]];
-
-    checkbox.titleLabel.font = [UIFont fontWithName:AppFont.Name size:AppFont.LabelMedium];
-    checkbox.checkState = self.selectedObservationCategory == ObservationCategoryDeerHunting ?
-        M13CheckboxStateChecked : M13CheckboxStateUnchecked;
-
-    [checkbox addTarget:self action:@selector(deerHuntingCheckboxDidChange:) forControlEvents:UIControlEventValueChanged];
-
-    [container addSubview:checkbox];
-
-    container.translatesAutoresizingMaskIntoConstraints = NO;
-    [container.heightAnchor constraintEqualToConstant:container.frame.size.height].active = YES;
-    [container.widthAnchor constraintEqualToConstant:container.frame.size.width].active = YES;
-    [self.variableContentContainer addArrangedSubview:container];
+    choiceView.translatesAutoresizingMaskIntoConstraints = NO;
+    [choiceView.heightAnchor constraintEqualToConstant:choiceView.frame.size.height].active = YES;
+    [choiceView.widthAnchor constraintEqualToConstant:choiceView.frame.size.width].active = YES;
+    [self.variableContentContainer addArrangedSubview:choiceView];
 }
 
-- (void)mooseHuntingCheckboxDidChange:(M13Checkbox*)sender
+- (void)onObservationCategoryChanged:(enum ObservationCategory)newObservationCategory
 {
-    if (sender.checkState == M13CheckboxStateChecked) {
-        self.selectedObservationCategory = ObservationCategoryMooseHunting;
-    }
-    else {
-        self.selectedObservationCategory = ObservationCategoryNormal;
-    }
-
-    [self selectSingleObservationTypeOrClearSelection];
+    self.selectedObservationCategory = newObservationCategory;
+    [self selectPreferredObservationTypeForCurrentObservationCategory];
 }
 
-- (void)deerHuntingCheckboxDidChange:(M13Checkbox*)sender
+- (ObservationCategory)selectObservationCategoryForSpecies:(NSNumber*)speciesCode preferredCategoryIfMultiple:(ObservationCategory)preferredCategoryIfMultiple
 {
-    if (sender.checkState == M13CheckboxStateChecked) {
-        self.selectedObservationCategory = ObservationCategoryDeerHunting;
-    }
-    else {
-        self.selectedObservationCategory = ObservationCategoryNormal;
+    if (speciesCode == nil) {
+        DDLog(@"Cannot select ObservationCategory. No species.");
+
+        // no idea about the species so fallback to Normal.
+        return ObservationCategoryNormal;
     }
 
-    [self selectSingleObservationTypeOrClearSelection];
+    ObservationSpecimenMetadata *metadata = [[RiistaMetadataManager sharedInstance] getObservationMetadataForSpecies:[speciesCode integerValue]];
+    NSMutableSet *possibleObservationCategories = [[NSMutableSet alloc] init];
+    if ([self getNumberOfObservationTypes:metadata observationCategory:ObservationCategoryNormal] > 0) {
+        [possibleObservationCategories addObject:[NSNumber numberWithInt:ObservationCategoryNormal]];
+    }
+    if ([self getNumberOfObservationTypes:metadata observationCategory:ObservationCategoryMooseHunting] > 0 &&
+        [self canObservationBeMadeWithinMooseHunting:metadata]) {
+        [possibleObservationCategories addObject:[NSNumber numberWithInt:ObservationCategoryMooseHunting]];
+    }
+    if ([self getNumberOfObservationTypes:metadata observationCategory:ObservationCategoryDeerHunting] > 0 &&
+        [self canObservationBeMadeWithinDeerHunting:metadata]) {
+        [possibleObservationCategories addObject:[NSNumber numberWithInt:ObservationCategoryDeerHunting]];
+    }
+
+    if (possibleObservationCategories.count > 1) {
+        // prefer currently selected observation category if possible
+        if (preferredCategoryIfMultiple != ObservationCategoryUnknown &&
+            [possibleObservationCategories containsObject:[NSNumber numberWithInt:(int)preferredCategoryIfMultiple]]) {
+            return preferredCategoryIfMultiple;
+        } else {
+            return ObservationCategoryUnknown;
+        }
+    } else {
+        return ObservationCategoryNormal;
+    }
+}
+
+- (BOOL)canObservationBeMadeWithinMooseHunting:(ObservationSpecimenMetadata*)metadata
+{
+    return [metadata getMooseHuntingCapability] == ObservationWithinHuntingCapabilityYes;
+}
+
+- (BOOL)canObservationBeMadeWithinDeerHunting:(ObservationSpecimenMetadata*)metadata
+{
+    ObservationWithinHuntingCapability deerHuntingCapability = [metadata getDeerHuntingCapability];
+    BOOL isDeerPilot = [[RiistaSettings userInfo] deerPilotUser] && deerHuntingCapability == ObservationWithinHuntingCapabilityDeerPilot;
+    return deerHuntingCapability == ObservationWithinHuntingCapabilityYes || isDeerPilot;
+}
+
+- (NSUInteger)getNumberOfObservationTypes:(ObservationSpecimenMetadata*)metadata observationCategory:(ObservationCategory)observationCategory
+{
+    NSArray *observationTypes = [metadata getObservationTypes:observationCategory];
+    if (observationTypes == nil) {
+        return 0;
+    }
+
+    return observationTypes.count;
 }
 
 - (void)resetDeprecatedObservationCategoryForEdit:(ObservationSpecimenMetadata*)metadata
@@ -559,11 +599,10 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
     // there are deer observation that have been made within moose hunting and in order to edit
     // those observations we need to reset the observation category if no observation types
     // are available for the selected observation category.
-    ObservationCategory defaultObservationCategory = ObservationCategoryNormal;
-    NSArray *observationTypes = [metadata getObservationTypes:self.selectedObservationCategory];
-    if (self.selectedObservationCategory != defaultObservationCategory &&
-        (!observationTypes || observationTypes.count == 0)) {
-        self.selectedObservationCategory = defaultObservationCategory;
+    if (self.selectedObservationCategory != ObservationCategoryNormal &&
+        self.selectedObservationCategory != ObservationCategoryUnknown) {
+        self.selectedObservationCategory = [self selectObservationCategoryForSpecies:self.selectedSpeciesCode
+                                                         preferredCategoryIfMultiple:self.selectedObservationCategory];
     }
 }
 
@@ -591,7 +630,7 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
     [self.variableContentContainer addArrangedSubview:control];
 }
 
-- (void)createDeerHuntingChoiceView:(ObservationSpecimenMetadata *)metadata
+- (void)createDeerHuntingTypeChoiceView:(ObservationSpecimenMetadata *)metadata
 {
     RiistaValueListButton *control = [[RiistaValueListButton alloc]
                                       initWithFrame:CGRectMake(0, 0, self.variableContentContainer.frame.size.width,
@@ -824,183 +863,217 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
         return;
     }
 
-    [self createMooseLikeMaleAmountChoiceViewIfRequired:fields];
-    [self createMooseLikeFemaleAmountChoiceViewIfRequired:fields];
-    [self createMooseLikeFemale1CalfAmountChoiceViewIfRequired:fields];
-    [self createMooseLikeFemale2CalvesAmountChoiceViewIfRequired:fields];
-    [self createMooseLikeFemale3CalvesAmountChoiceViewIfRequired:fields];
-    [self createMooseLikeFemale4CalvesAmountChoiceViewIfRequired:fields];
-    [self createMooseLikeCalvesAmountChoiceViewIfRequired:fields];
-    [self createMooseLikeUnknownSpecimenAmountChoiceViewIfRequired:fields];
+    BOOL withinDeerHunting = self.selectedObservationCategory == ObservationCategoryDeerHunting;
+
+    [self createMooseLikeMaleAmountChoiceViewIfRequired:fields withinDeerHunting:withinDeerHunting];
+    [self createMooseLikeFemaleAmountChoiceViewIfRequired:fields withinDeerHunting:withinDeerHunting];
+    [self createMooseLikeFemale1CalfAmountChoiceViewIfRequired:fields withinDeerHunting:withinDeerHunting];
+    [self createMooseLikeFemale2CalvesAmountChoiceViewIfRequired:fields withinDeerHunting:withinDeerHunting];
+    [self createMooseLikeFemale3CalvesAmountChoiceViewIfRequired:fields withinDeerHunting:withinDeerHunting];
+    [self createMooseLikeFemale4CalvesAmountChoiceViewIfRequired:fields withinDeerHunting:withinDeerHunting];
+    [self createMooseLikeCalvesAmountChoiceViewIfRequired:fields withinDeerHunting:withinDeerHunting];
+    [self createMooseLikeUnknownSpecimenAmountChoiceViewIfRequired:fields withinDeerHunting:withinDeerHunting];
 }
 
-- (void)createMooselikeChoiceViewsReadOnly
+- (void)createMooselikeChoiceViewsReadOnly:(BOOL)withinDeerHunting
 {
-    [self createMooseLikeMaleAmountChoiceView];
-    [self createMooseLikeFemaleAmountChoiceView];
-    [self createMooseLikeFemale1CalfAmountChoiceView];
-    [self createMooseLikeFemale2CalvesAmountChoiceView];
-    [self createMooseLikeFemale3CalvesAmountChoiceView];
-    [self createMooseLikeFemale4CalvesAmountChoiceView];
-    [self createMooseLikeCalvesAmountChoiceView];
-    [self createMooseLikeUnknownSpecimenAmountChoiceView];
+    [self createMooseLikeMaleAmountChoiceView:withinDeerHunting];
+    [self createMooseLikeFemaleAmountChoiceView:withinDeerHunting];
+    [self createMooseLikeFemale1CalfAmountChoiceView:withinDeerHunting];
+    [self createMooseLikeFemale2CalvesAmountChoiceView:withinDeerHunting];
+    [self createMooseLikeFemale3CalvesAmountChoiceView:withinDeerHunting];
+    [self createMooseLikeFemale4CalvesAmountChoiceView:withinDeerHunting];
+    [self createMooseLikeCalvesAmountChoiceView:withinDeerHunting];
+    [self createMooseLikeUnknownSpecimenAmountChoiceView:withinDeerHunting];
 }
 
 - (void)createMooseLikeMaleAmountChoiceViewIfRequired:(ObservationContextSensitiveFieldSets*)fields
+                                    withinDeerHunting:(BOOL)withinDeerHunting
 {
     if ([self hasRequiredFieldset:fields fieldKey:@"mooselikeMaleAmount"]) {
         if (self.selectedMooselikeMaleAmount == nil) {
             self.selectedMooselikeMaleAmount = @0;
         }
 
-        [self createMooseLikeMaleAmountChoiceView];
+        [self createMooseLikeMaleAmountChoiceView:withinDeerHunting];
     }
 }
 
-- (void)createMooseLikeMaleAmountChoiceView
+- (void)createMooseLikeMaleAmountChoiceView:(BOOL)withinDeerHunting
 {
     if (self.selectedMooselikeMaleAmount != nil) {
-        [self createMooseLikeChoiceView:RiistaLocalizedString(@"ObservationDetailsMooseMale", nil)
+        NSString *localizationKey = withinDeerHunting
+            ? @"ObservationDetailsMooseMaleWithinDeerHunting"
+            : @"ObservationDetailsMooseMale";
+        [self createMooseLikeChoiceView:RiistaLocalizedString(localizationKey, nil)
                                   value:[self.selectedMooselikeMaleAmount stringValue]
                                     tag:MOOSE_AMOUNT_MALE_TAG];
     }
 }
 
 - (void)createMooseLikeFemaleAmountChoiceViewIfRequired:(ObservationContextSensitiveFieldSets*)fields
+                                      withinDeerHunting:(BOOL)withinDeerHunting
 {
     if ([self hasRequiredFieldset:fields fieldKey:@"mooselikeFemaleAmount"]) {
         if (self.selectedMooselikeFemaleAmount == nil) {
             self.selectedMooselikeFemaleAmount = @0;
         }
 
-        [self createMooseLikeFemaleAmountChoiceView];
+        [self createMooseLikeFemaleAmountChoiceView:withinDeerHunting];
     }
 }
 
-- (void)createMooseLikeFemaleAmountChoiceView
+- (void)createMooseLikeFemaleAmountChoiceView:(BOOL)withinDeerHunting
 {
     if (self.selectedMooselikeFemaleAmount != nil) {
-        [self createMooseLikeChoiceView:RiistaLocalizedString(@"ObservationDetailsMooseFemale", nil)
+        NSString *localizationKey = withinDeerHunting
+            ? @"ObservationDetailsMooseFemaleWithinDeerHunting"
+            : @"ObservationDetailsMooseFemale";
+        [self createMooseLikeChoiceView:RiistaLocalizedString(localizationKey, nil)
                                   value:[self.selectedMooselikeFemaleAmount stringValue]
                                     tag:MOOSE_AMOUNT_FEMALE_TAG];
     }
 }
 
 - (void)createMooseLikeFemale1CalfAmountChoiceViewIfRequired:(ObservationContextSensitiveFieldSets*)fields
+                                           withinDeerHunting:(BOOL)withinDeerHunting
 {
     if ([self hasRequiredFieldset:fields fieldKey:@"mooselikeFemale1CalfAmount"]) {
         if (self.selectedMooselikeFemale1CalfAmount == nil) {
             self.selectedMooselikeFemale1CalfAmount = @0;
         }
 
-        [self createMooseLikeFemale1CalfAmountChoiceView];
+        [self createMooseLikeFemale1CalfAmountChoiceView:withinDeerHunting];
     }
 }
 
-- (void)createMooseLikeFemale1CalfAmountChoiceView
+- (void)createMooseLikeFemale1CalfAmountChoiceView:(BOOL)withinDeerHunting
 {
     if (self.selectedMooselikeFemale1CalfAmount != nil) {
-        [self createMooseLikeChoiceView:RiistaLocalizedString(@"ObservationDetailsMooseFemale1Calf", nil)
+        NSString *localizationKey = withinDeerHunting
+            ? @"ObservationDetailsMooseFemale1CalfWithinDeerHunting"
+            : @"ObservationDetailsMooseFemale1Calf";
+        [self createMooseLikeChoiceView:RiistaLocalizedString(localizationKey, nil)
                                   value:[self.selectedMooselikeFemale1CalfAmount stringValue]
                                     tag:MOOSE_AMOUNT_FEMALE1_TAG];
     }
 }
 
 - (void)createMooseLikeFemale2CalvesAmountChoiceViewIfRequired:(ObservationContextSensitiveFieldSets*)fields
+                                             withinDeerHunting:(BOOL)withinDeerHunting
 {
     if ([self hasRequiredFieldset:fields fieldKey:@"mooselikeFemale2CalfsAmount"]) {
         if (self.selectedMooselikeFemale2CalfAmount == nil) {
             self.selectedMooselikeFemale2CalfAmount = @0;
         }
 
-        [self createMooseLikeFemale2CalvesAmountChoiceView];
+        [self createMooseLikeFemale2CalvesAmountChoiceView:withinDeerHunting];
     }
 }
 
-- (void)createMooseLikeFemale2CalvesAmountChoiceView
+- (void)createMooseLikeFemale2CalvesAmountChoiceView:(BOOL)withinDeerHunting
 {
     if (self.selectedMooselikeFemale2CalfAmount != nil) {
-        [self createMooseLikeChoiceView:RiistaLocalizedString(@"ObservationDetailsMooseFemale2Calf", nil)
+        NSString *localizationKey = withinDeerHunting
+            ? @"ObservationDetailsMooseFemale2CalfWithinDeerHunting"
+            : @"ObservationDetailsMooseFemale2Calf";
+        [self createMooseLikeChoiceView:RiistaLocalizedString(localizationKey, nil)
                                   value:[self.selectedMooselikeFemale2CalfAmount stringValue]
                                     tag:MOOSE_AMOUNT_FEMALE2_TAG];
     }
 }
 
 - (void)createMooseLikeFemale3CalvesAmountChoiceViewIfRequired:(ObservationContextSensitiveFieldSets*)fields
+                                             withinDeerHunting:(BOOL)withinDeerHunting
 {
     if ([self hasRequiredFieldset:fields fieldKey:@"mooselikeFemale3CalfsAmount"]) {
         if (self.selectedMooselikeFemale3CalfAmount == nil) {
             self.selectedMooselikeFemale3CalfAmount = @0;
         }
 
-        [self createMooseLikeFemale3CalvesAmountChoiceView];
+        [self createMooseLikeFemale3CalvesAmountChoiceView:withinDeerHunting];
     }
 }
 
-- (void)createMooseLikeFemale3CalvesAmountChoiceView
+- (void)createMooseLikeFemale3CalvesAmountChoiceView:(BOOL)withinDeerHunting
 {
     if (self.selectedMooselikeFemale3CalfAmount != nil) {
-        [self createMooseLikeChoiceView:RiistaLocalizedString(@"ObservationDetailsMooseFemale3Calf", nil)
+        NSString *localizationKey = withinDeerHunting
+            ? @"ObservationDetailsMooseFemale3CalfWithinDeerHunting"
+            : @"ObservationDetailsMooseFemale3Calf";
+        [self createMooseLikeChoiceView:RiistaLocalizedString(localizationKey, nil)
                                   value:[self.selectedMooselikeFemale3CalfAmount stringValue]
                                     tag:MOOSE_AMOUNT_FEMALE3_TAG];
     }
 }
 
 - (void)createMooseLikeFemale4CalvesAmountChoiceViewIfRequired:(ObservationContextSensitiveFieldSets*)fields
+                                             withinDeerHunting:(BOOL)withinDeerHunting
 {
     if ([self hasRequiredFieldset:fields fieldKey:@"mooselikeFemale4CalfsAmount"]) {
         if (self.selectedMooselikeFemale4CalfAmount == nil) {
             self.selectedMooselikeFemale4CalfAmount = @0;
         }
 
-        [self createMooseLikeFemale4CalvesAmountChoiceView];
+        [self createMooseLikeFemale4CalvesAmountChoiceView:withinDeerHunting];
     }
 }
 
-- (void)createMooseLikeFemale4CalvesAmountChoiceView
+- (void)createMooseLikeFemale4CalvesAmountChoiceView:(BOOL)withinDeerHunting
 {
     if (self.selectedMooselikeFemale4CalfAmount != nil) {
-        [self createMooseLikeChoiceView:RiistaLocalizedString(@"ObservationDetailsMooseFemale4Calf", nil)
+        NSString *localizationKey = withinDeerHunting
+            ? @"ObservationDetailsMooseFemale4CalfWithinDeerHunting"
+            : @"ObservationDetailsMooseFemale4Calf";
+        [self createMooseLikeChoiceView:RiistaLocalizedString(localizationKey, nil)
                                   value:[self.selectedMooselikeFemale4CalfAmount stringValue]
                                     tag:MOOSE_AMOUNT_FEMALE4_TAG];
     }
 }
 
 - (void)createMooseLikeCalvesAmountChoiceViewIfRequired:(ObservationContextSensitiveFieldSets*)fields
+                                      withinDeerHunting:(BOOL)withinDeerHunting
 {
     if ([self hasRequiredFieldset:fields fieldKey:@"mooselikeCalfAmount"]) {
         if (self.selectedMooselikeCalfAmount == nil) {
             self.selectedMooselikeCalfAmount = @0;
         }
 
-        [self createMooseLikeCalvesAmountChoiceView];
+        [self createMooseLikeCalvesAmountChoiceView:withinDeerHunting];
     }
 }
 
-- (void)createMooseLikeCalvesAmountChoiceView
+- (void)createMooseLikeCalvesAmountChoiceView:(BOOL)withinDeerHunting
 {
     if (self.selectedMooselikeCalfAmount != nil) {
-        [self createMooseLikeChoiceView:RiistaLocalizedString(@"ObservationDetailsMooseCalf", nil)
+        NSString *localizationKey = withinDeerHunting
+            ? @"ObservationDetailsMooseCalfWithinDeerHunting"
+            : @"ObservationDetailsMooseCalf";
+        [self createMooseLikeChoiceView:RiistaLocalizedString(localizationKey, nil)
                                   value:[self.selectedMooselikeCalfAmount stringValue]
                                     tag:MOOSE_AMOUNT_CALF_TAG];
     }
 }
 
 - (void)createMooseLikeUnknownSpecimenAmountChoiceViewIfRequired:(ObservationContextSensitiveFieldSets*)fields
+                                               withinDeerHunting:(BOOL)withinDeerHunting
 {
     if ([self hasRequiredFieldset:fields fieldKey:@"mooselikeUnknownSpecimenAmount"]) {
         if (self.selectedMooselikeUnknownAmount == nil) {
             self.selectedMooselikeUnknownAmount = @0;
         }
 
-        [self createMooseLikeUnknownSpecimenAmountChoiceView];
+        [self createMooseLikeUnknownSpecimenAmountChoiceView:withinDeerHunting];
     }
 }
 
-- (void)createMooseLikeUnknownSpecimenAmountChoiceView
+- (void)createMooseLikeUnknownSpecimenAmountChoiceView:(BOOL)withinDeerHunting
 {
     if (self.selectedMooselikeUnknownAmount != nil) {
-        [self createMooseLikeChoiceView:RiistaLocalizedString(@"ObservationDetailsMooseUnknown", nil)
+        NSString *localizationKey = withinDeerHunting
+            ? @"ObservationDetailsMooseUnknownWithinDeerHunting"
+            : @"ObservationDetailsMooseUnknown";
+        [self createMooseLikeChoiceView:RiistaLocalizedString(localizationKey, nil)
                                   value:[self.selectedMooselikeUnknownAmount stringValue]
                                     tag:MOOSE_AMOUNT_UNKNOWN_TAG];
     }
@@ -1048,6 +1121,11 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
     return control;
 }
 
+- (void)onYesNoChoiceViewClicked:(RiistaValueListButton*)sender
+{
+    DDLog(@"YesNo clicked!");
+}
+
 - (void)onObservationTypeClick
 {
     if (self.editMode) {
@@ -1059,8 +1137,14 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
         NSMutableArray *valueList = [[NSMutableArray alloc] init];
 
         ObservationSpecimenMetadata *meta = [[RiistaMetadataManager sharedInstance] getObservationMetadataForSpecies:[self.selectedSpeciesCode integerValue]];
+
+        // It is possible that observation type is selected before selecting observation category.
+        // In this case default to Normal category. The observation type needs to be re-selected if
+        // observation category is later changed.
+        ObservationCategory observationCategory = self.selectedObservationCategory != ObservationCategoryUnknown
+            ? self.selectedObservationCategory : ObservationCategoryNormal;
         for (ObservationContextSensitiveFieldSets *fieldSet in meta.contextSensitiveFieldSets) {
-            if (fieldSet.category == self.selectedObservationCategory) {
+            if (fieldSet.category == observationCategory) {
                 [valueList addObject:fieldSet.type];
             }
         }
@@ -1264,9 +1348,21 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
 - (IBAction)imagesButtonClick:(id)sender
 {
     if (self.editMode) {
-        [imageUtil editImageWithPickerDelegate:(id<ImageEditUtilDelegate>)self.parentViewController];
+        [imageUtil editImageWithPickerDelegate:(id<RiistaImagePickerDelegate>)self.parentViewController];
     }
     else if ([imageUtil hasImagesWithEntry:self.entry]) {
+        if (self.imagesButton.imageLoadStatus == LoadStatusFailure) {
+            ImageLoadRequest *loadRequest = [ImageLoadRequest fromDiaryImage:self.diaryImage
+                                                                     options:[ImageLoadOptions aspectFilledWithSize:CGSizeMake(50.f, 50.f)]];
+
+            [imageUtil displayImageLoadFailedDialog:(id<RiistaImagePickerDelegate>)self.parentViewController
+                                             reason:self.imagesButton.imageLoadFailureReason
+                                   imageLoadRequest:loadRequest
+                         allowAnotherPhotoSelection:NO];
+
+            return;
+        }
+
         UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
         ImageFullViewController *dest = (ImageFullViewController*)[sb instantiateViewControllerWithIdentifier:@"ImageFullController"];
         dest.item = self.entry;
@@ -1295,7 +1391,8 @@ static NSInteger const OFFICIAL_ADDITIONAL_INFO_TAG = 223;
 {
     self.selectedSpeciesCode = [NSNumber numberWithInteger:species.speciesId];
     self.selectedObservationType = nil;
-    self.selectedObservationCategory = ObservationCategoryNormal;
+    self.selectedObservationCategory = [self selectObservationCategoryForSpecies:self.selectedSpeciesCode
+                                                     preferredCategoryIfMultiple:ObservationCategoryUnknown];
     self.entry.totalSpecimenAmount = nil;
     self.selectedMooselikeFemaleAmount = nil;
     self.selectedMooselikeFemale1CalfAmount = nil;

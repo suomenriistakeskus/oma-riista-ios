@@ -9,9 +9,9 @@ import Foundation
  that user has already received observations made with newer clients (white tailed deer on android clients
  that participate in deer pilots). In this case we already have the observation data stored offline but the
  data is missing some of the newer fields (e.g. deerHuntingType). By not updating the observationSpecVersion
- the iOS client will overwrite stored observations when newer observations are fetched from the backend. 
+ the iOS client will overwrite stored observations when newer observations are fetched from the backend.
 
- This class is closely related to MigrationFromV12ToV14.xcmappingmodel
+ This class is closely related to MigrationFromV12ToV15.xcmappingmodel
  */
 internal class ObservationEntryMappingV12ToV15: NSEntityMigrationPolicy {
 

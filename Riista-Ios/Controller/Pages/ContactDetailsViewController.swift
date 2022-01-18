@@ -27,7 +27,7 @@ class ContactDetailsViewController: UIViewController, MFMailComposeViewControlle
     static let customerSupportEmail = "oma@riista.fi"
 
     static let licenseSupportPhoneNumber = "029 431 2002"
-    static let licenseSupportEmail = "metsastajarekisteri@innofactor.com"
+    static let licenseSupportEmail = "metsastajarekisteri@riista.fi"
 
     override func viewDidLoad() {
         super.viewDidLoad()

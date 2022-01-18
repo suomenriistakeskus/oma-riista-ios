@@ -11,6 +11,7 @@ NSInteger const DiaryImageStatusDeletion = 2;
 @dynamic type;
 @dynamic imageid;
 @dynamic uri;
+@dynamic localIdentifier;
 @dynamic status;
 @dynamic diaryEntry;
 @dynamic observationEntry;

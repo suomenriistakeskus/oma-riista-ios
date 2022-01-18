@@ -8,6 +8,8 @@
 
 - (CGFloat)refreshViews;
 
+- (void)refreshImage;
+
 - (void)refreshDateTime:(NSString*)dateTimeString;
 
 - (void)disableUserControls;

@@ -3,21 +3,11 @@
 @class UserInfo, AreaMap;
 
 extern NSInteger const HarvestSpecVersion;
+// harvest spec version having support for 2020 antlers updates (pilot group)
+extern NSInteger const HarvestSpecVersionAntlers2020;
 extern NSInteger const ObservationSpecVersion;
 extern NSInteger const ObservationSpecVersionWithObservationCategory;
 extern NSInteger const SrvaSpecVersion;
-
-extern NSString *const OnboardingLatestAppVersion;
-
-extern NSString *const MagazineUrlFi;
-extern NSString *const MagazineUrlSv;
-
-extern NSString *const HuntingSeasonsUrlFi;
-extern NSString *const HuntingSeasonsUrlSv;
-extern NSString *const HuntingSeasonsUrlEn;
-
-extern NSString *const EventSearchFi;
-extern NSString *const EventSearchSv;
 
 extern NSInteger const MooseId;
 extern NSInteger const FallowDeerId;
@@ -34,7 +24,8 @@ extern NSString *const RiistaPushAnnouncementKey;
 // UI Settings - here since they need to be compile time constants
 
 static const CGFloat RiistaDefaultValueElementHeight = 80;
-
+static const CGFloat RiistaCheckboxElementHeight = 50;
+static const CGFloat RiistaInstructionsViewHeight = 80;
 
 typedef enum {
     RiistaSyncModeManual,
@@ -86,10 +77,10 @@ typedef enum {
 + (AreaMap*)selectedPienriistaArea;
 + (void)setSelectedPienriistaArea:(AreaMap*)area;
 
-+ (NSString*)onboardingShownVersion;
-+ (void)setOnboardingShownVersion:(NSString*)value;
-
 + (UserInfo*)userInfo;
 + (void)setUserInfo:(UserInfo*)value;
+
++ (BOOL)useExperimentalMode;
++ (void)setUseExperimentalMode:(BOOL)useExperimentalMode;
 
 @end

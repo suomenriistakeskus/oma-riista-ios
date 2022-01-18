@@ -1,12 +1,7 @@
 import Foundation
+import Async
 import Photos
 import MaterialComponents
-
-@objc protocol ImageEditUtilDelegate {
-    func didFinishPickingImage(info: [UIImagePickerController.InfoKey : Any])
-
-    func didSaveImage(assetUrlStr: String)
-}
 
 @objcMembers
 class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
@@ -15,7 +10,7 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
 
     var dialogTransitionController: MDCDialogTransitionController?
 
-    weak var pickerDelegate: ImageEditUtilDelegate?
+    weak var pickerDelegate: RiistaImagePickerDelegate?
 
     convenience init(parentController: UIViewController) {
         self.init()
@@ -37,22 +32,111 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
         return false
     }
 
-    func editImage(pickerDelegate: ImageEditUtilDelegate) {
-        let authStatus = PHPhotoLibrary.authorizationStatus()
-        if (authStatus == .notDetermined) {
-            PHPhotoLibrary.requestAuthorization { (status) in
-                if (status == .authorized) {
-                    DispatchQueue.main.async {
-                        self.displayImageSourceDialog(pickerDelegate: pickerDelegate)
-                    }
-                }
+    func editImage(pickerDelegate: RiistaImagePickerDelegate) {
+        requestPhotoAuthorizationStatusIfNotDetermined { [weak self] authorizationStatus in
+            guard let self = self else { return }
+
+            switch authorizationStatus {
+            case .authorized, .limited:
+                self.displayImageSourceDialog(pickerDelegate: pickerDelegate)
+                break
+            case .notAuthorized:
+                self.requestImagePermissionFromSettings()
+                break
+            case .notDetermined:
+                // this should actually never happen since we have already requested
+                // permission. There's probably nothing sensible thing to do so
+                // lets just bail out
+                print("Photo authorization status == .notDetermined even though we just asked permission?")
+                break
             }
         }
-        else if (authStatus == .authorized) {
-            displayImageSourceDialog(pickerDelegate: pickerDelegate)
+    }
+
+    func displayImageLoadFailedDialog(_ pickerDelegate: RiistaImagePickerDelegate,
+                                      reason: PhotoAccessFailureReason,
+                                      imageLoadRequest: ImageLoadRequest?,
+                                      allowAnotherPhotoSelection: Bool) {
+        if (reason == .accessLimitedOrLoadFailed) {
+            displayLimitedAccessOrImageLoadFailedDialog(pickerDelegate, imageLoadRequest: imageLoadRequest, allowAnotherPhotoSelection: allowAnotherPhotoSelection)
+        } else if (reason == .loadFailed) {
+            displayImageLoadFailedDialog(pickerDelegate, allowAnotherPhotoSelection: allowAnotherPhotoSelection)
+        } else {
+            // no dialog to be shown in other cases
+            // - user cannot do anything to recover
         }
-        else {
-            requestImagePermissionFromSettings()
+    }
+
+    private func displayImageLoadFailedDialog(_ pickerDelegate: RiistaImagePickerDelegate, allowAnotherPhotoSelection: Bool) {
+        self.pickerDelegate = pickerDelegate
+
+        let dialogController = MDCAlertController(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ImageLoadFailedDialogTitle"),
+                                                  message: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ImageLoadFailedDialogMessage"))
+
+        let selectPhotoAction = MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ImageLoadFailedSelectAnotherPhotoAction")) { (MDCAlertAction) in
+            self.displayImageSourceDialog(pickerDelegate: pickerDelegate)
+        }
+        let cancelAction = MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ImageDialogButtonCancel"),
+                                          emphasis: .medium) { (MDCAlertAction) in
+            // Do nothing
+        }
+
+        dialogController.addAction(cancelAction)
+        if (allowAnotherPhotoSelection) {
+            dialogController.addAction(selectPhotoAction)
+        }
+
+        self.parentController?.present(dialogController, animated: true, completion: nil)
+    }
+
+    private func displayLimitedAccessOrImageLoadFailedDialog(_ pickerDelegate: RiistaImagePickerDelegate,
+                                                             imageLoadRequest: ImageLoadRequest?,
+                                                             allowAnotherPhotoSelection: Bool) {
+        self.pickerDelegate = pickerDelegate
+
+        let dialogController = MDCAlertController(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ImageLoadFailedDialogTitle"),
+                                                  message: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ImageLoadFailedOrLimitedAccessDialogMessage"))
+
+        let selectPhotoAction = MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ImageLoadFailedSelectAnotherPhotoAction")) { (MDCAlertAction) in
+            self.displayImageSourceDialog(pickerDelegate: pickerDelegate)
+        }
+        let changePhotoAccessAction = MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ImageLoadFailedSelectAccessiblePhotosAction")) { [weak self] (MDCAlertAction) in
+            guard let parentController = self?.parentController else { return }
+
+            PhotoPermissions.updateLimitedPhotosSelection(from: parentController) { [weak self] in
+                self?.attemptImageReload(imageLoadRequest)
+            }
+        }
+        let cancelAction = MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ImageDialogButtonCancel"),
+                                          emphasis: .medium) { (MDCAlertAction) in
+            // Do nothing
+        }
+
+        dialogController.addAction(cancelAction)
+        dialogController.addAction(changePhotoAccessAction)
+        if (allowAnotherPhotoSelection) {
+            dialogController.addAction(selectPhotoAction)
+        }
+
+        self.parentController?.present(dialogController, animated: true, completion: nil)
+    }
+
+    /**
+     * Checks the current photo library authorization status and requests access if not yet determined. The completion handler
+     * is guaranteed to be called from main thread.
+     */
+    private func requestPhotoAuthorizationStatusIfNotDetermined(_ completion: @escaping (PhotoAuthorizationStatus) -> Void) {
+        let authStatus = PhotoPermissions.authorizationStatus()
+        if (authStatus == .notDetermined) {
+            PhotoPermissions.requestAuthorization(completion)
+        } else {
+            if (Thread.isMainThread) {
+                completion(authStatus)
+            } else {
+                Async.main {
+                    completion(authStatus)
+                }
+            }
         }
     }
 
@@ -74,7 +158,7 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
         self.parentController?.present(dialogController, animated: true, completion: nil)
     }
 
-    func displayImageSourceDialog(pickerDelegate: ImageEditUtilDelegate) {
+    func displayImageSourceDialog(pickerDelegate: RiistaImagePickerDelegate) {
         self.pickerDelegate = pickerDelegate
 
         if UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.camera) {
@@ -88,18 +172,11 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
             dialogController.completionHandler = { (imageSource:ImageSourceSelectionDialogController.ImageSource) -> () in
                 switch imageSource {
                 case .camera:
-                    let picker = UIImagePickerController()
-                    picker.delegate = self
-                    picker.sourceType = UIImagePickerController.SourceType.camera
-
-                    self.parentController?.present(picker, animated: true, completion: nil)
+                    self.takePhoto()
                     break
                 case .gallery:
-                    let picker = UIImagePickerController()
-                    picker.delegate = self
-                    picker.sourceType = UIImagePickerController.SourceType.photoLibrary
-
-                    self.parentController?.present(picker, animated: true, completion: nil)
+                    self.pickImageFromGallery()
+                    break
                 default:
                     break
                 }
@@ -108,55 +185,43 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
             self.parentController?.present(dialogController, animated: true, completion:nil)
         }
         else {
-            let picker = UIImagePickerController()
-            picker.delegate = self
-            picker.sourceType = UIImagePickerController.SourceType.photoLibrary
-
-            self.parentController?.present(picker, animated: true, completion: nil)
+            self.pickImageFromGallery()
         }
     }
 
-    func saveImageToPhotoLibrary(info: NSDictionary, delegate: ImageEditUtilDelegate) {
+    private func pickImageFromGallery() {
+        if let parentController = self.parentController, let delegate = self.pickerDelegate {
+            LocalImageManager.instance.pickImageFromGallery(
+                presentingViewController: parentController,
+                delegate: delegate)
+        }
+    }
 
-        guard let originalImage = info.value(forKey: UIImagePickerController.InfoKey.originalImage.rawValue) as? UIImage else {
-            NSLog("Failed to get original image from picker result")
+    private func takePhoto() {
+        if let parentController = self.parentController, let delegate = self.pickerDelegate {
+            LocalImageManager.instance.pickImageFromCamera(
+                presentingViewController: parentController,
+                delegate: delegate)
+        }
+    }
+
+    private func attemptImageReload(_ imageLoadRequest: ImageLoadRequest?) {
+        guard let imageLoadRequest = imageLoadRequest else {
+            // nothing we can really do without a valid image identifier
             return
         }
 
-        var placeHolderAsset: PHObjectPlaceholder?
+        LocalImageManager.instance.loadImage(imageLoadRequest) { [weak self] result in
+            guard let pickerDelegate = self?.pickerDelegate else { return }
 
-        // Save full size image to photol library. Image is downscaled before sending to backend.
-        PHPhotoLibrary.shared().performChanges({
-            let request = PHAssetChangeRequest.creationRequestForAsset(from: originalImage)
-            placeHolderAsset = request.placeholderForCreatedAsset;
-        }) { (success, error) in
-            if (success) {
-                NSLog("Saved image to photo library")
-
-                let localID = placeHolderAsset?.localIdentifier
-                let assetID = localID?.replacingOccurrences(of: "/.*",
-                                                            with: "",
-                                                            options: NSString.CompareOptions.regularExpression,
-                                                            range: nil)
-                let ext = "jpeg"
-                let assetURLStr = "assets-library://asset/asset.\(ext)?id=\(assetID ?? "")&ext=\(ext)"
-
-                delegate.didSaveImage(assetUrlStr: assetURLStr)
-            }
-            else {
-                NSLog("Error saving photo: %@", error?.localizedDescription ?? "");
+            switch result {
+            case .success(let identifiableImage):
+                pickerDelegate.imagePicked(image: identifiableImage)
+                break
+            case .failure(let reason, let loadRequest):
+                pickerDelegate.imagePickFailed(reason, loadRequest: loadRequest)
+                break
             }
         }
-    }
-
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        self.parentController?.dismiss(animated: true, completion: nil)
-    }
-
-    func imagePickerController(_ picker: UIImagePickerController,
-                               didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        self.pickerDelegate?.didFinishPickingImage(info: info)
-
-        self.parentController?.dismiss(animated: true, completion: nil)
     }
 }

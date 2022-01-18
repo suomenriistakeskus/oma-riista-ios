@@ -18,7 +18,6 @@
 #import "RiistaMapUtils.h"
 #import "RiistaMapViewController.h"
 #import "RiistaMetadataManager.h"
-#import "RiistaMmlTileLayer.h"
 #import "RiistaNavigationController.h"
 #import "RiistaSettings.h"
 #import "RiistaSpecies.h"
@@ -34,7 +33,7 @@
 #import "NSDateformatter+Locale.h"
 #import "Oma_riista-Swift.h"
 
-@interface DetailsViewController () <CLLocationManagerDelegate, GMSMapViewDelegate, KeyboardHandlerDelegate, MapPageDelegate, ObservationDetailsDelegate, SrvaDetailsDelegate, UITextViewDelegate, UITextFieldDelegate, ImageEditUtilDelegate>
+@interface DetailsViewController () <CLLocationManagerDelegate, GMSMapViewDelegate, RiistaKeyboardHandlerDelegate, MapPageDelegate, ObservationDetailsDelegate, SrvaDetailsDelegate, UITextViewDelegate, UITextFieldDelegate, RiistaImagePickerDelegate>
 
 @property (strong, nonatomic) UIBarButtonItem *deleteBarButton;
 @property (strong, nonatomic) UIBarButtonItem *editBarButton;
@@ -376,7 +375,9 @@
     if (self.species) {
         content.selectedSpeciesCode = [NSNumber numberWithInteger:self.species.speciesId];
     }
-    content.selectedObservationCategory = ObservationCategoryNormal;
+
+    content.selectedObservationCategory = [content selectObservationCategoryForSpecies:content.selectedSpeciesCode
+                                                           preferredCategoryIfMultiple:ObservationCategoryUnknown];
     content.selectedDeerHuntingType = DeerHuntingTypeNone;
     content.selectedDeerHuntingTypeDescription = nil;
     content.entry = entry;
@@ -418,13 +419,13 @@
     content.selectedPack = entry.pack;
     content.selectedLitter = entry.litter;
 
-    content.diaryImage = [entry.diaryImages count] > 0 ? entry.diaryImages[0] : nil;
+    content.diaryImage = [entry.diaryImages count] > 0 ? [ImageUtils selectDisplayedImage:entry.diaryImages.array] : nil;
 
     content.entry = entry;
 
     [content refreshViews];
 
-    [self.cancelButton setTitle:RiistaLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
+    [self.cancelButton setTitle:RiistaLocalizedString(@"Undo", nil) forState:UIControlStateNormal];
 
     self.editMode = NO;
 }
@@ -469,7 +470,7 @@
 
     SrvaDetailsViewController *content = (SrvaDetailsViewController*)self.variableContentViewController;
 
-    content.diaryImage = [srva.diaryImages count] > 0 ? srva.diaryImages[0] : nil;
+    content.diaryImage = [srva.diaryImages count] > 0 ? [ImageUtils selectDisplayedImage:srva.diaryImages.array] : nil;
 
     content.srva = srva;
     [content refreshViews];
@@ -510,7 +511,7 @@
 
     [self.descriptionInputController setPlaceholderText:RiistaLocalizedString(@"AddDescription", nil)];
 
-    [self.cancelButton setTitle:RiistaLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
+    [self.cancelButton setTitle:RiistaLocalizedString(@"Undo", nil) forState:UIControlStateNormal];
     [self.submitButton setTitle:RiistaLocalizedString(@"Save", nil) forState:UIControlStateNormal];
 
     [self updateTitle];
@@ -1206,7 +1207,7 @@
     [self navigateToMapPage];
 }
 
-#pragma mark - KeyboardHandlerDelegate
+#pragma mark - RiistaKeyboardHandlerDelegate
 
 - (void)hideKeyboard
 {
@@ -1255,6 +1256,9 @@
     dateSelectionVC.datePicker.maximumDate = [NSDate date];
     dateSelectionVC.datePicker.locale = [RiistaSettings locale];
     dateSelectionVC.datePicker.datePickerMode = UIDatePickerModeDateAndTime;
+    if (@available(iOS 13.4, *)) {
+        dateSelectionVC.datePicker.preferredDatePickerStyle = UIDatePickerStyleWheels;
+    }
 
     [self presentViewController:dateSelectionVC animated:YES completion:nil];}
 
@@ -1322,9 +1326,9 @@
     self.activeEditField = nil;
 }
 
-#pragma mark - ImageUtilDelegate
+#pragma mark - RiistaImagePickerDelegate
 
-- (void)didFinishPickingImageWithInfo:(NSDictionary<UIImagePickerControllerInfoKey,id> *)info
+- (void)imagePickedWithImage:(IdentifiableImage *)image
 {
     // reuse addedImage if one exists. addedImage will not be persisted unless data is submitted
     if (self.addedImage == nil) {
@@ -1339,25 +1343,9 @@
         self.addedImage.type = [NSNumber numberWithInteger:DiaryImageTypeLocal];
     }
 
-    // we're reusing addedImage. Ensure uri does not point to previous image
-    self.addedImage.uri = nil;
+    [image.imageIdentifier saveIdentifierTo:self.addedImage];
 
-    NSURL *imageUrl = [(NSURL*)info valueForKey:UIImagePickerControllerReferenceURL];
-    if (imageUrl) {
-        [self didSaveImageWithAssetUrlStr:[imageUrl absoluteString]];
-    }
-    else {
-        [imageUtil saveImageToPhotoLibraryWithInfo:info delegate:self];
-    }
-
-    [self.parentViewController dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void)didSaveImageWithAssetUrlStr:(NSString *)assetUrlStr
-{
     if ([self.entry isKindOfClass:[ObservationEntry class]]) {
-        self.addedImage.uri = assetUrlStr;
-
         ObservationDetailsViewController *content = (ObservationDetailsViewController*)self.variableContentViewController;
         content.diaryImage = self.addedImage;
 
@@ -1366,14 +1354,28 @@
         });
     }
     else if ([self.entry isKindOfClass:[SrvaEntry class]]) {
-        self.addedImage.uri = assetUrlStr;
-
         SrvaDetailsViewController *content = (SrvaDetailsViewController*)self.variableContentViewController;
         content.diaryImage = self.addedImage;
 
         dispatch_async(dispatch_get_main_queue(), ^{
             [content refreshViews];
         });
+    }
+}
+
+- (void)imagePickCancelled
+{
+    NSLog(@"imagePickCancelled");
+}
+
+- (void)imagePickFailed:(enum PhotoAccessFailureReason)reason loadRequest:(ImageLoadRequest *)loadRequest
+{
+    if (self.editMode) {
+        // user may have edited photo permissions during photo pick process. Ensure we can still
+        // load the current image
+        [self.variableContentViewController refreshImage];
+
+        [imageUtil displayImageLoadFailedDialog:self reason:reason imageLoadRequest:loadRequest allowAnotherPhotoSelection:YES];
     }
 }
 

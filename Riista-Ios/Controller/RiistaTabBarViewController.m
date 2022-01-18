@@ -6,7 +6,6 @@
 #import "RiistaPermitManager.h"
 #import "RiistaSettings.h"
 #import "RiistaUtils.h"
-#import "RiistaLoginViewController.h"
 #import "RiistaNavigationController.h"
 #import "RiistaPageViewController.h"
 #import "RiistaClubAreaMapManager.h"
@@ -15,13 +14,18 @@
 
 @import Firebase;
 
-@interface RiistaTabBarViewController () <LoginDelegate>
+@interface RiistaTabBarViewController () <AuthenticationViewControllerDelegate>
 
-@property (strong, nonatomic) RiistaLoginViewController *loginController;
+@property (strong, nonatomic) AuthenticationViewController *authenticationController;
 
 @end
 
+
 @implementation RiistaTabBarViewController
+{
+    // currently logging in?
+    BOOL loggingIn;
+}
 
 - (id)initWithCoder:(NSCoder*)aDecoder
 {
@@ -93,15 +97,11 @@
     if (![[RiistaSessionManager sharedInstance] userCredentials]) {
         [self showLoginControllerAnimated:NO];
     }
-    else {
-        //Always relogin to get updated session cookies and also update metadata, push tokens etc.
-        RiistaCredentials *credentials = [[RiistaSessionManager sharedInstance] userCredentials];
-        if (credentials) {
-            [[RiistaNetworkManager sharedInstance] relogin:credentials.username password:credentials.password completion:^(NSError *error) {
-                    [[RiistaGameDatabase sharedInstance] initUserSession];
-            }];
-        };
-    }
+}
+
+- (UIViewController *)childViewControllerForStatusBarStyle
+{
+    return self.authenticationController;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -119,15 +119,19 @@
 
 - (void)logout
 {
+    [RiistaSDKHelper logout];
     [[RiistaSessionManager sharedInstance] removeCredentials];
     [RiistaSettings setUserInfo:nil];
-    [RiistaSettings setOnboardingShownVersion:nil];
+    [RiistaSettings setUseExperimentalMode:NO];
 
     [[RiistaPermitManager sharedInstance] clearPermits];
     [RiistaGameDatabase sharedInstance].autosync = NO;
     [RiistaUtils markAllAnnouncementsAsRead];
     [RiistaClubAreaMapManager clearCache];
-    [[FIRInstanceID instanceID] deleteIDWithHandler:^(NSError * _Nullable error) {
+
+    // Just delete the Firebase Cloud Messaging token. We don't want to delete the Installations id as that would
+    // corrupt the analytics on how the app is updated etc
+    [[FIRMessaging messaging] deleteTokenWithCompletion:^(NSError * _Nullable error) {
         NSLog(@"Deleted Firebase id: %@", error);
     }];
 
@@ -135,30 +139,45 @@
     [self showLoginControllerAnimated:YES];
 }
 
+- (BOOL)isDisplayingLoginScreen
+{
+    return loggingIn;
+}
+
 - (void)showLoginControllerAnimated:(BOOL)animated
 {
-    self.loginController = [self.storyboard instantiateViewControllerWithIdentifier:@"loginController"];
-    self.loginController.delegate = self;
+    // Add the authentication controller as a child view controller. Ideally we would probably
+    // want to present it but doing it so displays the home screen shortly before authentication
+    // view controller is displayed
+    // -> UI seems broken
+    self.authenticationController = [[AuthenticationViewController alloc] init];
+    self.authenticationController.delegate = self;
 
+
+    loggingIn = YES;
     [self.navigationController setNavigationBarHidden:YES];
 
+    [self addChildViewController:self.authenticationController];
+
+    [self.view addSubview:self.authenticationController.view];
+    self.authenticationController.view.frame = self.view.frame;
+    [self.authenticationController willMoveToParentViewController:self];
+
+    [self setNeedsStatusBarAppearanceUpdate];
+
     if (animated) {
-        [self.loginController willMoveToParentViewController:self];
-        self.loginController.view.alpha = 0;
-        [self.view addSubview:self.loginController.view];
+        self.authenticationController.view.alpha = 0;
         // Not called automatically since adding to view hierarchy directly
-        [self.loginController viewWillAppear:animated];
+        [self.authenticationController viewWillAppear:animated];
         [UIView animateWithDuration:0.3 delay:0 options:0 animations:^{
-            self.loginController.view.alpha = 1;
+            self.authenticationController.view.alpha = 1;
         } completion:^(BOOL finished) {
-            [self.loginController didMoveToParentViewController:self];
+            [self.authenticationController didMoveToParentViewController:self];
         }];
     } else {
-        [self.loginController willMoveToParentViewController:self];
-        [self.view addSubview:self.loginController.view];
         // Not called automatically since adding to view hierarchy directly
-        [self.loginController viewWillAppear:animated];
-        [self.loginController didMoveToParentViewController:self];
+        [self.authenticationController viewWillAppear:animated];
+        [self.authenticationController didMoveToParentViewController:self];
     }
 }
 
@@ -218,10 +237,11 @@
     }
 }
 
-#pragma mark - LoginDelegate
+#pragma mark - AuthenticationViewControllerDelegate
 
-- (void)didLogin
+- (void)onLoggedIn
 {
+    loggingIn = NO;
     [self removeLoginController];
     [[RiistaGameDatabase sharedInstance] initUserSession];
 
@@ -234,13 +254,15 @@
 
     [UIView animateWithDuration:0.3
                      animations:^{
-                         self.loginController.view.alpha = 0.0;
+                         self.authenticationController.view.alpha = 0.0;
                      }
                      completion:^(BOOL finished) {
-                         [self.loginController willMoveToParentViewController:nil];
-                         [self.loginController.view removeFromSuperview];
-                         [self.loginController removeFromParentViewController];
-                         self.loginController = nil;
+                         [self.authenticationController willMoveToParentViewController:nil];
+                         [self.authenticationController.view removeFromSuperview];
+                         [self.authenticationController removeFromParentViewController];
+                         self.authenticationController = nil;
+
+                         [self setNeedsStatusBarAppearanceUpdate];
                      }];
 }
 

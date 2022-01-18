@@ -45,7 +45,7 @@ static BOOL sWeigthRequired = false;
 
 @end
 
-@interface RiistaSpecimenListViewController () <SpecimenCellDelegate, KeyboardHandlerDelegate>
+@interface RiistaSpecimenListViewController () <SpecimenCellDelegate, RiistaKeyboardHandlerDelegate>
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomPaneBottomSpace;
 @property (strong, nonatomic) RiistaKeyboardHandler *keyboardHandler;
@@ -186,7 +186,7 @@ static BOOL sWeigthRequired = false;
     }
 }
 
-# pragma mark - KeyboardHandlerDelegate
+# pragma mark - RiistaKeyboardHandlerDelegate
 
 - (void)hideKeyboard
 {

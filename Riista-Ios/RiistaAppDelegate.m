@@ -20,9 +20,12 @@
 
     _username = @"";
 
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"Keys" ofType:@"plist"];
+    // The correct GoogleService-Info-<Scheme>.plist file is copied to the name of "GoogleService-Info.plist"
+    // in one of the build phases. Obtain the maps api key from there.
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
     NSDictionary *dict = [[NSDictionary alloc] initWithContentsOfFile:path];
-    [GMSServices provideAPIKey:dict[@"MapsApiKey"]];
+    [GMSServices provideAPIKey:dict[@"API_KEY"]];
+    [GMSServices setAbnormalTerminationReportingEnabled:NO];
 
     // Clear keychain on first run in case of reinstallation
     if (![[NSUserDefaults standardUserDefaults] objectForKey:@"FirstRun"]) {
@@ -31,12 +34,18 @@
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
 
+    // configure Firebase before RiistaSDK is initialized. RiistaSDK initialization
+    // will log events to Crashlytics.
+    [FIRApp configure];
+    [FIRMessaging messaging].delegate = self;
+
+    [RiistaSDKHelper initializeRiistaSDK];
+
     // Load previous session information
     [[RiistaSessionManager sharedInstance] initializeSession];
 
-    [FIRApp configure];
-    [FIRMessaging messaging].delegate = self;
     [self registerFirebaseNotifications];
+    [self fetchRemoteConfiguration];
 
     NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
     if (notification) {
@@ -76,6 +85,44 @@
     }];
 
     [[UIApplication sharedApplication] registerForRemoteNotifications];
+}
+
+- (void)fetchRemoteConfiguration
+{
+    // Spend maximum of couple of seconds at app startup for fetching the current remote configuration.
+    // The timeout remote configuraton fetch will not be cancelled if timeout is triggered
+    // and thus if we reach the timeout we will still have the new configuration the next time
+    // the app is launched
+    [RemoteConfigurationManager.sharedInstance fetchRemoteConfigurationWithTimeoutSeconds:3
+                                                                        completionHandler:^{
+        // activate fetched configuration (may not be the current one)
+        [RemoteConfigurationManager.sharedInstance activateRemoteConfigurationWithCompletionHandler:^{
+            [self onRemoteConfigurationFetched];
+        }];
+    }];
+}
+
+- (void)onRemoteConfigurationFetched
+{
+    [CrashlyticsHelper logWithMsg:@"RemoteConfiguration fetched, passing values to RiistaSDK"];
+    [RiistaSDKHelper applyRemoteSettings:[RemoteConfigurationManager.sharedInstance riistaSDKSettings]];
+    [RiistaSDKHelper prepareAppStartupMessage:[RemoteConfigurationManager.sharedInstance appStartupMessageJson]];
+    [RiistaSDKHelper prepareGroupHuntingIntroMessage:[RemoteConfigurationManager.sharedInstance groupHuntingIntroMessageJson]];
+    [RiistaSDKHelper overrideHarvestSeasons:[RemoteConfigurationManager.sharedInstance harvestSeasonOverrides]];
+
+    [self attemptReloginIfNeeded];
+}
+
+- (void)attemptReloginIfNeeded
+{
+    RiistaCredentials *credentials = [[RiistaSessionManager sharedInstance] userCredentials];
+    if (credentials) {
+        [CrashlyticsHelper logWithMsg:@"Attempting re-login"];
+
+        [[RiistaNetworkManager sharedInstance] relogin:credentials.username password:credentials.password completion:^(NSError *error) {
+                [[RiistaGameDatabase sharedInstance] initUserSession];
+        }];
+    };
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler

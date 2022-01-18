@@ -10,7 +10,7 @@ struct DatetimeUtil {
         let month = Calendar.current.component(.month, from: date)
         let year = Calendar.current.component(.year, from: date)
 
-        return month > AppConstants.HuntingYearStartMonth ? year : year - 1;
+        return month >= AppConstants.HuntingYearStartMonth ? year : year - 1;
     }
 
     static func dateToFormattedString(date: Date) -> String {
@@ -94,5 +94,50 @@ struct DatetimeUtil {
         let startOfNext = Calendar.current.date(from: components)
 
         return startOfNext!.addingTimeInterval(-1) as NSDate
+    }
+
+    static func hoursSince(from: Date, to: Date) -> Int? {
+        return Calendar.current.dateComponents([.hour], from: from, to: to).hour
+    }
+
+    static func minutesSince(from: Date, to: Date) -> Int? {
+        return Calendar.current.dateComponents([.minute], from: from, to: to).minute
+    }
+
+    static func secondsSince(from: Date, to: Date) -> Int? {
+        return Calendar.current.dateComponents([.second], from: from, to: to).second
+    }
+}
+
+fileprivate struct DateFormatters {
+    static let dateAndTimeFormatter: DateFormatter = DateFormatter(safeLocale: ()).apply({ formatter in
+        formatter.dateFormat = "d.M.yyyy HH:mm"
+    })
+
+    static let dateOnlyFormatter: DateFormatter = DateFormatter(safeLocale: ()).apply({ formatter in
+        formatter.dateFormat = "d.M.yyyy"
+    })
+
+    static let timeFormatter: DateFormatter = DateFormatter(safeLocale: ()).apply({ formatter in
+        formatter.dateFormat = "HH:mm"
+    })
+}
+
+extension Date {
+
+    func formatDateAndTime() -> String {
+        formatString(using: DateFormatters.dateAndTimeFormatter)
+    }
+
+    func formatDateOnly() -> String {
+        formatString(using: DateFormatters.dateOnlyFormatter)
+    }
+
+    func formatTime() -> String {
+        formatString(using: DateFormatters.timeFormatter)
+    }
+
+    private func formatString(using dateFormatter: DateFormatter) -> String {
+        return dateFormatter.string(from: self)
     }
 }

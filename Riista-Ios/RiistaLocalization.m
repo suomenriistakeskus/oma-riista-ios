@@ -45,7 +45,7 @@ static NSBundle *_bundle = nil;
     if ((self = [super init]))
     {
         [self setupValueMappings];
-        _bundle = [NSBundle mainBundle];
+        [self setLanguageFromSettings];
     }
     return self;
 }
@@ -77,8 +77,8 @@ static NSBundle *_bundle = nil;
     NSString *path = nil;
     if ([newLanguage isEqualToString:RiistaDefaultAppLanguage])
     {
-        // Base localization. No path.
-        path = [[ NSBundle mainBundle ] pathForResource:@"" ofType:@"lproj" ];
+        // English localization in Base
+        path = [[ NSBundle mainBundle ] pathForResource:@"Base" ofType:@"lproj" ];
     } else {
         path = [[ NSBundle mainBundle ] pathForResource:newLanguage ofType:@"lproj" ];
     }

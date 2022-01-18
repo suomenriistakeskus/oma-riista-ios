@@ -3,7 +3,10 @@
 @class DiaryEntryBase;
 @class DiaryImage;
 
+typedef NS_ENUM(NSInteger, PhotoAccessFailureReason);
+
 typedef void(^RiistaDiaryEntryImageLoadCompletion)(UIImage *image);
+typedef void(^RiistaImageLoadFailed)(PhotoAccessFailureReason reason);
 
 @interface RiistaUtils : NSObject
 
@@ -15,51 +18,6 @@ typedef void(^RiistaDiaryEntryImageLoadCompletion)(UIImage *image);
 + (NSInteger)startYearFromDate:(NSDate*)date;
 
 + (NSString*)nameWithPreferredLanguage:(NSDictionary*)nameDictionary;
-
-/**
- * Loads appropriate thumbnail image for given event
- * If event has images added into it, first image is used
- * If no images have been added, species image is used instead
- * @param entry DiaryEntry object
- * @param forImageView target imageview
- * @param completion Completion block, can be used for caching
- */
-+ (void)loadEventImage:(DiaryEntryBase*)entry forImageView:(UIImageView*)imageView completion:(RiistaDiaryEntryImageLoadCompletion)completion;
-
-/**
- * Loads local/remote image using given DiaryImage object
- * @param image DiaryImage object
- * @param forImageView target imageview
- * @param completion Completion block
- */
-+ (void)loadDiaryImage:(DiaryImage*)image forImageView:(UIImageView*)imageView completion:(RiistaDiaryEntryImageLoadCompletion)completion;
-
-/*
- * Loads local/remote image using given DiaryImage object
- * @param image DiaryImage object
- * @param size
- * @param completion Completion block
- */
-+ (void)loadDiaryImage:(DiaryImage*)image size:(CGSize)size completion:(RiistaDiaryEntryImageLoadCompletion)completion;
-
-/**
- * Loads local image from given uri.
- * @param uri Uri string
- * @param fullSize if true, full image resolution is used
- * @param fixRotation Used with UIImageJPEGRepresentation
- * @param completion Completion block
- */
-+ (void)loadImagefromLocalUri:(NSString*)uri fullSize:(BOOL)fullsize fixRotation:(BOOL)fixRotation completion:(RiistaDiaryEntryImageLoadCompletion)completion;
-
-+ (UIImage*)scaleImage:(UIImage*)image toSize:(CGSize)size;
-
-/**
- * Tries to load species image for given species id
- * If image cannot be found, placeholder icon is used instead
- */
-+ (UIImage*)loadSpeciesImage:(NSInteger)gameSpeciesCode;
-
-+ (UIImage*)loadSpeciesImage:(NSInteger)gameSpeciesCode size:(CGSize)size;
 
 + (NSLocale*)appLocale;
 

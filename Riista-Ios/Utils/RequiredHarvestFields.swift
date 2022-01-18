@@ -83,6 +83,7 @@ import Foundation
                                                 AppConstants.SpeciesCode.Coot,
                                                 AppConstants.SpeciesCode.Garganey,
                                                 AppConstants.SpeciesCode.Goosander,
+                                                AppConstants.SpeciesCode.GreylagGoose,
                                                 AppConstants.SpeciesCode.LongTailedDuck,
                                                 AppConstants.SpeciesCode.Pintail,
                                                 AppConstants.SpeciesCode.Pochard,

@@ -1,7 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <MKNetworkKit/MKNetworkEngine.h>
 
-extern NSString *const RiistaLoginPath;
 extern NSString *const RiistaMobileClient;
 extern NSInteger const LOGIN_NETWORK_UNREACHABLE;
 extern NSInteger const LOGIN_TIMEOUT;

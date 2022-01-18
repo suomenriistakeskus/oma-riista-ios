@@ -14,23 +14,43 @@
 "MenuAnnouncements" = "Messages";
 "MenuSettings" = "Settings";
 "MenuShootingTests" = "Shooting tests";
+"MenuHuntingDirector" = "Hunting director";
 "MenuContactDetails" = "Contacts";
 "MenuEventSearch" = "Event search";
 "MenuReadMagazine" = "Read latest Metsästäjä magazine";
 "MenuOpenSeasons" = "Open seasons";
 "MenuMore" = "More";
 
-"LoginText" = "Login with username and password created in oma.riista.fi";
+"LoginTabTitle" = "Login";
+"RegisterTabTitle" = "Register";
 "Username" = "Email";
 "Password" = "Password";
+"PasswordForgotten" = "Forgot password?";
+"SendPasswordResetTitle" = "Forgot your password?";
+"SendPasswordResetMessage" = "Enter the email address that was used when registering the account.";
+"SendPasswordResetAction" = "Send reset link";
+"PasswordResetSentMessage" = "We have sent instructions for resetting your password to the email address provided. Please check your spam folder if the email does not arrive within a few minutes.";
+"AuthenticationLinkSentTitle" = "Link sent";
+"AuthenticationLinkSentBackToLogin" = "Back to login";
 "Login" = "Login";
 "loginFailed" = "Login failed";
 "loginConnectFailed" = "Cannot access Oma riista service. Please try again later.";
 "loginIncorrectCredentials" = "Wrong username or password. Please try again.";
 "loginOutdatedVersion" = "Update the application to newer version to continue to use it.";
+"SendRegistrationLinkTitle" = "Registration to portal";
+"SendRegistrationLinkMessage" = "In order to register to oma.riista.fi-portal you'll need a functioning and personal email address. As part of the registration process we'll send a registration link to your email address and you'll verify your identity (bank-account codes / Suomi.fi service in Finland).";
+"SendRegistrationLinkAction" = "Start registration";
+"RegistrationLinkSentMessage" = "We have sent instructions for account creation to the email address provided. Please check your spam folder if the email does not arrive within a few minutes.";
+"LoginUsernameChanged" = "Email address changed?";
+"ChangeUsernameTitle" = "Changing email address";
+"ChangeUsernameMessage" = "You can change the email address you use as your Oma riista username by re-registering to the service.\n\nAll information previously entered into the service will be retained upon re-registration.";
+"ChangeUsernameAction" = "Create an account";
 "OK" = "OK";
 "Yes" = "Yes";
 "No" = "No";
+
+"AmountFormat" = "%i\U00A0pcs";
+"HoursAndMinutesFormat" = "%@\U00A0%@";
 
 "SeasonFormat" = "Hunting season %i - %i";
 "TotalCatchFormat" = "%d animal(s)";
@@ -78,8 +98,9 @@
 "MapHideArea" = "Hide";
 "MapRemoveArea" = "Delete";
 "MapRemoveAreaTitle" = "Delete area";
-"MapRemoveAreaConfirm" = "Are you sure you want to delete the area from showing?";
+"MapRemoveAreaConfirm" = "Are you sure you want to remove the area?";
 "MapAreaCode" = "Area code";
+"MapAreaCodeFormat" = "Area code: %@";
 "MapAreaFilterHint" = "Area code / name";
 "MapSettingShowLocation" = "Show my location";
 "MapSettingInvertColors" = "Invert the colours of club area maps";
@@ -88,13 +109,21 @@
 "MapSettingStateLands" = "State-owned lands";
 "MapSettingRhyBorders" = "GMA-borders";
 "MapSettingGameTriangles" = "Game triangles";
+"MapSettingOfflineMaps" = "Offline maps";
+"MapSettingLabelBackgroundMaps" = "Background map";
+"MapSettingLabelMapLayers" = "Map layers";
+"MapSettingLabelCacheUtilization" = "Cache utilization:";
+"MapSettingCacheUtilizationFormat" = "%.1fMB / %.0fMB";
+"MapSettingRemoveBackgroundMaps" = "Remove maps";
+"MapSettingRemoveMapLayers" = "Remove map layers";
 "MapSettingAddAreaClub" = "Oma riista area";
 "MapSettingAddAreaMoose" = "Metsähallitus moose";
 "MapSettingAddAreaPienriista" = "Metsähallitus small game";
-"MapSettingAddWithAreaCode" = "Area id";
+"MapSettingAddWithAreaCode" = "Area code";
 "MapSettingSelectArea" = "Select area";
 "MapSettingGeneralTitle" = "General";
 "MapSettingSelectedAreas" = "Selected areas";
+"MapSettingNoSelectedAreas" = "No selected areas";
 "MadDisplayPins" = "Show log events";
 
 "FilterSelectCategory" = "Select category";
@@ -110,7 +139,8 @@
 "Loggame" = "New harvest";
 "Harvest" = "Harvest";
 "Dismiss" = "Discard";
-"Cancel" = "Undo";
+"Cancel" = "Cancel";
+"Undo" = "Undo";
 "CancelRemove" = "Cancel";
 "Save" = "Save";
 "Species" = "Species";
@@ -183,8 +213,16 @@
 "ObservationDetailsMooseFemale3Calf" = "Females + 3 juveniles";
 "ObservationDetailsMooseFemale4Calf" = "Females + 4 juveniles";
 "ObservationDetailsMooseMale" = "Adult males";
-"ObservationDetailsMooseCalf" = "Lonely calf";
+"ObservationDetailsMooseCalf" = "Lone calf";
 "ObservationDetailsMooseUnknown" = "Unknown";
+"ObservationDetailsMooseFemaleWithinDeerHunting" = "Females without juveniles";
+"ObservationDetailsMooseFemale1CalfWithinDeerHunting" = "Female + 1 juvenile";
+"ObservationDetailsMooseFemale2CalfWithinDeerHunting" = "Females + 2 juveniles";
+"ObservationDetailsMooseFemale3CalfWithinDeerHunting" = "Females + 3 juveniles";
+"ObservationDetailsMooseFemale4CalfWithinDeerHunting" = "Females + 4 juveniles";
+"ObservationDetailsMooseMaleWithinDeerHunting" = "Adult males";
+"ObservationDetailsMooseCalfWithinDeerHunting" = "Lone calf";
+"ObservationDetailsMooseUnknownWithinDeerHunting" = "Unknown";
 
 "DeerHuntingType" = "Hunting type";
 "DeerHuntingTypeDescription" = "Hunting type description";
@@ -219,17 +257,6 @@
 "SrvaApproved" = "Approved";
 "SrvaRejected" = "Rejected";
 
-"OnboardingSkip" = "Skip";
-"OnboardingNext" = "Next";
-"OnboardingDone" = "Done";
-"OnboardingIntroduction" = "Welcome to the updated Oma riista app! Renewed app is now even more versatile tool for hunting and outdoor use.";
-"OnboardingNewFeaturesTitle" = "New features";
-"OnboardingNewFeatureMaps" = "Event filtering and showing on map";
-"OnboardingMapTitle" = "Events on map";
-"OnboardingGalleryTitle" = "Game log gallery";
-"OnboardingShootingTestTitle" = "Shooting test attempts";
-"OnboaringMetsahallitusTitle" = "Metsähallitus permits";
-
 "CustomerService" = "Oma riista help desk";
 "SupportAndFeedback" = "Support and feedback";
 "CustomerServiceTimesTemplate" = "Service hours: Mon to Fri, %@-%@";
@@ -238,9 +265,13 @@
 "EmailTemplate" = "\n\nName: %@\nHunter number: %@\nApplication version:  %@\nIOS version: %@";
 "EmailLicenseTitle" = "Hunting license";
 "EmailLicenseTemplate" = "\n\nName: %@\nHunter number: %@";
-"ThirdPartyLibraries" = "Third party libraries";
 "PrivacyStatement" = "Privacy statement";
 "PrivacyStatementUrl" = "https://riista.fi/riistahallinto/sahkoinen-asiointi/oma-riista-rekisteriseloste/";
+"TermsOfService" = "Terms of Service";
+"TermsOfServiceUrl" = "https://riista.fi/riistahallinto/sahkoinen-asiointi/oma-riista-kayttoehdot/";
+"AccessibilityStatement" = "Accessibility";
+"AccessibilityStatementUrl" = "https://riista.fi/riistahallinto/sahkoinen-asiointi/saavutettavuusselosteet/";
+"ThirdPartyLibraries" = "Third party libraries";
 "MakeCallMessage" = "Do you want to call Oma riista help desk?";
 "MakeLicenseCallMessage" = "Do you want to call hunter license help desk?";
 "MakeCall" = "Call";
@@ -265,6 +296,11 @@
 "GallerySource" = "Gallery";
 "ImagePermissionRequiredTitle" = "Please Give Permission";
 "ImagePermissionRequiredMessage" = "Oma riista needs access to your photos";
+"ImageLoadFailedDialogTitle" = "Couldn't load photo";
+"ImageLoadFailedDialogMessage" = "Photo does not exist of photo loading failed for other reason";
+"ImageLoadFailedOrLimitedAccessDialogMessage" = "Oma Riista doesn't have access to the photo or photo loading failed for other reason";
+"ImageLoadFailedSelectAnotherPhotoAction" = "Select another photo";
+"ImageLoadFailedSelectAccessiblePhotosAction" = "Select accessible photos";
 "ImageDialogButtonCancel" = "Cancel";
 "ImageDialogButtonSettings" = "Settings";
 
@@ -279,6 +315,26 @@
 "MooseAntlersPointsLeft" = "Antler points left";
 "MooseAntlersPointsRight" = "Antler points right";
 "MooseAdditionalInfo" = "Additional information";
+"AntlersLost" = "One or both antlers lost";
+"AntlersGirth" = "Antlers girth (cm)";
+"AntlersLength" = "Antlerhalves length (cm)";
+"AntlersInnerWidth" = "Antlers inner width (cm)";
+"AntlerShaftDiameter" = "Antler shaft diameter (cm)";
+
+// Instructions
+"Instructions" = "Instructions";
+"InstructionsFormat" = "Instructions: %@";
+"InstructionsTitleAntlersLength" = "Antlerhalves length";
+"InstructionsTitleAntlersGirth" = "Antlers girth";
+"InstructionsTitleAntlersInnerWidth" = "Antlers inner width";
+"InstructionsTitleAntlerShaftDiameter" = "Antler shaft diameter";
+"InstructionsTitleAntlersWidth" = "Antler spread";
+// Details (generic or for certain species)
+"InstructionsAntlersLengthDetails" = "The length of the main beam as measured starting from the burr of the antler, along the outside curve of the beam, all the way to the tip.";
+"InstructionsAntlersGirthDetails" = "The antlers girth is the smallest circumference between the burr and the first point.";
+"InstructionsAntlersInnerWidthWhiteTailedDeer" = "The inside spread measured across the inside of the beams at the widest point.";
+"InstructionsAntlerShaftDiameterRoeDeer" = "The shaft diameter as measured directly above of the coronet, not including pearling.";
+"InstructionsAntlersWidthMoose" = "The total width as measured between the widest points on each side, perpendicular to the center line of the skull.";
 
 "HarvestHuntingTypeTitle" = "Hunting type";
 "HarvestFeedingPlaceTitle" = "Shot at feeding place?";
@@ -294,12 +350,14 @@
 "UpdateAvailableMessage" = "Download new Oma riista version from App Store.";
 
 "ButtonClearTitle" = "Clear";
-"NetworkOperationFailed" = "Operation failed (%d)";
+"NetworkOperationFailed" = "Operation failed";
 "ConfirmOperationPrompt" = "Confirm operation?";
 
 /*
  Shooting test
  */
+
+"ShootingTestsNameAndHunterNumber" = "Name and hunter number";
 
 "ShootingTestViewTitle" = "Shooting test";
 "ShootingTestTabEventTitle" = "General";
@@ -378,3 +436,181 @@
 "ShootingTestPaymentTestFinished" = "Test finished";
 "ShootingTestPaymentCompleteConfirm" = "Set test finished and payments completed for %@ %@ (%@)?";
 "ShootingTestPaymentEditTitle" = "Edit payment";
+
+/* Group hunting */
+
+"GenericLoadingContent" = "Loading required content..";
+"GenericContentLoadingFailed" = "Failed to load required content.";
+
+"GroupHuntingLandingPageTitle" = "Hunting director";
+"GroupHuntingLabelClub" = "Hunting club";
+"GroupHuntingLabelSeason" = "Season";
+"GroupHuntingLabelSpecies" = "Species";
+"GroupHuntingLabelHuntingGroup" = "Group";
+"GroupHuntingLabelPermitFormatted" = "Permit: %@";
+"GroupHuntingErrorHuntingHasFinished" = "Hunting has finished";
+
+"GroupHuntingEntriesOnMap" = "Entries on map";
+"GroupHuntingHuntingDays" = "Hunting days";
+"GroupHuntingNewHarvest" = "New harvest";
+"GroupHuntingNewObservation" = "New observation";
+"GroupHuntingHuntingDay" = "Hunting day";
+"GroupHuntingNoHarvestsNoObservations" = "No harvests or observations";
+
+"GroupHuntingHuntingDaysTitle" = "Hunting days";
+"GroupHuntingLoadingHuntingDays" = "Loading hunting days..";
+"GroupHuntingFailedToLoadHuntingDays" = "Failed to load hunting days.";
+"GroupHuntingNoHuntingDaysButCanCreate" = "No hunting days have been added to hunting group. Create a hunting day in order to continue.";
+"GroupHuntingNoHuntingDays" = "No hunting days have been added to hunting group.";
+"GroupHuntingNoHuntingDaysDeer" = "Hunting days are automatically created for deer based on harvests and observations.";
+"GroupHuntingSuggestedHuntingDay" = "The day is suggested as a hunting day because there are harvests or observations for it.";
+"GroupHuntingSuggestedHuntingDayForEntry" = "There is no hunting day for the entry date %@.";
+"GroupHuntingAddHuntingDay" = "Create hunting day";
+"GroupHuntingNoHuntingDaysAfterFilteringButCanCreate" = "There are no hunting days for the selected period of time. Update selected period of time or create a hunting day.";
+"GroupHuntingNoHuntingDaysAfterFiltering" = "There are no hunting days for the selected period of time.";
+
+"FilterStartDate" = "From";
+"FilterEndDate" = "To";
+"MapLocationHarvestsAndObservations" = "Location harvests and observations";
+
+"GroupHuntingDiaryFilterDialogTitle" = "Filter";
+"GroupHuntingDiaryFilterEventTypeHarvestsAndObservations" = "Harvests and observations";
+"GroupHuntingDiaryFilterEventTypeHarvests" = "Harvests";
+"GroupHuntingDiaryFilterEventTypeObservations" = "Observations";
+"GroupHuntingDiaryFilterAcceptTypeAll" = "All";
+"GroupHuntingDiaryFilterAcceptTypeAccepted" = "Approved";
+"GroupHuntingDiaryFilterAcceptTypeRejected" = "Rejected";
+"GroupHuntingDiaryFilterAcceptTypeProposed" = "Proposed";
+
+"GroupHuntingProposedHarvest" = "Proposed harvest";
+"GroupHuntingAcceptedHarvest" = "Accepted harvest";
+"GroupHuntingRejectedHarvest" = "Rejected harvest";
+"GroupHuntingProposedObservation" = "Proposed observation";
+"GroupHuntingAcceptedObservation" = "Accepted observation";
+"GroupHuntingRejectedObservation" = "Rejected observation";
+
+"GroupHuntingContinueToApprove" = "Continue to Approve";
+"ApproveHarvest" = "Approve harvest";
+"ApproveObservation" = "Approve observation";
+"RejectHarvest" = "Reject harvest";
+"RejectObservation" = "Reject observation";
+"RejectHarvestQuestion" = "Reject harvest?";
+"RejectObservationQuestion" = "Reject observation?";
+"AreYouSure" = "Are you sure";
+"Approve" = "Approve";
+"Edit" = "Edit";
+"Select" = "Select";
+
+"GroupHuntingHarvestSaveFailedGeneric" = "Failed to save harvest.";
+"GroupHuntingObservationSaveFailedGeneric" = "Failed to save observation.";
+"GroupHuntingDaySaveFailedGeneric" = "Failed to save hunting day.";
+
+"GroupHuntingCreateObservationFromHarvestTitle" = "Create observation?";
+"GroupHuntingCreateObservationFromHarvestMessage" = "Oma riista -service does not automatically create observations based on harvests. Has this moose harvest already been recorded as an observation?";
+
+"GroupHuntingDayErrorDatesNotWithinPermit" = "Permit is not valid on given date";
+"GroupHuntingErrorTimeNotWithinHuntingDay" = "Time is not within the limits set by the hunting day.";
+"ErrorDateNotAllowed" = "Date is not accepted";
+
+"GroupHuntingSuggestedHuntingDay" = "The day is suggested as a hunting day because there are harvests or observations for it.";
+"GroupHuntingAddHuntingDay" = "Create hunting day";
+
+"GroupHuntingDayLabelNumberOfHunters" = "Number of hunters";
+"GroupHuntingDayLabelHuntingMethod" = "Hunting method";
+"GroupHuntingDayLabelNumberOfHounds" = "Number of dogs";
+"GroupHuntingDayLabelSnowDepthCentimeters" = "Snow depth (cm)";
+"GroupHuntingDayLabelBreakDurationMinutes" = "Break duration";
+"GroupHuntingDaySelectBreakDuration" = "Select break duration";
+"GroupHuntingDayNoBreaks" = "No breaks";
+
+"GroupHuntingDayErrorDatesNotWithinPermit" = "Permit is not valid on given date";
+
+"GroupHuntingMethodPassilinjaKoiraOhjaajineenMetsassa" = "Dog and pass line";
+"GroupHuntingMethodHiipiminenPysayttavalleKoiralle" = "Stalking to the stopping dog";
+"GroupHuntingMethodPassilinjaJaTiivisAjoketju" = "Pass line and tight chase chain";
+"GroupHuntingMethodPassilinjaJaMiesajoJaljityksena" = "Pass line and hunter chase";
+"GroupHuntingMethodJaljitysEliNaakiminenIlmanPasseja" = "Tracking without passes";
+"GroupHuntingMethodVaijyntaKulkupaikoilla" = "Stalking by passage spots";
+"GroupHuntingMethodVaijyntaRavintokohteilla" = "Stalking by feeding spots";
+"GroupHuntingMethodHoukuttelu" = "Attracting";
+"GroupHuntingMethodMuu" = "Other hunting method";
+
+"GroupHuntingHunterId" = "Hunter number";
+"GroupHuntingEnterHunterId" = "Type 8-digit hunters registration number";
+"GroupHuntingInvalidHunterId" = "Hunter registration number is invalid";
+"GroupHuntingSearchingHunterById" = "Fetching hunter information..";
+"GroupHuntingSearchingObserverById" = "Fetching observer information..";
+"GroupHuntingHunterSearchFailed" = "Failed to fetch hunter information.";
+"GroupHuntingObserverSearchFailed" = "Failed to fetch observer information.";
+"GroupHuntingOtherHunter" = "Other";
+"GroupHuntingOtherObserver" = "Other";
+"GroupHuntingHarvestFieldActor" = "Shooter";
+"GroupHuntingHarvestFieldAuthor" = "Reporter";
+"GroupHuntingHarvestShooterInformation" = "Hunter information";
+"GroupHuntingHarvestFieldActorOrMember" = "Shooter/Participant";
+"GroupHuntingSpecimenDetails" = "Specimen information";
+"GroupHuntingHuntingDayAndTime" = "Hunting day and time";
+"HarvestFieldLoneCalf" = "Lone calf";
+"HarvestAdditionalInformationInstructions" = "Additional information, e.g. fetus, parasites, diseases, laceration, deer flies, crash injuries, color variations, heat information";
+"HarvestAdditionalInformationInstructionsWhiteTailedDeer" = "Additional information, e.g. fetus, parasites, diseases, laceration, deer flies, crash injuries, color variations, heat information, method exception 4 or 5, snow depth cm";
+
+"FitnessClassExcellent" = "Excellent";
+"FitnessClassNormal" = "Normal";
+"FitnessClassThin" = "Thin";
+"FitnessClassStarved" = "Starved";
+
+"AntlersTypeHanko" = "Cervine";
+"AntlersTypeLapio" = "Palmate";
+"AntlersTypeSeka" = "Mixed";
+
+"DeerHuntingTypeStanding" = "Stand hunting";
+"DeerHuntingTypeDog" = "Dog hunting";
+"DeerHuntingTypeOther" = "Other";
+
+"GroupHuntingObservationFieldHuntingDayAndTime" = "Hunting day and time";
+"GroupHuntingObservationFieldActor" = "Observer";
+"GroupHuntingObservationFieldAuthor" = "Reporter";
+
+"ObservationTypeNako" = "Seen";
+"ObservationTypeJalki" = "Track";
+"ObservationTypeUloste" = "Dropping";
+"ObservationTypeAani" = "Sound";
+"ObservationTypeRiistakamera" = "Game camera";
+"ObservationTypeKoiranRiistatyo" = "Dog work";
+"ObservationTypeMaastolaskenta" = "Field count";
+"ObservationTypeKolmiolaskenta" = "Triangle count";
+"ObservationTypeLentolaskenta" = "Aerial count";
+"ObservationTypeHaaska" = "Carcass";
+"ObservationTypeSyonnos" = "Foraging place";
+"ObservationTypeKelomispuu" = "Scrape";
+"ObservationTypeKiimakuoppa" = "Rub";
+"ObservationTypeMakuupaikka" = "Resting place";
+"ObservationTypePato" = "Nest";
+"ObservationTypePesa" = "Free-standing lodge";
+"ObservationTypePesaKeko" = "Bank burrow";
+"ObservationTypePesaPenkka" = "Bank lodge";
+"ObservationTypePesaSeka" = "Dam";
+"ObservationTypeSoidin" = "Lek";
+"ObservationTypeLuolasto" = "Cave";
+"ObservationTypePesimaluoto" = "Breeding islet";
+"ObservationTypeLepailyluoto" = "Resting islet";
+"ObservationTypePesimasuo" = "Breeding swamp";
+"ObservationTypeMuutonAikainenLepailyalue" = "Migratory resting area";
+"ObservationTypeRiistankulkupaikka" = "Game path";
+"ObservationTypePoikueymparisto" = "Brood habitat";
+"ObservationTypeVaihtelevarakenteinenMustikkametsa" = "Structurally variable bilberry forest";
+"ObservationTypeKuusisekoitteinenMetsa" = "Structurally variable mixed pine forest";
+"ObservationTypeVaihtelevarakenteinenMantysekoitteinenMetsa" = "Feeding pine";
+"ObservationTypeVaihtelevarakenteinenLehtipuusekoitteinenMetsa" = "Structurally variable mixed deciduous forest";
+"ObservationTypeSuonReunametsa" = "Feeding site in birch forest";
+"ObservationTypeHakomamanty" = "Alder-spruce forest or birch-spruce forest";
+"ObservationTypeRuokailukoivikko" = "Mixed spruce forest (moulting)";
+"ObservationTypeLeppakuusimetsaTaiKoivikuusimetsa" = "Forest next to a peatland";
+"ObservationTypeRuokailupajukkoTaiKoivikko" = "Feeding site in willow or birch forest";
+"ObservationTypeMuu" = "Other";
+
+/* Urls */
+
+"UrlEventSearch" = "https://riista.fi/metsastys/tapahtumahaku/";
+"UrlHuntingSeasons" = "https://riista.fi/en/hunting/open-seasons";
+"UrlMagazine" = "https://www.metsastajalehti.fi";

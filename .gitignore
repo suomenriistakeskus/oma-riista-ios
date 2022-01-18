@@ -18,4 +18,10 @@ Pods/
 *.REMOTE.*
 .DS_Store
 
+# Kotlin Multiplatform Mobile related
+.idea
+.gradle
+local.properties
+mobile-common/framework
+
 Keys.plist

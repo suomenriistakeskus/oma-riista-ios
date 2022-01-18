@@ -63,6 +63,7 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
                                                name: NSNotification.Name.ManagedObjectContextChanged,
                                                object: nil)
 
+        refreshMonthNameFormatterLocale()
         refreshData()
         filterView.setupUserRelatedData()
 
@@ -98,6 +99,10 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
 
     func getSrvaResultController() -> NSFetchedResultsController<SrvaEntry> {
         return srvaResultsControllerHolder.getObject()
+    }
+
+    func refreshMonthNameFormatterLocale() {
+        GameLogViewController.monthNameFormatter.locale = RiistaUtils.appLocale()
     }
 
     func refreshData() {

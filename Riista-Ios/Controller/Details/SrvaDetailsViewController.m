@@ -170,9 +170,21 @@ static CGFloat const LEFT_MARGIN = 12;
 {
     if (self.editMode) {
         DetailsViewController *parentVC = (DetailsViewController*)self.parentViewController;
-        [imageUtil editImageWithPickerDelegate:(id<ImageEditUtilDelegate>)parentVC];
+        [imageUtil editImageWithPickerDelegate:(id<RiistaImagePickerDelegate>)parentVC];
     }
     else if ([imageUtil hasImagesWithEntry:self.srva]) {
+        if (self.imagesButton.imageLoadStatus == LoadStatusFailure) {
+            ImageLoadRequest *loadRequest = [ImageLoadRequest fromDiaryImage:self.diaryImage
+                                                                     options:[ImageLoadOptions aspectFilledWithSize:CGSizeMake(50.f, 50.f)]];
+
+            [imageUtil displayImageLoadFailedDialog:(id<RiistaImagePickerDelegate>)self.parentViewController
+                                             reason:self.imagesButton.imageLoadFailureReason
+                                   imageLoadRequest:loadRequest
+                         allowAnotherPhotoSelection:NO];
+
+            return;
+        }
+
         UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
         ImageFullViewController *dest = (ImageFullViewController*)[sb instantiateViewControllerWithIdentifier:@"ImageFullController"];
         dest.item = self.srva;
@@ -400,11 +412,28 @@ static CGFloat const LEFT_MARGIN = 12;
 - (void)refreshImage
 {
     if (self.diaryImage != nil) {
-        [RiistaUtils loadDiaryImage:self.diaryImage size:CGSizeMake(50.0f, 50.0f) completion:^(UIImage *image) {
-            [self.imagesButton setBackgroundImage:[image scaleImageToSize:CGSizeMake(50.0f, 50.0f)]
-                                         forState:UIControlStateNormal];
+        [ImageUtils loadDiaryImage:self.diaryImage
+                           options:[ImageLoadOptions aspectFilledWithSize:CGSizeMake(50.0f, 50.0f)]
+                         onSuccess:^(UIImage * _Nonnull image) {
+            [self.imagesButton setImageLoadedSuccessfully];
+
+            [self.imagesButton setBackgroundImage:image forState:UIControlStateNormal];
             [self.imagesButton setImage:nil forState:UIControlStateNormal];
             [self.imagesButton setBorderWidth:0 forState:UIControlStateNormal];
+        }
+                          onFailure:^(PhotoAccessFailureReason reason) {
+            // currently selected image cnnot be loaded. Indicate this to the user
+            UIImage *displayedIcon = nil;
+            if (!self.editMode) {
+                displayedIcon = [[UIImage imageNamed:@"missing-image-error"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            } else {
+                displayedIcon = [[UIImage imageNamed:@"camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            }
+            [self.imagesButton setImage:displayedIcon forState:UIControlStateNormal];
+            [self.imagesButton setImageTintColor:[UIColor whiteColor] forState:UIControlStateNormal];
+
+            [self.imagesButton setBackgroundImage:nil forState:UIControlStateNormal];
+            [self.imagesButton setImageLoadFailedWithReason:reason];
         }];
     }
 }
@@ -415,8 +444,9 @@ static CGFloat const LEFT_MARGIN = 12;
     if (species) {
         [self.speciesButton setTitle:[RiistaUtils nameWithPreferredLanguage:species.name] forState:UIControlStateNormal];
 
-        [self.speciesButton setImage:[RiistaUtils loadSpeciesImage:species.speciesId
-                                                              size:CGSizeMake(42.0f, 42.0f)] forState:UIControlStateNormal];
+        [self.speciesButton setImage:[ImageUtils loadSpeciesImageWithSpeciesCode:species.speciesId
+                                                                            size:CGSizeMake(42.0f, 42.0f)]
+                            forState:UIControlStateNormal];
         self.speciesButton.imageView.tintColor = nil;
         [self updateSpeciesButtonForSpecies:species];
     }

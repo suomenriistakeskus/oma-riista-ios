@@ -7,5 +7,6 @@
 @interface RiistaTabBarViewController : UITabBarController <UITabBarControllerDelegate, UINavigationControllerDelegate>
 
 - (void)logout;
+- (BOOL)isDisplayingLoginScreen;
 
 @end

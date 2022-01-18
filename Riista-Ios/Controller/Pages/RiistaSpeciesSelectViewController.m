@@ -6,6 +6,8 @@
 #import "RiistaLocalization.h"
 #import "RiistaNavigationController.h"
 
+#import "Oma_riista-Swift.h"
+
 @interface RiistaSpeciesCell : UITableViewCell
 
 @property (weak, nonatomic) IBOutlet UIImageView *speciesImageView;
@@ -73,7 +75,7 @@
         cell.speciesNameLabel.text = RiistaLocalizedString(@"SrvaOtherSpeciesDescription", nil);
     }
     else {
-        cell.speciesImageView.image = [RiistaUtils loadSpeciesImage:species.speciesId];
+        cell.speciesImageView.image = [ImageUtils loadSpeciesImageWithSpeciesCode:species.speciesId];
         cell.speciesNameLabel.text = [RiistaUtils nameWithPreferredLanguage:species.name];
     }
     return cell;

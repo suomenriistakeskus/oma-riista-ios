@@ -35,11 +35,11 @@ private extension RiistaNibView {
         addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[childView]|",
                                                       options: [],
                                                       metrics: nil,
-                                                      views: ["childView": view]))
+                                                      views: ["childView": view!]))
         addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[childView]|",
                                                       options: [],
                                                       metrics: nil,
-                                                      views: ["childView": view]))
+                                                      views: ["childView": view!]))
     }
 }
 

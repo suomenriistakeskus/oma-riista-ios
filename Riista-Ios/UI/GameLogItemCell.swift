@@ -17,6 +17,9 @@ class GameLogItemCell: UITableViewCell {
     @IBOutlet weak var timeLineUp: UIView!
     @IBOutlet weak var timeLineDown: UIView!
 
+    // The id of the image for which the image is currently being fetched
+    private var imageLoadedForId: String?
+
     static let dateFormatter = { () -> DateFormatter in
         let dateFormatter = DateFormatter(safeLocale: ())!
         dateFormatter.dateFormat = "dd.MM.yyyy"
@@ -49,12 +52,14 @@ class GameLogItemCell: UITableViewCell {
         contentView.frame = contentView.frame.insetBy(dx: 0, dy: 0)
     }
 
-    func setupFromHarvest(harvest: DiaryEntry, isFirst: Bool, isLast: Bool) {
+    func clearCurrentlyDisplayedData() {
         itemImage.image = nil
+    }
 
-        RiistaUtils.loadEventImage(harvest, for: imageView, completion: { image in
-            self.itemImage?.image = image
-        })
+    func setupFromHarvest(harvest: DiaryEntry, isFirst: Bool, isLast: Bool) {
+        clearCurrentlyDisplayedData()
+
+        loadImage(entry: harvest)
 
         let species = RiistaGameDatabase.sharedInstance()?.species(byId: harvest.gameSpeciesCode as! Int)
 
@@ -170,11 +175,9 @@ class GameLogItemCell: UITableViewCell {
     }
 
     func setupFromObservation(observation: ObservationEntry, isFirst: Bool, isLast: Bool) {
-        itemImage.image = nil
+        clearCurrentlyDisplayedData()
 
-        RiistaUtils.loadEventImage(observation, for: imageView, completion: { image in
-            self.itemImage?.image = image
-        })
+        loadImage(entry: observation)
 
         let species = RiistaGameDatabase.sharedInstance()?.species(byId: observation.gameSpeciesCode as! Int)
 
@@ -204,27 +207,17 @@ class GameLogItemCell: UITableViewCell {
     }
 
     func setupFromSrva(srva: SrvaEntry, isFirst: Bool, isLast: Bool) {
-        imageView?.image = nil
+        clearCurrentlyDisplayedData()
 
-        RiistaUtils.loadEventImage(srva, for: imageView, completion: { image in
-            self.itemImage?.image = image
-        })
+        loadImage(entry: srva)
 
         var nameText = "-"
 
         if let speciesCode = srva.gameSpeciesCode?.intValue {
-            imageView?.tintColor = UIColor.clear
-            RiistaUtils.loadEventImage(srva, for: imageView, completion: { image in
-                self.itemImage?.image = image
-            })
-
             let species = RiistaGameDatabase.sharedInstance()?.species(byId: speciesCode)
             nameText = RiistaUtils.name(withPreferredLanguage: species?.name)
         }
         else {
-            imageView?.tintColor = UIColor.black
-            imageView?.image = UIImage(named: "unknown_white")
-
             nameText = RiistaBridgingUtils.RiistaLocalizedString(forkey: "SrvaOtherSpeciesShort")
 
             if (srva.otherSpeciesDescription != nil) {
@@ -270,5 +263,46 @@ class GameLogItemCell: UITableViewCell {
         default:
             stateView.isHidden = true
         }
+    }
+
+    func loadImage(entry: DiaryEntryBase) {
+        self.imageLoadedForId = idOf(entry: entry)
+
+        ImageUtils.loadEventImage(
+            entry, for: itemImage,
+            options: ImageLoadOptions.aspectFilled(size: itemImage.bounds.size),
+            onSuccess: { [weak self, weak entry] image in
+                self?.setDisplayedImage(image, entry: entry)
+            },
+            onFailure: { [weak self, weak entry] failureReason in
+                self?.displayImageLoadFailedIndicator(entry: entry)
+            }
+        )
+    }
+
+    func setDisplayedImage(_ image: UIImage, entry: DiaryEntryBase?) {
+        guard let entry = entry else { return }
+        if (imageLoadedForId != idOf(entry: entry)) {
+            // cell already recycled, ignore result
+            return
+        }
+
+        itemImage?.contentMode = .scaleAspectFill
+        itemImage?.image = image
+    }
+
+    func displayImageLoadFailedIndicator(entry: DiaryEntryBase?) {
+        guard let entry = entry else { return }
+        if (imageLoadedForId != idOf(entry: entry)) {
+            // cell already recycled, ignore result
+            return
+        }
+
+        itemImage?.contentMode = .center
+        itemImage?.image = UIImage(named: "missing-image-error")
+    }
+
+    private func idOf(entry: DiaryEntryBase) -> String? {
+        return entry.objectID.uriRepresentation().absoluteString
     }
 }

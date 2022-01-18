@@ -5,11 +5,21 @@ class ImageFullViewController: UIViewController {
 
     @objc var item: DiaryEntryBase?
 
+    override func viewDidLoad() {
+        self.imageView.contentMode = .scaleAspectFit
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         self.navigationItem.setRightBarButtonItems([], animated: false)
 
-        RiistaUtils.loadEventImage(item, for: imageView, completion: { image in
-            self.imageView.image = image
-        })
+        ImageUtils.loadEventImage(
+            item, for: imageView,
+            options: ImageLoadOptions.aspectFitted(size: imageView.bounds.size),
+            onSuccess: { image in
+                self.imageView.image = image
+            },
+            onFailure: { failureReason in
+                print("failed to load fullscreen image for entry")
+            })
     }
 }

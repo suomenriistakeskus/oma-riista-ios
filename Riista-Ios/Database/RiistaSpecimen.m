@@ -24,6 +24,11 @@ NSString *const SpecimenAgeUnknown = @"UNKNOWN";
 @dynamic antlersWidth;
 @dynamic antlerPointsLeft;
 @dynamic antlerPointsRight;
+@dynamic antlersLost;
+@dynamic antlersGirth;
+@dynamic antlersLength;
+@dynamic antlersInnerWidth;
+@dynamic antlersShaftWidth;
 @dynamic notEdible;
 @dynamic alone;
 @dynamic additionalInfo;
@@ -44,6 +49,11 @@ NSString *const SpecimenAgeUnknown = @"UNKNOWN";
         && [RiistaUtils nilEqual:self.antlersWidth b:otherSpecimen.antlersWidth]
         && [RiistaUtils nilEqual:self.antlerPointsLeft b:otherSpecimen.antlerPointsLeft]
         && [RiistaUtils nilEqual:self.antlerPointsRight b:otherSpecimen.antlerPointsRight]
+        && [RiistaUtils nilEqual:self.antlersLost b:otherSpecimen.antlersLost]
+        && [RiistaUtils nilEqual:self.antlersGirth b:otherSpecimen.antlersGirth]
+        && [RiistaUtils nilEqual:self.antlersLength b:otherSpecimen.antlersLength]
+        && [RiistaUtils nilEqual:self.antlersInnerWidth b:otherSpecimen.antlersInnerWidth]
+        && [RiistaUtils nilEqual:self.antlersShaftWidth b:otherSpecimen.antlersShaftWidth]
         && [RiistaUtils nilEqual:self.notEdible b:otherSpecimen.notEdible]
         && [RiistaUtils nilEqual:self.alone b:otherSpecimen.alone]
         && [RiistaUtils nilEqual:self.additionalInfo b:otherSpecimen.additionalInfo]
@@ -68,6 +78,11 @@ NSString *const SpecimenAgeUnknown = @"UNKNOWN";
         && self.antlersWidth == nil
         && self.antlerPointsLeft == nil
         && self.antlerPointsRight == nil
+        && self.antlersLost == nil
+        && self.antlersGirth == nil
+        && self.antlersLength == nil
+        && self.antlersInnerWidth == nil
+        && self.antlersShaftWidth == nil
         && self.notEdible == nil
         && self.alone == nil
         && !self.additionalInfo.length;
