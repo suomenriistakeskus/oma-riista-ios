@@ -74,7 +74,7 @@ class SelectableHuntingDayCell: UITableViewCell {
 
     private func createDateLabel() -> UILabel {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = colorForegroundNormal
         label.textAlignment = .center
         return label

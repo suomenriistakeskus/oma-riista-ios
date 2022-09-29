@@ -107,7 +107,7 @@ class DiaryEntryFieldCell<FieldId : DataFieldId, FieldType : DataField<FieldId>>
 
     private func createLabel() -> UILabel {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelSmall, fontWeight: .semibold)
+        label.font = UIFont.appFont(fontSize: .small, fontWeight: .semibold)
         label.textColor = UIColor.applicationColor(TextPrimary)
         label.textAlignment = .left
         label.numberOfLines = 1

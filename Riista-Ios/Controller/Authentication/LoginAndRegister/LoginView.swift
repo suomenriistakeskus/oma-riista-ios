@@ -53,7 +53,7 @@ class LoginView: UIStackView, UITextFieldDelegate {
 
     lazy var changeUsernameButton: MaterialButton = {
         let btn = MaterialButton()
-        btn.setTitleFont(AppTheme.shared.fontForSize(size: AppConstants.Font.ButtonMedium), for: .normal)
+        btn.setTitleFont(UIFont.appFont(for: .button), for: .normal)
         btn.setBorderColor(.white, for: .normal)
         btn.setBorderWidth(1.5, for: .normal)
         btn.setBackgroundColor(.clear)
@@ -67,7 +67,7 @@ class LoginView: UIStackView, UITextFieldDelegate {
 
     lazy var passwordForgottenButton: MaterialButton = {
         let btn = MaterialButton()
-        btn.setTitleFont(AppTheme.shared.fontForSize(size: AppConstants.Font.ButtonMedium), for: .normal)
+        btn.setTitleFont(UIFont.appFont(for: .button), for: .normal)
         btn.setBorderColor(.white, for: .normal)
         btn.setBorderWidth(1.5, for: .normal)
         btn.setBackgroundColor(.clear)
@@ -120,16 +120,16 @@ class LoginView: UIStackView, UITextFieldDelegate {
         layoutMargins = AppConstants.UI.DefaultEdgeInsets
 
         addView(UILabel().apply { label in
-            label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelSmall)
-            label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "Username")
+            label.font = UIFont.appFont(fontSize: .small)
+            label.text = "Username".localized()
             label.textColor = .white
             label.numberOfLines = 1
         })
         addView(usernameField, spaceAfter: 8)
 
         addView(UILabel().apply { label in
-            label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelSmall)
-            label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "Password")
+            label.font = UIFont.appFont(fontSize: .small)
+            label.text = "Password".localized()
             label.textColor = .white
             label.numberOfLines = 1
         })

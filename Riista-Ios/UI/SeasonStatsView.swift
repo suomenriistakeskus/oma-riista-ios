@@ -70,12 +70,13 @@ import Foundation
     }
 
     func applyTheme() {
-        AppTheme.shared.setupLabelFont(label: self.category1name)
-        AppTheme.shared.setupLargeValueFont(label: self.category1value)
-        AppTheme.shared.setupLabelFont(label: self.category2name)
-        AppTheme.shared.setupLargeValueFont(label: self.category2value)
-        AppTheme.shared.setupLabelFont(label: self.category3name)
-        AppTheme.shared.setupLargeValueFont(label: self.category3value)
+        self.category1name.configure(for: .label, textAlignment: .center, numberOfLines: 2)
+        self.category2name.configure(for: .label, textAlignment: .center, numberOfLines: 2)
+        self.category3name.configure(for: .label, textAlignment: .center, numberOfLines: 2)
+
+        self.category1value.configure(fontSize: .huge, textAlignment: .center)
+        self.category1value.configure(fontSize: .huge, textAlignment: .center)
+        self.category1value.configure(fontSize: .huge, textAlignment: .center)
     }
 
     func refreshStats(stats: SeasonStats) {

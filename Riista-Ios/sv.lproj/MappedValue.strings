@@ -58,35 +58,12 @@
 "observation_marked_ring" = "Ringmärke, vingmärke";
 "observation_marked_ear" = "Öronmärke";
 
+// Still used in game log
 "srva_accident" = "Händelse";
 "srva_deportation" = "Fördrivning";
 "srva_sick_animal" = "Sjukt djur";
-
-"srva_traffic_accident" = "Trafikolycka";
-"srva_railway_accident" = "Olycka på järnväg";
-"srva_other" = "Övrigt";
-
-"srva_animal_near_houses" = "Djur i närheten av bosättning";
-"srva_animal_at_food_destination" = "Djur vid näringskälla";
-
 "srva_injured_animal" = "Skadat djur";
 "srva_animal_on_ice" = "Djur på isen";
-
-"srva_animal_found_dead" = "Djuret hittades dött";
-"srva_animal_found_and_terminated" = "Djuret hittades och avlivades";
-"srva_animal_found_and_not_terminated" = "Djuret hittades och lämnades vid liv";
-"srva_accident_site_not_found" = "Olycksplatsen hittades inte";
-"srva_animal_not_found" = "Djuret hittades inte";
-"srva_undue_alarm" = "Obefogat larm";
-
-"srva_animal_terminated" = "Djuret avlivades";
-"srva_animal_deported" = "Djuret fördrevs";
-
-"srva_method_dog" = "Hund";
-"srva_method_traced_with_dog" = "Spårades med hund";
-"srva_method_traced_without_dog" = "Spårades utan hund";
-"srva_method_pain_equipment" = "Anordning som orsakar smärta";
-"srva_method_sound_equipment" = "Anordning som skapar ljud";
 
 "harvest_moose_fitness_class_excellent" = "Utmärkt";
 "harvest_moose_fitness_class_normal" = "Normal";

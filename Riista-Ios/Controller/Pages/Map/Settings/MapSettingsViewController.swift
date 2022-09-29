@@ -82,9 +82,19 @@ import SnapKit
         settingsContainer.displayGameTrianglesToggle.onToggled = { isEnabled in
             RiistaSettings.setShowGameTriangles(isEnabled)
         }
+        settingsContainer.displayMooseRestrictionsToggle.onToggled = { isEnabled in
+            RiistaSettings.setShowMooseRestrictions(isEnabled)
+        }
+        settingsContainer.displaySmallGameRestrictionsToggle.onToggled = { isEnabled in
+            RiistaSettings.setShowSmallGameRestrictions(isEnabled)
+        }
+        settingsContainer.displayAviHuntingBanToggle.onToggled = { isEnabled in
+            RiistaSettings.setShowAviHuntingBan(isEnabled)
+        }
 
-        settingsContainer.offlineSettingsButton.addTarget(self, action: #selector(displayOfflineMapSettings),
-                                                          for: .touchUpInside)
+        settingsContainer.offlineSettingsButton.onClicked = { [weak self] in
+            self?.displayOfflineMapSettings()
+        }
 
         settingsContainer.selectedClubAreaView.removeButton.addTarget(
             self, action: #selector(onClearSelectedClubArea), for: .touchUpInside)
@@ -93,19 +103,19 @@ import SnapKit
         settingsContainer.selectedMooseAreaView.removeButton.addTarget(
             self, action: #selector(onClearSelectedMooseArea), for: .touchUpInside)
 
-        settingsContainer.selectClubAreaButton.addTarget(self, action: #selector(onSelectClubArea),
-                                                         for: .touchUpInside)
-        settingsContainer.selectSmallGameAreaButton.addTarget(self, action: #selector(onSelectSmallGameArea),
-                                                              for: .touchUpInside)
-        settingsContainer.selectMooseAreaButton.addTarget(self, action: #selector(onSelectMooseArea),
-                                                          for: .touchUpInside)
+        settingsContainer.selectClubAreaButton.onClicked = { [weak self] in
+            self?.displaySelectAreaController(areaType: .Seura)
+        }
+        settingsContainer.selectSmallGameAreaButton.onClicked = { [weak self] in
+            self?.displaySelectAreaController(areaType: .Pienriista)
+        }
+        settingsContainer.selectMooseAreaButton.onClicked = { [weak self] in
+            self?.displaySelectAreaController(areaType: .Moose)
+        }
     }
 
     private func updateUI() {
         title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "Map")
-        if let navController = navigationController as? RiistaNavigationController {
-            navController.setRightBarItems(nil)
-        }
 
         settingsContainer.selectedMapType = RiistaSettings.mapType()
 
@@ -114,6 +124,9 @@ import SnapKit
         settingsContainer.displayStateLandsToggle.isToggledOn = RiistaSettings.showStateOwnedLands()
         settingsContainer.displayGMABordersToggle.isToggledOn = RiistaSettings.showRhyBorders()
         settingsContainer.displayGameTrianglesToggle.isToggledOn = RiistaSettings.showGameTriangles()
+        settingsContainer.displayMooseRestrictionsToggle.isToggledOn = RiistaSettings.showMooseRestrictions()
+        settingsContainer.displaySmallGameRestrictionsToggle.isToggledOn = RiistaSettings.showSmallGameRestrictions()
+        settingsContainer.displayAviHuntingBanToggle.isToggledOn = RiistaSettings.showAviHuntingBan()
 
         updateSelectedAreas()
     }
@@ -203,21 +216,9 @@ import SnapKit
         button.isTrailingIconHidden = true
     }
 
-    @objc func displayOfflineMapSettings() {
+    private func displayOfflineMapSettings() {
         let controller = OfflineMapSettingsViewController()
         navigationController?.pushViewController(controller, animated: true)
-    }
-
-    @objc func onSelectClubArea() {
-        displaySelectAreaController(areaType: .Seura)
-    }
-
-    @objc func onSelectSmallGameArea() {
-        displaySelectAreaController(areaType: .Pienriista)
-    }
-
-    @objc func onSelectMooseArea() {
-        displaySelectAreaController(areaType: .Moose)
     }
 
     private func displaySelectAreaController(areaType: AppConstants.AreaType) {
@@ -230,19 +231,19 @@ import SnapKit
         navigationController?.pushViewController(controller, animated: true)
     }
 
-    @objc func onClearSelectedClubArea() {
+    @objc private func onClearSelectedClubArea() {
         RiistaSettings.setActiveClubAreaMapId(nil)
         updateSelectedClubAreaMap()
         updateNoAreasSelected()
     }
 
-    @objc func onClearSelectedSmallGameArea() {
+    @objc private func onClearSelectedSmallGameArea() {
         RiistaSettings.setSelectedPienriistaArea(nil)
         updateSelectedSmallGameAreaMap()
         updateNoAreasSelected()
     }
 
-    @objc func onClearSelectedMooseArea() {
+    @objc private func onClearSelectedMooseArea() {
         RiistaSettings.setSelectedMooseArea(nil)
         updateSelectedMooseAreaMap()
         updateNoAreasSelected()

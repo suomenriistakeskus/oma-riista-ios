@@ -1,8 +1,7 @@
 #import "RiistaSettings.h"
 #import "DataModels.h"
 
-NSInteger const HarvestSpecVersion = 7;
-NSInteger const HarvestSpecVersionAntlers2020 = 8;
+NSInteger const HarvestSpecVersion = 9;
 NSInteger const ObservationSpecVersion = 4;
 // first observation spec version having observation category support
 NSInteger const ObservationSpecVersionWithObservationCategory = 4;
@@ -32,6 +31,9 @@ NSString *const RiistaHideMapButtonsKey = @"RiistaHideMapButtonsKey";
 NSString *const RiistaShowStateOwnedLandsKey = @"RiistaShowStateOwnedLandsKey";
 NSString *const RiistaShowRhyBordersKey = @"RiistaShowRhyBordersKey";
 NSString *const RiistaShowGameTrianglesKey = @"RiistaShowGameTrianglesKey";
+NSString *const RiistaShowMooseRestrictionsKey = @"RiistaShowMooseRestrictionsKey";
+NSString *const RiistaShowSmallGameRestrictionsKey = @"RiistaShowSmallGameRestrictionsKey";
+NSString *const RiistaShowAviHuntingBanKey = @"RiistaShowAviHuntingBanKey";
 NSString *const RiistaSelectedMooseAreaKey = @"RiistaSelectedMooseAreaKey";
 NSString *const RiistaSelectePienriistaAreaKey = @"RiistaSelectePienriistaAreaKey";
 
@@ -202,6 +204,46 @@ NSString *const kUserInfoFileName = @"/user.json";
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     [userDefaults setBool:show forKey:RiistaShowGameTrianglesKey];
+    [userDefaults synchronize];
+}
+
++ (BOOL)showMooseRestrictions
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    return [userDefaults boolForKey:RiistaShowMooseRestrictionsKey];
+}
+
++ (void)setShowMooseRestrictions:(BOOL)show
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setBool:show forKey:RiistaShowMooseRestrictionsKey];
+    [userDefaults synchronize];
+}
+
++ (BOOL)showSmallGameRestrictions
+{
+    NSLog(@"showSmallGameRestrictions");
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    return [userDefaults boolForKey:RiistaShowSmallGameRestrictionsKey];
+}
+
++ (void)setShowSmallGameRestrictions:(BOOL)show
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setBool:show forKey:RiistaShowSmallGameRestrictionsKey];
+    [userDefaults synchronize];
+}
+
++ (BOOL)showAviHuntingBan
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    return [userDefaults boolForKey:RiistaShowAviHuntingBanKey];
+}
+
++ (void)setShowAviHuntingBan:(BOOL)show
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setBool:show forKey:RiistaShowAviHuntingBanKey];
     [userDefaults synchronize];
 }
 

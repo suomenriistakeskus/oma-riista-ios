@@ -1,5 +1,4 @@
 #import "RiistaPermitListViewController.h"
-#import "RiistaNavigationController.h"
 #import "RiistaLocalization.h"
 #import "RiistaNetworkManager.h"
 #import "RiistaPermitManager.h"
@@ -46,7 +45,7 @@ const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
 
 @property (weak, nonatomic) IBOutlet UILabel *helpText;
 @property (weak, nonatomic) IBOutlet UILabel *inputPrompt;
-@property (weak, nonatomic) IBOutlet MDCTextField *numberInput;
+@property (weak, nonatomic) IBOutlet MDCUnderlinedTextField *numberInput;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *progressView;
 @property (weak, nonatomic) IBOutlet MDCButton *submitButton;
 @property (weak, nonatomic) IBOutlet UILabel *errorNoteLabel;
@@ -56,8 +55,6 @@ const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *errorNoteHeightConstraint;
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomPaneBottomSpace;
-
-@property (strong, nonatomic) MDCTextInputControllerUnderline *textInputController;
 
 @property (strong, nonatomic) NSArray *permitListItems;
 @property (strong, nonatomic) NSArray *filteredPermitListItems;
@@ -85,11 +82,10 @@ const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
     _submitButton.titleEdgeInsets = UIEdgeInsetsMake(_submitButton.titleEdgeInsets.top, -10.0, _submitButton.titleEdgeInsets.bottom, -10.0);
     [self.submitButton addTarget:self action:@selector(submitButtonClick:) forControlEvents:UIControlEventTouchUpInside];
 
+    [self.numberInput configureFor:FontUsageInputValue];
     [self.numberInput setDelegate:self];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(numberInputDidChange:) name:UITextFieldTextDidChangeNotification object:self.numberInput];
-
-    self.textInputController = [[MDCTextInputControllerUnderline alloc] initWithTextInput:self.numberInput];
-    [self.textInputController applyThemeWithScheme:AppTheme.shared.textFieldContainerScheme];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(numberInputDidChange:)
+                                                 name:UITextFieldTextDidChangeNotification object:self.numberInput];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -106,7 +102,7 @@ const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
     [self.numberInput setText:self.inputValue];
     [self.progressView setHidden:YES];
 
-    [self updateTitle];
+    self.title = RiistaLocalizedString(@"PermitListPageTitle", nil);
 
     self.permitListItems = [self permitListToListItems:[[RiistaPermitManager sharedInstance] getAllPermits]];
     [self filterByNumberInput:self.inputValue];
@@ -120,13 +116,6 @@ const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
 
 - (void)pageSelected
 {
-    [((RiistaNavigationController*)self.navigationController) setRightBarItems:nil];
-}
-
-- (void)updateTitle
-{
-    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
-    [navController changeTitle:RiistaLocalizedString(@"PermitListPageTitle", nil)];
 }
 
 - (void)submitButtonClick:(id)sender

@@ -10,10 +10,11 @@
 
 extern NSString *const RiistaCalendarEntriesUpdatedKey;
 extern NSString *const RiistaLanguageSelectionUpdatedKey;
-extern NSString *const RiistaAutosyncKey;
+extern NSString *const RiistaSynchronizationStatusKey;
 extern NSString *const ISO_8601;
 extern NSInteger const RiistaCalendarStartMonth;
 
+typedef void(^RiistaOperationCompletion)(BOOL wasSuccess);
 typedef void(^RiistaDiaryEntryUploadCompletion)(NSArray *updates, NSError *error);
 typedef void(^RiistaDiaryEntryEditCompletion)(NSDictionary *response, NSError *error);
 typedef void(^RiistaDiaryEntryDeleteCompletion)(NSError *error);
@@ -32,6 +33,9 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
 // Used for enabling/disabling automatic synchronization
 @property (assign, nonatomic) BOOL autosync;
 
+// Is the data currently being synchronized?
+@property (assign, atomic, readonly) BOOL synchronizing;
+
 + (RiistaGameDatabase*)sharedInstance;
 
 - (void)initUserSession;
@@ -42,6 +46,11 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
  * @return DiaryEntry objects
  */
 - (NSArray*)allEvents;
+
+/**
+ * Only access for analytics purposes from outside!
+ */
+- (NSArray*)unsentDiaryEntries;
 
 /**
  * Fetches diary entry with given remote id
@@ -166,6 +175,7 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
 - (ObservationEntry*)observationEntryWithObjectId:(NSManagedObjectID*)objectId context:(NSManagedObjectContext*)context;
 - (void)addLocalObservation:(ObservationEntry*)observationEntry;
 - (void)editLocalObservation:(ObservationEntry*)observationEntry newImages:(NSArray*)images;
+- (void)editLocalObservation:(ObservationEntry*)observationEntry;
 - (void)deleteLocalObservation:(ObservationEntry*)observationEntry;
 - (void)clearObservations;
 
@@ -173,7 +183,11 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
 - (SeasonStats*)statsForObservationSeason:(NSInteger)startYear;
 - (NSArray*)latestObservationSpecies:(NSInteger)amount;
 
+// a helper for swift-world. Same as editObservationEntry but with different completion block
+- (void)synchronizeObservationEntry:(ObservationEntry *)observationEntry completion:(RiistaOperationCompletion)completion;
 - (void)editObservationEntry:(ObservationEntry *)observationEntry completion:(RiistaDiaryEntryEditCompletion)completion;
+// a helper for swift-world. Same as deleteObservationEntry but with different completion block
+- (void)deleteObservationEntryCompat:(ObservationEntry *)observationEntry completion:(RiistaOperationCompletion)completion;
 - (void)deleteObservationEntry:(ObservationEntry *)observationEntry completion:(RiistaDiaryEntryDeleteCompletion)completion;
 
 - (NSArray*)observationEntriesFromDictValues:(NSArray*)dictValues context:(NSManagedObjectContext*)context;

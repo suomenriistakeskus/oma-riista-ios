@@ -3,7 +3,7 @@ import MaterialComponents
 
 class MaterialVerticalButton: MDCButton {
 
-    private var iconSize = CGSize(width: 32, height: 32)
+    var iconSize = CGSize(width: 32, height: 32)
     private let padding: CGFloat = 4
     private let contentInsetHorizontal: CGFloat = 4
 

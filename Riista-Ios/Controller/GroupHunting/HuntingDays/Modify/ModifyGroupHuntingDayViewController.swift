@@ -124,10 +124,6 @@ class ModifyGroupHuntingDayViewController<Controller : ModifyGroupHuntingDayCont
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        if let navController = navigationController as? RiistaNavigationController {
-            navController.setRightBarItems(nil)
-        }
-
         keyboardHandler?.listenKeyboardEvents()
     }
 

@@ -185,20 +185,20 @@ import Foundation
             self.reportingType = reportingType;
             self.huntingMethod = huntingMethod;
             self.isMoose = gameSpeciesCode == AppConstants.SpeciesCode.Moose
-            self.isMooseOrDeerRequiringPermitForHunting = false
+            self.isMooseOrDeerRequiringPermitForHunting = SpeciesUtils.isMooseOrDeerRequiringPermitForHunting(speciesCode: gameSpeciesCode)
             self.associatedToHuntingDay = reportingType == HarvestReportingType.HUNTING_DAY;
         }
 
         @objc func getAge() -> Required {
-            if (isMooseOrDeerRequiringPermitForHunting) {
-                return associatedToHuntingDay ? Required.YES : Required.VOLUNTARY;
+            if (isMooseOrDeerRequiringPermitForHunting && (associatedToHuntingDay || reportingType == .BASIC)) {
+                return Required.YES;
             }
             return getRequirement(permitMandatorySpecies: PermitMandatoryAge, gameSpeciesCode: gameSpeciesCode);
         }
 
         @objc func getGender() -> Required {
-            if (isMooseOrDeerRequiringPermitForHunting) {
-                return associatedToHuntingDay ? Required.YES : Required.VOLUNTARY;
+            if (isMooseOrDeerRequiringPermitForHunting && (associatedToHuntingDay || reportingType == .BASIC)) {
+                return Required.YES;
             }
             return getRequirement(permitMandatorySpecies: PermitMandatoryGender, gameSpeciesCode: gameSpeciesCode);
         }

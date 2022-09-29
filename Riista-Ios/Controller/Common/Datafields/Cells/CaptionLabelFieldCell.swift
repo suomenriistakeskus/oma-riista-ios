@@ -23,7 +23,11 @@ class CaptionLabelFieldCell<FieldId : DataFieldId>:
     }
 
     override func fieldWasBound(field: LabelField<FieldId>) {
-        captionView.text = field.text
+        if (field.settings.allCaps) {
+            captionView.text = field.text.uppercased()
+        } else {
+            captionView.text = field.text
+        }
     }
 
     class Factory<FieldId : DataFieldId>: DataFieldCellFactory<FieldId> {

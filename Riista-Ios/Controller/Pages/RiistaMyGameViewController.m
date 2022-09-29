@@ -7,12 +7,8 @@
 #import "DiaryEntry.h"
 #import "SrvaEntry.h"
 #import "RiistaSpecies.h"
-#import "RiistaNavigationController.h"
-#import "RiistaTabBarViewController.h"
 #import "RiistaSettings.h"
 #import "RiistaLocalization.h"
-#import "RiistaMetadataManager.h"
-#import "DetailsViewController.h"
 #import "UIColor+ApplicationColor.h"
 #import "UserInfo.h"
 #import "RiistaSettings.h"
@@ -39,9 +35,7 @@
 @property (nonatomic, strong) NSArray *latestHarvestSpecies;
 @property (nonatomic, strong) NSArray *latestObservationSpecies;
 
-@property (nonatomic, strong) UIView *refreshView;
-@property (nonatomic, strong) UIImageView *refreshImageView;
-@property (nonatomic, strong) UIButton *refreshButton;
+@property (nonatomic, strong) UIBarButtonItem* synchronizeButton;
 
 @property (nonatomic, copy) NSNumber *srvaQuick1SpeciesCode;
 @property (nonatomic, copy) NSString *srvaQuick1EventName;
@@ -90,6 +84,8 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 {
     [super viewDidLoad];
 
+    [self createSynchronizeTabButton];
+
     [self setupPrimaryButtonStyle:_logHarvestButton
                      textResource:@"Loggame"
                     imageResource:@"harvest"
@@ -135,17 +131,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userInfoUpdated:) name:RiistaUserInfoUpdatedKey object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tryDisplayAppStartupMessage) name:RiistaUserInfoUpdatedKey object:nil];
 
-    self.refreshView = [UIView new];
-    self.refreshView.frame = CGRectMake(0, 0, RiistaRefreshImageSize+RiistaRefreshPadding, RiistaRefreshImageSize);
-    self.refreshImageView = [UIImageView new];
-    [self.refreshView addSubview:self.refreshImageView];
-    self.refreshImageView.image = [UIImage imageNamed:@"ic_action_refresh.png"];
-    self.refreshImageView.userInteractionEnabled = YES;
-    self.refreshButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.refreshImageView.frame = CGRectMake(RiistaRefreshPadding, 0, RiistaRefreshImageSize, RiistaRefreshImageSize);
-    [self.refreshImageView addSubview:self.refreshButton];
-    self.refreshButton.frame = CGRectMake(0, 0, RiistaRefreshImageSize, RiistaRefreshImageSize);
-
+    [self updateNavigationItemTitleView];
     [self setupQuickButtons];
     [self updateSrvaVisibility];
 }
@@ -227,11 +213,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)pageSelected
 {
-    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
-    [navController setLeftBarItem:nil];
-    [navController setRightBarItems:nil];
-
-    [self setupSyncButton];
+    [self updateSyncButton];
     [self refreshLocalizedContent];
 }
 
@@ -256,46 +238,48 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
         [_huntingLicenseButton setTitle:RiistaLocalizedString(@"HomeHuntingLicense", nil) forState:UIControlStateNormal];
 
         [self calendarEntriesUpdated:nil];
+        [self updateNavigationItemTitleView];
     }
-
-    UIImageView *titleImageView;
-
-    if ([@"sv" isEqualToString:activeLanguage]) {
-        titleImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"header_home_sv"]];
-    }
-    else if ([@"en" isEqualToString:activeLanguage]) {
-        titleImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"header_home_en"]];
-    }
-    else {
-        titleImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"header_home_fi"]];
-    }
-
-    self.tabBarController.navigationItem.titleView = titleImageView;
 }
 
-- (void)setupSyncButton
+- (void)updateNavigationItemTitleView
 {
-    RiistaSyncMode mode = [RiistaSettings syncMode];
-    if (mode == RiistaSyncModeManual) {
-        UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc] initWithCustomView:self.refreshView];
-        [self.refreshButton addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
-        [((RiistaNavigationController*)self.navigationController) setRightBarItems:@[refreshButton]];
+    NSString* activeLanguage = [RiistaSettings language];
+
+    if ([@"sv" isEqualToString:activeLanguage]) {
+        self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"header_home_sv"]];
     }
+    else if ([@"en" isEqualToString:activeLanguage]) {
+        self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"header_home_en"]];
+    }
+    else {
+        self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"header_home_fi"]];
+    }
+}
+
+
+- (void)createSynchronizeTabButton
+{
+    self.synchronizeButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh_white"]
+                                                         style:UIBarButtonItemStylePlain
+                                                        target:self
+                                                        action:@selector(refresh:)];
+    [self.navigationItem setRightBarButtonItem:self.synchronizeButton];
+
+    [self updateSyncButton];
+}
+
+- (void)updateSyncButton
+{
+    self.synchronizeButton.isHidden = [RiistaSettings syncMode] != RiistaSyncModeManual;
+    self.synchronizeButton.enabled = ![[RiistaGameDatabase sharedInstance] synchronizing];
 }
 
 - (void)refresh:(id)sender
 {
-    CGFloat speed = 0.4f;
-    CABasicAnimation* rotationAnimation;
-    rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-    rotationAnimation.toValue = [NSNumber numberWithFloat: M_PI * 2.0 * speed];
-    rotationAnimation.duration = 0.5f;
-    rotationAnimation.cumulative = YES;
-    rotationAnimation.repeatCount = HUGE_VALF;
-    
-    [self.refreshImageView.layer addAnimation:rotationAnimation forKey:@"rotationAnimation"];
+    [self.synchronizeButton setEnabled:NO];
     [[RiistaGameDatabase sharedInstance] synchronizeDiaryEntries:^() {
-        [self.refreshImageView.layer removeAllAnimations];
+        [self.synchronizeButton setEnabled:YES];
     }];
 }
 
@@ -313,36 +297,14 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)logObservationButtonClick:(id)sender
 {
-    if (![[RiistaMetadataManager sharedInstance] hasObservationMetadata]) {
-        DDLog(@"No metadata");
-        return;
-    }
-
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"DetailsStoryboard" bundle:nil];
-    UIViewController *destination = [sb instantiateInitialViewController];
-
-    UIStoryboardSegue *segue = [UIStoryboardSegue segueWithIdentifier:@"" source:self destination:destination performHandler:^(void) {
-        [self.navigationController pushViewController:destination animated:YES];
-    }];
-
-    [segue perform];
+    UIViewController *viewController = [CreateObservationViewControllerHelper createViewController];
+    [self.navigationController pushViewController:viewController animated:YES];
 }
 
 - (void)logSrvaButtonClick:(id)sender
 {
-    if (![[RiistaMetadataManager sharedInstance] hasSrvaMetadata]) {
-        DDLog(@"No metadata");
-        return;
-    }
-
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"DetailsStoryboard" bundle:nil];
-    DetailsViewController *destination = (DetailsViewController*)[sb instantiateInitialViewController];
-    destination.srvaNew = [NSNumber numberWithBool:YES];
-
-    UIStoryboardSegue *segue = [UIStoryboardSegue segueWithIdentifier:@"" source:self destination:destination performHandler:^(void) {
-        [self.navigationController pushViewController:destination animated:YES];
-    }];
-    [segue perform];
+    UIViewController *controller = [CreateSrvaEventViewControllerHelper createViewController];
+    [self.navigationController pushViewController:controller animated:YES];
 }
 
 - (void)calendarEntriesUpdated:(NSNotification*)notification
@@ -358,7 +320,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)tryDisplayAppStartupMessage
 {
-    RiistaTabBarViewController *tabController = (RiistaTabBarViewController*)self.tabBarController;
+    TopLevelTabBarViewController *tabController = (TopLevelTabBarViewController*)self.tabBarController;
 
     BOOL loggingIn = [tabController isDisplayingLoginScreen];
     if (currentlyVisible == YES && loggingIn == NO) {
@@ -393,19 +355,6 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     defaultItems = [@[@(quickObservation1Default), @(quickObservation2Default)] mutableCopy];
     latestSpecies = [[RiistaGameDatabase sharedInstance] latestObservationSpecies:quickButtons.count];
     [self setupQuickButtonGroup:quickButtons species:latestSpecies defaults:defaultItems isHarvest:NO];
-}
-
-- (void)setupSrvaButton:(UIButton*)button speciesCode:(NSInteger)speciesCode eventName:(NSString*)eventName eventType:(NSString*)eventType
-{
-    RiistaSpecies *species = [[RiistaGameDatabase sharedInstance] speciesById:speciesCode];
-    NSString *name = [RiistaUtils nameWithPreferredLanguage:species.name];
-
-    NSString *text = [NSString stringWithFormat:@"%@ / %@", name, RiistaMappedValueString(eventType, nil)];
-    button.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
-    button.titleLabel.textAlignment = NSTextAlignmentCenter;
-    [button setTitle:text forState:UIControlStateNormal];
-
-    [button addTarget:self action:@selector(logSrvaSpecies:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)setupQuickButtonGroup:(NSArray*)quickButtons species:(NSArray*)latestSpecies defaults:(NSMutableArray*)defaultItems isHarvest:(BOOL)isHarvest
@@ -480,7 +429,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 - (void)logHarvestSpecies:(id)sender
 {
     UIStoryboard *sb = [UIStoryboard storyboardWithName:@"HarvestStoryboard" bundle:nil];
-    DetailsViewController *destination = (DetailsViewController*)[sb instantiateInitialViewController];
+    RiistaLogGameViewController *destination = (RiistaLogGameViewController*)[sb instantiateInitialViewController];
     destination.species = self.latestHarvestSpecies[[sender tag]];
 
     UIStoryboardSegue *segue = [UIStoryboardSegue segueWithIdentifier:@"" source:self destination:destination performHandler:^(void) {
@@ -492,37 +441,10 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)logObservationSpecies:(id)sender
 {
-    if (![[RiistaMetadataManager sharedInstance] hasObservationMetadata]) {
-        DDLog(@"No metadata");
-        return;
-    }
+    RiistaSpecies *species = self.latestObservationSpecies[[sender tag]];
 
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"DetailsStoryboard" bundle:nil];
-    DetailsViewController *destination = (DetailsViewController*)[sb instantiateInitialViewController];
-    destination.species = self.latestObservationSpecies[[sender tag]];
-
-    UIStoryboardSegue *segue = [UIStoryboardSegue segueWithIdentifier:@"" source:self destination:destination performHandler:^(void) {
-        [self.navigationController pushViewController:destination animated:YES];
-    }];
-
-    [segue perform];
-}
-
-- (void)logSrvaSpecies:(id)sender
-{
-    if (![[RiistaMetadataManager sharedInstance] hasSrvaMetadata]) {
-        DDLog(@"No metadata");
-        return;
-    }
-
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"DetailsStoryboard" bundle:nil];
-    DetailsViewController *destination = (DetailsViewController*)[sb instantiateInitialViewController];
-    destination.srvaNew = [NSNumber numberWithBool:YES];
-
-    UIStoryboardSegue *segue = [UIStoryboardSegue segueWithIdentifier:@"" source:self destination:destination performHandler:^(void) {
-        [self.navigationController pushViewController:destination animated:YES];
-    }];
-    [segue perform];
+    UIViewController *viewController = [CreateObservationViewControllerHelper createViewControllerWithSpecies:species];
+    [self.navigationController pushViewController:viewController animated:YES];
 }
 
 - (void)navigateToMap:(id)sender
@@ -532,14 +454,12 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)navigateToMyDetails:(id)sender
 {
-    UIViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"MyDetailsController"];
+    UIViewController *controller = [[MyDetailsViewController alloc] init];
     [self.navigationController pushViewController:controller animated:YES];
 }
 
 - (void)navigateToShootingTests:(id)sender
 {
-//    let dest = self.storyboard?.instantiateViewController(withIdentifier:"ShootingTestsController") as!
-
     ShootingTestsViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"ShootingTestsController"];
     controller.user = [RiistaSettings userInfo];
 
@@ -548,9 +468,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)navigateToHuntingLicense:(id)sender
 {
-    HuntingLicenseViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"HuntingLicenseController"];
-    controller.user = [RiistaSettings userInfo];
-
+    HuntingLicenseViewController *controller = [[HuntingLicenseViewController alloc] initWithUserInfo:[RiistaSettings userInfo]];
     [self.navigationController pushViewController:controller animated:YES];
 }
 

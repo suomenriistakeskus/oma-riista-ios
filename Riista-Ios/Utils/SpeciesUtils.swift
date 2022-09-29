@@ -10,4 +10,8 @@ struct SpeciesUtils {
             speciesCode == AppConstants.SpeciesCode.WhiteTailedDeer ||
             speciesCode == AppConstants.SpeciesCode.WildForestDeer
     }
+
+    static func isMooseOrDeerRequiringPermitForHunting(speciesCode: Int) -> Bool {
+        return isMoose(speciesCode: speciesCode) || isDeer(speciesCode: speciesCode)
+    }
 }

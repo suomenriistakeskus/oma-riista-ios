@@ -23,8 +23,8 @@ class AuthenticationSendLinkToEmailView: UIStackView, UITextFieldDelegate {
 
     private lazy var titleLabel: UILabel = {
         UILabel().apply { label in
-            label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelXLarge)
-            label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: titleLocalizationKey)
+            label.font = UIFont.appFont(fontSize: .xLarge)
+            label.text = titleLocalizationKey.localized()
             label.textColor = .white
             label.numberOfLines = 1
         }
@@ -41,6 +41,7 @@ class AuthenticationSendLinkToEmailView: UIStackView, UITextFieldDelegate {
     lazy var usernameField: TextField = {
         TextField().apply { field in
             field.delegate = self
+            field.addTarget(self, action: #selector(updateSendLinkButtonStatus), for: .editingChanged)
 
             field.backgroundColor = .white
             field.layer.cornerRadius = 3
@@ -75,6 +76,8 @@ class AuthenticationSendLinkToEmailView: UIStackView, UITextFieldDelegate {
         btn.onClicked = {
             self.onSendLink?(self.usernameField.text)
         }
+        btn.setBackgroundColor(UIColor.applicationColor(GreyDark), for: .disabled)
+        btn.setTitleColor(UIColor.white, for: .disabled)
         return btn
     }()
 
@@ -86,6 +89,11 @@ class AuthenticationSendLinkToEmailView: UIStackView, UITextFieldDelegate {
     required init(coder: NSCoder) {
         super.init(coder: coder)
         setup()
+    }
+
+    @objc func updateSendLinkButtonStatus() {
+        let text = usernameField.text ?? ""
+        sendLinkButton.isEnabled = text.count >= 3
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -106,20 +114,24 @@ class AuthenticationSendLinkToEmailView: UIStackView, UITextFieldDelegate {
         layoutMargins = AppConstants.UI.DefaultEdgeInsets
 
         addView(titleLabel)
-        addView(messageLabel, spaceAfter: 8)
+        addView(messageLabel)
+
+        addSpacer(size: 16, canExpand: true)
 
         addView(usernameLabel)
         addView(usernameField)
 
-        addSpacer(size: 16, canExpand: true)
+        addSpacer(size: 16, canExpand: false)
 
         addView(sendLinkButton)
+
+        updateSendLinkButtonStatus()
     }
 
     private func createLabel(textLocalizationKey: String, numberOfLines: Int) -> UILabel {
         UILabel().apply { label in
-            label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelSmall)
-            label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: textLocalizationKey)
+            label.font = UIFont.appFont(fontSize: .small)
+            label.text = textLocalizationKey.localized()
             label.textColor = .white
             label.numberOfLines = numberOfLines
         }

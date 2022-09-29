@@ -20,8 +20,7 @@ class MapLabel: LabelWithPadding {
     }
 
     private func setup() {
-        AppTheme.shared.setupLabelFont(label: self)
-        textColor = .black
+        configure(for: .label, textColor: .black)
         backgroundColor = .white.withAlphaComponent(0.8)
     }
 }

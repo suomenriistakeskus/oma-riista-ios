@@ -8,6 +8,7 @@ Using macOS based development environment is required
 The following dependencies must be installed to successfully compile, test and run the project:
 
   - Xcode >= 11.0
+    - if using Xcode 13, then at least version 13.2 is required
   - Cocoapods
 
 ### Download source code

@@ -1,6 +1,5 @@
 #import "RiistaSessionManager.h"
 #import "KeyChainItemWrapper.h"
-#import "RiistaMetadataManager.h"
 
 // Settings storage name
 static NSString *const RIISTA_COOKIESTORAGE_NAME = @"RiistaCookies";
@@ -95,7 +94,6 @@ NSString *const RiistaAppLogin = @"RiistaAppLogin";
         for (NSHTTPCookie *cookie in cookies) {
             [cookieStorage setCookie:cookie];
         }
-        [[RiistaMetadataManager sharedInstance] fetchAll];
     }
 }
 

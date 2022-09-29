@@ -19,7 +19,7 @@ class CreateHuntingDayCell : TypedDataFieldCell<ViewHuntingDayField, CustomUserI
         container.backgroundColor = UIColor.applicationColor(Primary)
 
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = .white
         label.text = "GroupHuntingSuggestedHuntingDay".localized()
         label.numberOfLines = 0
@@ -31,7 +31,7 @@ class CreateHuntingDayCell : TypedDataFieldCell<ViewHuntingDayField, CustomUserI
         let createDayButton = MaterialButton()
         createDayButton.applyTextTheme(withScheme: MDCContainerScheme().apply { containerScheme in
             containerScheme.colorScheme = AppTheme.shared.colorSchemeInverted()
-            containerScheme.typographyScheme = AppTheme.shared.createTypographyCheme(buttonTextSize: AppConstants.Font.ButtonMedium)
+            containerScheme.typographyScheme = AppTheme.shared.createTypographyCheme()
         })
         createDayButton.setTitle("GroupHuntingAddHuntingDay".localized(), for: .normal)
         createDayButton.setImage(UIImage(named: "plus")?.withRenderingMode(.alwaysTemplate), for: .normal)

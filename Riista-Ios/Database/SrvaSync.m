@@ -187,6 +187,10 @@
     entry.month = [NSNumber numberWithInteger:components.month];
     entry.pendingOperation = [NSNumber numberWithInteger:DiaryEntryOperationNone];
     entry.coordinates = coordinates;
+    entry.deportationOrderNumber = [RiistaModelUtils checkNull:dict key:@"deportationOrderNumber"];
+    entry.eventTypeDetail = [RiistaModelUtils checkNull:dict key:@"eventTypeDetail"];
+    entry.otherEventTypeDetailDescription = [RiistaModelUtils checkNull:dict key:@"otherEventTypeDetailDescription"];
+    entry.eventResultDetail = [RiistaModelUtils checkNull:dict key:@"eventResultDetail"];
 
     //Images
     NSMutableArray *diaryImages = [NSMutableArray new];
@@ -263,7 +267,11 @@
                                     @"otherSpeciesDescription":[RiistaModelUtils nullify:srvaEntry.otherSpeciesDescription],
                                     @"gameSpeciesCode":[RiistaModelUtils nullify:srvaEntry.gameSpeciesCode],
                                     //approverInfo
-                                    @"srvaEventSpecVersion":srvaEntry.srvaEventSpecVersion
+                                    @"srvaEventSpecVersion":srvaEntry.srvaEventSpecVersion,
+                                    @"deportationOrderNumber":[RiistaModelUtils nullify:srvaEntry.deportationOrderNumber],
+                                    @"eventTypeDetail":[RiistaModelUtils nullify:srvaEntry.eventTypeDetail],
+                                    @"otherEventTypeDetailDescription":[RiistaModelUtils nullify:srvaEntry.otherEventTypeDetailDescription],
+                                    @"eventResultDetail":[RiistaModelUtils nullify:srvaEntry.eventResultDetail]
                                     } mutableCopy];
 
     if (isNew) {

@@ -62,12 +62,8 @@
 - (void)setupGlobalAppearance
 {
     [[UILabel appearance] setSubstituteFontName:AppFont.Name];
-    [self setupStatusBarColors];
-}
-
-- (void)setupStatusBarColors
-{
-    [[UINavigationBar appearance] setBarStyle:UIBarStyleBlack];
+    [MainNavigationController setupGlobalNavigationBarAppearance];
+    [TopLevelTabBarViewController setupGlobalTabBarAppearance];
 }
 
 - (void)registerFirebaseNotifications
@@ -183,6 +179,8 @@
     self.persistentStoreCoordinator = nil;
 
     [[NSNotificationCenter defaultCenter] postNotificationName:ManagedObjectContextChangedNotification object:nil];
+
+    [SynchronizationAnalytics sendAppStartupSynchronizationAnalytics];
 }
 
 - (void)saveContext

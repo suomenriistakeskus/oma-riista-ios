@@ -1,8 +1,5 @@
 #import <Foundation/Foundation.h>
 
-extern NSInteger const RiistaRefreshPadding;
-extern NSInteger const RiistaRefreshImageSize;
-
 @interface Styles : NSObject
 
 + (void)styleButton:(UIButton*)button;

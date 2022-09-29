@@ -215,6 +215,12 @@ class TypedDataFieldCell<FieldId : DataFieldId, FieldType: DataField<FieldId>>: 
     }
 
     private func doBind(field: FieldType, rebind: Bool) {
+        if let currentField = boundField, currentField.isContentSame(other: field) {
+            print("Field \(field.id_) contents remained same, won't \(rebind ? "rebind" : "bind")!")
+            boundField = field // probably not needed but shouldn't hurt either
+            return
+        }
+
         fieldWillBeBound(field: field)
         boundField = field
         print("\(rebind ? "Rebinding" : "Binding") field \(field.id_) to cell \(Unmanaged.passUnretained(self).toOpaque())")
@@ -253,6 +259,15 @@ class TypedDataFieldCell<FieldId : DataFieldId, FieldType: DataField<FieldId>>: 
             return
         }
 
+        dispatchValueChanged(fieldId: fieldId, eventDispatcher: eventDispatcher, value: value, dispatchBlock)
+    }
+
+    func dispatchValueChanged<EventDispatcher, ValueType>(
+        fieldId: FieldId,
+        eventDispatcher: EventDispatcher?,
+        value: ValueType?,
+        _ dispatchBlock: (EventDispatcher, FieldId, ValueType) -> Void
+    ) {
         if let dispatcher = eventDispatcher, let value = value {
             dispatchingValueChanged = true
             dispatchBlock(dispatcher, fieldId, value)

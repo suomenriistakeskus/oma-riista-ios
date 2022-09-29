@@ -3,7 +3,6 @@
 #import "RiistaAppDelegate.h"
 #import "RiistaSettings.h"
 #import "UserInfo.h"
-#import "ObservationContextSensitiveFieldSets.h"
 
 @implementation RiistaModelUtils
 
@@ -68,11 +67,6 @@
     else {
         NSLog(@"Context save error: %@", [error localizedDescription]);
     }
-}
-
-+ (BOOL) isFieldCarnivoreAuthorityVoluntaryForUser:(ObservationContextSensitiveFieldSets*)fieldSet fieldName:(NSString*)fieldName
-{
-    return [[RiistaSettings userInfo] isCarnivoreAuthority] && [fieldSet hasFieldCarnivoreAuthorityVoluntary:fieldSet.baseFields name:fieldName];
 }
 
 @end

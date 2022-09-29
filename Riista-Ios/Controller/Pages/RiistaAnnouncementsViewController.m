@@ -27,13 +27,12 @@
 @property (weak, nonatomic) IBOutlet UILabel *stateMessageLagel;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
-@property (strong, nonatomic) NSFetchedResultsController *fetchedResultController;
-
 @end
 
 @implementation RiistaAnnouncementsViewController
 {
     NSDateFormatter *dateFormatter;
+    AnnouncementsControllerHolder *announcementControllerHolder;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder {
@@ -74,11 +73,10 @@
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = 120;
 
-    NSError *error = nil;
-    [self.fetchedResultController performFetch:&error];
-
     dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
     [dateFormatter setDateFormat:@"dd.MM.yyyy"];
+
+    announcementControllerHolder = [[AnnouncementsControllerHolder alloc] init];
 
     self.tableView.refreshControl = [[UIRefreshControl alloc] init];
     self.tableView.refreshControl.backgroundColor = [UIColor whiteColor];
@@ -91,6 +89,14 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+
+    self.navigationItem.title = RiistaLocalizedString(@"Announcements", nil);
+    [self fetchAnnouncements];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(fetchAnnouncements)
+                                                 name:ManagedObjectContextChangedNotification
+                                               object:nil];
     RiistaLanguageRefresh;
 }
 
@@ -98,23 +104,35 @@
 {
     [super viewDidAppear:animated];
     [self pageSelected];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+
+#pragma mark - Announcement management
+
+- (void)fetchAnnouncements
+{
+    NSError *error = nil;
+    [[self getAnnouncementsFetchController] performFetch:&error];
 
     [self.tableView reloadData];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (NSFetchedResultsController<Announcement *>*)getAnnouncementsFetchController
+{
+    return [announcementControllerHolder getObject];
 }
+
+
+#pragma mark - RiistaPageDelegate
 
 - (void)pageSelected
 {
-    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
-    [navController setLeftBarItem:nil];
-    [navController setRightBarItems:nil];
-
-    navController.title = RiistaLocalizedString(@"Announcements", nil);
-
     self.stateMessageLagel.text = RiistaLocalizedString(@"AnnouncementsNone", nil);
 
     [RiistaUtils markAllAnnouncementsAsRead];
@@ -142,7 +160,7 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView*)tableView
 {
-    NSUInteger count = [[self.fetchedResultController sections] count];
+    NSUInteger count = [[[self getAnnouncementsFetchController] sections] count];
     self.stateMessageLagel.hidden = count && count > 0 ? YES : NO;
 
     return count;
@@ -150,7 +168,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    id<NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultController sections] objectAtIndex:section];
+    id<NSFetchedResultsSectionInfo> sectionInfo = [[[self getAnnouncementsFetchController] sections] objectAtIndex:section];
 
     NSUInteger count = [sectionInfo numberOfObjects];
     self.stateMessageLagel.hidden = count && count > 0 ? YES : NO;
@@ -170,7 +188,7 @@
 
     cell.showAllView.text = RiistaLocalizedString(@"DisplayAll", nil);
 
-    id item = [self.fetchedResultController objectAtIndexPath:indexPath];
+    id item = [[self getAnnouncementsFetchController] objectAtIndexPath:indexPath];
     return [self setupCell:cell item:item index:indexPath];
 }
 
@@ -197,7 +215,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 {
-    Announcement *item = [self.fetchedResultController objectAtIndexPath:indexPath];
+    Announcement *item = [[self getAnnouncementsFetchController] objectAtIndexPath:indexPath];
     if (!item) {
         return;
     }
@@ -205,34 +223,6 @@
     AnnouncementViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"AnnouncementController"];
     controller.item = item;
     [self.navigationController pushViewController:controller animated:true];
-}
-
-#pragma mark - Fetched result controller
-
-- (NSFetchedResultsController*)fetchedResultController
-{
-    if (_fetchedResultController != nil) {
-        return _fetchedResultController;
-    }
-    RiistaAppDelegate *delegate = (RiistaAppDelegate*)[[UIApplication sharedApplication] delegate];
-    NSManagedObjectContext *managedContext = delegate.managedObjectContext;
-
-    NSFetchRequest *fetchRequest = [NSFetchRequest new];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Announcement" inManagedObjectContext:managedContext];
-    [fetchRequest setEntity:entity];
-
-    [fetchRequest setFetchBatchSize:20];
-
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"pointOfTime" ascending:NO];
-    [fetchRequest setSortDescriptors:@[sortDescriptor]];
-
-    _fetchedResultController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                                                   managedObjectContext:managedContext
-                                                                     sectionNameKeyPath:nil
-                                                                              cacheName:nil];
-    _fetchedResultController.delegate = self;
-
-    return _fetchedResultController;
 }
 
 - (void)controllerDidChangeContent:(NSFetchedResultsController*)controller

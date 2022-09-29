@@ -66,6 +66,13 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "refresh_white"),
+            style: .plain,
+            target: self,
+            action: #selector(onRefreshClicked)
+        )
+
         inputTextView.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
 
         resultTestMooseView.delegate = self
@@ -86,14 +93,9 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        updateTitle()
+        navigationItem.title = "ShootingTestViewTitle".localized()
         self.resetSearchResult()
         self.refreshData()
-    }
-
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestViewTitle"))
     }
 
     func setupUI() {
@@ -232,9 +234,16 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
             (self.resultTestMooseView.getChecked() || self.resultTestBearView.getChecked() || self.resultTestRoeDeerView.getChecked() || self.resultTestBowView.getChecked())
     }
 
+    @objc private func onRefreshClicked() {
+        self.navigationItem.rightBarButtonItem?.isEnabled = false
+        refreshData()
+    }
+
     func refreshData() {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
         tabBarVc.fetchEvent() { (result:Any?, error:Error?) in
+            self.navigationItem.rightBarButtonItem?.isEnabled = true
+
             if (error == nil) {
                 do {
                     let json = try JSONSerialization.data(withJSONObject: result!)

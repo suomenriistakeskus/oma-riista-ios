@@ -78,7 +78,7 @@ class ListGroupDiaryEntriesViewController:
         labelContainer.addSeparatorToBottom()
 
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium, fontWeight: .semibold)
+        label.font = UIFont.appFont(for: .label, fontWeight: .semibold)
         label.text = "MapLocationHarvestsAndObservations".localized()
         label.textColor = UIColor.applicationColor(TextPrimary)
         labelContainer.addSubview(label)
@@ -94,14 +94,6 @@ class ListGroupDiaryEntriesViewController:
         }
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        if let navController = navigationController as? RiistaNavigationController {
-            navController.setRightBarItems(nil)
-        }
-    }
-
     override func onViewModelLoaded(viewModel: ListGroupDiaryEntriesViewModel) {
         super.onViewModelLoaded(viewModel: viewModel)
 
@@ -109,7 +101,7 @@ class ListGroupDiaryEntriesViewController:
             switch (entry.type) {
             case .harvest:
                 return MapHarvestViewModel(
-                    id: entry.remoteId,
+                    id: .remote(id: entry.remoteId),
                     speciesCode: entry.speciesCode,
                     acceptStatus: entry.acceptStatus,
                     pointOfTime: entry.pointOfTime,
@@ -120,7 +112,7 @@ class ListGroupDiaryEntriesViewController:
                 )
             case .observation:
                 return MapObservationViewModel(
-                    id: entry.remoteId,
+                    id: .remote(id: entry.remoteId),
                     speciesCode: entry.speciesCode,
                     acceptStatus: entry.acceptStatus,
                     pointOfTime: entry.pointOfTime,

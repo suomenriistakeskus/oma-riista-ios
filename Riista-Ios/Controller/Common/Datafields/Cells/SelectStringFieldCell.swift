@@ -7,6 +7,7 @@ fileprivate let CELL_TYPE = DataFieldCellType.selectString
 
 class SelectStringFieldCell<FieldId : DataFieldId>:
     TypedDataFieldCell<FieldId, StringListField<FieldId>>,
+    SelectSingleStringViewControllerDelegate,
     SelectStringViewControllerDelegate {
 
     override var cellType: DataFieldCellType { CELL_TYPE }
@@ -14,94 +15,44 @@ class SelectStringFieldCell<FieldId : DataFieldId>:
     private weak var navigationControllerProvider: ProvidesNavigationController? = nil
     private weak var eventDispatcher: StringWithIdEventDispatcher? = nil
 
-    // wrap other views inside of a button in order to get click events
-    private let containerButton = UIButton()
+    private lazy var selectView: SelectStringView = {
+        let view = SelectStringView()
+        view.onClicked = { [weak self] in
+            self?.onClicked()
+        }
+        return view
+    }()
+
     override var containerView: UIView {
-        return containerButton
+        return selectView
     }
 
     var isEnabled: Bool {
         get {
-            containerButton.isEnabled
+            selectView.isEnabled
         }
         set(enabled) {
-            containerButton.isEnabled = enabled
-            updateEnabledIndication()
+            selectView.isEnabled = enabled
         }
     }
 
-    private let label = LabelView()
-    private let valueLabel: UILabel = {
-        let valueLabel = UILabel()
-        AppTheme.shared.setupValueFont(label: valueLabel)
-        valueLabel.textColor = UIColor.applicationColor(GreyDark)
-        return valueLabel
-    }()
-
-    private let lineUnderValue: UIView = {
-        let line = UIView()
-        line.backgroundColor = UIColor.applicationColor(TextPrimary)
-        return line
-    }()
-
-    private let arrowImageView: UIImageView = {
-        let arrow = UIImageView()
-        arrow.image = UIImage(named: "arrow_forward")?.withRenderingMode(.alwaysTemplate)
-        arrow.tintColor = UIColor.applicationColor(Primary)
-        return arrow
-    }()
-
     override func createSubviews(for container: UIView) {
-        containerButton.addSubview(label)
-        containerButton.addSubview(valueLabel)
-        containerButton.addSubview(lineUnderValue)
-        containerButton.addSubview(arrowImageView)
-
-        label.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.top.equalToSuperview().inset(4)
-        }
-
-        valueLabel.snp.makeConstraints { make in
-            make.leading.equalTo(label)
-            make.top.equalTo(label.snp.bottom)
-            make.trailing.equalTo(arrowImageView.snp.leading).inset(2)
-            // if the value is empty (i.e. ""), its height will become 0 and thus
-            // the line will not be displayed similarly always
-            // -> force the height to be larger. This value should also introduce small
-            //    padding between label and value.
-            make.height.greaterThanOrEqualTo(30).priority(999)
-        }
-
-        lineUnderValue.snp.makeConstraints { make in
-            make.height.equalTo(1)
-            make.leading.equalTo(valueLabel)
-            make.trailing.equalTo(arrowImageView)
-            make.top.equalTo(valueLabel.snp.bottom)
-            make.bottom.equalToSuperview().inset(4)
-        }
-
-        arrowImageView.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview()
-            // same height and value as in RiistaValueListButton.xib
-            make.height.equalTo(18)
-            make.width.equalTo(12)
-        }
-
-        containerButton.addTarget(self, action: #selector(onClicked), for: .touchUpInside)
+        // nop, but needed since superview will crash otherwise
     }
 
     override func fieldWasBound(field: StringListField<FieldId>) {
         if let labelText = field.settings.label {
-            label.text = labelText
-            label.required = field.settings.requirementStatus.isVisiblyRequired()
-            label.isHidden = false
+            selectView.label.text = labelText
+            selectView.label.required = field.settings.requirementStatus.isVisiblyRequired()
+            selectView.label.isHidden = false
         } else {
-            label.isHidden = true
+            selectView.label.isHidden = true
         }
 
-        if (!field.settings.readOnly && field.values.count > 1) {
+        let selectedValues = field.selected ?? []
+        let hasSelectableValue = field.values.count > 1 || (field.values.count == 1 && selectedValues.isEmpty)
+
+        if (!field.settings.readOnly && hasSelectableValue) {
             isEnabled = (self.navigationControllerProvider != nil && self.eventDispatcher != nil)
             if (!isEnabled) {
                 print("Displaying SelectStringFieldCell as read-only since there is no eventDispatcher / navController!")
@@ -110,16 +61,19 @@ class SelectStringFieldCell<FieldId : DataFieldId>:
             isEnabled = false
         }
 
-        var selectedValue: String? = nil
-        if let selected = field.selected {
-            selectedValue = field.values.first { stringWithId in
-                KotlinLong(value: stringWithId.id).isEqual(to: selected)
-            }?.string
+        var valueText: String?
+        if let multiModeChooseText = field.settings.multiModeChooseText {
+            valueText = multiModeChooseText
+        } else {
+            valueText = field.values
+                .filter { selectedValues.contains(KotlinLong(value: $0.id)) }
+                .map { $0.string }
+                .joined(separator: ", ")
         }
-        valueLabel.text = selectedValue ?? ""
+        selectView.valueLabel.text = valueText ?? ""
     }
 
-    @objc private func onClicked() {
+    private func onClicked() {
         guard let navigationController = navigationControllerProvider?.navigationController else {
             print("No NavigationController, cannot handle click")
             return
@@ -129,10 +83,52 @@ class SelectStringFieldCell<FieldId : DataFieldId>:
             return
         }
 
-        let controller = SelectStringViewController()
+        if (field.settings.preferExternalViewForSelection || field.settings.mode == .multi) {
+            launchSelectStringInExternalView(navigationController: navigationController, field: field)
+        } else {
+            launchDefaultStringSelection(navigationController: navigationController, field: field)
+        }
+    }
+
+    private func launchSelectStringInExternalView(
+        navigationController: UINavigationController,
+        field: StringListField<FieldId>
+    ) {
+        let allValues: [StringWithId]
+        if (!field.detailedValues.isEmpty) {
+            allValues = field.detailedValues
+        } else {
+            allValues = field.values
+        }
+
+        let controller = SelectStringViewController(
+            mode: field.settings.mode,
+            allValues: allValues,
+            selectedValues: field.selected ?? []
+        )
 
         controller.delegate = self
-        controller.title = label.text
+        if let externalViewConfiguration = field.settings.externalViewConfiguration {
+            controller.title = externalViewConfiguration.title
+            controller.filterEnabled = externalViewConfiguration.filterEnabled
+            controller.filterLabelText = externalViewConfiguration.filterLabelText
+            controller.filterTextHint = externalViewConfiguration.filterTextHint
+        } else {
+            controller.title = selectView.label.text
+        }
+
+        navigationController.pushViewController(controller, animated: true)
+    }
+
+    private func launchDefaultStringSelection(
+        navigationController: UINavigationController,
+        field: StringListField<FieldId>
+    ) {
+        // todo: drop down for small amount of selectable strings
+        let controller = SelectSingleStringViewController()
+
+        controller.delegate = self
+        controller.title = selectView.label.text
         if (!field.detailedValues.isEmpty) {
             controller.setValues(values: field.detailedValues)
         } else {
@@ -141,21 +137,17 @@ class SelectStringFieldCell<FieldId : DataFieldId>:
         navigationController.pushViewController(controller, animated: true)
     }
 
-    func onStringSelected(string: SelectStringViewController.SelectableString) {
+    func onStringSelected(string: SelectSingleStringViewController.SelectableString) {
+        let result = StringWithId(string: string.value, id: string.id)
+        onStringsSelected(selecteStrings: [result])
+    }
+
+    func onStringsSelected(selecteStrings: [StringWithId]) {
         dispatchValueChanged(
             eventDispatcher: eventDispatcher,
-            value: string
+            value: selecteStrings
         ) { eventDispatcher, fieldId, string in
-            let result = StringWithId(string: string.value, id: string.id)
-            eventDispatcher.dispatchStringWithIdChanged(fieldId: fieldId, value: result)
-        }
-    }
-    
-    private func updateEnabledIndication() {
-        if (isEnabled) {
-            arrowImageView.tintColor = UIColor.applicationColor(Primary)
-        } else {
-            arrowImageView.tintColor = UIColor.applicationColor(GreyMedium)
+            eventDispatcher.dispatchStringWithIdChanged(fieldId: fieldId, value: selecteStrings)
         }
     }
 

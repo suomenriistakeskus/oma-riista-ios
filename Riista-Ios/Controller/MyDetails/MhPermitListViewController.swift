@@ -38,13 +38,8 @@ class MhPermitListViewController: UITableViewController, NSFetchedResultsControl
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        updateTitle()
+        title = "MyDetailsMhPermitsTitle".localized()
         refreshData()
-    }
-
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "MyDetailsMhPermitsTitle"))
     }
 
     func refreshData() {

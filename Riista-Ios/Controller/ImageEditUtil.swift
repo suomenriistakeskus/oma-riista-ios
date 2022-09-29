@@ -32,6 +32,27 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
         return false
     }
 
+    func checkPhotoPermissions(_ actionIfAuthorized: @escaping () -> Void) {
+        requestPhotoAuthorizationStatusIfNotDetermined { [weak self] authorizationStatus in
+            guard let self = self else { return }
+
+            switch authorizationStatus {
+            case .authorized, .limited:
+                actionIfAuthorized()
+                break
+            case .notAuthorized:
+                self.requestImagePermissionFromSettings()
+                break
+            case .notDetermined:
+                // this should actually never happen since we have already requested
+                // permission. There's probably nothing sensible thing to do so
+                // lets just bail out
+                print("Photo authorization status == .notDetermined even though we just asked permission?")
+                break
+            }
+        }
+    }
+
     func editImage(pickerDelegate: RiistaImagePickerDelegate) {
         requestPhotoAuthorizationStatusIfNotDetermined { [weak self] authorizationStatus in
             guard let self = self else { return }
@@ -159,10 +180,7 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
     }
 
     func displayImageSourceDialog(pickerDelegate: RiistaImagePickerDelegate) {
-        self.pickerDelegate = pickerDelegate
-
-        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.camera) {
-
+        if (canTakePhoto()) {
             let transitionController = MDCDialogTransitionController()
             self.dialogTransitionController = transitionController
 
@@ -172,10 +190,10 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
             dialogController.completionHandler = { (imageSource:ImageSourceSelectionDialogController.ImageSource) -> () in
                 switch imageSource {
                 case .camera:
-                    self.takePhoto()
+                    self.takePhoto(pickerDelegate: pickerDelegate)
                     break
                 case .gallery:
-                    self.pickImageFromGallery()
+                    self.pickImageFromGallery(pickerDelegate: pickerDelegate)
                     break
                 default:
                     break
@@ -185,23 +203,29 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
             self.parentController?.present(dialogController, animated: true, completion:nil)
         }
         else {
-            self.pickImageFromGallery()
+            self.pickImageFromGallery(pickerDelegate: pickerDelegate)
         }
     }
 
-    private func pickImageFromGallery() {
-        if let parentController = self.parentController, let delegate = self.pickerDelegate {
+    func pickImageFromGallery(pickerDelegate: RiistaImagePickerDelegate) {
+        self.pickerDelegate = pickerDelegate
+        if let parentController = self.parentController {
             LocalImageManager.instance.pickImageFromGallery(
                 presentingViewController: parentController,
-                delegate: delegate)
+                delegate: pickerDelegate)
         }
     }
 
-    private func takePhoto() {
-        if let parentController = self.parentController, let delegate = self.pickerDelegate {
+    func canTakePhoto() -> Bool {
+        return UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.camera)
+    }
+
+    func takePhoto(pickerDelegate: RiistaImagePickerDelegate) {
+        self.pickerDelegate = pickerDelegate
+        if let parentController = self.parentController {
             LocalImageManager.instance.pickImageFromCamera(
                 presentingViewController: parentController,
-                delegate: delegate)
+                delegate: pickerDelegate)
         }
     }
 

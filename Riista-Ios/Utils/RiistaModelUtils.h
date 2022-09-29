@@ -14,6 +14,4 @@
 
 + (void)saveContexts:(NSManagedObjectContext*)context;
 
-+ (BOOL) isFieldCarnivoreAuthorityVoluntaryForUser:(ObservationContextSensitiveFieldSets*)fieldSet fieldName:(NSString*)fieldName;
-
 @end

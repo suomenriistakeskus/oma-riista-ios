@@ -4,11 +4,7 @@ import SnapKit
 
 class BadgeView: UIView {
     lazy var badgeLabel: UILabel = {
-        let label = UILabel()
-        label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelMedium, bolded: true)
-        label.textAlignment = .center
-        label.textColor = .white
-        return label
+        UILabel().configure(for: .label, fontWeight: .semibold, textColor: .white, textAlignment: .center)
     }()
 
     var text: String? {

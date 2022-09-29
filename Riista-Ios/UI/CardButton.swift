@@ -2,8 +2,9 @@ import Foundation
 import MaterialComponents
 import SnapKit
 
-fileprivate let iconSize: CGFloat = 18
-fileprivate let labelHorizontalPadding: CGFloat = 8
+// the default horizontal padding for the title that would be used
+// if the horizontalContentAlignment == .left
+fileprivate let titleHorizontalPadding: CGFloat = 16
 fileprivate let spacingBetweenLabelAndIcon: CGFloat = 8
 
 class CardButton: MDCCard {
@@ -12,13 +13,29 @@ class CardButton: MDCCard {
         button.applyTextTheme(withScheme: AppTheme.shared.cardButtonScheme())
         button.titleLabel?.lineBreakMode = .byWordWrapping
         button.titleLabel?.textAlignment = .center
+
+        button.addTarget(self, action: #selector(handleClicked), for: .touchUpInside)
         return button
     }()
+
+    // click handler for the button
+    var onClicked: OnClicked?
 
     /**
      * The constraint for adjusting titleLabel width in respect to button width
      */
     private var titleLabelWidthConstraint: Constraint?
+
+    // how the button title should be aligned?
+    override var contentHorizontalAlignment: UIControl.ContentHorizontalAlignment {
+        get {
+            button.contentHorizontalAlignment
+        }
+        set(alignment) {
+            button.contentHorizontalAlignment = alignment
+            updateTitleLabelConstraint()
+        }
+    }
 
     /**
      * Should space be reserved for a trailing icon? If already reserved, the title won't jump if icon is displayed later.
@@ -26,6 +43,15 @@ class CardButton: MDCCard {
     var reserveSpaceForIcon: Bool = false {
         didSet {
             updateTitleLabelConstraint()
+        }
+    }
+
+    override var isEnabled: Bool {
+        get {
+            button.isEnabled
+        }
+        set(enabled) {
+            button.isEnabled = enabled
         }
     }
 
@@ -45,6 +71,18 @@ class CardButton: MDCCard {
         }
     }
 
+    var iconSize: CGSize = CGSize(width: 18, height: 18) {
+        didSet {
+            iconWidthConstraint?.update(offset: iconSize.width)
+            iconHeightConstraint?.update(offset: iconSize.height)
+
+            updateTitleLabelConstraint()
+        }
+    }
+
+    private var iconWidthConstraint: Constraint?
+    private var iconHeightConstraint: Constraint?
+
     /**
      * A convenience property for showing/hiding trailing icon.
      *
@@ -62,7 +100,9 @@ class CardButton: MDCCard {
     }
 
     lazy var trailingIconImageView: UIImageView = {
-        UIImageView()
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
 
     var title: String? {
@@ -90,8 +130,8 @@ class CardButton: MDCCard {
         setup()
     }
 
-    open override func addTarget(_ target: Any?, action: Selector, for controlEvents: UIControl.Event) {
-        button.addTarget(target, action: action, for: controlEvents)
+    @objc private func handleClicked() {
+        onClicked?()
     }
 
     private func setup() {
@@ -104,12 +144,15 @@ class CardButton: MDCCard {
         button.addSubview(trailingIconImageView)
         if let titleLabel = button.titleLabel {
             titleLabel.snp.makeConstraints { make in
-                make.center.equalToSuperview()
-                titleLabelWidthConstraint = make.width.lessThanOrEqualToSuperview().inset(labelHorizontalPadding).constraint
+                make.centerY.equalToSuperview()
+                // use lessThanOrEqualToSuperview to attach icon to title label
+                // inset would inset from left and right -> use offset to have more fine-grained control over width
+                titleLabelWidthConstraint = make.width.equalToSuperview().offset(-2 * titleHorizontalPadding).constraint
             }
         }
         trailingIconImageView.snp.makeConstraints { make in
-            make.width.height.lessThanOrEqualTo(iconSize)
+            iconWidthConstraint = make.width.equalTo(0).offset(iconSize.width).constraint
+            iconHeightConstraint = make.height.equalTo(0).offset(iconSize.height).constraint
 
             if let titleLabel = button.titleLabel {
                 make.leading.equalTo(titleLabel.snp.trailing).offset(spacingBetweenLabelAndIcon)
@@ -123,10 +166,23 @@ class CardButton: MDCCard {
     }
 
     private func updateTitleLabelConstraint() {
-        if (reserveSpaceForIcon || (trailingIcon != nil && !isTrailingIconHidden)) {
-            titleLabelWidthConstraint?.update(inset: iconSize + spacingBetweenLabelAndIcon + labelHorizontalPadding)
-        } else {
-            titleLabelWidthConstraint?.update(inset: labelHorizontalPadding)
+        let allocateSpaceForIcon: CGFloat = (reserveSpaceForIcon || (trailingIcon != nil && !isTrailingIconHidden)) ? 1 : 0
+
+        let offset: CGFloat
+        switch contentHorizontalAlignment {
+        case .center, .fill:
+            // text is centered i.e. we need to reserve space that would equal the situation
+            // where there would be also a leading icon:
+            // |<padding><leading icon><spacing><centered text><spacing><trailing icon><padding>|
+            offset = 2 * (titleHorizontalPadding + allocateSpaceForIcon * iconSize.width + spacingBetweenLabelAndIcon)
+            break
+        case .left, .right, .leading, .trailing: fallthrough
+        @unknown default:
+            // |<padding><text><spacing><trailing icon><padding>|
+            offset = 2 * titleHorizontalPadding + allocateSpaceForIcon * (iconSize.width + spacingBetweenLabelAndIcon)
+            break
         }
+
+        titleLabelWidthConstraint?.update(offset: -offset)
     }
 }

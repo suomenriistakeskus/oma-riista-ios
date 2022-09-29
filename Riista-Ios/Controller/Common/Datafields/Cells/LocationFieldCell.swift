@@ -1,13 +1,15 @@
 import Foundation
 import SnapKit
 import RiistaCommon
+import GoogleMaps
+import Async
 
 fileprivate let CELL_TYPE = DataFieldCellType.location
 
 class LocationFieldCell<FieldId : DataFieldId>:
     TypedDataFieldCell<FieldId, LocationField<FieldId>>,
     GMSMapViewDelegate,
-    MapPageDelegate {
+    LocationSelectionListener {
 
     override var cellType: DataFieldCellType { CELL_TYPE }
 
@@ -33,6 +35,32 @@ class LocationFieldCell<FieldId : DataFieldId>:
         marker.map = mapView
         marker.icon = UIImage(named: "map-pin-generic")
         return marker
+    }()
+
+    private lazy var unknownLocationOverlay: OverlayView = {
+        let view = OverlayView()
+        view.backgroundColor = .black.withAlphaComponent(0.6)
+        view.isHidden = true
+
+        view.addSubview(setupLocationButton)
+        setupLocationButton.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.height.equalTo(AppConstants.UI.DefaultButtonHeight)
+        }
+        return view
+    }()
+
+    private lazy var setupLocationButton: MaterialButton = {
+        let button = MaterialButton()
+        button.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        button.setTitle("MapPageSetLocation".localized(), for: .normal)
+        button.setImage(UIImage(named: "map_pin")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        // adjust image position slightly
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 8)
+        button.onClicked = { [weak self] in
+            self?.navigateToMap()
+        }
+        return button
     }()
 
     override var containerView: UIView {
@@ -74,22 +102,71 @@ class LocationFieldCell<FieldId : DataFieldId>:
         coordinatesLabel.snp.makeConstraints { make in
             make.leading.trailing.top.equalToSuperview()
         }
+
+        container.addSubview(unknownLocationOverlay)
+        unknownLocationOverlay.snp.makeConstraints { make in
+            // let overlay cover the whole map
+            make.edges.equalToSuperview()
+        }
     }
 
     override func fieldWasBound(field: LocationField<FieldId>) {
         // update map external every time field is bound
         mapExternalId = mapExternalIdProvider?.getMapExternalId()
 
-        let location = field.location.toCoordinate()
+        if let knownLocation = field.location as? CommonLocation.Known {
+            showKnownLocation(knownLocation: knownLocation)
+        } else {
+            indicateUnknownLocation()
+        }
+    }
+
+    private func showKnownLocation(knownLocation: CommonLocation.Known) {
+        unknownLocationOverlay.isHidden = true
+        coordinatesLabel.isHidden = false
+
+        let coordinate = knownLocation.etrsLocation.toCoordinate()
         mapView.camera = GMSCameraPosition(
-            latitude: location.latitude,
-            longitude: location.longitude,
+            latitude: coordinate.latitude,
+            longitude: coordinate.longitude,
             zoom: AppConstants.Map.DefaultZoomToLevel
         )
-        locationMarker.position = location
+        locationMarker.position = coordinate
 
         coordinatesLabel.text = String(format: "CoordinatesFormat".localized(),
-                                       field.location.latitude, field.location.longitude)
+                                       knownLocation.etrsLocation.latitude,
+                                       knownLocation.etrsLocation.longitude)
+    }
+
+    private func indicateUnknownLocation() {
+        coordinatesLabel.isHidden = true
+
+        // Schedule displaying unknown location overlay using Async instead of using animation
+        // delays. Animation delays may get cancelled (probably will!) if other cells decide
+        // to request cell updates with setCellNeedsLayout(animateChanges: false)
+        // - having animateChanges false seems to cancel animations / delays
+        Async.main(after: 2) { [weak self] in
+            self?.showUnknownLocationOverlayIfStillUnknownLocation()
+        }
+
+        mapView.camera = GMSCameraPosition(
+            latitude: AppConstants.DefaultMapLocation.Latitude,
+            longitude: AppConstants.DefaultMapLocation.Longitude,
+            zoom: AppConstants.DefaultMapLocation.Zoom
+        )
+    }
+
+    private func showUnknownLocationOverlayIfStillUnknownLocation() {
+        if ((boundField?.location as? CommonLocation.Unknown) == nil) {
+            return
+        }
+
+        unknownLocationOverlay.alpha = 0
+        unknownLocationOverlay.isHidden = false
+
+        UIView.animate(withDuration: AppConstants.Animations.durationShort) { [weak self] in
+            self?.unknownLocationOverlay.alpha = 1
+        }
     }
 
     func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
@@ -101,7 +178,7 @@ class LocationFieldCell<FieldId : DataFieldId>:
         return true
     }
 
-    func locationSetManually(_ location: CLLocationCoordinate2D) {
+    func onLocationSelected(location: CLLocationCoordinate2D) {
         dispatchValueChanged(
             eventDispatcher: locationEventDispatcher,
             value: location) { dispatcher, fieldId, location in
@@ -115,23 +192,20 @@ class LocationFieldCell<FieldId : DataFieldId>:
             print("No navigation controller / boundField, cannot navigate to map!")
             return
         }
+        let selectLocation = !field.settings.readOnly && locationEventDispatcher != nil
 
-        let storyboard = UIStoryboard(name: "DetailsStoryboard", bundle: nil)
-        guard let controller = storyboard.instantiateViewController(withIdentifier: "mapPageController") as? RiistaMapViewController else {
-            print("No map page controller, cannot navigate to map!")
-            return
+        let controller = ViewOrSelectLocationOnMapViewController()
+        controller.locationSelectionListener = self
+        controller.locationMode = selectLocation ? .select : .view
+        controller.customMapLayerExternalId = mapExternalId
+        controller.customMapLayerInvertColors = true
+        if let knownLocation = field.location as? CommonLocation.Known {
+            controller.initialCoordinate = knownLocation.etrsLocation.toCoordinate()
+        } else {
+            controller.initialCoordinate = AppConstants.DefaultMapLocation.Coordinate
+            controller.initialZoom = AppConstants.DefaultMapLocation.Zoom
         }
 
-        controller.delegate = self
-        controller.editMode = !field.settings.readOnly && locationEventDispatcher != nil
-        controller.location = field.location.toCoordinate().toLocation()
-        controller.hidePins = true
-
-        controller.overrideAreaExternalId = true
-        controller.overriddenAreaExternalId = mapExternalId
-        controller.overriddenAreaInvertColors = true
-
-        controller.riistaController = navigationController as? RiistaNavigationController
 
         navigationController.pushViewController(controller, animated: true)
     }

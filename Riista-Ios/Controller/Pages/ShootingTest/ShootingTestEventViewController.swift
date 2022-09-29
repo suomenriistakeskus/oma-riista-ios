@@ -134,7 +134,7 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        updateTitle()
+        navigationItem.title = "ShootingTestViewTitle".localized()
         refreshEvent()
         refreshScrollViewHeight()
     }
@@ -145,14 +145,16 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
         self.setEditingOfficials(enabled: false)
     }
 
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestViewTitle"))
+    @objc private func onRefreshClicked() {
+        self.navigationItem.rightBarButtonItem?.isEnabled = false
+        refreshEvent()
     }
 
     func refreshEvent() {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
         tabBarVc.fetchEvent() { (result:Any?, error:Error?) in
+            self.navigationItem.rightBarButtonItem?.isEnabled = true
+
             if (error == nil) {
                 do {
                     let json = try JSONSerialization.data(withJSONObject: result!)
@@ -246,6 +248,13 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
     }
 
     func setupUI() {
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "refresh_white"),
+            style: .plain,
+            target: self,
+            action: #selector(onRefreshClicked)
+        )
+
         Styles.styleButton(self.startButton)
         Styles.styleNegativeButton(self.editButton)
         Styles.styleNegativeButton(self.finishButton)

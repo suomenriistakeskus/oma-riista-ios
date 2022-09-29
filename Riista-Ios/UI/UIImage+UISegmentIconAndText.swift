@@ -1,7 +1,7 @@
 extension UIImage {
 
 @objc class func textEmbededImage(image: UIImage, string: String, color:UIColor, imageAlignment: Int = 0, segFont: UIFont? = nil) -> UIImage {
-    let font = segFont ?? UIFont.systemFont(ofSize: AppConstants.Font.ButtonMedium)
+    let font = segFont ?? UIFont.systemFont(ofSize: AppConstants.FontUsage.button.toSizePoints())
     let expectedTextSize: CGSize = (string as NSString).size(withAttributes: [NSAttributedString.Key.font: font])
     let width: CGFloat = expectedTextSize.width + image.size.width + 5.0
     let height: CGFloat = max(expectedTextSize.height, image.size.width)

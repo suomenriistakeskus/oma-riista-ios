@@ -42,4 +42,9 @@
 @dynamic diaryImages;
 @dynamic specimens;
 
+@dynamic deportationOrderNumber;
+@dynamic eventTypeDetail;
+@dynamic otherEventTypeDetailDescription;
+@dynamic eventResultDetail;
+
 @end

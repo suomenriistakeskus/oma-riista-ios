@@ -27,6 +27,7 @@ class GalleryImagePicker: RiistaUIImagePicker {
         }
 
         let loadRequest = ImageLoadRequest(imageIdentifier: imageIdentifier)
+        loadRequest.options.deliveryMode = .highQualityFormat
 
         if let imageManager = self.localImageManager {
             imageManager.loadImage(loadRequest) { [weak self] result in

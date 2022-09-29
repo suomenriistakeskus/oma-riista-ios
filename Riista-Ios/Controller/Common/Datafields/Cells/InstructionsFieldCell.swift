@@ -26,7 +26,7 @@ class InstructionsFieldCell<FieldId : DataFieldId>: TypedDataFieldCell<FieldId, 
         }
 
         let titleLabel = UILabel().apply { label in
-            label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelLarge, fontWeight: .semibold)
+            label.font = UIFont.appFont(for: .title, fontWeight: .semibold)
             label.textColor = UIColor.applicationColor(Primary)
             label.text = "Instructions".localized()
         }

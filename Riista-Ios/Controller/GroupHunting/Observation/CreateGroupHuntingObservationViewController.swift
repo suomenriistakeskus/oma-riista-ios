@@ -30,7 +30,7 @@ class CreateGroupHuntingObservationViewController : ModifyGroupHuntingObservatio
     private weak var listener: CreateGroupHuntingObservationViewControllerListener?
 
     /**
-     * A location manager for updating the harvest location if needed.
+     * A location manager for updating the observation location if needed.
      */
     private let locationManager = LocationManager()
 

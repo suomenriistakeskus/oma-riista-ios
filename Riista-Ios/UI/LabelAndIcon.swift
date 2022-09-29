@@ -5,7 +5,7 @@ import SnapKit
 /**
  * A label with an icon
  */
-class LabelAndIcon: UIView {
+class LabelAndIcon: OverlayView {
 
     enum LabelAlignment: Int {
         // label is located at the leading side of the control
@@ -63,7 +63,7 @@ class LabelAndIcon: UIView {
 
     lazy var label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = UIColor.applicationColor(TextPrimary)
         label.numberOfLines = 1
         return label

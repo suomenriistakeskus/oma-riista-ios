@@ -4,6 +4,14 @@ enum Env {
     case dev
     case staging
     case production
+
+    func crashOnDev(_ message: String = "") {
+        if (self == .dev) {
+            fatalError(message)
+        } else {
+            print("FATAL ERROR: \(message)")
+        }
+    }
 }
 
 #if DEV

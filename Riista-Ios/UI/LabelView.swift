@@ -21,10 +21,7 @@ class LabelView: UIView {
     }
 
     private(set) lazy var label: UILabel = {
-        let label = UILabel()
-        AppTheme.shared.setupLabelFont(label: label)
-        label.numberOfLines = 1
-        return label
+        UILabel().configure(for: .label, fontWeight: .semibold)
     }()
 
     override var forFirstBaselineLayout: UIView {

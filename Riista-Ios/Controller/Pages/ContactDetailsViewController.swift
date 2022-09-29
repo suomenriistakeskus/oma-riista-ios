@@ -175,6 +175,6 @@ class ContactDetailsViewController: UIViewController, MFMailComposeViewControlle
     }
 
     func pageSelected() {
-        navigationController?.title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ContactDetails")
+        title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ContactDetails")
     }
 }

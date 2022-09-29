@@ -1,6 +1,6 @@
 import Foundation
 
-@objc protocol LogDelegate {
+protocol LogDelegate {
     func refresh()
 }
 
@@ -11,13 +11,24 @@ class LogItemService: NSObject {
     private let predicateWithImageFormat = "pendingOperation != %d AND pointOfTime >= %@ AND pointOfTime < %@ AND diaryImages.@count > 0"
     private let predicateSpeciesWithImageFormat = "pendingOperation != %d AND pointOfTime >= %@ AND pointOfTime < %@ AND gameSpeciesCode IN %@ AND diaryImages.@count > 0"
 
-    @objc private(set) var selectedLogType: RiistaEntryType = RiistaEntryTypeHarvest
-    @objc private(set) var selectedSeasonStart: Int = DatetimeUtil.huntingYearContaining(date: Date())
 
-    @objc private(set) var selectedSpecies = [Int]()
+    private(set) var selectedLogType: RiistaEntryType = RiistaEntryTypeHarvest {
+        didSet {
+            selectedLogTypeUpdateTimeStamp = Date()
+        }
+    }
+
+    /**
+     * Time when selectedLogType was updated last time.
+     */
+    private(set) var selectedLogTypeUpdateTimeStamp: Date = Date()
+
+    private(set) var selectedSeasonStart: Int = DatetimeUtil.huntingYearContaining(date: Date())
+
+    private(set) var selectedSpecies = [Int]()
     private(set) var selectedCategory: Int?
 
-    @objc var logDelegate: LogDelegate?
+    var logDelegate: LogDelegate?
 
     private static var sharedLogItemService: LogItemService = {
         let logItemService = LogItemService()
@@ -30,30 +41,19 @@ class LogItemService: NSObject {
     private override init() {
     }
 
-    @objc class func shared() -> LogItemService {
+    class func shared() -> LogItemService {
         return sharedLogItemService
     }
 
-    // Helper for Objective-C. Use property directly from Swift
-    @objc func hasCategory() -> Bool {
-        return selectedCategory != nil
-    }
-
-    // Helper for Objective-C. Use property directly from Swift
-    @objc func getCategory() -> Int {
-        // Check for nil before trying to get value
-        return selectedCategory!
-    }
-
-    @objc func setItemType(type: RiistaEntryType) {
-        if (type != selectedLogType) {
+    func setItemType(type: RiistaEntryType, forceUpdate: Bool = false) {
+        if (type != selectedLogType || forceUpdate) {
             selectedLogType = type
 
             refreshItems()
         }
     }
 
-    @objc func setSeasonStartYear(year: Int) {
+    func setSeasonStartYear(year: Int) {
         if (year != selectedSeasonStart) {
             selectedSeasonStart = year
 
@@ -69,7 +69,7 @@ class LogItemService: NSObject {
 //        }
 //    }
 
-    @objc func setSpeciesList(speciesCodes: [Int]) {
+    func setSpeciesList(speciesCodes: [Int]) {
         selectedSpecies = speciesCodes
 
         refreshItems()
@@ -79,13 +79,11 @@ class LogItemService: NSObject {
         selectedCategory = categoryCode
     }
 
-    // Helper for Objective-C.
-    @objc func setSpeciesCategory(categoryCode: Int) {
+    func setSpeciesCategory(categoryCode: Int) {
         selectedCategory = categoryCode
     }
 
-    // Helper for Objective-C.
-    @objc func clearSpeciesCategory() {
+    func clearSpeciesCategory() {
         setSpeciesCategory(categoryCode: nil)
     }
 
@@ -93,7 +91,7 @@ class LogItemService: NSObject {
         logDelegate?.refresh()
     }
 
-    @objc func setupHarvestResultsController(onlyWithImages: Bool = false) -> NSFetchedResultsController<DiaryEntry> {
+    func setupHarvestResultsController(onlyWithImages: Bool = false) -> NSFetchedResultsController<DiaryEntry> {
         let appDelegate = UIApplication.shared.delegate as! RiistaAppDelegate
         let managedContext = appDelegate.managedObjectContext
 
@@ -117,7 +115,7 @@ class LogItemService: NSObject {
         return fetchedResultsController
     }
 
-    @objc func setupObservationResultsController(onlyWithImages: Bool = false) -> NSFetchedResultsController<ObservationEntry> {
+    func setupObservationResultsController(onlyWithImages: Bool = false) -> NSFetchedResultsController<ObservationEntry> {
         let appDelegate = UIApplication.shared.delegate as! RiistaAppDelegate
         let managedContext = appDelegate.managedObjectContext
 
@@ -141,7 +139,7 @@ class LogItemService: NSObject {
         return fetchedResultsController
     }
 
-    @objc func setupSrvaResultsController(onlyWithImages: Bool = false) -> NSFetchedResultsController<SrvaEntry> {
+    func setupSrvaResultsController(onlyWithImages: Bool = false) -> NSFetchedResultsController<SrvaEntry> {
         let appDelegate = UIApplication.shared.delegate as! RiistaAppDelegate
         let managedContext = appDelegate.managedObjectContext
 
@@ -165,7 +163,7 @@ class LogItemService: NSObject {
         return fetchedResultsController
     }
 
-    @objc func setupHarvestPredicate(onlyWithImage: Bool = false) -> NSPredicate {
+    func setupHarvestPredicate(onlyWithImage: Bool = false) -> NSPredicate {
         var predicate: NSPredicate
 
         if (selectedSpecies.count > 0) {
@@ -186,7 +184,7 @@ class LogItemService: NSObject {
     }
 
 
-    @objc func setupObservationPredicate(onlyWithImage: Bool = false) -> NSPredicate {
+    func setupObservationPredicate(onlyWithImage: Bool = false) -> NSPredicate {
         var predicate: NSPredicate
 
         if (selectedSpecies.count > 0) {
@@ -206,7 +204,7 @@ class LogItemService: NSObject {
         return predicate
     }
 
-    @objc func setupSrvaPredicate(onlyWithImage: Bool = false) -> NSPredicate {
+    func setupSrvaPredicate(onlyWithImage: Bool = false) -> NSPredicate {
         var predicate: NSPredicate
 
         if (selectedSpecies.count > 0) {

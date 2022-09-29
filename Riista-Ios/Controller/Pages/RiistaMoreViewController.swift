@@ -8,6 +8,7 @@ fileprivate enum MoreItemType {
     case shootingTests
     case settings
     case huntingDirector
+    case huntingControl
     case eventSearch
     case magazine
     case seasons
@@ -35,7 +36,7 @@ fileprivate struct MoreItem {
 
     fileprivate func setup(item: MoreItem) {
         iconView.image = UIImage(named: item.iconResource)
-        titleView.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: item.titleResource)
+        titleView.text = item.titleResource.localized()
 
         if (item.opensInBrowser) {
             // tint in code as named colors (in Storyboard) are not supported pre iOS 11
@@ -78,6 +79,7 @@ fileprivate struct MoreItem {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         determineHuntingDirectorItemVisibility()
+        determineHuntingControlItemVisibility()
         pageSelected()
     }
 
@@ -99,7 +101,7 @@ fileprivate struct MoreItem {
         updateItemVisibility(
             item: MoreItem(.shootingTests, iconResource: "more_shooting", titleResource: "MenuShootingTests"),
             visible: RiistaSettings.userInfo()?.isShootingTestOfficial() == true,
-            beforeItemOfType: .eventSearch,
+            beforeItemsOfType: [.huntingDirector, .huntingControl, .eventSearch],
             animateVisibilityChange: false
         )
     }
@@ -108,17 +110,36 @@ fileprivate struct MoreItem {
         updateItemVisibility(
             item: MoreItem(.huntingDirector, iconResource: "more_hunting_director", titleResource: "MenuHuntingDirector"),
             visible: UserSession.shared().groupHuntingAvailable,
-            beforeItemOfType: .eventSearch,
+            beforeItemsOfType: [.huntingControl, .eventSearch],
             animateVisibilityChange: animateVisibilityChange
         )
     }
 
-    private func updateItemVisibility(item: MoreItem, visible: Bool, beforeItemOfType: MoreItemType, animateVisibilityChange: Bool) {
+    private func updateHuntingControlItemVisibility(animateVisibilityChange: Bool) {
+        updateItemVisibility(
+            item: MoreItem(.huntingControl, iconResource: "more_hunting_control", titleResource: "MenuHuntingControl"),
+            visible: UserSession.shared().huntingControlAvailable,
+            beforeItemsOfType: [.eventSearch],
+            animateVisibilityChange: animateVisibilityChange
+        )
+    }
+
+    /**
+     * Update the visibility of specified item.
+     *
+     * @param beforeItemOfType      Will be placed before any of the given item types. Multiple types allowed in case some types are not present.
+     */
+    private func updateItemVisibility(
+        item: MoreItem,
+        visible: Bool,
+        beforeItemsOfType: [MoreItemType],
+        animateVisibilityChange: Bool
+    ) {
         let currentIndex = indexOfItemWithType(item.type)
 
         if (visible && currentIndex == nil) {
             // intentionally fallback to end of the list if not found
-            let targetIndex = indexOfItemWithType(beforeItemOfType) ?? moreItems.endIndex
+            let targetIndex = indexOfFirstItemWithType(beforeItemsOfType) ?? moreItems.endIndex
             moreItems.insert(item, at: targetIndex)
 
             if (animateVisibilityChange) {
@@ -134,10 +155,27 @@ fileprivate struct MoreItem {
     }
 
     private func determineHuntingDirectorItemVisibility() {
-        UserSession.shared().checkHuntingDirectoryAvailability { [weak self] in
+        UserSession.shared().checkHuntingDirectorAvailability { [weak self] in
             guard let self = self else { return }
             self.updateHuntingDirectorItemVisibility(animateVisibilityChange: true)
         }
+    }
+
+    private func determineHuntingControlItemVisibility() {
+        UserSession.shared().checkHuntingControlAvailability(refresh: false) { [weak self] in
+            guard let self = self else { return }
+            self.updateHuntingControlItemVisibility(animateVisibilityChange: true)
+        }
+    }
+
+    private func indexOfFirstItemWithType(_ itemTypes: [MoreItemType]) -> Int? {
+        for itemType in itemTypes {
+            if let index = indexOfItemWithType(itemType) {
+                return index
+            }
+        }
+
+        return nil
     }
 
     private func indexOfItemWithType(_ itemType: MoreItemType) -> Int? {
@@ -145,17 +183,15 @@ fileprivate struct MoreItem {
     }
 
     func pageSelected() {
-        if let navController = navigationController as? RiistaNavigationController {
-            navController.setLeftBarItem(nil)
-            navController.setRightBarItems(nil)
-        }
-        
-        navigationController?.title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "MenuMore")
+        let title = "MenuMore".localized()
+        navigationItem.title = title
+        self.title = title
     }
 
     override func refreshTabItem() {
-        self.tabBarItem.title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "MenuMore")
+        // reload data in case language was changed
         tableView?.reloadData()
+        self.tabBarItem.title = "MenuMore".localized()
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -165,7 +201,7 @@ fileprivate struct MoreItem {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return moreItems.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell = tableView.dequeueReusableCell(withIdentifier: "moreItemCell") as? MoreItemCell
         if (cell == nil) {
@@ -185,7 +221,7 @@ fileprivate struct MoreItem {
     private func onItemClicked(_ item: MoreItem) {
         switch item.type {
         case .myDetails:
-            launchViewController(identifier: "MyDetailsController")
+            launchViewController(controller: MyDetailsViewController())
             break
         case .gallery:
             launchViewController(identifier: "GalleryController")
@@ -201,6 +237,9 @@ fileprivate struct MoreItem {
             break
         case .huntingDirector:
             launchViewController(controller: GroupHuntingLandingPageViewController())
+            break
+        case .huntingControl:
+            launchViewController(controller: HuntingControlLandingPageViewController())
             break
         case .eventSearch:
             launchEventSearch()
@@ -258,16 +297,16 @@ fileprivate struct MoreItem {
 
     private func askLogoutConfirmation() {
         let logoutController = MDCAlertController(
-            title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "Logout") + "?",
+            title: "Logout".localized() + "?",
             message: nil
         )
 
         let cancelAction = MDCAlertAction(
-            title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "CancelRemove"),
+            title: "CancelRemove".localized(),
             handler: nil
         )
 
-        let okAction = MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "OK")) { _ in
+        let okAction = MDCAlertAction(title: "OK".localized()) { _ in
             self.logout()
         }
 
@@ -278,7 +317,7 @@ fileprivate struct MoreItem {
     }
 
     private func logout() {
-        guard let tabController = self.tabBarController as? RiistaTabBarViewController else {
+        guard let tabController = self.tabBarController as? TopLevelTabBarViewController else {
             return
         }
 

@@ -20,13 +20,8 @@ class OccupationsViewController: UIViewController, UITableViewDelegate, UITableV
 
         items = user?.occupations as? Array<Occupation>
 
-        updateTitle()
+        title = "MyDetailsAssignmentsTitle".localized()
         tableView.reloadData()
-    }
-
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "MyDetailsAssignmentsTitle"))
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

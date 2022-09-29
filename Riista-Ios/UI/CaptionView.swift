@@ -15,11 +15,7 @@ class CaptionView: UIView {
     }
 
     private lazy var label: UILabel = {
-        let label = UILabel()
-        label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelMedium, bolded: true)
-        label.textColor = UIColor.applicationColor(TextPrimary)
-        label.numberOfLines = 1
-        return label
+        UILabel().configure(for: .label, fontWeight: .semibold)
     }()
 
 

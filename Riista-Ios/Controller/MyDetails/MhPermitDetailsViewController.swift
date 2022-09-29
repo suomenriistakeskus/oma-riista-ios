@@ -20,13 +20,8 @@ class MhPermitDetailsViewController: UIViewController {
 
         AppTheme.shared.setupPrimaryButtonTheme(button: feedbackButton)
 
-        updateTitle()
+        title = "MyDetailsMhPermitTitle".localized()
         refreshData()
-    }
-
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "MyDetailsMhPermitTitle"))
     }
 
     func refreshData() {
@@ -58,12 +53,12 @@ class MhPermitDetailsViewController: UIViewController {
     }
 
     @IBAction func onFeedbackClick(_ sender: UIButton, forEvent event: UIEvent) {
-        let alert = MDCAlertController(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MyDetailsMhFeedbackAlertTitle"),
-                                       message: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MyDetailsMhFeedbackAlertMessage"))
-        let cancelAction = MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "CancelRemove"), handler: { (alert: MDCAlertAction!) -> Void in
+        let alert = MDCAlertController(title: "AlertTitle".localized(),
+                                       message: "MyDetailsMhFeedbackAlertMessage".localized())
+        let cancelAction = MDCAlertAction(title: "CancelRemove".localized(), handler: { (alert: MDCAlertAction!) -> Void in
             // User canceled
         })
-        let confirmAction = MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "Ok"), handler: { (alert: MDCAlertAction!) -> Void in
+        let confirmAction = MDCAlertAction(title: "Ok".localized(), handler: { (alert: MDCAlertAction!) -> Void in
             self.navigateToFeedback()
         })
 

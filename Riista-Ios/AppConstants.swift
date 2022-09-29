@@ -17,26 +17,36 @@ import RiistaCommon
         static let Name = "Open Sans"
 
         // font sizes
-        static let LabelTiny = CGFloat(12)
-        static let LabelSmall = CGFloat(14)
-        static let LabelMedium = CGFloat(16)
-        static let LabelLarge = CGFloat(18)
-        static let LabelXLarge = CGFloat(20)
-        static let LabelXXLarge = CGFloat(22)
-        static let LabelHuge = CGFloat(24)
-        static let ButtonSmall = CGFloat(14)
-        static let ButtonMedium = CGFloat(16)
-        static let ButtonLarge = CGFloat(18)
-        static let NavigationBarTitle = CGFloat(18)
-        static let Headline = CGFloat(18)
+        static let LabelMedium = AppConstants.FontSize.medium.toSizePoints()
+        static let ButtonSmall = AppConstants.FontSize.small.toSizePoints()
+        static let ButtonMedium = AppConstants.FontSize.medium.toSizePoints()
+    }
+
+    @objc(FontSize) enum FontSize: Int {
+        case tiny
+        case small
+        case medium
+        case mediumLarge
+        case large
+        case xLarge
+        case xxLarge
+        case huge
+    }
+
+    @objc(FontUsage) enum FontUsage: Int {
+        case navigationBar
+        case inputValue
+        case label
+        case title, header
+        case button
     }
 
     @objc(MapConstants) @objcMembers class Map: NSObject {
         static let MinZoom: Float = 4.0
-        // apparentally having zoom level 16.0 causes map to fetch tiles using zoom level 17
-        // - maybe zoom level is actually 16.0000000<something> and that causes the issue if
+        // apparentally having zoom level 17.0 causes map to fetch tiles using zoom level 18
+        // - maybe zoom level is actually 17.0000000<something> and that causes the issue if
         //   zoom level is rounded up
-        static let MaxZoom: Float = 15.95
+        static let MaxZoom: Float = 16.95
 
         static let DefaultZoomToLevel: Float = 15.0
     }
@@ -46,6 +56,8 @@ import RiistaCommon
         static let Latitude = 64.10
         static let Longitude = 25.48
         static let Zoom: Float = 5.5
+
+        static let Coordinate = CLLocationCoordinate2D(latitude: Latitude, longitude: Longitude)
 
         static public func toGMSCameraUpdate() -> GMSCameraUpdate {
             return GMSCameraUpdate.setTarget(CLLocationCoordinate2D(latitude: Latitude,
@@ -139,5 +151,37 @@ import RiistaCommon
         case Rhy
         case GameTriangles
         case Seura
+        case MooseRestrictions
+        case SmallGameRestrictions
+        case AviHuntingBan
+    }
+}
+
+extension AppConstants.FontSize {
+    func toSizePoints() -> CGFloat {
+        switch self {
+        case .tiny:         return 12
+        case .small:        return 14
+        case .medium:       return 16
+        case .mediumLarge:  return 17
+        case .large:        return 18
+        case .xLarge:       return 20
+        case .xxLarge:      return 22
+        case .huge:         return 24
+        }
+    }
+}
+
+extension AppConstants.FontUsage {
+    func fontSize() -> AppConstants.FontSize {
+        switch self {
+        case .label, .inputValue, .button:      return .medium
+        case .navigationBar:                    return .mediumLarge
+        case .title, .header:                   return .large
+        }
+    }
+
+    func toSizePoints() -> CGFloat {
+        return fontSize().toSizePoints()
     }
 }

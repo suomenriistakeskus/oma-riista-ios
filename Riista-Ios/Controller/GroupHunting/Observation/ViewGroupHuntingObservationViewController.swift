@@ -166,11 +166,8 @@ class ViewGroupHuntingObservationViewController:
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        navigationController?.title = getViewTitle()
-
-        if let navController = navigationController as? RiistaNavigationController {
-            navController.setRightBarItems([moreMenuButton, editNavBarButton])
-        }
+        title = getViewTitle()
+        navigationItem.rightBarButtonItems = [moreMenuButton, editNavBarButton]
     }
 
     @objc func onEditButtonClicked() {

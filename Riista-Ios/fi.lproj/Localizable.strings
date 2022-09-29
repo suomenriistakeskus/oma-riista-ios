@@ -15,6 +15,7 @@
 "MenuSettings" = "Asetukset";
 "MenuShootingTests" = "Ampumakokeet";
 "MenuHuntingDirector" = "Metsästyksen johtaja";
+"MenuHuntingControl" = "Metsästyksenvalvonta";
 "MenuContactDetails" = "Yhteystiedot";
 "MenuEventSearch" = "Tapahtumahaku";
 "MenuReadMagazine" = "Lue viimeisin Metsästäjä-lehti";
@@ -67,12 +68,12 @@
 "MyDetailsHomeMunicipality" = "Kotipaikka";
 "MyDetailsAddress" = "Osoite";
 "MyDetailsTitleRegistry" = "Metsästäjärekisteri";
-"MyDetailsHunterId" = "Metsästäjänumero";
+"MyDetailsHunterId" = "Metsästäjä\U00ADnumero";
 "MyDetailsTitleShootingTests" = "Ampumakoesuoritukset";
 "MyDetailsNoShootingTestAttempts" = "Ei voimassaolevia sähköisesti kirjattuja ampumakoesuorituksia";
 "MyDetailsTitleHuntingLicense" = "Metsästyskortti";
 "MyDetailsInsurancePolicyText" = "Tässä kortissa mainitulla metsästäjällä on metsästäjävakuutus, joka on voimassa kaikissa Pohjoismaissa, Sveitsissä ja EU-maissa.";
-"MyDetailsPayment" = "Riistanhoitomaksu";
+"MyDetailsPayment" = "Riistan\U00ADhoito\U00ADmaksu";
 "MyDetailsExamDate" = "Tutkinnon suorituspäivä";
 "MyDetailsMembership" = "RHY jäsenyys";
 "MyDetailsFeePaidFormat" = "Maksettu\n%@ - %@";
@@ -80,6 +81,7 @@
 "MyDetailsNoValidLicense" = "Ei voimassaolevaa metsästyskorttia";
 "MyDetailsHuntingBan" = "Metsästyskielto";
 "MyDetailsAssignmentsTitle" = "Tehtävät";
+"MyDetailsClubMembershipsTitle" = "Seurajäsenyydet";
 "MyDetailsMhPermitsTitle" = "Metsähallituksen luvat";
 "MyDetailsMhPermitTitle" = "Lupa";
 "MyDetailsMhCardTitle" = "Metsähallitus";
@@ -87,15 +89,36 @@
 "MyDetailsMhPermitName" = "Lupatyyppi";
 "MyDetailsMhPermitPeriod" = "Aika";
 "MyDetailsMhPermitHarvestFeedback" = "Lähetä saalispalaute";
-"MyDetailsMhFeedbackAlertTitle" = "Huomio";
+"MyDetailsTrainingsTitle" = "Koulutusmerkinnät";
+"MyDetailsNoTrainings" = "Ei koulutuksia";
+"MyDetailsTrainingDate" = "Suorituspäivä";
+"MyDetailsTrainingPlace" = "Suorituspaikka";
+"TrainingTypeLahi" = "Lähikoulutus";
+"TrainingTypeSahkoinen" = "Sähköinen";
+"JhtTrainingOccupationTypeMetsastyksenvalvoja" = "Metsästyksenvalvoja";
+"JhtTrainingOccupationTypeAmpumakokeenVastaanottaja" = "Ampumakokeen vastaanottaja";
+"JhtTrainingOccupationTypeMetsastajatutkinnonVastaanottaja" = "Metsästäjätutkinnon vastaanottaja";
+"JhtTrainingOccupationTypeRhynEdustajaRiistavahinkojenMaastokatselmuksessa" = "RHY:n edustaja riistavahinkojen maastokatselmuksessa";
+"OccupationTrainingOccupationTypePetoyhdyshenkilo" = "Petoyhdyshenkilö";
+"AlertTitle" = "Huomio";
 "MyDetailsMhFeedbackAlertMessage" = "Olet siirtymässä Oma riista -palvelusta Metsähallituksen saalispalautejärjestelmään.\n\nMikäli saalispalautteen antamisessa ilmenee ongelmia tai haluat lisätietoa asiasta, ota yhteys Metsähallituksen Erälupien asiakaspalveluun, p. 020 69 2424 (arkisin klo 9-16) tai sähköpostilla osoitteeseen eraluvat@metsa.fi.";
 "Duration" = "Voimassaoloaika";
 "DurationIndefinite" = "Toistaiseksi";
+
+"HuntingClubMembershipInvitations" = "Seurakutsut";
+"HuntingClubMembershipAcceptInvitation" = "Hyväksy kutsu";
+"HuntingClubMembershipRejectInvitation" = "Hylkää kutsu";
+"HuntingClubMembershipRejectInvitationQuestion" = "Hylätäänkö kutsu?";
+"HuntingClubMemberships" = "Seurajäsenyydet";
+"HuntingClubNoMemberships" = "Ei seurajäsenyyksiä";
+"HuntingClubOccupationCode" = "Asiakasnumero: %@";
 
 "MapNoArea" = "Ei aluetta";
 "MapAddArea" = "Lisää alue";
 "MapAddAreaError" = "Alueen lisääminen epäonnistui";
 "MapHideArea" = "Piilota";
+"MapHideMarkers" = "Piilota merkinnät";
+"MapShowMarkers" = "Näytä merkinnät";
 "MapRemoveArea" = "Poista";
 "MapRemoveAreaTitle" = "Poista alue";
 "MapRemoveAreaConfirm" = "Haluatko varmasti poistaa alueen?";
@@ -124,7 +147,32 @@
 "MapSettingGeneralTitle" = "Yleiset";
 "MapSettingSelectedAreas" = "Valitut alueet";
 "MapSettingNoSelectedAreas" = "Ei valittuja alueita";
+"MapSettingMooseRestrictions" = "Hirvieläin rajoitusalueet";
+"MapSettingMooseRestrictionsLink" = "Katso: http://retkikartta.fi";
+"MapSettingSmallGameRestrictions" = "Pienriista rajoitusalueet";
+"MapSettingSmallGameRestrictionsLink" = "Katso: http://retkikartta.fi";
+"MapSettingAviHuntingBan" = "Avi metsästyskieltoalueet";
+"MapSettingAviHuntingBanLink" = "Katso: https://avi.fi/tiedotteet";
 "MadDisplayPins" = "Näytä tapahtumat";
+"MapLocationEntries" = "Karttapisteen merkinnät";
+
+"PointsOfInterest" = "Paikkapisteet";
+"PointsOfInterestListButtonTitle" = "Lista";
+"PointOfInterestListTitle" = "Paikkapisteet";
+"PointOfInterestLocationGroupTypeSightingPlace" = "Passi";
+"PointOfInterestLocationGroupTypeMineralLick" = "Nuolukivi";
+"PointOfInterestLocationGroupTypeFeedingPlace" = "Ruokintapaikka";
+"PointOfInterestLocationGroupTypeOther" = "Muu";
+"PointOfInterestFilterTypeAll" = "Kaikki";
+"PointOfInterestFilterTypeSightingPlace" = "Passi";
+"PointOfInterestFilterTypeMineralLick" = "Nuolukivi";
+"PointOfInterestFilterTypeFeedingPlace" = "Ruokintapaikka";
+"PointOfInterestFilterTypeOther" = "Muu";
+"PointOfInterestSelectExternalId" = "Valitse Oma Riista -alue kartan asetuksista nähdäksesi alueeseen liitetyt paikkapisteet.";
+"PointOfInterestNoPois" = "Ei paikkapisteitä";
+"PointOfInterestCenterAndReturnToMap" = "Keskitä ja palaa kartalle";
+"Previous" = "Edellinen";
+"Next" = "Seuraava";
 
 "FilterSelectCategory" = "Valitse kategoria";
 "FilterSelectCategoryTwoLine" = "Valitse\nkategoria";
@@ -164,7 +212,8 @@
 "EntryDetailsDescription" = "Kuvaus";
 
 "MapPageGoToCurrentGps" = "Vie nykyiseen GPS-sijaintiin";
-"MapPageSetLocation" = "Aseta uusi sijainti kartalla";
+"MapPageSetNewLocation" = "Aseta uusi sijainti kartalla";
+"MapPageSetLocation" = "Aseta sijainti kartalla";
 
 "HarvestStateCreateReport" = "Tee lakisääteinen saalisilmoitus";
 "HarvestStateProposed" = "Saalisilmoitus lähetetty";
@@ -180,9 +229,14 @@
 "SpecimenGenderTitle" = "Sukupuoli";
 "SpecimenGenderFemale" = "Naaras";
 "SpecimenGenderMale" = "Uros";
+"SpecimenGenderUnknown" = "Tuntematon";
 "SpecimenAgeTitle" = "Ikä";
 "SpecimenAgeAdult" = "Aikuinen";
 "SpecimenAgeYoung" = "Alle 1V";
+"SpecimenAgeLessThanOneYear" = "Alle 1V";
+"SpecimenAgeBetweenOneAndTwoYears" = "1-2 vuotias";
+"SpecimenAgeEraus" = "Eraus";
+"SpecimenAgeUnknown" = "Tuntematon";
 "SpecimenWeightTitle" = "Paino (kg)";
 "SpecimenValueUnknown" = "Tuntematon";
 "SpecimenAddSpecimen" = "Lisää yksilö";
@@ -223,6 +277,10 @@
 "ObservationDetailsMooseMaleWithinDeerHunting" = "Aikuisia uroksia";
 "ObservationDetailsMooseCalfWithinDeerHunting" = "Yksinäinen vasa";
 "ObservationDetailsMooseUnknownWithinDeerHunting" = "Tuntemattomia";
+"ObservationDetailsDescription" = "Muistiinpano";
+
+"ObservationDetailsCategory" = "Havainnon asiayhteys";
+"ObservationCategoryNormal" = "Tavallinen";
 
 "DeerHuntingType" = "Metsästystapa";
 "DeerHuntingTypeDescription" = "Metsästystavan kuvaus";
@@ -237,11 +295,23 @@
 "TassuLitter" = "Pentue (automaattisesti päätelty)";
 "TassuPack" = "Lauma (automaattisesti päätelty)";
 
+"SpecimenStateOfHealthHealthy" = "Terve";
+"SpecimenStateOfHealthIll" = "Sairas";
+"SpecimenStateOfHealthWounded" = "Loukkaantunut";
+"SpecimenStateOfHealthCarcass" = "Haaska";
+"SpecimenStateOfHealthDead" = "Kuollut";
+
+"SpecimenMarkedNone" = "Ei merkkiä";
+"SpecimenMarkedCollar" = "Panta / Radiolähetin";
+"SpecimenMarkedRing" = "Jalkarengas, Siipimerkki";
+"SpecimenMarkedEar" = "Korvamerkki";
+
 "Srva" = "Srva";
 "LogSrva" = "SRVA-tapahtuma";
 
 "SrvaOtherSpeciesShort" = "Muu";
 "SrvaOtherSpeciesDescription" = "Muu laji";
+"SrvaUnknownSpeciesDescription" = "Tuntematon laji";
 "SrvaEvent" = "Tapahtuma";
 "SrvaType" = "Tyyppi";
 "SrvaTypeDescription" = "Tyypin kuvaus";
@@ -285,9 +355,9 @@
 "Language" = "Kieli";
 
 "MapTypeSelect" = "Karttatyyppi";
-"MapTypeTopographic" = "Maastokartta";
-"MapTypeBackgound" = "Taustakartta";
-"MapTypeAerial" = "Ortokuva";
+"MapTypeTopographic" = "Maasto";
+"MapTypeBackgound" = "Tausta";
+"MapTypeAerial" = "Orto";
 "MapTypeGoogle" = "Google";
 "MapCopyrightMml" = "©Maanmittauslaitos";
 
@@ -472,7 +542,7 @@
 "FilterEndDate" = "Loppupäivä";
 "MapLocationHarvestsAndObservations" = "Karttapisteen saaliit ja havainnot";
 
-"GroupHuntingDiaryFilterDialogTitle" = "Suodata";
+"FilterDialogTitle" = "Suodata";
 "GroupHuntingDiaryFilterEventTypeHarvestsAndObservations" = "Saaliit ja havainnot";
 "GroupHuntingDiaryFilterEventTypeHarvests" = "Saaliit";
 "GroupHuntingDiaryFilterEventTypeObservations" = "Havainnot";
@@ -487,6 +557,11 @@
 "GroupHuntingProposedObservation" = "Ehdotettu havainto";
 "GroupHuntingAcceptedObservation" = "Hyväksytty havainto";
 "GroupHuntingRejectedObservation" = "Hylätty havainto";
+
+"GroupMemberSelectionSelectHunter" = "Valitse ampuja";
+"GroupMemberSelectionSelectObserver" = "Valitse havaitsija";
+"GroupMemberSelectionSearchByName" = "Hae nimellä";
+"GroupMemberSelectionNameHint" = "Nimi";
 
 "GroupHuntingContinueToApprove" = "Siirry hyväksymään";
 "ApproveHarvest" = "Hyväksy saalis";
@@ -608,6 +683,114 @@
 "ObservationTypeRuokailupajukkoTaiKoivikko" = "Ruokailupajukko tai -koivikko";
 "ObservationTypeMuu" = "Muu";
 
+
+/* Hunting control */
+
+"HuntingControlLandingPageTitle" = "Metsästyksenvalvonta";
+"HuntingControlAddEvent" = "Luo tapahtuma";
+"HuntingControlNewEvent" = "Uusi tapahtuma";
+"HuntingControlEditEvent" = "Muokkaa tapahtumaa";
+"HuntingControlMyEvents" = "Omat tapahtumat";
+"HuntingControlNoEvents" = "Ei tapahtumia";
+"HuntingControlSelectRhyToDisplayEvents" = "Valitse riistanhoitoyhdistys nähdäksesi tapahtumat";
+"HuntintControlRhy" = "Riistanhoitoyhdistys";
+"HuntingControlViewPageTitle" = "Tapahtuma";
+"HuntingControlStartTime" = "Aloitus";
+"HuntingControlEndTime" = "Lopetus";
+"HuntingControlDuration" = "Kesto";
+"HuntingControlEventType" = "Valvontatapahtuma";
+"HuntingControlNumberOfInspectors" = "Valvojien lukumäärä";
+"HuntingControlCooperationType" = "Yhteistyö";
+"HuntingControlWolfTerritory" = "Susireviiri";
+"HuntingControlInspectors" = "Valvojat";
+"HuntingControlLocationDescription" = "Paikan kuvaus";
+"HuntingControlEventDescription" = "Tapahtuman kuvaus";
+"HuntingControlNumberOfCustomers" = "Asiakkaita";
+"HuntingControlNumberOfProofOrders" = "Näyttömääräyksiä";
+"HuntingControlDate" = "Päivämäärä";
+"HuntingControlOtherParticipants" = "Muut osallistujat";
+"HuntingControlDurationZero" = "0";
+"HuntingControlChooseInspectors" = "Valitse valvojat";
+"HuntingControlChooseCooperation" = "Valitse yhteistyö";
+
+"HuntingControlInspectorSelectionSearchByName" = "Hae nimellä";
+"HuntingControlInspectorSelectionNameHint" = "Nimi";
+
+"HuntingControlAttachments" = "Liitteet";
+"HuntingControlInspectorSelectionSearchByName" = "Hae nimellä";
+"HuntingControlInspectorSelectionNameHint" = "Nimi";
+"HuntingControlErrorNoInspectorsForSelectedDate" = "Valitulle päivämäärälle ei ole valvojia";
+"HuntingControlEventSaveFailedGeneric" = "Valvontatapahtuman tallentaminen epäonnistui";
+"HuntingControlDownloadAttachmentQuestion" = "Ladataanko liite palvelimelta?";
+"HuntingControlDeleteAttachmentQuestion" = "Poistetaanko liite %@";
+"HuntingControlAddAttachment" = "Lisää liite";
+"HuntingControlAttachmentTakePhoto" = "Ota kuva";
+"HuntingControlAttachmentPickFromPhotos" = "Valitse kuva";
+"HuntingControlAttachmentPickFile" = "Valitse tiedosto";
+"FileCancelDownloadQuestion" = "Peruuta lataus?";
+
+"HuntingControlCooperationTypePoliisi" = "Poliisi";
+"HuntingControlCooperationTypeRajavartiosto" = "Rajavartiosto";
+"HuntingControlCooperationTypeMetsähallitus" = "Metsähallitus";
+"HuntingControlCooperationTypeOma" = "Oma";
+
+"HuntingControlEventTypeMooselike" = "Hirvieläinten metsästyksen valvonta";
+"HuntingControlEventTypeLargeCarnivore" = "Suurpetojen metsästyksen valvonta";
+"HuntingControlEventTypeGrouse" = "Kanalintujen metsästyksen valvonta";
+"HuntingControlEventTypeWaterfowl" = "Vesilintujen metsästyksen valvonta";
+"HuntingControlEventTypeDogDiscipline" = "Koirakurin valvonta";
+"HuntingControlEventTypeOther" = "Muu valvonta";
+
+/* SRVA */
+
+"SrvaDescription" = "Muistiinpano";
+
+"SrvaEventCategoryAccident" = "Onnettomuus";
+"SrvaEventCategoryDeportation" = "Karkotus";
+"SrvaEventCategorySickAnimal" = "Sairas eläin";
+
+"SrvaEventTypeTrafficAccident" = "Liikenneonnettomuus";
+"SrvaEventTypeRailwayAccident" = "Onnettomuus rautatiellä";
+"SrvaEventTypeInjuredAnimal" = "Loukkaantunut eläin";
+"SrvaEventTypeAnimalOnIce" = "Eläin jäällä";
+"SrvaEventTypeAnimalNearHousesArea" = "Eläin asutuksen tuntumassa";
+"SrvaEventTypeAnimalAtFoodDestination" = "Eläin ravintokohteilla";
+"SrvaEventTypeOther" = "Muu";
+
+"SrvaEventResultAnimalFoundDead" = "Eläin löydettiin kuolleena";
+"SrvaEventResultAnimalFoundAndTerminated" = "Eläin löydettiin ja lopetettiin";
+"SrvaEventResultAnimalFoundAndNotTerminated" = "Eläin löydettiin ja jätettiin henkiin";
+"SrvaEventResultAccidentSiteNotFound" = "Onnettomuuspaikkaa ei löytynyt";
+"SrvaEventResultAnimalTerminated" = "Eläin lopetettiin";
+"SrvaEventResultAnimalDeported" = "Eläin karkotettiin";
+"SrvaEventResultAnimalNotFound" = "Eläintä ei löydetty";
+"SrvaEventResultUndueAlarm" = "Aiheeton hälytys";
+
+"SrvaMethodDog" = "Koira";
+"SrvaMethodTracedWithDog" = "Jäljitettiin koiran kanssa";
+"SrvaMethodTracedWithoutDog" = "Jäljitettiin ilman koiraa";
+"SrvaMethodPainEquipment" = "Kipua tuottavat laitteet";
+"SrvaMethodSoundEquipment" = "Ääntä tuottavat laitteet";
+"SrvaMethodOther" = "Muu";
+
+"SrvaDeportationOrderNumber" = "Karkotusmääräyksen numero";
+"SrvaEventTypeDetail" = "Tyypin tarkenne";
+"SrvaOtherEventTypeDescription" = "Tyypin kuvaus";
+"SrvaOtherEventTypeDetailDescription" = "Tarkenteen kuvaus";
+"SrvaEventResultDetail" = "Tuloksen tarkenne";
+"SrvaEventTypeDetailCaredHouseArea" = "Hoidettu piha-alue";
+"SrvaEventTypeDetailFarmAnimalBuilding" = "Tuotantoeläinrakennus";
+"SrvaEventTypeDetailUrbanArea" = "Taajama";
+"SrvaEventTypeDetailCarcassAtForest" = "Haaska metsässä";
+"SrvaEventTypeDetailCarcassNearHousesArea" = "Haaska pihapiirissä";
+"SrvaEventTypeDetailGarbageCan" = "Roska-astia";
+"SrvaEventTypeDetailBeehive" = "Mehiläispesä";
+"SrvaEventTypeDetailOther" = "Muu";
+"SrvaEventResultDetailAnimalContactedAndDeported" = "Välitön yhteys, eläin karkotettiin";
+"SrvaEventResultDetailAnimalContacted" = "Eläimeen saatiin yhteys";
+"SrvaEventResultDetailUncertainResult" = "Tulos epävarma";
+"SrvaMethodVehicle" = "Ajoneuvolla karkotus";
+"SrvaMethodChasingWithPeople" = "Henkilöajo";
 
 /* Urls */
 

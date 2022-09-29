@@ -152,6 +152,8 @@ class LoginOrRegisterViewController: UIViewController, KeyboardHandlerDelegate {
         case .startRegistration:
             sendRegistrationLinkView.alpha = 1
             registrationLinkSentView.alpha = 0
+
+            sendRegistrationLinkView.updateSendLinkButtonStatus()
             break
         case .linkSent:
             sendRegistrationLinkView.alpha = 0
@@ -321,7 +323,7 @@ class LoginOrRegisterViewController: UIViewController, KeyboardHandlerDelegate {
         let headerButton = UIButton().apply { btn in
             btn.setTitle(title, for: .normal)
             btn.setTitleColor(.white, for: .normal)
-            btn.titleLabel?.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelSmall, bolded: true)
+            btn.titleLabel?.font = UIFont.appFont(fontSize: .small, fontWeight: .semibold)
             btn.backgroundColor = .clear
             btn.addTarget(self, action: onClicked, for: .touchUpInside)
         }

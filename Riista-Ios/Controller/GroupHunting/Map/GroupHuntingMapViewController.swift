@@ -30,7 +30,7 @@ class GroupHuntingMapViewController: BaseMapViewController,
 
     private lazy var contentNotLoadedLabel: UILabel = {
         let label = UILabel()
-        label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = UIColor.applicationColor(GreyDark)
         label.textAlignment = .center
         return label
@@ -102,11 +102,11 @@ class GroupHuntingMapViewController: BaseMapViewController,
     private lazy var markerClickHandler: MarkerClickHandler<GroupHuntingMarkerItem> = {
         let clickHandler = GroupHuntingMarkerClickHandler(mapView: mapView)
         clickHandler.onHarvestMarkerClicked = { [weak self] harvestId, acceptStatus in
-            self?.onHarvestClicked(harvestId: harvestId, acceptStatus: acceptStatus)
+            self?.onHarvestClicked(harvestId: .remote(id: harvestId), acceptStatus: acceptStatus)
             return true
         }
         clickHandler.onObservationMarkerClicked = { [weak self] observationId, acceptStatus in
-            self?.onObservationClicked(observationId: observationId, acceptStatus: acceptStatus)
+            self?.onObservationClicked(observationId: .remote(id: observationId), acceptStatus: acceptStatus)
             return true
         }
         clickHandler.onDisplayClusterItems = { [weak self] harvestIds, observationIds in
@@ -362,7 +362,12 @@ class GroupHuntingMapViewController: BaseMapViewController,
 
     // MARK: Harvest + Observation Click handling
 
-    internal func onHarvestClicked(harvestId: Int64, acceptStatus: RiistaCommon.AcceptStatus) {
+    internal func onHarvestClicked(harvestId: ItemId, acceptStatus: RiistaCommon.AcceptStatus) {
+        guard let harvestId = harvestId.remoteId else {
+            print("harvestId didn't specify remoteId, cannot display harvest")
+            return
+        }
+
         // harvest can be clicked directly on the map but also from bottomsheet
         // -> ensure bottom sheet is dismissed before navigating forward
         bottomSheetHelper.dismiss() { [weak self] in
@@ -378,7 +383,12 @@ class GroupHuntingMapViewController: BaseMapViewController,
         }
     }
 
-    internal func onObservationClicked(observationId: Int64, acceptStatus: RiistaCommon.AcceptStatus) {
+    internal func onObservationClicked(observationId: ItemId, acceptStatus: RiistaCommon.AcceptStatus) {
+        guard let observationId = observationId.remoteId else {
+            print("observationId didn't specify remoteId, cannot display observation")
+            return
+        }
+
         // observation can be clicked directly on the map but also from bottomsheet
         // -> ensure bottom sheet is dismissed before navigating forward
         bottomSheetHelper.dismiss() { [weak self] in

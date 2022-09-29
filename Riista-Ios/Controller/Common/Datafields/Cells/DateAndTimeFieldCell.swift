@@ -9,6 +9,7 @@ class DateAndTimeFieldCell<FieldId : DataFieldId>: BaseDateAndTimeCell<FieldId, 
     override var cellType: DataFieldCellType { CELL_TYPE }
 
     weak var eventDispatcher: LocalDateTimeEventDispatcher?
+    weak var navigationControllerProvider: ProvidesNavigationController?
 
     override func fieldWasBound(field: DateAndTimeField<FieldId>) {
         bindLabel(label: field.settings.label,
@@ -35,10 +36,17 @@ class DateAndTimeFieldCell<FieldId : DataFieldId>: BaseDateAndTimeCell<FieldId, 
             return
         }
 
-        showDatePicker(datePickerMode: datePickerMode,
-                       currentDate: currentDate,
-                       minDate: boundField?.settings.minDateTime?.toFoundationDate(),
-                       maxDate: boundField?.settings.maxDateTime?.toFoundationDate()) { [weak self] date in
+        guard let navigationController = navigationControllerProvider?.navigationController else {
+            print("No NavigationController, cannot show selection controller")
+            return
+        }
+
+        navigationController.showDatePicker(
+            datePickerMode: datePickerMode,
+            currentDate: currentDate,
+            minDate: boundField?.settings.minDateTime?.toFoundationDate(),
+            maxDate: boundField?.settings.maxDateTime?.toFoundationDate()
+        ) { [weak self] date in
             self?.dispatchChangedDate(date: date)
         }
     }

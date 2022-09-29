@@ -190,7 +190,7 @@
                             <constraint firstItem="htu-XJ-td7" firstAttribute="leading" secondItem="hNd-3X-65p" secondAttribute="leading" id="9yX-SF-LTH"/>
                             <constraint firstItem="MJ4-RC-l7m" firstAttribute="top" secondItem="htu-XJ-td7" secondAttribute="bottom" id="B2c-Ko-KaP"/>
                             <constraint firstAttribute="trailing" secondItem="MJ4-RC-l7m" secondAttribute="trailing" id="OPD-He-4Pi"/>
-                            <constraint firstItem="MJ4-RC-l7m" firstAttribute="bottom" secondItem="anB-eQ-7lD" secondAttribute="top" constant="50" id="OeI-NZ-NCI"/>
+                            <constraint firstItem="MJ4-RC-l7m" firstAttribute="bottom" secondItem="anB-eQ-7lD" secondAttribute="top" id="OeI-NZ-NCI"/>
                             <constraint firstItem="MJ4-RC-l7m" firstAttribute="leading" secondItem="hNd-3X-65p" secondAttribute="leading" id="TYc-1E-rTW"/>
                             <constraint firstAttribute="trailing" secondItem="htu-XJ-td7" secondAttribute="trailing" id="gI6-7v-cgf"/>
                             <constraint firstItem="htu-XJ-td7" firstAttribute="top" secondItem="bcd-ce-NUj" secondAttribute="bottom" constant="50" id="kg7-Rl-yoT"/>
@@ -463,7 +463,7 @@
                             <constraint firstItem="jXP-MW-s4z" firstAttribute="top" secondItem="feo-oG-o39" secondAttribute="bottom" constant="5" id="MPl-1U-FYv"/>
                             <constraint firstItem="jXP-MW-s4z" firstAttribute="leading" secondItem="IYK-Ge-Qp0" secondAttribute="leading" id="Ruz-pN-qBd"/>
                             <constraint firstAttribute="trailing" secondItem="feo-oG-o39" secondAttribute="trailing" id="g9O-jQ-QdG"/>
-                            <constraint firstItem="jgM-Ly-Gpu" firstAttribute="top" secondItem="jXP-MW-s4z" secondAttribute="bottom" constant="-50" id="jvB-7W-vNW"/>
+                            <constraint firstItem="jgM-Ly-Gpu" firstAttribute="top" secondItem="jXP-MW-s4z" secondAttribute="bottom" id="jvB-7W-vNW"/>
                             <constraint firstAttribute="trailing" secondItem="jXP-MW-s4z" secondAttribute="trailing" id="uG5-fT-yMA"/>
                         </constraints>
                     </view>
@@ -591,7 +591,7 @@
                             <constraint firstItem="Iit-ce-7Bh" firstAttribute="top" secondItem="IuT-cr-ChY" secondAttribute="bottom" constant="50" id="Dwr-tq-wK7"/>
                             <constraint firstItem="Iit-ce-7Bh" firstAttribute="leading" secondItem="u2R-hH-s7q" secondAttribute="leading" id="MD8-Wu-lc5"/>
                             <constraint firstAttribute="trailing" secondItem="Iit-ce-7Bh" secondAttribute="trailing" id="lV4-Wq-Aiu"/>
-                            <constraint firstItem="f8f-ws-cfi" firstAttribute="top" secondItem="Iit-ce-7Bh" secondAttribute="bottom" constant="-50" id="xJ9-QA-sQ6"/>
+                            <constraint firstItem="f8f-ws-cfi" firstAttribute="top" secondItem="Iit-ce-7Bh" secondAttribute="bottom" id="xJ9-QA-sQ6"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Item" id="1hW-ra-tco"/>
@@ -1140,7 +1140,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="Whp-dg-Ja2" firstAttribute="top" secondItem="YYc-Jr-a8d" secondAttribute="bottom" constant="-50" id="3Sn-cK-a9u"/>
+                            <constraint firstItem="Whp-dg-Ja2" firstAttribute="top" secondItem="YYc-Jr-a8d" secondAttribute="bottom" id="3Sn-cK-a9u"/>
                             <constraint firstItem="9ig-KU-qN6" firstAttribute="top" secondItem="SLP-hl-hDM" secondAttribute="bottom" constant="4" id="DRU-Pe-yjo"/>
                             <constraint firstAttribute="trailing" secondItem="YYc-Jr-a8d" secondAttribute="trailing" id="Fv5-7F-tGg"/>
                             <constraint firstItem="YYc-Jr-a8d" firstAttribute="leading" secondItem="9tr-tU-1jN" secondAttribute="leading" id="HYk-bc-FR8"/>

@@ -22,7 +22,7 @@ class HuntingDayCell: UITableViewCell {
 
     private lazy var hasProposedEntriesIndicator: UIView = {
         let label = LabelWithPadding()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelXLarge)
+        label.font = UIFont.appFont(fontSize: .xLarge)
         label.textColor = UIColor.applicationColor(Destructive)
         label.text = "*"
         label.isHidden = true

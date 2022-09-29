@@ -2,6 +2,20 @@ import Foundation
 
 extension UIFont {
     static func appFont(
+        for fontUsage: AppConstants.FontUsage,
+        fontWeight: UIFont.Weight = .regular
+    ) -> UIFont {
+        return appFont(fontSize: fontUsage.toSizePoints(), fontWeight: fontWeight)
+    }
+
+    static func appFont(
+        fontSize: AppConstants.FontSize,
+        fontWeight: UIFont.Weight = .regular
+    ) -> UIFont {
+        return appFont(fontSize: fontSize.toSizePoints(), fontWeight: fontWeight)
+    }
+
+    static func appFont(
         fontSize: CGFloat,
         fontWeight: UIFont.Weight = .regular
     ) -> UIFont {

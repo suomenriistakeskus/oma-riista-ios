@@ -1,5 +1,6 @@
 PODS:
-  - AcknowList (1.9.5)
+  - AcknowList (2.0.3)
+  - Alamofire (5.6.1)
   - AsyncSwift (2.0.4)
   - DifferenceKit (1.2.0):
     - DifferenceKit/Core (= 1.2.0)
@@ -117,39 +118,41 @@ PODS:
   - GoogleUtilities/UserDefaults (7.4.3):
     - GoogleUtilities/Logger
   - KCOrderedAccessorFix (0.1.1)
-  - Kingfisher (6.3.0)
+  - Kingfisher (6.3.1)
   - libPhoneNumber-iOS (0.9.15)
   - M13Checkbox (1.2.0)
-  - MaterialComponents/AnimationTiming (109.5.0)
-  - MaterialComponents/Availability (109.5.0)
-  - MaterialComponents/Buttons (109.5.0):
+  - MaterialComponents/AnimationTiming (124.2.0)
+  - MaterialComponents/Availability (124.2.0)
+  - MaterialComponents/Buttons (124.2.0):
     - MaterialComponents/Elevation
     - MaterialComponents/Ink
     - MaterialComponents/private/Math
     - MaterialComponents/Ripple
+    - MaterialComponents/Shadow
     - MaterialComponents/ShadowElevations
     - MaterialComponents/ShadowLayer
+    - MaterialComponents/ShapeLibrary
     - MaterialComponents/Shapes
     - MaterialComponents/Typography
     - MDFInternationalization
     - MDFTextAccessibility
-  - "MaterialComponents/Buttons+ColorThemer (109.5.0)":
+  - "MaterialComponents/Buttons+ColorThemer (124.2.0)":
     - MaterialComponents/Buttons
     - MaterialComponents/schemes/Color
-  - "MaterialComponents/Buttons+ShapeThemer (109.5.0)":
+  - "MaterialComponents/Buttons+ShapeThemer (124.2.0)":
     - MaterialComponents/Buttons
     - MaterialComponents/schemes/Shape
-  - "MaterialComponents/Buttons+Theming (109.5.0)":
+  - "MaterialComponents/Buttons+Theming (124.2.0)":
     - MaterialComponents/Buttons
     - "MaterialComponents/Buttons+ColorThemer"
     - "MaterialComponents/Buttons+ShapeThemer"
     - "MaterialComponents/Buttons+TypographyThemer"
     - MaterialComponents/schemes/Container
     - MaterialComponents/ShadowElevations
-  - "MaterialComponents/Buttons+TypographyThemer (109.5.0)":
+  - "MaterialComponents/Buttons+TypographyThemer (124.2.0)":
     - MaterialComponents/Buttons
     - MaterialComponents/schemes/Typography
-  - MaterialComponents/Cards (109.5.0):
+  - MaterialComponents/Cards (124.2.0):
     - MaterialComponents/Elevation
     - MaterialComponents/Ink
     - MaterialComponents/private/Icons/ic_check_circle
@@ -157,7 +160,19 @@ PODS:
     - MaterialComponents/Ripple
     - MaterialComponents/ShadowLayer
     - MaterialComponents/Shapes
-  - MaterialComponents/Dialogs (109.5.0):
+  - MaterialComponents/Chips (124.2.0):
+    - MaterialComponents/Elevation
+    - MaterialComponents/Ink
+    - MaterialComponents/private/Math
+    - MaterialComponents/Ripple
+    - MaterialComponents/ShadowElevations
+    - MaterialComponents/ShadowLayer
+    - MaterialComponents/ShapeLibrary
+    - MaterialComponents/Shapes
+    - MaterialComponents/TextFields
+    - MaterialComponents/Typography
+    - MDFInternationalization
+  - MaterialComponents/Dialogs (124.2.0):
     - MaterialComponents/Buttons
     - MaterialComponents/Elevation
     - MaterialComponents/private/KeyboardWatcher
@@ -166,56 +181,102 @@ PODS:
     - MaterialComponents/ShadowLayer
     - MaterialComponents/Typography
     - MDFInternationalization
-  - MaterialComponents/Elevation (109.5.0):
+  - MaterialComponents/Elevation (124.2.0):
     - MaterialComponents/Availability
     - MaterialComponents/private/Color
     - MaterialComponents/private/Math
-  - MaterialComponents/Ink (109.5.0):
+  - MaterialComponents/Ink (124.2.0):
     - MaterialComponents/Availability
     - MaterialComponents/private/Color
     - MaterialComponents/private/Math
-  - MaterialComponents/Palettes (109.5.0)
-  - MaterialComponents/private/Application (109.5.0)
-  - MaterialComponents/private/Color (109.5.0):
+  - MaterialComponents/Palettes (124.2.0)
+  - MaterialComponents/private/Application (124.2.0)
+  - MaterialComponents/private/Color (124.2.0):
     - MaterialComponents/Availability
-  - MaterialComponents/private/Icons/Base (109.5.0)
-  - MaterialComponents/private/Icons/ic_check_circle (109.5.0):
+  - MaterialComponents/private/Icons/Base (124.2.0)
+  - MaterialComponents/private/Icons/ic_check_circle (124.2.0):
     - MaterialComponents/private/Icons/Base
-  - MaterialComponents/private/KeyboardWatcher (109.5.0):
+  - MaterialComponents/private/KeyboardWatcher (124.2.0):
     - MaterialComponents/private/Application
-  - MaterialComponents/private/Math (109.5.0)
-  - MaterialComponents/Ripple (109.5.0):
+  - MaterialComponents/private/Math (124.2.0)
+  - "MaterialComponents/private/TextControlsPrivate+BaseStyle (124.2.0)":
+    - MaterialComponents/AnimationTiming
+    - MaterialComponents/private/Math
+    - "MaterialComponents/private/TextControlsPrivate+Shared"
+  - "MaterialComponents/private/TextControlsPrivate+FilledStyle (124.2.0)":
+    - MaterialComponents/AnimationTiming
+    - MaterialComponents/Availability
+    - MaterialComponents/private/Math
+    - "MaterialComponents/private/TextControlsPrivate+Shared"
+    - "MaterialComponents/private/TextControlsPrivate+UnderlinedStyle"
+  - "MaterialComponents/private/TextControlsPrivate+Shared (124.2.0)":
+    - MaterialComponents/AnimationTiming
+    - MaterialComponents/private/Math
+    - "MaterialComponents/TextControls+Enums"
+  - "MaterialComponents/private/TextControlsPrivate+TextFields (124.2.0)":
+    - MaterialComponents/private/Math
+    - "MaterialComponents/private/TextControlsPrivate+Shared"
+  - "MaterialComponents/private/TextControlsPrivate+UnderlinedStyle (124.2.0)":
+    - MaterialComponents/AnimationTiming
+    - MaterialComponents/Availability
+    - MaterialComponents/private/Math
+    - "MaterialComponents/private/TextControlsPrivate+Shared"
+  - MaterialComponents/ProgressView (124.2.0):
+    - MaterialComponents/Palettes
+    - MaterialComponents/private/Math
+    - MDFInternationalization
+  - MaterialComponents/Ripple (124.2.0):
     - MaterialComponents/AnimationTiming
     - MaterialComponents/Availability
     - MaterialComponents/private/Color
     - MaterialComponents/private/Math
-  - MaterialComponents/schemes/Color (109.5.0):
+  - MaterialComponents/schemes/Color (124.2.0):
     - MaterialComponents/Availability
     - MaterialComponents/private/Color
-  - MaterialComponents/schemes/Container (109.5.0):
+  - MaterialComponents/schemes/Container (124.2.0):
     - MaterialComponents/schemes/Color
     - MaterialComponents/schemes/Shape
     - MaterialComponents/schemes/Typography
-  - MaterialComponents/schemes/Shape (109.5.0):
+  - MaterialComponents/schemes/Shape (124.2.0):
     - MaterialComponents/ShapeLibrary
     - MaterialComponents/Shapes
-  - MaterialComponents/schemes/Typography (109.5.0):
+  - MaterialComponents/schemes/Typography (124.2.0):
     - "MaterialComponents/schemes/Typography+BasicFontScheme"
     - "MaterialComponents/schemes/Typography+Scheming"
     - MaterialComponents/Typography
-  - "MaterialComponents/schemes/Typography+BasicFontScheme (109.5.0)"
-  - "MaterialComponents/schemes/Typography+Scheming (109.5.0)"
-  - MaterialComponents/ShadowElevations (109.5.0)
-  - MaterialComponents/ShadowLayer (109.5.0):
+  - "MaterialComponents/schemes/Typography+BasicFontScheme (124.2.0)"
+  - "MaterialComponents/schemes/Typography+Scheming (124.2.0)"
+  - MaterialComponents/Shadow (124.2.0):
+    - MaterialComponents/Availability
+  - MaterialComponents/ShadowElevations (124.2.0)
+  - MaterialComponents/ShadowLayer (124.2.0):
     - MaterialComponents/ShadowElevations
-  - MaterialComponents/ShapeLibrary (109.5.0):
+  - MaterialComponents/ShapeLibrary (124.2.0):
     - MaterialComponents/private/Math
     - MaterialComponents/Shapes
-  - MaterialComponents/Shapes (109.5.0):
+  - MaterialComponents/Shapes (124.2.0):
     - MaterialComponents/private/Color
     - MaterialComponents/private/Math
     - MaterialComponents/ShadowLayer
-  - MaterialComponents/TextFields (109.5.0):
+  - "MaterialComponents/TextControls+BaseTextAreas (124.2.0)":
+    - "MaterialComponents/private/TextControlsPrivate+BaseStyle"
+    - "MaterialComponents/private/TextControlsPrivate+Shared"
+    - MDFInternationalization
+  - "MaterialComponents/TextControls+BaseTextFields (124.2.0)":
+    - "MaterialComponents/private/TextControlsPrivate+BaseStyle"
+    - "MaterialComponents/private/TextControlsPrivate+Shared"
+    - "MaterialComponents/private/TextControlsPrivate+TextFields"
+    - MDFInternationalization
+  - "MaterialComponents/TextControls+Enums (124.2.0)"
+  - "MaterialComponents/TextControls+FilledTextAreas (124.2.0)":
+    - MaterialComponents/Availability
+    - "MaterialComponents/private/TextControlsPrivate+FilledStyle"
+    - "MaterialComponents/TextControls+BaseTextAreas"
+  - "MaterialComponents/TextControls+UnderlinedTextFields (124.2.0)":
+    - MaterialComponents/Availability
+    - "MaterialComponents/private/TextControlsPrivate+UnderlinedStyle"
+    - "MaterialComponents/TextControls+BaseTextFields"
+  - MaterialComponents/TextFields (124.2.0):
     - MaterialComponents/AnimationTiming
     - MaterialComponents/Buttons
     - MaterialComponents/Elevation
@@ -223,30 +284,24 @@ PODS:
     - MaterialComponents/private/Math
     - MaterialComponents/Typography
     - MDFInternationalization
-  - "MaterialComponents/TextFields+ColorThemer (109.5.0)":
-    - MaterialComponents/TextFields
-    - MaterialComponents/Themes
-  - "MaterialComponents/TextFields+Theming (109.5.0)":
-    - MaterialComponents/schemes/Container
-    - MaterialComponents/TextFields
-    - "MaterialComponents/TextFields+ColorThemer"
-  - MaterialComponents/Themes (109.5.0):
-    - MaterialComponents/schemes/Color
-    - MaterialComponents/schemes/Typography
-  - MaterialComponents/Typography (109.5.0):
+  - MaterialComponents/Typography (124.2.0):
     - MaterialComponents/private/Application
     - MaterialComponents/private/Math
+    - MDFTextAccessibility
   - MDFInternationalization (2.0.0)
-  - MDFTextAccessibility (2.0.0)
+  - MDFTextAccessibility (2.0.1)
   - MKNetworkKit (0.87):
     - Reachability (~> 3.1.0)
+  - MultiSelectSegmentedControl (2.2.0):
+    - SweeterSwift
   - nanopb (2.30908.0):
     - nanopb/decode (= 2.30908.0)
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
   - OAStackView (1.0.1)
-  - OverlayContainer (3.5.1)
+  - OverlayContainer (3.5.2)
+  - Pageboy (3.6.2)
   - PromisesObjC (1.2.12)
   - Protobuf (3.12.0)
   - QRCodeReader.swift (10.1.0)
@@ -255,11 +310,15 @@ PODS:
   - RMDateSelectionViewController (2.3.1):
     - RMActionController (~> 1.3.1)
   - SnapKit (5.0.1)
+  - SweeterSwift (1.2.1)
+  - Tabman (2.12.0):
+    - Pageboy (~> 3.6.0)
   - Toast-Swift (5.0.1)
   - UIImage-Resize (1.0.1)
 
 DEPENDENCIES:
   - AcknowList
+  - Alamofire
   - AsyncSwift
   - DifferenceKit
   - DropDown
@@ -273,25 +332,30 @@ DEPENDENCIES:
   - Kingfisher (~> 6.0)
   - libPhoneNumber-iOS (~> 0.8)
   - M13Checkbox (~> 1.2.0)
-  - MaterialComponents/Buttons
-  - "MaterialComponents/Buttons+Theming"
-  - MaterialComponents/Cards
-  - MaterialComponents/Dialogs
-  - MaterialComponents/TextFields
-  - "MaterialComponents/TextFields+Theming"
+  - MaterialComponents/Buttons (~> 124.2.0)
+  - "MaterialComponents/Buttons+Theming (~> 124.2.0)"
+  - MaterialComponents/Cards (~> 124.2.0)
+  - MaterialComponents/Chips (~> 124.2.0)
+  - MaterialComponents/Dialogs (~> 124.2.0)
+  - MaterialComponents/ProgressView (~> 124.2.0)
+  - "MaterialComponents/TextControls+FilledTextAreas (~> 124.2.0)"
+  - "MaterialComponents/TextControls+UnderlinedTextFields (~> 124.2.0)"
   - MKNetworkKit
+  - MultiSelectSegmentedControl
   - OAStackView
   - OverlayContainer
   - Protobuf
   - QRCodeReader.swift
   - RMDateSelectionViewController (~> 2.3.1)
   - SnapKit (~> 5.0.0)
+  - Tabman (~> 2.12)
   - Toast-Swift (~> 5.0.0)
   - UIImage-Resize
 
 SPEC REPOS:
   trunk:
     - AcknowList
+    - Alamofire
     - AsyncSwift
     - DifferenceKit
     - DropDown
@@ -317,9 +381,11 @@ SPEC REPOS:
     - MDFInternationalization
     - MDFTextAccessibility
     - MKNetworkKit
+    - MultiSelectSegmentedControl
     - nanopb
     - OAStackView
     - OverlayContainer
+    - Pageboy
     - PromisesObjC
     - Protobuf
     - QRCodeReader.swift
@@ -327,11 +393,14 @@ SPEC REPOS:
     - RMActionController
     - RMDateSelectionViewController
     - SnapKit
+    - SweeterSwift
+    - Tabman
     - Toast-Swift
     - UIImage-Resize
 
 SPEC CHECKSUMS:
-  AcknowList: 485f0e0da8ff7d5aaa8fb54bbff1da1f065e496c
+  AcknowList: 6d4faca4c3e0173377fe5649e086d627cd60b003
+  Alamofire: 87bd8c952f9a4454320fce00d9cc3de57bcadaf5
   AsyncSwift: 65775a7b32e740609b24969ece3de58723b9dc3e
   DifferenceKit: 5659c430bb7fe45876fa32ce5cba5d6167f0c805
   DropDown: 8a2116376c1981888557f72ec2ffc9a5e0e456ec
@@ -350,16 +419,18 @@ SPEC CHECKSUMS:
   GoogleMaps: 008e2c80e38605b56b560e8deb73d4194ff30bef
   GoogleUtilities: 45dbb24a7f351d69d0a601482b39ad6c32e30dab
   KCOrderedAccessorFix: 53c6f2bb13c9a163590f414536eccd2f103e3189
-  Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
+  Kingfisher: 016c8b653a35add51dd34a3aba36b580041acc74
   libPhoneNumber-iOS: 0a32a9525cf8744fe02c5206eb30d571e38f7d75
   M13Checkbox: 741b406a1d72415e3e3af9b9b6347ff345ed2f97
-  MaterialComponents: 7698cdf7eacb5f192456dbbe597aa7a8857fa3ef
+  MaterialComponents: 1a9b2d9d45b1601ae544de85089adc4c464306d4
   MDFInternationalization: 010097556d6b09d2c4ea38e0820ea6d37be6a314
-  MDFTextAccessibility: 85c09a1bd9c321f494348e632a25063bcda35a53
+  MDFTextAccessibility: f4bb4cc2194286651b59a215fdeaa0e05dc90ba5
   MKNetworkKit: 60ad3c83b62183e40ba75ce772c9427c25b520de
+  MultiSelectSegmentedControl: e34388e5d8de55a43ba0191662246c655f5b9d5a
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OAStackView: 95e7cb79cbea25c2342f496a44bdbe8bd4c8d510
-  OverlayContainer: a95f0f555fd0dd1addba3fc45370801e5fc16e68
+  OverlayContainer: 6b2727437ee7d76dc22b00d0275a94c9191f962a
+  Pageboy: cf121b9dd48c63f3f281b2a9ec93d02e0f23879b
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   Protobuf: 2793fcd0622a00b546c60e7cbbcc493e043e9bb9
   QRCodeReader.swift: 373a389fe9a22d513c879a32a6f647c58f4ef572
@@ -367,9 +438,11 @@ SPEC CHECKSUMS:
   RMActionController: 535715be9f3d9eb96a838485370dcccee0dda597
   RMDateSelectionViewController: 1157d34245e6a1dda700e8a9c44417321d181951
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
+  SweeterSwift: 61baeda1c0c27d1dc57c8112c3d6a82e5aff3139
+  Tabman: 447a50447ed2869c39ab3b1a779327e43e067c4e
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
   UIImage-Resize: fa776860f10e6900bbaf53a73e494bdceaaccc77
 
-PODFILE CHECKSUM: 366be7732eab52f3c6fe9417e861f8f8509bbd87
+PODFILE CHECKSUM: 25e9a4acd18b0d4a87cab5e928e35327cf2345bf
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3

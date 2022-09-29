@@ -11,6 +11,9 @@ class AgeFieldCell<FieldId : DataFieldId>: SelectableButtonCell<FieldId, AgeFiel
     var eventDispatcher: AgeEventDispatcher?
 
     private let ageSelectionController = RadioButtonGroup<RiistaCommon.GameAge>()
+    private lazy var unknownAgeButton: SelectableMaterialButton = {
+        return addButton(text: "SpecimenAgeUnknown".localized(), iconName: nil)
+    }()
 
     override func createSubviews(for container: UIView) {
         super.createSubviews(for: container)
@@ -23,6 +26,11 @@ class AgeFieldCell<FieldId : DataFieldId>: SelectableButtonCell<FieldId, AgeFiel
         ageSelectionController.addSelectable(
             addButton(text: "SpecimenAgeYoung".localized(), iconName: nil),
             data: .young
+        )
+
+        ageSelectionController.addSelectable(
+            unknownAgeButton,
+            data: .unknown
         )
 
         captionLabel.text = "SpecimenAgeTitle".localized()
@@ -49,6 +57,7 @@ class AgeFieldCell<FieldId : DataFieldId>: SelectableButtonCell<FieldId, AgeFiel
                 print("No event dispatcher, displaying field \(field.id_) in disabled mode!")
             }
         }
+        unknownAgeButton.isHidden = !field.settings.showUnknown
         ageSelectionController.select(data: field.age)
     }
 

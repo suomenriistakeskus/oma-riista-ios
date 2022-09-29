@@ -207,6 +207,7 @@ class GameLogItemCell: UITableViewCell {
     }
 
     func setupFromSrva(srva: SrvaEntry, isFirst: Bool, isLast: Bool) {
+        print("SetupFromSrva: \(srva.gameSpeciesCode)")
         clearCurrentlyDisplayedData()
 
         loadImage(entry: srva)
@@ -216,12 +217,24 @@ class GameLogItemCell: UITableViewCell {
         if let speciesCode = srva.gameSpeciesCode?.intValue {
             let species = RiistaGameDatabase.sharedInstance()?.species(byId: speciesCode)
             nameText = RiistaUtils.name(withPreferredLanguage: species?.name)
+            itemImage?.tintColor = nil
         }
         else {
             nameText = RiistaBridgingUtils.RiistaLocalizedString(forkey: "SrvaOtherSpeciesShort")
 
             if (srva.otherSpeciesDescription != nil) {
                 nameText = "\(nameText) - \(srva.otherSpeciesDescription!)"
+            }
+
+            // If SRVA with unknown species has images, then one of those will be used. If not then unknown icon will be used
+            // and tintColor must be set. Otherwise tintColor must be nil.
+            let images = srva.diaryImages?.map({ $0 as! DiaryImage })
+            let hasImages = (images?.count ?? 0) > 0
+            print("hasImages=\(hasImages)")
+            if (hasImages) {
+                itemImage?.tintColor = nil
+            } else {
+                itemImage?.tintColor = .black
             }
         }
 

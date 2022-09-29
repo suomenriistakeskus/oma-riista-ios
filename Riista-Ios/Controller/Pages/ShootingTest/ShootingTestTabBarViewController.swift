@@ -1,6 +1,9 @@
 import UIKit
+import Tabman
 
-class ShootingTestTabBarViewController: UITabBarController {
+fileprivate typealias TabBar = TMBarView<TMHorizontalBarLayout, TabBarButton, TMLineBarIndicator>
+
+class ShootingTestTabBarViewController: BaseTabBarViewController, TMBarDataSource, TMBarDelegate {
     var calendarEventId : Int?
     var eventId : Int?
 
@@ -11,25 +14,58 @@ class ShootingTestTabBarViewController: UITabBarController {
 
     var cachedTabBarHeight: CGFloat?
 
+    private lazy var customTabBar: TabBar = {
+        let bar = TabBar()
+        bar.dataSource = self
+        bar.delegate = self
+        bar.backgroundColor = UIColor.applicationColor(GreyLight)
+
+        bar.layout.contentInset = UIEdgeInsets(top: 0.0, left: 16, bottom: 0.0, right: 16)
+        bar.layout.transitionStyle = .snap
+
+        let primaryColor = UIColor.applicationColor(Primary)!
+        let disabledColor = UIColor.applicationColor(GreyLight)!
+        bar.indicator.tintColor = primaryColor
+
+        bar.buttons.customize { button in
+            button.font = UIFont.appFont(fontSize: .small, fontWeight: .semibold)
+            button.tintColor = primaryColor
+            button.selectedTintColor = primaryColor
+            button.enabledTintColor = primaryColor
+            button.enabledSelectedTintColor = primaryColor
+            button.disabledColor = disabledColor
+        }
+        return bar
+    }()
+
+    private lazy var tabBarItems: [TabBarItem] = {
+        let locale = RiistaSettings.locale()
+        return [
+            TabBarItem(title: "ShootingTestTabEventTitle".localized().uppercased(with: locale), enabled: true),
+            TabBarItem(title: "ShootingTestTabRegisterTitle".localized().uppercased(with: locale), enabled: false),
+            TabBarItem(title: "ShootingTestTabQueueTitle".localized().uppercased(with: locale), enabled: false),
+            TabBarItem(title: "ShootingTestTabPaymentsTitle".localized().uppercased(with: locale), enabled: false)
+        ]
+    }()
+
     func setSelectedEvent(calendarEventId : Int, eventId : Int?) {
         self.calendarEventId = calendarEventId
         self.eventId = eventId
     }
 
     func setEnabled(ongoing: Bool, selectedAsOfficial: Bool, isCoordinator: Bool) {
-        for index in 0..<((self.tabBar.items?.count)!) {
-            let item = self.tabBar.items![index] as UITabBarItem
+        for (index, item) in tabBarItems.enumerated() {
             if (index == 0) {
-                item.isEnabled = true
+                item.enabled = true
             }
             else if (index == 1 || index == 2) {
-                item.isEnabled = self.eventId != nil && ongoing && (selectedAsOfficial || isCoordinator)
+                item.enabled = self.eventId != nil && ongoing && (selectedAsOfficial || isCoordinator)
             }
             else if (index == 3) {
-                item.isEnabled = self.eventId != nil && (selectedAsOfficial || isCoordinator)
+                item.enabled = self.eventId != nil && (selectedAsOfficial || isCoordinator)
             }
             else {
-                item.isEnabled = false
+                item.enabled = false
             }
         }
     }
@@ -37,85 +73,25 @@ class ShootingTestTabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.cachedTabBarHeight = self.tabBar.frame.height
+        self.delegate = self
 
-        self.setupRefreshButton()
-    }
+        // hide the default tabbar and use custom version instead..
+        self.tabBar.isHidden = true
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        self.tabBar.items?[0].title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTabEventTitle")
-        self.tabBar.items?[1].title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTabRegisterTitle")
-        self.tabBar.items?[2].title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTabQueueTitle")
-        self.tabBar.items?[3].title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTabPaymentsTitle")
-
-        styleItems()
-    }
-
-    override func viewDidLayoutSubviews() {
-        moveTabBarToTop()
-        super.viewDidLayoutSubviews()
-    }
-
-    func moveTabBarToTop() {
-        let tabBarHeight = self.cachedTabBarHeight ?? 49
-        self.tabBar.frame = CGRect(x: 0, y: 0, width: self.tabBar.frame.size.width, height: tabBarHeight)
-    }
-
-    func styleItems() {
-        let attrsNormal = [
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: getTabLabelFontSize())
-        ]
-        let attrsSelected = [
-            NSAttributedString.Key.foregroundColor: UIColor.black,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: getTabLabelFontSize())
-        ]
-
-        for index in 0..<((self.tabBar.items?.count)!) {
-            let item = self.tabBar.items![index] as UITabBarItem
-            item.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -16)
-
-            item.setTitleTextAttributes(attrsNormal, for: .normal)
-            item.setTitleTextAttributes(attrsSelected, for: .selected)
+        view.addSubview(customTabBar)
+        customTabBar.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(topLayoutGuide.snp.bottom)
+            make.height.equalTo(50) // same height as on storyboard for other view controllers
         }
 
-        self.tabBar.backgroundImage = UIImage().createSelectionIndicator(color: UIColor.applicationColor(ShootingTestQualifiedColor), size: CGSize(width: tabBar.frame.size.width/CGFloat(tabBar.items!.count), height: tabBar.frame.size.height), lineWidth: 1.0)
-        self.tabBar.selectionIndicatorImage = UIImage().createSelectionIndicator(color: UIColor.applicationColor(ShootingTestQualifiedColor), size: CGSize(width: tabBar.frame.size.width/CGFloat(tabBar.items!.count), height: tabBar.frame.size.height), lineWidth: 4.0)
-    }
-
-    func getTabLabelFontSize() -> CGFloat {
-        // on iPhone5 there's no spacing between labels and thus we want smaller font size on that device.
-        // Since we're planning on switching MDCTabBarController with scrollable tabs, don't invest too much in finetuning this implementation
-        if (UIScreen.main.bounds.height <= 568) { // iPhone 5
-            return AppConstants.Font.LabelTiny
-        } else {
-            // other devices
-            return AppConstants.Font.LabelSmall
-        }
-    }
-
-    func setupRefreshButton() {
-        let barButton = UIBarButtonItem(image: UIImage(named: "ic_action_refresh.png"), style: .plain, target: self, action: #selector(refreshItemTapped(sender:)))
-        self.navigationItem.rightBarButtonItem = barButton
-    }
-
-    @objc func refreshItemTapped(sender: UIButton) {
-        if (self.selectedIndex == 0) {
-            let vc = self.viewControllers?[0] as! ShootingTestEventViewController
-            vc.refreshEvent()
-        }
-        if (self.selectedIndex == 2) {
-            let vc = self.viewControllers?[2] as! ShootingTestQueueViewController
-            vc.refreshData()
-        }
-        if (self.selectedIndex == 3) {
-            let vc = self.viewControllers?[3] as! ShootingTestPaymentsViewController
-            vc.refreshData()
-        }
-        else {
-            self.refreshEvent()
-        }
+        reloadTabs()
+        customTabBar.update(
+            for: 0.0, // first item
+            capacity: tabBarItems.count,
+            direction: .none,
+            animation: TMAnimation(isEnabled: false, duration: 0)
+        )
     }
 
     func refreshEvent() {
@@ -160,8 +136,8 @@ class ShootingTestTabBarViewController: UITabBarController {
                     let queueValue = (self.calendarEvent?.numberOfParticipantsWithNoAttempts)!
                     let paymentsValue = (self.calendarEvent?.numberOfAllParticipants)! - (self.calendarEvent?.numberOfCompletedParticipants)!
 
-                    self.tabBar.items?[2].badgeValue = queueValue > 0 ? String(queueValue) : nil
-                    self.tabBar.items?[3].badgeValue = paymentsValue > 0 ? String(paymentsValue) : nil
+                    self.tabBarItems[2].badgeValue = queueValue > 0 ? String(queueValue) : nil
+                    self.tabBarItems[3].badgeValue = paymentsValue > 0 ? String(paymentsValue) : nil
                 }
                 catch {
                     print("Failed to parse <ShootingTestCalendarEvent> item")
@@ -218,5 +194,139 @@ class ShootingTestTabBarViewController: UITabBarController {
         { (result:Array?, error:Error?) in
             completion(result, error)
         }
+    }
+
+    func barItem(for bar: TMBar, at index: Int) -> TMBarItemable {
+        return tabBarItems[index]
+    }
+
+    func bar(_ bar: TMBar, didRequestScrollTo index: Int) {
+        guard let item = tabBarItems.getOrNil(index: index) else { return }
+
+        if (!item.enabled) {
+            print("Item not enabled, nothing to do!")
+            return
+        }
+
+        selectedIndex = index
+        bar.update(
+            for: CGFloat(index),
+            capacity: tabBarItems.count,
+            direction: .none,
+            animation: TMAnimation(isEnabled: true, duration: AppConstants.Animations.durationShort)
+        )
+    }
+
+    private func reloadTabs() {
+        customTabBar.reloadData(at: 0...(tabBarItems.count - 1), context: .full)
+    }
+}
+
+
+fileprivate class TabBarButton: TMLabelBarButton {
+
+    // cached colors (need to be set from outside).
+    // - label is private is super class and thus we have to update tintColor & selectedTintColor
+    //   in order to update label color
+    var enabledTintColor: UIColor!
+    var enabledSelectedTintColor: UIColor!
+    var disabledColor: UIColor? {
+        didSet {
+            updateTextColor()
+        }
+    }
+
+    override func populate(for item: TMBarItemable) {
+        if let tabBarItem = item as? TabBarItem {
+            isEnabled = tabBarItem.enabled
+
+            // update text color immediately after setting isEnabled. Updating it during
+            // override func update(for selectionState: TMBarButton.SelectionState)
+            // is not enough for some reason as items remain in disabled state
+            updateTextColor()
+        }
+
+        super.populate(for: item)
+    }
+
+    private func updateTextColor() {
+        guard let disabledColor = disabledColor else {
+            return
+        }
+
+        // label is private is super class and thus we have to update tintColor & selectedTintColor
+        // in order to update label color
+
+        if (isEnabled) {
+            tintColor = enabledTintColor
+            selectedTintColor = enabledSelectedTintColor
+        } else {
+            tintColor = disabledColor
+            selectedTintColor = disabledColor
+        }
+    }
+}
+
+// tabbar item. Implement TMBarItemable instead of inheriting
+// TMBarItem as designated initialized in TMBarItem is private
+// --> we have to implement protocol ourselves
+fileprivate class TabBarItem: TMBarItemable {
+    open var title: String? {
+        didSet  {
+            setNeedsUpdate()
+        }
+    }
+
+    open var image: UIImage?  {
+        didSet {
+            setNeedsUpdate()
+        }
+    }
+
+    open var selectedImage: UIImage?  {
+        didSet {
+            setNeedsUpdate()
+        }
+    }
+
+    open var badgeValue: String? {
+        didSet {
+            setNeedsUpdate()
+        }
+    }
+
+    var enabled: Bool = true {
+        didSet {
+            setNeedsUpdate()
+        }
+    }
+
+    public var accessibilityLabel: String? {
+        didSet {
+            setNeedsUpdate()
+        }
+    }
+
+    public var accessibilityHint: String? {
+        didSet {
+            setNeedsUpdate()
+        }
+    }
+
+    public var isAccessibilityElement: Bool { return true }
+
+
+    // MARK: Init
+
+    public convenience init(title: String, enabled: Bool) {
+        self.init(with: title, image: nil, selectedImage: nil, badgeValue: nil, enabled: enabled)
+    }
+
+    init(with title: String?, image: UIImage?, selectedImage: UIImage?, badgeValue: String?, enabled: Bool) {
+        self.title = title
+        self.image = image
+        self.selectedImage = selectedImage
+        self.badgeValue = badgeValue
+        self.enabled = enabled
     }
 }

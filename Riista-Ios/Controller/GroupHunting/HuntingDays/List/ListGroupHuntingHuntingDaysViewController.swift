@@ -65,7 +65,7 @@ class ListGroupHuntingHuntingDaysController:
 
     private lazy var noContentLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = UIColor.applicationColor(GreyDark)
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -153,9 +153,7 @@ class ListGroupHuntingHuntingDaysController:
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        if let navController = navigationController as? RiistaNavigationController {
-            navController.setRightBarItems(createNavigationBarItems())
-        }
+        navigationItem.rightBarButtonItems = createNavigationBarItems()
     }
 
     private func createNavigationBarItems() -> [UIBarButtonItem] {

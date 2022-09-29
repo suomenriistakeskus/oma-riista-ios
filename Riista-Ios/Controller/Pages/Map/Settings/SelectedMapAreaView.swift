@@ -42,14 +42,14 @@ class SelectedMapAreaView: UIView {
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = UIColor.applicationColor(GreyMedium)
         return label
     }()
 
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
-        label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = UIColor.applicationColor(TextPrimary)
         return label
     }()

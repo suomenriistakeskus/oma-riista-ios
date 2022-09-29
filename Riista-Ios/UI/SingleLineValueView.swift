@@ -15,9 +15,7 @@ class SingleLineValueView: UIView {
     private let mode: Mode
 
     lazy var label: UILabel = {
-        let label = UILabel()
-        AppTheme.shared.setupLabelFont(label: label)
-        label.textColor = UIColor.applicationColor(TextPrimary)
+        let label = UILabel().configure(for: .label)
 
         if (mode == .multilineLabel) {
             label.numberOfLines = 0
@@ -28,11 +26,7 @@ class SingleLineValueView: UIView {
     }()
 
     lazy var valueLabel: UILabel = {
-        let valueLabel = UILabel()
-        AppTheme.shared.setupLabelFont(label: valueLabel)
-        valueLabel.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelMedium)
-        valueLabel.textColor = UIColor.applicationColor(TextPrimary)
-        valueLabel.textAlignment = .right
+        let valueLabel = UILabel().configure(for: .label, textAlignment: .right)
 
         if (mode == .multilineLabel) {
             valueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)

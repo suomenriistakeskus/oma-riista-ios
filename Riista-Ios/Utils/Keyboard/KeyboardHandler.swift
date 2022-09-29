@@ -37,9 +37,6 @@ class KeyboardHandler: NSObject, UIGestureRecognizerDelegate {
         // Content moved using a constraint defined by SnapKit
         case usingSnapKitConstraint(constraint: Constraint)
 
-        // TODO: Constraint defined traditionally using NSLayoutConstraint
-        //case layoutConstraint(constraint: NSLayoutConstraint)
-
         // adjust content inset for the given scrollview
         case adjustContentInset(scrollView: UIScrollView)
     }

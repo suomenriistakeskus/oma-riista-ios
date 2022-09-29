@@ -44,6 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSOrderedSet<DiaryImage *> *diaryImages;
 @property (nullable, nonatomic, retain) NSOrderedSet<SrvaSpecimen *> *specimens;
 
+@property (nullable, nonatomic, retain) NSString *deportationOrderNumber;
+@property (nullable, nonatomic, retain) NSString *eventTypeDetail;
+@property (nullable, nonatomic, retain) NSString *otherEventTypeDetailDescription;
+@property (nullable, nonatomic, retain) NSString *eventResultDetail;
+
 @end
 
 @interface SrvaEntry (CoreDataGeneratedAccessors)

@@ -128,17 +128,13 @@ class ModifyGroupHuntingHarvestViewController<Controller: ModifyGroupHarvestCont
             mapExternalIdProvider: self
         )
 
-        navigationController?.title = getViewTitle()
+        title = getViewTitle()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         keyboardHandler?.listenKeyboardEvents()
-
-        if let navController = navigationController as? RiistaNavigationController {
-            navController.setRightBarItems(nil)
-        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {

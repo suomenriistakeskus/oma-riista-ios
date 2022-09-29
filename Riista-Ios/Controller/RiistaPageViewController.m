@@ -1,4 +1,3 @@
-#import "RiistaNavigationController.h"
 #import "RiistaPageViewController.h"
 #import "UIColor+ApplicationColor.h"
 
@@ -14,14 +13,6 @@
 {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor applicationColor:RiistaApplicationColorBackground];
-}
-
-- (void)initPage
-{
-    self.navigationController.title = @"";
-    if ([self.navigationController isKindOfClass:[RiistaNavigationController class]]) {
-        [((RiistaNavigationController*)self.navigationController) setRightBarItems:@[]];
-    }
 }
 
 - (void)refreshTabItem

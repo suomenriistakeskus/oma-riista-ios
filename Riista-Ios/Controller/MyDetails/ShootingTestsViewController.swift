@@ -22,9 +22,9 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        items = user?.shootingTests as? Array<ShootingTest>
+        title = "MyDetailsTitleShootingTests".localized()
 
-        updateTitle()
+        items = user?.shootingTests as? Array<ShootingTest>
         updateNoContentIndicator()
         tableView.reloadData()
     }
@@ -46,18 +46,13 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
         stackView.axis = .vertical
         stackView.spacing = 4
 
-        let label = UILabel()
+        let label = UILabel().configure(for: .label)
         stackView.addArrangedSubview(label)
-        AppTheme.shared.setupLabelFont(label: label)
-        label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
-        label.textColor = .black
         label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestsNameAndHunterNumber")
 
-        let nameAndNumber = UILabel()
+        let nameAndNumber = UILabel().configure(for: .inputValue, numberOfLines: 0)
         stackView.addArrangedSubview(nameAndNumber)
-        AppTheme.shared.setupValueFont(label: nameAndNumber)
-        nameAndNumber.numberOfLines = 0
         nameAndNumber.lineBreakMode = .byWordWrapping
         nameAndNumber.textColor = .black
         nameAndNumber.text = "\(user.firstName ?? "") \(user.lastName ?? ""), \(user.hunterNumber ?? "-")"
@@ -69,11 +64,6 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
         tableView.layoutIfNeeded()
     }
 
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "MyDetailsTitleShootingTests"))
-    }
-
     func updateNoContentIndicator() {
         let itemCount = items?.count ?? 0
         if (itemCount > 0) {
@@ -83,12 +73,10 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
 
         tableView.tableHeaderView = nil
 
-        let label = UILabel()
-        label.font = label.font.withSize(AppConstants.Font.LabelMedium)
+        let label = UILabel().configure(for: .label)
         label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "MyDetailsNoShootingTestAttempts")
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
-        label.textColor = .black
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
 

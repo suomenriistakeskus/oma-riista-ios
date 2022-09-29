@@ -16,17 +16,20 @@ class TableView: UITableView {
 
     private var loadIndicatorViewController: LoadIndicatorViewController?
 
+    /**
+     * Called when window has been set
+     */
+    var onWindowSet: (() -> Void)?
+
     func showLoading() {
         guard let viewController = self.parentViewController else { return }
         loadIndicatorViewController = LoadIndicatorViewController()
             .showIn(parentViewController: viewController, viewToOverlay: self)
-        isScrollEnabled = false
     }
 
-    func hideLoading() {
-        loadIndicatorViewController?.hide()
+    func hideLoading(_ completion: OnCompleted? = nil) {
+        loadIndicatorViewController?.hide(completion)
         loadIndicatorViewController = nil
-        isScrollEnabled = true
     }
 
     func setCellNeedsLayout(cell: TableViewCell, animateChanges: Bool) {
@@ -81,6 +84,13 @@ class TableView: UITableView {
 
         if (!animateChanges) {
             UIView.setAnimationsEnabled(true)
+        }
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if (window != nil) {
+            onWindowSet?()
         }
     }
 }

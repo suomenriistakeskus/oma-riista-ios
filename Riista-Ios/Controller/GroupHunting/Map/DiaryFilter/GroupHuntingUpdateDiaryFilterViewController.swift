@@ -19,7 +19,7 @@ class GroupHuntingUpdateDiaryFilterViewController: MaterialDialogViewController 
     override func loadView() {
         super.loadView()
 
-        titleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "GroupHuntingDiaryFilterDialogTitle")
+        titleLabel.text = "FilterDialogTitle".localized()
 
         let selectionsStackView = UIStackView()
         selectionsStackView.axis = .vertical

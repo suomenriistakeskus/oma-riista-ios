@@ -113,9 +113,7 @@ class ViewGroupHuntingDayViewController:
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        if let navController = navigationController as? RiistaNavigationController {
-            navController.setRightBarItems(createNavigationBarItems())
-        }
+        navigationItem.rightBarButtonItems = createNavigationBarItems()
     }
 
     private func createNavigationBarItems() -> [UIBarButtonItem] {

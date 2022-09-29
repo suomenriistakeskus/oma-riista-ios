@@ -58,35 +58,12 @@
 "observation_marked_ring" = "Jalkarengas, Siipimerkki";
 "observation_marked_ear" = "Korvamerkki";
 
+// Still used in game log
 "srva_accident" = "Onnettomuus";
 "srva_deportation" = "Karkotus";
 "srva_sick_animal" = "Sairas eläin";
-
-"srva_traffic_accident" = "Liikenneonnettomuus";
-"srva_railway_accident" = "Onnettomuus rautatiellä";
-"srva_other" = "Muu";
-
-"srva_animal_near_houses" = "Eläin asutuksen tuntumassa";
-"srva_animal_at_food_destination" = "Eläin ravintokohteilla";
-
 "srva_injured_animal" = "Loukkaantunut eläin";
 "srva_animal_on_ice" = "Eläin jäällä";
-
-"srva_animal_found_dead" = "Eläin löydettiin kuolleena";
-"srva_animal_found_and_terminated" = "Eläin löydettiin ja lopetettiin";
-"srva_animal_found_and_not_terminated" = "Eläin löydettiin ja jätettiin henkiin";
-"srva_accident_site_not_found" = "Onnettomuuspaikkaa ei löytynyt";
-"srva_animal_not_found" = "Eläintä ei löydetty";
-"srva_undue_alarm" = "Aiheeton hälytys";
-
-"srva_animal_terminated" = "Eläin lopetettiin";
-"srva_animal_deported" = "Eläin karkotettiin";
-
-"srva_method_dog" = "Koira";
-"srva_method_traced_with_dog" = "Jäljitettiin koiran kanssa";
-"srva_method_traced_without_dog" = "Jäljitettiin ilman koiraa";
-"srva_method_pain_equipment" = "Kipua tuottavat laitteet";
-"srva_method_sound_equipment" = "Ääntä tuottavat laitteet";
 
 "harvest_moose_fitness_class_excellent" = "Erinomainen";
 "harvest_moose_fitness_class_normal" = "Normaali";

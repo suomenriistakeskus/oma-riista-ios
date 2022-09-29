@@ -18,7 +18,7 @@ import Foundation
         }
 
         let huntingYear = DatetimeUtil.huntingYearContaining(date: harvestPointOfTime)
-        return FeatureAvailabilityChecker.shared.isEnabled(.antlers2020Fields) && huntingYear >= 2020
+        return huntingYear >= 2020
     }
 }
 

@@ -3,10 +3,8 @@
 #import "RiistaHeaderLabel.h"
 #import "Styles.h"
 #import "RiistaMapUtils.h"
-#import "RiistaNavigationController.h"
 #import "RiistaSpeciesSelectViewController.h"
 #import "RiistaSpecimenListViewController.h"
-#import "RiistaMapViewController.h"
 #import "RiistaGameDatabase.h"
 #import "RiistaUtils.h"
 #import "RiistaSpeciesCategory.h"
@@ -37,7 +35,7 @@
 #import "Oma_riista-Swift.h"
 #import "NSManagedObject+RiistaCopying.h"
 
-@interface RiistaLogGameViewController () <CLLocationManagerDelegate, GMSMapViewDelegate, UIGestureRecognizerDelegate, SpeciesSelectionDelegate, RiistaKeyboardHandlerDelegate, UITextFieldDelegate, UITextViewDelegate, SpecimensUpdatedDelegate, MapPageDelegate, PermitPageDelegate, ValueSelectionDelegate, RiistaImagePickerDelegate, RiistaImagePickerDelegate, InstructionsButtonDelegate>
+@interface RiistaLogGameViewController () <CLLocationManagerDelegate, GMSMapViewDelegate, UIGestureRecognizerDelegate, SpeciesSelectionDelegate, RiistaKeyboardHandlerDelegate, UITextFieldDelegate, UITextViewDelegate, SpecimensUpdatedDelegate, PermitPageDelegate, ValueSelectionDelegate, RiistaImagePickerDelegate, RiistaImagePickerDelegate, LocationSelectionListener, InstructionsButtonDelegate>
 
 @property (strong, nonatomic) UIBarButtonItem *deleteBarButton;
 @property (strong, nonatomic) UIBarButtonItem *editBarButton;
@@ -52,7 +50,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *amountLabel;
 @property (weak, nonatomic) IBOutlet MDCButton *speciesButton;
 
-@property (weak, nonatomic) IBOutlet MDCTextField *amountTextField;
+@property (weak, nonatomic) IBOutlet MDCUnderlinedTextField *amountTextField;
 
 @property (weak, nonatomic) IBOutlet UIView *statusContainer;
 @property (weak, nonatomic) IBOutlet UIView *statusIndicatorView;
@@ -66,7 +64,7 @@
 // height for the view (it's priority should be set to UILayoutPriorityDefaultHigh (750).
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *hideSpecimenButtonContainerConstraint;
 @property (weak, nonatomic) IBOutlet MDCButton *imagesButton;
-@property (weak, nonatomic) IBOutlet MDCMultilineTextField *descriptionField;
+@property (weak, nonatomic) IBOutlet MDCFilledTextArea *descriptionField;
 @property (weak, nonatomic) IBOutlet UIView *buttonArea;
 @property (weak, nonatomic) IBOutlet MDCButton *cancelButton;
 @property (weak, nonatomic) IBOutlet MDCButton *submitButton;
@@ -118,9 +116,6 @@
 
 @property (strong, nonatomic) NSDateFormatter *dateFormatter;
 @property (strong, nonatomic) NSDateFormatter *timeFormatter;
-
-@property (strong, nonatomic) MDCTextInputControllerUnderline *amountInputController;
-@property (strong, nonatomic) MDCTextInputControllerUnderline *descriptionInputController;
 
 @property (strong, nonatomic) MDCDialogTransitionController *dialogTransitionController;
 
@@ -205,9 +200,12 @@ NSString* RiistaEditDomain = @"RiistaEdit";
         _editContext.parentContext = delegate.managedObjectContext;
         _eventInvalid = NO;
 
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(amountTextFieldDidBeginEditing:) name:UITextFieldTextDidBeginEditingNotification object:_amountTextField];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(amountTextFieldDidEndEditing:) name:UITextFieldTextDidEndEditingNotification object:_amountTextField];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(calendarEntriesUpdated:) name:RiistaCalendarEntriesUpdatedKey object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(amountTextFieldDidBeginEditing:)
+                                                     name:UITextFieldTextDidBeginEditingNotification object:_amountTextField];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(amountTextFieldDidEndEditing:)
+                                                     name:UITextFieldTextDidEndEditingNotification object:_amountTextField];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(calendarEntriesUpdated:)
+                                                     name:RiistaCalendarEntriesUpdatedKey object:nil];
 
         imageUtil = [[ImageEditUtil alloc] initWithParentController:self];
     }
@@ -233,8 +231,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
         self.editContext = context;
     }
 
-    _descriptionInputController = [AppTheme.shared setupDescriptionTextFieldWithTextField:_descriptionField delegate:self];
-    [AppTheme.shared setupValueFontWithMultilineTextField:_descriptionField];
+    [AppTheme.shared setupDescriptionTextArea:self.descriptionField delegate:self];
 
     self.keyboardHandler = [[RiistaKeyboardHandler alloc] initWithView:self.view andBottomSpaceConstraint:self.bottomPaneBottomSpace];
     self.keyboardHandler.delegate = self;
@@ -404,9 +401,10 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     [self.navigationController pushViewController:controller animated:YES];
 }
 
-- (void)setupAmountInput:(MDCTextField*)input
+- (void)setupAmountInput:(MDCUnderlinedTextField*)input
 {
-    _amountInputController = [AppTheme.shared setupAmountTextFieldWithTextField:input delegate:self];
+    [AppTheme.shared setupAmountTextFieldWithTextField:input delegate:self];
+
     self.amountTextField.inputAccessoryView = [KeyboardToolbarView textFieldDoneToolbarView:self.amountTextField];
     [input addTarget:self action:@selector(amountTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
 }
@@ -422,7 +420,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 
     [_specimenButton setTitle:RiistaLocalizedString(@"SpecimenDetailsTitle", nil) forState:UIControlStateNormal];
 
-    [_descriptionInputController setPlaceholderText:RiistaLocalizedString(@"AddDescription", nil)];
+    [self.descriptionField setPlaceholder:RiistaLocalizedString(@"AddDescription", nil)];
 
     [self updateTitle];
     [_submitButton setTitle:RiistaLocalizedString(@"Save", nil) forState:UIControlStateNormal];
@@ -528,7 +526,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 
     [self.imagesButton setEnabled:YES];
 
-    self.descriptionField.text = self.event.diarydescription;
+    self.descriptionField.textView.text = self.event.diarydescription;
     self.descriptionField.enabled = NO;
 
     self.contentEditBottomConstraint.constant = self.buttonArea.bounds.size.height + CONTENT_BOTTOM_MARGIN;
@@ -1625,7 +1623,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
         }
     }
 
-    [((RiistaNavigationController*)self.navigationController) setRightBarItems:barItems];
+    [self.navigationItem setRightBarButtonItems:barItems];
 }
 
 - (void)refreshDateTimeButtonState
@@ -1650,8 +1648,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     NSString *timeString = [self.timeFormatter stringFromDate:dateValue];
     [self.timeButton setTitle:timeString forState:UIControlStateNormal];
 
-    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
-    [navController changeTitle:RiistaLocalizedString(@"Harvest", nil)];
+    self.title = RiistaLocalizedString(@"Harvest", nil);
 }
 
 - (void)setupGestureRecognizers
@@ -1736,7 +1733,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     self.buttonArea.userInteractionEnabled = YES;
     [self.buttonArea setHidden:NO];
     self.cancelButton.enabled = YES;
-    self.submitButton.enabled = YES;
+    [self updateSubmitButton];
 
     [self.buttonArea setNeedsLayout];
     [self.buttonArea layoutIfNeeded];
@@ -1767,7 +1764,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     diaryEntry.pointOfTime = self.startTime;
     diaryEntry.gameSpeciesCode = @(self.species.speciesId);
     diaryEntry.amount = [NSNumber numberWithInteger:[self.amountTextField.text integerValue]];
-    diaryEntry.diarydescription = self.descriptionField.text;
+    diaryEntry.diarydescription = self.descriptionField.textView.text;
     diaryEntry.type = DiaryEntryTypeHarvest;
     diaryEntry.remote = @(NO);
     diaryEntry.sent = @(NO);
@@ -1867,7 +1864,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     self.event.sent = @(NO);
     self.event.gameSpeciesCode = @(self.species.speciesId);
     self.event.amount = [NSNumber numberWithInteger:[self.amountTextField.text integerValue]];
-    self.event.diarydescription = self.descriptionField.text;
+    self.event.diarydescription = self.descriptionField.textView.text;
     self.event.permitNumber = self.selectedPermitNumber;
     [self saveHarvestSpecVersionToDiaryEntry:self.event];
     [self saveDeerHuntingTypeTo:self.event];
@@ -1937,15 +1934,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 
 - (void)saveHarvestSpecVersionToDiaryEntry:(DiaryEntry*)diaryEntry
 {
-    // Explicitly check only feature availability and DON'T take harvest point of time into account.
-    // All users should be able to create/update harvests with harvest spec version 8 once the deer pilot
-    // functionality is enabled for all users. Entries for previous hunting years should then be sent with
-    // HarvestSpecVersion 8 even though new antler fields won't be available there.
-    if ([FeatureAvailabilityChecker.shared isEnabled:FeatureAntlers2020Fields]) {
-        diaryEntry.harvestSpecVersion = [NSNumber numberWithInteger:HarvestSpecVersionAntlers2020];
-    } else {
-        diaryEntry.harvestSpecVersion = [NSNumber numberWithInteger:HarvestSpecVersion];
-    }
+    diaryEntry.harvestSpecVersion = [NSNumber numberWithInteger:HarvestSpecVersion];
 }
 
 - (NSNumber*)parseMooseValue:(NSString*)text
@@ -2442,16 +2431,13 @@ NSString* RiistaEditDomain = @"RiistaEdit";
 
 - (void)navigateToMapPage
 {
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"DetailsStoryboard" bundle:nil];
-    RiistaMapViewController *controller = [sb instantiateViewControllerWithIdentifier:@"mapPageController"];
-    controller.delegate = self;
-    controller.editMode = self.editMode && (self.event == nil || [self.event isEditable]);
-    controller.location = self.selectedLocation;
-    controller.hidePins = YES;
-    controller.riistaController = (RiistaNavigationController*)self.navigationController;
+    BOOL selectMode = self.editMode && (self.event == nil || [self.event isEditable]);
 
-    controller.titlePrimaryText = RiistaLocalizedString(@"Harvest", nil);
-
+    ViewOrSelectLocationOnMapViewController *controller =
+        [ViewOrSelectLocationOnMapViewController createWithSelectMode:selectMode
+                                                      initialLocation:self.selectedLocation
+                                                             listener:self];
+    controller.title = RiistaLocalizedString(@"Harvest", nil);
     [self hideKeyboard];
     [self.navigationController pushViewController:controller animated:YES];
 }
@@ -2567,9 +2553,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
     [self.view layoutIfNeeded];
 }
 
-# pragma mark - MapPageDelegate
-
-- (void)locationSetManually:(CLLocationCoordinate2D)coordinates
+- (void)onLocationSelectedWithLocation:(CLLocationCoordinate2D)coordinates
 {
     _locationSource = DiaryEntryLocationManual;
     CLLocation *location = [[CLLocation alloc] initWithLatitude:coordinates.latitude longitude:coordinates.longitude];
@@ -2676,7 +2660,7 @@ NSString* RiistaEditDomain = @"RiistaEdit";
         // setup rest of the image data. These won't be updated before submit is pressed and
         // thus it is safe to setup them just once
         addedImage.imageid = [[NSUUID UUID] UUIDString];
-        addedImage.status = [NSNumber numberWithInteger:DiaryEntryOperationInsert];
+        addedImage.status = [NSNumber numberWithInteger:DiaryImageStatusInsertion];
         addedImage.type = [NSNumber numberWithInteger:DiaryImageTypeLocal];
     }
 

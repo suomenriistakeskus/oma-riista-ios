@@ -4,7 +4,6 @@
 #import "RiistaSpecies.h"
 #import "RiistaUtils.h"
 #import "RiistaLocalization.h"
-#import "RiistaNavigationController.h"
 
 #import "Oma_riista-Swift.h"
 
@@ -25,9 +24,6 @@
 
 - (void)viewDidLoad
 {
-    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
-    [navController setRightBarItems:nil];
-
     if (self.values) {
         NSMutableArray *temp = [NSMutableArray arrayWithArray:self.values];
         if ([self.showOther boolValue]) {
@@ -49,7 +45,8 @@
                            range:NSMakeRange(0, [name length])
                           locale:sortLocale];
         }];
-        [navController changeTitle:[NSString stringWithFormat:@"%@", [RiistaUtils  nameWithPreferredLanguage:self.category.name]]];
+
+        self.title = [NSString stringWithFormat:@"%@", [RiistaUtils  nameWithPreferredLanguage:self.category.name]];
     }
 
     [super viewDidLoad];

@@ -7,7 +7,7 @@ fileprivate let CELL_TYPE = DataFieldCellType.selectDuration
 
 class SelectDurationFieldCell<FieldId : DataFieldId>:
     TypedDataFieldCell<FieldId, SelectDurationField<FieldId>>,
-    SelectStringViewControllerDelegate {
+    SelectSingleStringViewControllerDelegate {
 
     override var cellType: DataFieldCellType { CELL_TYPE }
 
@@ -34,10 +34,10 @@ class SelectDurationFieldCell<FieldId : DataFieldId>:
 
     private let label = LabelView()
     private let valueLabel: UILabel = {
-        let valueLabel = UILabel()
-        AppTheme.shared.setupValueFont(label: valueLabel)
-        valueLabel.textColor = UIColor.applicationColor(GreyDark)
-        return valueLabel
+        UILabel().configure(
+            for: .inputValue,
+            textColor: UIColor.applicationColor(GreyDark)
+        )
     }()
 
     private let lineUnderValue: UIView = {
@@ -67,7 +67,7 @@ class SelectDurationFieldCell<FieldId : DataFieldId>:
 
         valueLabel.snp.makeConstraints { make in
             make.leading.equalTo(label)
-            make.top.equalTo(label.snp.bottom)
+            make.top.equalTo(label.snp.bottom).offset(2)
             make.trailing.equalTo(arrowImageView.snp.leading).inset(2)
             // if the value is empty (i.e. ""), its height will become 0 and thus
             // the line will not be displayed similarly always
@@ -129,7 +129,7 @@ class SelectDurationFieldCell<FieldId : DataFieldId>:
             return
         }
 
-        let controller = SelectStringViewController()
+        let controller = SelectSingleStringViewController()
 
         let values: [StringWithId] = field.possibleValues.map { hoursAndMinutes in
             let formattedValue = hoursAndMinutes.formatHoursAndMinutesString(
@@ -146,7 +146,7 @@ class SelectDurationFieldCell<FieldId : DataFieldId>:
         navigationController.pushViewController(controller, animated: true)
     }
 
-    func onStringSelected(string: SelectStringViewController.SelectableString) {
+    func onStringSelected(string: SelectSingleStringViewController.SelectableString) {
         dispatchValueChanged(
             eventDispatcher: eventDispatcher,
             value: string

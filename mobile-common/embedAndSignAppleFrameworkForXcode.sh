@@ -10,6 +10,8 @@ main()
 
     MODE=$1
 
+    echo "Using java: $JAVA_HOME"
+
     if [[ "$MODE" == "Dev" ]]; then
         echo "Using debug build"
         export KOTLIN_FRAMEWORK_BUILD_TYPE="debug"

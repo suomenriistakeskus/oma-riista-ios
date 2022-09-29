@@ -14,7 +14,7 @@ class ErrorLabelFieldCell<FieldId : DataFieldId>: TypedDataFieldCell<FieldId, La
 
     private lazy var errorLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = UIColor.applicationColor(Destructive)
         label.numberOfLines = 0
         return label
@@ -33,7 +33,11 @@ class ErrorLabelFieldCell<FieldId : DataFieldId>: TypedDataFieldCell<FieldId, La
     }
 
     override func fieldWasBound(field: LabelField<FieldId>) {
-        errorLabel.text = field.text
+        if (field.settings.allCaps) {
+            errorLabel.text = field.text.uppercased()
+        } else {
+            errorLabel.text = field.text
+        }
     }
 
     class Factory<FieldId : DataFieldId>: DataFieldCellFactory<FieldId> {

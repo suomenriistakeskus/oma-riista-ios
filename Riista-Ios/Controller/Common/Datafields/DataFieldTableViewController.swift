@@ -40,9 +40,28 @@ class DataFieldHolder<FieldId: DataFieldId>: Differentiable {
  * A controller for a UITableView which is used for displaying datafields.
  */
 class DataFieldTableViewController<FieldId : DataFieldId>: NSObject, UITableViewDelegate, UITableViewDataSource {
-    private(set) var tableView: UITableView? = nil
+    private(set) var tableView: UITableView? = nil {
+        didSet {
+            if let tableView = tableView as? TableView {
+                tableViewSupportsPendingUpdates = true
+                tableView.onWindowSet = { [weak self] in
+                    self?.applyPendingDataFields()
+                }
+            } else {
+                tableViewSupportsPendingUpdates = false
+            }
+        }
+    }
+
+    /**
+     * Does the current tableview support pending updates? Currently only `TableView` instances
+     * support pending updates as they are able to report when their `window` has been set.
+     */
+    private var tableViewSupportsPendingUpdates: Bool = false
+
 
     private var dataFieldHolders: [DataFieldHolder<FieldId>] = []
+    private var pendingDataFields: [DataField<FieldId>]? = nil
 
     private let cellFactories = DefaultDataFieldCellFactories<FieldId>()
 
@@ -55,6 +74,39 @@ class DataFieldTableViewController<FieldId : DataFieldId>: NSObject, UITableView
     }
 
     func setDataFields(dataFields: [DataField<FieldId>]) {
+        if (canUpdateDataFields() || !tableViewSupportsPendingUpdates) {
+            updateDataFields(dataFields: dataFields)
+        } else {
+            pendingDataFields = dataFields
+        }
+    }
+
+    private func canUpdateDataFields() -> Bool {
+        // tableview reload based on StagedChangeset will perform full reload if
+        // tableview doesn't have valid window i.e. implementation begins with
+        //
+        //   if case .none = window, let data = stagedChangeset.last?.data {
+        //     setData(data)
+        //     return reloadData()
+        //   }
+        //
+        // Don't allow updating datafields unless there is a window. This prevents full
+        // reload when tableview contents are being updated during viewWillAppear. Full
+        // reload would cause all cells to be bound again instead of rebinding just those
+        // cells that have changed
+        return tableView?.window != nil
+    }
+
+    private func applyPendingDataFields() {
+        if let dataFields = pendingDataFields {
+            setDataFields(dataFields: dataFields)
+        }
+    }
+
+    private func updateDataFields(dataFields: [DataField<FieldId>]) {
+        // ensure same datafields won't be applied more than once
+        pendingDataFields = nil
+
         let customCellFactory = cellFactories.getFactoryOrNil(cellType: .customUserInterface)
         let newDataFieldHolders = dataFields
             .filter { dataField in
@@ -83,6 +135,9 @@ class DataFieldTableViewController<FieldId : DataFieldId>: NSObject, UITableView
             tableView.reload(using: stagedChangeSet, with: .fade) { newDataFieldHolders in
                 self.dataFieldHolders = newDataFieldHolders
             }
+
+            tableView.beginUpdates()
+            tableView.endUpdates()
         } else {
             self.dataFieldHolders = newDataFieldHolders
             print("Did you forget to set tableView?")
@@ -180,19 +235,28 @@ extension DataFieldTableViewController where FieldId: DataFieldId {
         huntingGroupProvider: HuntingGroupTargetProvider? = nil,
         locationEventDispatcher: LocationEventDispatcher? = nil,
         stringWithIdEventDispatcher: StringWithIdEventDispatcher? = nil,
+        stringClickEventDispatcher: StringWithIdClickEventDispatcher? = nil,
         stringEventDispatcher: StringEventDispatcher? = nil,
         booleanEventDispatcher: BooleanEventDispatcher? = nil,
         intEventDispatcher: IntEventDispatcher? = nil,
         doubleEventDispatcher: DoubleEventDispatcher? = nil,
         localDateTimeEventDispacter: LocalDateTimeEventDispatcher? = nil,
         huntingDayEventDispacter: HuntingDayIdEventDispatcher? = nil,
+        localDateEventDispatcher: LocalDateEventDispatcher? = nil,
         localTimeEventDispatcher: LocalTimeEventDispatcher? = nil,
         genderEventDispatcher: GenderEventDispatcher? = nil,
         ageEventDispatcher: AgeEventDispatcher? = nil,
         hoursAndMinutesEventDispatcher: HoursAndMinutesEventDispatcher? = nil,
         harvestClickHandler: HarvestFieldCellClickHandler? = nil,
         observationClickHandler: ObservationFieldCellClickHandler? = nil,
-        mapExternalIdProvider: MapExternalIdProvider? = nil
+        mapExternalIdProvider: MapExternalIdProvider? = nil,
+        attachmentClickListener: AttachmentFieldAction<FieldId>? = nil,
+        attachmentRemoveListener: AttachmentFieldAction<FieldId>? = nil,
+        attachmentStatusProvider: AttachmentFieldStatusProvider? = nil,
+        buttonClickHandler: OnButtonClicked<FieldId>? = nil,
+        specimenLauncher: SpecimenLauncher<FieldId>? = nil,
+        speciesEventDispatcher: SpeciesEventDispatcher? = nil,
+        speciesImageClickListener: SpeciesImageClickListener<FieldId>? = nil
     ) {
         let factories: [DataFieldCellFactory<FieldId>?] = [
             // explicitly DO NOT ADD a default factory for custom user interface
@@ -202,8 +266,10 @@ extension DataFieldTableViewController where FieldId: DataFieldId {
             InformationLabelFieldCell<FieldId>.Factory<FieldId>(),
             ErrorLabelFieldCell<FieldId>.Factory<FieldId>(),
             ReadOnlySingleLineStringFieldCell<FieldId>.Factory<FieldId>(),
-            StringFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: stringEventDispatcher),
+            SingleLineStringFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: stringEventDispatcher),
+            MultiLineStringFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: stringEventDispatcher),
             YesNoBooleanFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: booleanEventDispatcher),
+            CheckboxBooleanFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: booleanEventDispatcher),
             IntFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: intEventDispatcher),
             DoubleFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: doubleEventDispatcher),
             LocationFieldCell<FieldId>.Factory<FieldId>(
@@ -211,10 +277,23 @@ extension DataFieldTableViewController where FieldId: DataFieldId {
                 locationEventDispatcher: locationEventDispatcher,
                 mapExternalIdProvider: mapExternalIdProvider
             ),
-            ReadOnlySpeciesCodeFieldCell<FieldId>.Factory<FieldId>(),
+            ReadOnlySpeciesFieldCell<FieldId>.Factory<FieldId>(),
+            SelectSpeciesAndImageFieldCell<FieldId>.Factory<FieldId>(
+                navigationControllerProvider: navigationControllerProvider,
+                speciesEventDispatcher: speciesEventDispatcher,
+                speciesImageClickListener: speciesImageClickListener
+            ),
             DateAndTimeFieldCell<FieldId>.Factory<FieldId>(
                 navigationControllerProvider: navigationControllerProvider,
                 eventDispatcher: localDateTimeEventDispacter
+            ),
+            DateCell<FieldId>.Factory<FieldId>(
+                navigationControllerProvider: navigationControllerProvider,
+                eventDispatcher: localDateEventDispatcher
+            ),
+            TimeSpanCell<FieldId>.Factory<FieldId>(
+                navigationControllerProvider: navigationControllerProvider,
+                eventDispatcher: localTimeEventDispatcher
             ),
             HuntingDayAndTimeFieldCell<FieldId>.Factory<FieldId>(
                 navigationControllerProvider: navigationControllerProvider,
@@ -227,6 +306,12 @@ extension DataFieldTableViewController where FieldId: DataFieldId {
             InstructionsFieldCell<FieldId>.Factory<FieldId>(navigationControllerProvider: navigationControllerProvider),
             HarvestFieldCell<FieldId>.Factory<FieldId>(harvestCellClickHandler: harvestClickHandler),
             ObservationFieldCell<FieldId>.Factory<FieldId>(observationCellClickHandler: observationClickHandler),
+            ButtonFieldCell<FieldId>.Factory<FieldId>(clickHandler: buttonClickHandler),
+            AttachmentFieldCell<FieldId>.Factory<FieldId>(
+                clickListener: attachmentClickListener,
+                removeListener: attachmentRemoveListener,
+                attachmentStatusProvider: attachmentStatusProvider
+            ),
 
             SelectStringFieldCell<FieldId>.Factory<FieldId>(
                 navigationControllerProvider: navigationControllerProvider,
@@ -235,6 +320,12 @@ extension DataFieldTableViewController where FieldId: DataFieldId {
             SelectDurationFieldCell<FieldId>.Factory<FieldId>(
                 navigationControllerProvider: navigationControllerProvider,
                 eventDispatcher: hoursAndMinutesEventDispatcher
+            ),
+            ChipFieldCell<FieldId>.Factory<FieldId>(
+                eventDispatcher: stringClickEventDispatcher
+            ),
+            SpecimenFieldCell<FieldId>.Factory<FieldId>(
+                specimenLauncher: specimenLauncher
             )
         ]
 

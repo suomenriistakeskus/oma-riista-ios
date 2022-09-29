@@ -7,6 +7,7 @@ import SnapKit
  * Determines the thickness and color of the separator. The length of the separator is not constrained.
  */
 class SeparatorView: UIView {
+    static let separatorColor = UIColor.applicationColor(GreyLight)
 
     private(set) var orientation: NSLayoutConstraint.Axis = .horizontal
 
@@ -28,7 +29,7 @@ class SeparatorView: UIView {
     }
 
     private func setup() {
-        backgroundColor = UIColor.applicationColor(GreyLight)
+        backgroundColor = Self.separatorColor
         self.snp.makeConstraints { make in
             if (self.orientation == .horizontal) {
                 constrainSizeTo(height: 1)

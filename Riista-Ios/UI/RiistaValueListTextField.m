@@ -43,12 +43,10 @@
         self.view.frame = frame;
     }
 
-    _inputController = [[MDCTextInputControllerUnderline alloc] initWithTextInput:self.textField];
-    _inputController.floatingEnabled = NO;
-    [_inputController applyThemeWithScheme:AppTheme.shared.textFieldContainerScheme];
+    [self.titleTextLabel configureCompatFor:FontUsageLabel];
 
-    [AppTheme.shared setupLabelFontWithLabel:self.titleTextLabel];
-    [AppTheme.shared setupValueFontWithTextField:self.textField];
+    [self.textField configureFor:FontUsageInputValue];
+    self.textField.labelBehavior = MDCTextControlLabelBehaviorDisappears;
     self.textField.delegate = self;
     self.textField.keyboardType = UIKeyboardTypeDecimalPad;
 

@@ -10,7 +10,7 @@ class SelectableButtonCell<FieldId : DataFieldId, FieldType: DataField<FieldId>>
         // -> allows hiding caption if necessary
         let container = UIStackView()
         container.axis = .vertical
-        container.spacing = 2
+        container.spacing = 6
         container.alignment = .fill
         return container
     }()

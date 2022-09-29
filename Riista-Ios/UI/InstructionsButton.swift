@@ -60,7 +60,7 @@ import SnapKit
             make.leading.equalToSuperview().offset(margin)
         }
 
-        titleLabel.font = UIFont(name: AppConstants.Font.Name, size: AppConstants.Font.LabelLarge)?.bold()
+        titleLabel.font = UIFont.appFont(fontSize: .large, fontWeight: .semibold)
         titleLabel.textColor = UIColor.applicationColor(Primary)
         titleLabel.snp.makeConstraints { (make) in
             make.centerY.equalTo(questionMarkView.snp.centerY)

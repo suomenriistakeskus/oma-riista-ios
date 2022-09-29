@@ -12,6 +12,7 @@ class HuntingDayAndTimeFieldCell<FieldId : DataFieldId>: BaseDateAndTimeCell<Fie
     private weak var huntingGroupProvider: HuntingGroupTargetProvider?
     private weak var huntingDayEventDispatcher: HuntingDayIdEventDispatcher?
     private weak var localTimeEventDispatcher: LocalTimeEventDispatcher?
+    weak var navigationControllerProvider: ProvidesNavigationController?
 
     override func fieldWasBound(field: HuntingDayAndTimeField<FieldId>) {
         bindLabel(label: field.settings.label,
@@ -28,11 +29,11 @@ class HuntingDayAndTimeFieldCell<FieldId : DataFieldId>: BaseDateAndTimeCell<Fie
         }
 
         if (field.huntingDayId != nil) {
-            dateAndTimeView.dateValueLabel.text = field.dateAndTime.toFoundationDate().formatDateOnly()
+            dateAndTimeView.dateButton.dateAndTime = field.dateAndTime.toFoundationDate()
         } else {
-            dateAndTimeView.dateValueLabel.text = "Select".localized()
+            dateAndTimeView.dateButton.valueLabel.text = "Select".localized()
         }
-        dateAndTimeView.timeValueLabel.text = field.dateAndTime.toFoundationDate().formatTime()
+        dateAndTimeView.timeButton.dateAndTime = field.dateAndTime.toFoundationDate()
     }
 
     override func onDateButtonClicked() {
@@ -74,8 +75,13 @@ class HuntingDayAndTimeFieldCell<FieldId : DataFieldId>: BaseDateAndTimeCell<Fie
             return
         }
 
-        showDatePicker(datePickerMode: .time,
-                       currentDate: currentDate) { [weak self] date in
+        guard let navigationController = navigationControllerProvider?.navigationController else {
+            print("No NavigationController, cannot show selection controller")
+            return
+        }
+
+        navigationController.showDatePicker(datePickerMode: .time,
+                                            currentDate: currentDate) { [weak self] date in
             self?.dispatchChangedTime(date: date)
         }
     }

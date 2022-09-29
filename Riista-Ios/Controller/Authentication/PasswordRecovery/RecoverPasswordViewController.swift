@@ -42,6 +42,7 @@ class RecoverPasswordViewController: UIViewController, KeyboardHandlerDelegate {
 
         // always start from the "start" view
         startPasswordRecoveryView.alpha = 1
+        startPasswordRecoveryView.updateSendLinkButtonStatus()
         passwordResetLinkSentView.alpha = 0
     }
 

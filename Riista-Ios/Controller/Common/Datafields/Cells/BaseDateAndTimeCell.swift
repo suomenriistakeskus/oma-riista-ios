@@ -54,8 +54,6 @@ class BaseDateAndTimeCell<FieldId : DataFieldId, FieldType : DataField<FieldId>>
     override var internalTopPadding: CGFloat { return 8 }
     override var internalBottomPadding: CGFloat { return 8 }
 
-    weak var navigationControllerProvider: ProvidesNavigationController?
-
     override func addContainerViewToContentViewAndSpecifyConstraints(container: UIView) {
         contentView.addSubview(container)
         container.snp.makeConstraints { make in
@@ -92,53 +90,5 @@ class BaseDateAndTimeCell<FieldId : DataFieldId, FieldType : DataField<FieldId>>
 
     func onTimeButtonClicked() {
         // nop, should subclass
-    }
-
-    func showDatePicker(datePickerMode: UIDatePicker.Mode,
-                        currentDate: Foundation.Date,
-                        minDate: Foundation.Date? = nil,
-                        maxDate: Foundation.Date? = nil,
-                        onPicked: @escaping (Foundation.Date) -> Void) {
-        guard let navigationController = navigationControllerProvider?.navigationController else {
-            print("No NavigationController, cannot show selection controller")
-            return
-        }
-
-        let selectAction = RMAction<UIDatePicker>(
-            title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "OK"),
-            style: .done
-        ) { controller in
-            onPicked(controller.contentView.date)
-        }
-
-        let cancelAction = RMAction<UIDatePicker>(
-            title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "Cancel"),
-            style: .default)
-        { controller in
-            // nop
-        }
-
-        guard let dateSelectionViewController: RMDateSelectionViewController = RMDateSelectionViewController(
-            style: .default,
-            select: selectAction,
-            andCancel: cancelAction
-        ) else {
-            print("Failed to create RMDateSelectionViewController")
-            return
-        }
-
-        dateSelectionViewController.datePicker.apply({ datepicker in
-            datepicker.date = currentDate
-            datepicker.locale = RiistaSettings.locale()
-            datepicker.timeZone = RiistaDateTimeUtils.finnishTimezone()
-            datepicker.minimumDate = minDate
-            datepicker.maximumDate = maxDate
-            datepicker.datePickerMode = datePickerMode
-            if #available(iOS 13.4, *) {
-                datepicker.preferredDatePickerStyle = .wheels
-            }
-        })
-
-        navigationController.present(dateSelectionViewController, animated: true, completion: nil)
     }
 }

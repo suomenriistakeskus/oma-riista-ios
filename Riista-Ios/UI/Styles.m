@@ -2,9 +2,6 @@
 #import "UIColor+ApplicationColor.h"
 #import "Oma_riista-Swift.h"
 
-NSInteger const RiistaRefreshPadding = 15;
-NSInteger const RiistaRefreshImageSize = 32;
-
 @implementation Styles
 
 + (void)styleButton:(UIButton*)button

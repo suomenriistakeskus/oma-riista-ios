@@ -14,7 +14,7 @@ import SnapKit
 
     lazy var label: UILabel = {
         let label = UILabel()
-        label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = UIColor.applicationColor(TextPrimary)
         label.numberOfLines = 2
         return label

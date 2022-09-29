@@ -9,7 +9,7 @@ typedef void (^SpecimenGenderAndAgeListener)(void);
 
 @property (weak, nonatomic) IBOutlet UISegmentedControl *genderSelect;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *ageSelect;
-@property (weak, nonatomic) IBOutlet MDCTextField *weightInput;
+@property (weak, nonatomic) IBOutlet MDCUnderlinedTextField *weightInput;
 @property (weak, nonatomic) IBOutlet UIView *weightInputContainer;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *hideWeightInputContainerConstraint;
 
@@ -18,8 +18,6 @@ typedef void (^SpecimenGenderAndAgeListener)(void);
 @property (weak, nonatomic) IBOutlet UILabel *weightRequiredIndicator;
 
 @property (nonatomic, copy) SpecimenGenderAndAgeListener genderAndAgeListener;
-
-@property (strong, nonatomic) MDCTextInputControllerUnderline *weightInputController;
 
 @property (strong, nonatomic) RiistaSpecimen *specimen;
 

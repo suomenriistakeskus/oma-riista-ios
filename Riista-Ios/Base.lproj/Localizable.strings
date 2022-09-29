@@ -15,6 +15,7 @@
 "MenuSettings" = "Settings";
 "MenuShootingTests" = "Shooting tests";
 "MenuHuntingDirector" = "Hunting director";
+"MenuHuntingControl" = "Hunting control";
 "MenuContactDetails" = "Contacts";
 "MenuEventSearch" = "Event search";
 "MenuReadMagazine" = "Read latest Metsästäjä magazine";
@@ -80,6 +81,7 @@
 "MyDetailsNoValidLicense" = "No valid hunting license";
 "MyDetailsHuntingBan" = "Hunting ban";
 "MyDetailsAssignmentsTitle" = "Assignments";
+"MyDetailsClubMembershipsTitle" = "Club memberships";
 "MyDetailsMhPermitsTitle" = "Metsähallitus permits";
 "MyDetailsMhPermitTitle" = "Permit";
 "MyDetailsMhCardTitle" = "Metsähallitus";
@@ -87,15 +89,36 @@
 "MyDetailsMhPermitName" = "Permit type";
 "MyDetailsMhPermitPeriod" = "Time";
 "MyDetailsMhPermitHarvestFeedback" = "Submit harvest feedback";
-"MyDetailsMhFeedbackAlertTitle" = "Note";
+"MyDetailsTrainingsTitle" = "Trainings";
+"MyDetailsNoTrainings" = "No Trainings";
+"MyDetailsTrainingDate" = "Training date";
+"MyDetailsTrainingPlace" = "Training place";
+"TrainingTypeLahi" = "On site";
+"TrainingTypeSahkoinen" = "Online";
+"JhtTrainingOccupationTypeMetsastyksenvalvoja" = "Game warden";
+"JhtTrainingOccupationTypeAmpumakokeenVastaanottaja" = "Shooting test supervisor";
+"JhtTrainingOccupationTypeMetsastajatutkinnonVastaanottaja" = "Hunter exam supervisor";
+"JhtTrainingOccupationTypeRhynEdustajaRiistavahinkojenMaastokatselmuksessa" = "GMA representative in wildlife damage field survey";
+"OccupationTrainingOccupationTypePetoyhdyshenkilo" = "Large carnivore contact person";
+"AlertTitle" = "Note";
 "MyDetailsMhFeedbackAlertMessage" = "You are navigating from Oma riista to Metsähallitus hunting feedback service.\n\nIf you encounter any issues submitting feedback or want additional information, contact Metsähallitus Wilderness permits service, p. 020 69 2424 (weekdays 9-16) or email eraluvat@metsa.fi.";
 "Duration" = "Duration";
 "DurationIndefinite" = "Indefinitely";
+
+"HuntingClubMembershipInvitations" = "Club Invitations";
+"HuntingClubMembershipAcceptInvitation" = "Accept invitation";
+"HuntingClubMembershipRejectInvitation" = "Reject invitation";
+"HuntingClubMembershipRejectInvitationQuestion" = "Reject invitation?";
+"HuntingClubMemberships" = "Club memberships";
+"HuntingClubNoMemberships" = "No club memberships";
+"HuntingClubOccupationCode" = "Customer number: %@";
 
 "MapNoArea" = "No area";
 "MapAddArea" = "Add an area";
 "MapAddAreaError" = "Failed to add area";
 "MapHideArea" = "Hide";
+"MapHideMarkers" = "Hide markers";
+"MapShowMarkers" = "Show markers";
 "MapRemoveArea" = "Delete";
 "MapRemoveAreaTitle" = "Delete area";
 "MapRemoveAreaConfirm" = "Are you sure you want to remove the area?";
@@ -124,7 +147,32 @@
 "MapSettingGeneralTitle" = "General";
 "MapSettingSelectedAreas" = "Selected areas";
 "MapSettingNoSelectedAreas" = "No selected areas";
+"MapSettingMooseRestrictions" = "Moose restriction areas";
+"MapSettingMooseRestrictionsLink" = "Check: http://retkikartta.fi";
+"MapSettingSmallGameRestrictions" = "Small game restriction areas";
+"MapSettingSmallGameRestrictionsLink" = "Check: http://retkikartta.fi";
+"MapSettingAviHuntingBan" = "Avi hunting ban areas";
+"MapSettingAviHuntingBanLink" = "Check: https://avi.fi/tiedotteet";
 "MadDisplayPins" = "Show log events";
+"MapLocationEntries" = "Map location entries";
+
+"PointsOfInterest" = "Points of interest";
+"PointsOfInterestListButtonTitle" = "List";
+"PointOfInterestListTitle" = "Points of interest";
+"PointOfInterestLocationGroupTypeSightingPlace" = "Sighting place";
+"PointOfInterestLocationGroupTypeMineralLick" = "Mineral lick";
+"PointOfInterestLocationGroupTypeFeedingPlace" = "Feeding place";
+"PointOfInterestLocationGroupTypeOther" = "Other";
+"PointOfInterestFilterTypeAll" = "Show all";
+"PointOfInterestFilterTypeSightingPlace" = "Sighting place";
+"PointOfInterestFilterTypeMineralLick" = "Mineral lick";
+"PointOfInterestFilterTypeFeedingPlace" = "Feeding place";
+"PointOfInterestFilterTypeOther" = "Other";
+"PointOfInterestSelectExternalId" = "Select Oma Riista area from map settings in order to see connected POIs.";
+"PointOfInterestNoPois" = "No points of interest";
+"PointOfInterestCenterAndReturnToMap" = "Center and return to map";
+"Previous" = "Previous";
+"Next" = "Next";
 
 "FilterSelectCategory" = "Select category";
 "FilterSelectCategoryTwoLine" = "Select\ncategory";
@@ -164,7 +212,8 @@
 "EntryDetailsDescription" = "Description";
 
 "MapPageGoToCurrentGps" = "Go to current GPS position";
-"MapPageSetLocation" = "Set new position on the map";
+"MapPageSetNewLocation" = "Set new position on the map";
+"MapPageSetLocation" = "Set location on the map";
 
 "HarvestStateCreateReport" = "Submit an official harvest report";
 "HarvestStateProposed" = "Harvest report proposed";
@@ -180,9 +229,14 @@
 "SpecimenGenderTitle" = "Gender";
 "SpecimenGenderFemale" = "Female";
 "SpecimenGenderMale" = "Male";
+"SpecimenGenderUnknown" = "Unknown";
 "SpecimenAgeTitle" = "Age";
 "SpecimenAgeAdult" = "Adult";
 "SpecimenAgeYoung" = "Less than 1 year";
+"SpecimenAgeLessThanOneYear" = "Under 1 years";
+"SpecimenAgeBetweenOneAndTwoYears" = "1-2 years";
+"SpecimenAgeEraus" = "Yearling cub";
+"SpecimenAgeUnknown" = "Unknown";
 "SpecimenWeightTitle" = "Weight (kg)";
 "SpecimenValueUnknown" = "Unknown";
 "SpecimenAddSpecimen" = "Add specimen";
@@ -223,6 +277,10 @@
 "ObservationDetailsMooseMaleWithinDeerHunting" = "Adult males";
 "ObservationDetailsMooseCalfWithinDeerHunting" = "Lone calf";
 "ObservationDetailsMooseUnknownWithinDeerHunting" = "Unknown";
+"ObservationDetailsDescription" = "Description";
+
+"ObservationDetailsCategory" = "Observation context";
+"ObservationCategoryNormal" = "Normal";
 
 "DeerHuntingType" = "Hunting type";
 "DeerHuntingTypeDescription" = "Hunting type description";
@@ -237,11 +295,23 @@
 "TassuLitter" = "Litter (automatically derived)";
 "TassuPack" = "Pack (automatically derived)";
 
+"SpecimenStateOfHealthHealthy" = "Healthy";
+"SpecimenStateOfHealthIll" = "Ill";
+"SpecimenStateOfHealthWounded" = "Wounded";
+"SpecimenStateOfHealthCarcass" = "Carcass";
+"SpecimenStateOfHealthDead" = "Dead";
+
+"SpecimenMarkedNone" = "No tag";
+"SpecimenMarkedCollar" = "Collar / radio collar";
+"SpecimenMarkedRing" = "Leg band, wing band";
+"SpecimenMarkedEar" = "Ear tag";
+
 "Srva" = "Srva";
 "LogSrva" = "SRVA-event";
 
 "SrvaOtherSpeciesShort" = "Other";
 "SrvaOtherSpeciesDescription" = "Other species";
+"SrvaUnknownSpeciesDescription" = "Unknown species";
 "SrvaEvent" = "Event";
 "SrvaType" = "Type";
 "SrvaTypeDescription" = "Type description";
@@ -285,7 +355,7 @@
 "Language" = "Language";
 
 "MapTypeSelect" = "Map type";
-"MapTypeTopographic" = "Topographic";
+"MapTypeTopographic" = "Terrain";
 "MapTypeBackgound" = "Background";
 "MapTypeAerial" = "Aerial";
 "MapTypeGoogle" = "Google";
@@ -473,7 +543,7 @@
 "FilterEndDate" = "To";
 "MapLocationHarvestsAndObservations" = "Location harvests and observations";
 
-"GroupHuntingDiaryFilterDialogTitle" = "Filter";
+"FilterDialogTitle" = "Filter";
 "GroupHuntingDiaryFilterEventTypeHarvestsAndObservations" = "Harvests and observations";
 "GroupHuntingDiaryFilterEventTypeHarvests" = "Harvests";
 "GroupHuntingDiaryFilterEventTypeObservations" = "Observations";
@@ -488,6 +558,11 @@
 "GroupHuntingProposedObservation" = "Proposed observation";
 "GroupHuntingAcceptedObservation" = "Accepted observation";
 "GroupHuntingRejectedObservation" = "Rejected observation";
+
+"GroupMemberSelectionSelectHunter" = "Select hunter";
+"GroupMemberSelectionSelectObserver" = "Select observer";
+"GroupMemberSelectionSearchByName" = "Search with name";
+"GroupMemberSelectionNameHint" = "Name";
 
 "GroupHuntingContinueToApprove" = "Continue to Approve";
 "ApproveHarvest" = "Approve harvest";
@@ -608,6 +683,115 @@
 "ObservationTypeLeppakuusimetsaTaiKoivikuusimetsa" = "Forest next to a peatland";
 "ObservationTypeRuokailupajukkoTaiKoivikko" = "Feeding site in willow or birch forest";
 "ObservationTypeMuu" = "Other";
+
+
+/* Hunting control */
+
+"HuntingControlLandingPageTitle" = "Hunting control";
+"HuntingControlAddEvent" = "Create event";
+"HuntingControlNewEvent" = "New event";
+"HuntingControlEditEvent" = "Edit event";
+"HuntingControlMyEvents" = "My events";
+"HuntingControlNoEvents" = "No events";
+"HuntingControlSelectRhyToDisplayEvents" = "Select GMA in order to see events";
+"HuntintControlRhy" = "Game Management Association";
+"HuntingControlViewPageTitle" = "Event";
+"HuntingControlStartTime" = "Start time";
+"HuntingControlEndTime" = "End time";
+"HuntingControlDuration" = "Duration";
+"HuntingControlEventType" = "Event type";
+"HuntingControlNumberOfInspectors" = "Number of inspectors";
+"HuntingControlCooperationType" = "Cooperation";
+"HuntingControlWolfTerritory" = "Wolf territory";
+"HuntingControlInspectors" = "Inspectors";
+"HuntingControlLocationDescription" = "Location description";
+"HuntingControlEventDescription" = "Event description";
+"HuntingControlNumberOfCustomers" = "Number of customers";
+"HuntingControlNumberOfProofOrders" = "Number of proof orders";
+"HuntingControlDate" = "Date";
+"HuntingControlOtherParticipants" = "Other participants";
+"HuntingControlDurationZero" = "0";
+"HuntingControlChooseInspectors" = "Select inspectors";
+"HuntingControlChooseCooperation" = "Select cooperation";
+
+"HuntingControlInspectorSelectionSearchByName" = "Search with name";
+"HuntingControlInspectorSelectionNameHint" = "Name";
+
+"HuntingControlAttachments" = "Attachments";
+"HuntingControlInspectorSelectionSearchByName" = "Search with name";
+"HuntingControlInspectorSelectionNameHint" = "Name";
+"HuntingControlErrorNoInspectorsForSelectedDate" = "There are no inspectors for the selected date";
+"HuntingControlEventSaveFailedGeneric" = "Saving hunting control event failed";
+"HuntingControlDownloadAttachmentQuestion" = "Download file from the server?";
+"HuntingControlDeleteAttachmentQuestion" = "Delete attachment %@";
+"HuntingControlAddAttachment" = "Add attachment";
+"HuntingControlAttachmentTakePhoto" = "Take a photo";
+"HuntingControlAttachmentPickFromPhotos" = "Pick from Photos";
+"HuntingControlAttachmentPickFile" = "Pick a file";
+"FileCancelDownloadQuestion" = "Cancel download?";
+
+"HuntingControlCooperationTypePoliisi" = "Police";
+"HuntingControlCooperationTypeRajavartiosto" = "Border guard";
+"HuntingControlCooperationTypeMetsähallitus" = "Metsähallitus";
+"HuntingControlCooperationTypeOma" = "Own";
+
+"HuntingControlEventTypeMooselike" = "Mooselike hunting control";
+"HuntingControlEventTypeLargeCarnivore" = "Large carnivore hunting control";
+"HuntingControlEventTypeGrouse" = "Grousefowl hunting control";
+"HuntingControlEventTypeWaterfowl" = "Waterfowl hunting control";
+"HuntingControlEventTypeDogDiscipline" = "Dog discipline control";
+"HuntingControlEventTypeOther" = "Other control";
+
+/* SRVA */
+
+"SrvaDescription" = "Description";
+
+"SrvaEventCategoryAccident" = "Accident";
+"SrvaEventCategoryDeportation" = "Deportation";
+"SrvaEventCategorySickAnimal" = "Sick animal";
+
+"SrvaEventTypeTrafficAccident" = "Traffic accident";
+"SrvaEventTypeRailwayAccident" = "Railway accident";
+"SrvaEventTypeInjuredAnimal" = "Injured animal";
+"SrvaEventTypeAnimalOnIce" = "Animal on the ice";
+"SrvaEventTypeAnimalNearHousesArea" = "Animal near houses area";
+"SrvaEventTypeAnimalAtFoodDestination" = "Animal at the food destination";
+"SrvaEventTypeOther" = "Other";
+
+"SrvaEventResultAnimalFoundDead" = "Animal was found dead";
+"SrvaEventResultAnimalFoundAndTerminated" = "Animal was found and put to death";
+"SrvaEventResultAnimalFoundAndNotTerminated" = "Animal was found and left alive";
+"SrvaEventResultAccidentSiteNotFound" = "Accident site was not found";
+"SrvaEventResultAnimalTerminated" = "Animal was put to death";
+"SrvaEventResultAnimalDeported" = "Animal was deported";
+"SrvaEventResultAnimalNotFound" = "Animal was not found";
+"SrvaEventResultUndueAlarm" = "Undue alarm";
+
+"SrvaMethodDog" = "Dog";
+"SrvaMethodTracedWithDog" = "Traced with dog";
+"SrvaMethodTracedWithoutDog" = "Traced without dog";
+"SrvaMethodPainEquipment" = "Pain equipment";
+"SrvaMethodSoundEquipment" = "Sound equipment";
+"SrvaMethodOther" = "Other";
+
+"SrvaDeportationOrderNumber" = "Deportation order number";
+"SrvaEventTypeDetail" = "Type detail";
+"SrvaOtherEventTypeDescription" = "Type description";
+"SrvaOtherEventTypeDetailDescription" = "Detail description";
+"SrvaEventResultDetail" = "Result detail";
+"SrvaEventTypeDetailCaredHouseArea" = "Cared house area";
+"SrvaEventTypeDetailFarmAnimalBuilding" = "Farm animal building";
+"SrvaEventTypeDetailUrbanArea" = "Urban area";
+"SrvaEventTypeDetailCarcassAtForest" = "Carcass at forest";
+"SrvaEventTypeDetailCarcassNearHousesArea" = "Carcass near houses area";
+"SrvaEventTypeDetailGarbageCan" = "Garbage can";
+"SrvaEventTypeDetailBeehive" = "Bee hive";
+"SrvaEventTypeDetailOther" = "Other";
+"SrvaEventResultDetailAnimalContactedAndDeported" = "Animal contacted and deported";
+"SrvaEventResultDetailAnimalContacted" = "Animal contacted";
+"SrvaEventResultDetailUncertainResult" = "Uncertain result";
+"SrvaMethodVehicle" = "Deportation with a vehicle";
+"SrvaMethodChasingWithPeople" = "Chasing with people";
 
 /* Urls */
 

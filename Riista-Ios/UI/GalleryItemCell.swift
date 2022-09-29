@@ -14,6 +14,16 @@ class GalleryItemCell: MDCCardCollectionCell {
 
     weak var parent: UIViewController?
 
+    private lazy var appDelegate: RiistaAppDelegate = {
+        return UIApplication.shared.delegate as! RiistaAppDelegate
+    }()
+
+    private lazy var moContext: NSManagedObjectContext = {
+        let context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
+        context.parent = appDelegate.managedObjectContext
+        return context
+    }()
+
     override func awakeFromNib() {
         super.awakeFromNib()
 
@@ -115,23 +125,21 @@ class GalleryItemCell: MDCCardCollectionCell {
             })
             segue.perform()
         case RiistaEntryTypeObservation:
-            let sb = UIStoryboard(name: "DetailsStoryboard", bundle: nil)
-            let dest = sb.instantiateInitialViewController() as! DetailsViewController
-            dest.observationId = item?.objectID
-
-            let segue = UIStoryboardSegue(identifier: "", source: parent!, destination: dest, performHandler: {
-                self.parent?.navigationController?.pushViewController(dest, animated: true)
-            })
-            segue.perform()
+            if let objectId = item?.objectID {
+                let observationEntry = RiistaGameDatabase.sharedInstance().observationEntry(with: objectId, context: self.moContext)
+                if let observation = observationEntry?.toCommonObservation(objectId: objectId) {
+                    let viewController = ViewObservationViewController(observation: observation)
+                    self.parent?.navigationController?.pushViewController(viewController, animated: true)
+                }
+            }
         case RiistaEntryTypeSrva:
-            let sb = UIStoryboard(name: "DetailsStoryboard", bundle: nil)
-            let dest = sb.instantiateInitialViewController() as! DetailsViewController
-            dest.srvaId = item?.objectID
-
-            let segue = UIStoryboardSegue(identifier: "", source: parent!, destination: dest, performHandler: {
-                self.parent?.navigationController?.pushViewController(dest, animated: true)
-            })
-            segue.perform()
+            if let objectId = item?.objectID {
+                let srvaEntry = RiistaGameDatabase.sharedInstance().srvaEntry(with: objectId, context: moContext)
+                if let srvaEvent = srvaEntry?.toSrvaEvent(objectId: objectId) {
+                    let viewSrvaViewController = ViewSrvaEventViewController(srvaEvent: srvaEvent)
+                    self.parent?.navigationController?.pushViewController(viewSrvaViewController, animated: true)
+                }
+            }
         default:
             break
         }

@@ -9,3 +9,4 @@ interface StringProvider {
     fun getQuantityString(pluralsId: RR.plurals, quantity: Int, arg: Int): String
 }
 
+fun RR.string.localized(stringProvider: StringProvider) = stringProvider.getString(this)

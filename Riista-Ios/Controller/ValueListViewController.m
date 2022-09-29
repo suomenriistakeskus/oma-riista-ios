@@ -1,5 +1,4 @@
 #import "RiistaLocalization.h"
-#import "RiistaNavigationController.h"
 #import "RiistaUtils.h"
 #import "ValueListViewController.h"
 
@@ -22,15 +21,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
-    [navController changeTitle:self.titlePrompt];
+    self.title = self.titlePrompt;
 
     self.tableView.tableFooterView = [UIView new];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [(RiistaNavigationController*)self.navigationController setRightBarItems:nil];
 }
 
 - (void)setTextKeyOverride:(NSString *)key overrideKey:(NSString*)overrideKey

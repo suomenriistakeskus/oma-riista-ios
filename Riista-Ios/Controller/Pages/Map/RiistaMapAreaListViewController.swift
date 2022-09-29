@@ -1,7 +1,6 @@
 import Foundation
 import MaterialComponents.MaterialDialogs
-import MaterialComponents.MaterialTextFields
-import MaterialComponents.MaterialTextFields_Theming
+import MaterialComponents.MaterialTextControls_UnderlinedTextFields
 
 struct AreaListItem {
     var areaType: AppConstants.AreaType?
@@ -18,16 +17,15 @@ class AreaListItemCell: UITableViewCell {
 }
 
 class RiistaMapAreaListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, MDCAlertControllerDelegate {
-    @IBOutlet weak var filterInput: MDCTextField!
+    @IBOutlet weak var filterInput: MDCUnderlinedTextField!
     @IBOutlet weak var areaCodeButton: MDCButton!
     @IBOutlet weak var tableView: UITableView!
 
     static let MIN_AREA_CODE_LENGTH = 10
 
     var addAreaAlertController: MDCAlertController?
-    var areaTextField: MDCTextField?
+    var areaTextField: MDCUnderlinedTextField?
     var addAreaAction: MDCAlertAction?
-    var newAreaCodeInputController: MDCTextInputControllerUnderline?
 
     var clubAreaManager: RiistaClubAreaMapManager?
 
@@ -44,8 +42,9 @@ class RiistaMapAreaListViewController: UIViewController, UITableViewDataSource, 
         self.tableView.tableFooterView = UIView()
         self.tableView.rowHeight = UITableView.automaticDimension
 
+        self.filterInput.configure(for: .inputValue)
         self.filterInput.delegate = self
-        self.filterInput.placeholder = RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapAreaFilterHint")
+        self.filterInput.label.text = "MapAreaFilterHint".localized()
         self.filterInput.leftViewMode = .always
         self.filterInput.leftView = UIImageView(image: UIImage(named: "search"))
         self.filterInput.clearButtonMode = .whileEditing
@@ -65,17 +64,12 @@ class RiistaMapAreaListViewController: UIViewController, UITableViewDataSource, 
         self.areaCodeButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingAddWithAreaCode"), for: .normal)
         self.areaCodeButton.isHidden = (areaType != AppConstants.AreaType.Seura)
 
-        updateTitle()
+        title = "MapSettingSelectArea".localized()
         refreshData()
     }
 
     @objc func setAreaType(type: AppConstants.AreaType) {
         self.areaType = type
-    }
-
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingSelectArea"))
     }
 
     @objc private func textFieldDidChange(textField: UITextField) {
@@ -90,14 +84,7 @@ class RiistaMapAreaListViewController: UIViewController, UITableViewDataSource, 
     private func setAddAreaButton(enabled: Bool) {
         if let addAreaAlertController = addAreaAlertController, let addAreaAction = addAreaAction {
             let confirmButton = addAreaAlertController.button(for: addAreaAction)
-            if (confirmButton?.isUserInteractionEnabled != enabled) {
-                confirmButton?.isUserInteractionEnabled = enabled
-                let textColor = enabled
-                    ? UIColor.black
-                    : UIColor.applicationColor(RiistaApplicationColorTextDisabled)
-                confirmButton?.setTitleColor(textColor, for: .normal)
-                confirmButton?.sizeToFit()
-            }
+            confirmButton?.isEnabled = enabled
         }
     }
 
@@ -258,22 +245,26 @@ class RiistaMapAreaListViewController: UIViewController, UITableViewDataSource, 
         alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "Cancel"),
                                        handler: nil))
         let addAction = MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "OK"),
-                                           handler: { action -> Void in
-            let input = alert.accessoryView as! MDCTextField
+                                       handler: { action -> Void in
+            let input = alert.accessoryView as! MDCUnderlinedTextField
             self.addNewArea(areaCode: input.text!);
 
             self.addAreaAlertController = nil
             self.addAreaAction = nil
             self.areaTextField = nil
-            self.newAreaCodeInputController = nil
         })
         self.addAreaAction = addAction
-
         alert.addAction(addAction)
 
+        if let button = alert.button(for: addAction) {
+            button.setTitleColor(.black, for: .normal)
+            button.setTitleColor(UIColor.applicationColor(RiistaApplicationColorTextDisabled), for: .disabled)
+            button.isEnabled = false
+        }
+
         areaTextField = {
-            let textField = MDCTextField()
-            textField.placeholder = RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapAreaCode", value: nil);
+            let textField = MDCUnderlinedTextField().configure(for: .inputValue)
+            textField.label.text = "MapAreaCode".localized()
             textField.autocapitalizationType = .allCharacters
             textField.returnKeyType = UIReturnKeyType.done
             textField.delegate = self
@@ -281,9 +272,6 @@ class RiistaMapAreaListViewController: UIViewController, UITableViewDataSource, 
             textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
             return textField
         }()
-
-        newAreaCodeInputController = MDCTextInputControllerUnderline(textInput: areaTextField)
-        newAreaCodeInputController?.applyTheme(withScheme: AppTheme.shared.textFieldContainerScheme())
 
         alert.accessoryView = areaTextField
 

@@ -6,7 +6,7 @@ import Foundation
 class SingleLineTitleAndValue: UIView {
     private(set) var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelSmall, fontWeight: .semibold)
+        label.font = UIFont.appFont(fontSize: .small, fontWeight: .semibold)
         label.textColor = UIColor.applicationColor(TextPrimary)
         label.textAlignment = .left
         label.numberOfLines = 1
@@ -15,7 +15,7 @@ class SingleLineTitleAndValue: UIView {
 
     private(set) var valueLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium, fontWeight: .regular)
+        label.font = UIFont.appFont(for: .label, fontWeight: .regular)
         label.textColor = UIColor.applicationColor(TextPrimary)
         label.textAlignment = .right
         label.numberOfLines = 0
@@ -99,6 +99,7 @@ class SingleLineTitleAndValue: UIView {
 
         titleLabel.removeAllConstraints()
         valueLabel.removeAllConstraints()
+        valueLabel.textAlignment = .right
 
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(greaterThanOrEqualTo: self.topAnchor),
@@ -122,6 +123,7 @@ class SingleLineTitleAndValue: UIView {
 
         titleLabel.removeAllConstraints()
         valueLabel.removeAllConstraints()
+        valueLabel.textAlignment = .left
 
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: self.topAnchor),

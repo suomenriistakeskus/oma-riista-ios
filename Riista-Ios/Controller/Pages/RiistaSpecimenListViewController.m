@@ -1,4 +1,3 @@
-#import "RiistaNavigationController.h"
 #import "RiistaSpecimenListViewController.h"
 #import "RiistaSpecimen.h"
 #import "RiistaSpecies.h"
@@ -7,8 +6,7 @@
 #import "DiaryEntry.h"
 #import "RiistaKeyboardHandler.h"
 #import "KeyboardToolbarView.h"
-#import "MaterialTextFields.h"
-
+#import "MaterialTextControls+UnderlinedTextFields.h"
 #import "Oma_riista-Swift.h"
 
 @protocol SpecimenCellDelegate
@@ -26,14 +24,12 @@ static BOOL sWeigthRequired = false;
 @property (weak, nonatomic) IBOutlet UILabel *itemTitle;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *genderSelect;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *ageSelect;
-@property (weak, nonatomic) IBOutlet MDCTextField *weightInput;
+@property (weak, nonatomic) IBOutlet MDCUnderlinedTextField *weightInput;
 @property (weak, nonatomic) IBOutlet MDCButton *removeButton;
 
 @property (weak, nonatomic) IBOutlet UILabel *genderRequiredIndicator;
 @property (weak, nonatomic) IBOutlet UILabel *ageRequiredIndicator;
 @property (weak, nonatomic) IBOutlet UILabel *weightRequiredIndicator;
-
-@property (strong, nonatomic) MDCTextInputControllerUnderline *weightInputController;
 
 @property (weak, nonatomic) id<SpecimenCellDelegate> delegate;
 @property (strong, nonatomic) RiistaSpecimen *specimen;
@@ -72,8 +68,7 @@ static BOOL sWeigthRequired = false;
                                                   style:UIBarButtonItemStylePlain
                                                  target:self
                                                  action:@selector(addSpecimen:)];
-    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
-    [navController setRightBarItems:@[_addButton]];
+    [self.navigationItem setRightBarButtonItem:_addButton];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -87,10 +82,9 @@ static BOOL sWeigthRequired = false;
 
 - (void)updateTitle
 {
-    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
-    [navController changeTitle: [NSString stringWithFormat:@"%@ (%lu)",
-                                 [RiistaUtils nameWithPreferredLanguage:_species.name],
-                                 (unsigned long)[_specimens count]]];
+    self.title = [NSString stringWithFormat:@"%@ (%lu)",
+                  [RiistaUtils nameWithPreferredLanguage:_species.name],
+                  (unsigned long)[_specimens count]];
 }
 
 - (void)setRequiredFields:(BOOL)genderRequired ageREquired:(BOOL)ageRequired weightRequired:(BOOL)weightRequired
@@ -133,7 +127,7 @@ static BOOL sWeigthRequired = false;
 
     [AppTheme.shared setupSegmentedControllerWithSegmentedController:cell.genderSelect];
     [AppTheme.shared setupSegmentedControllerWithSegmentedController:cell.ageSelect];
-    [AppTheme.shared setupValueFontWithTextField:cell.weightInput];
+    [cell.weightInput configureFor:FontUsageInputValue];
 
     [cell updateLocalizedTexts];
     [cell setSpecimen:specimen];
@@ -211,12 +205,10 @@ static BOOL sWeigthRequired = false;
 {
     [super layoutSubviews];
 
+    [_weightInput configureFor:FontUsageInputValue];
     _weightInput.delegate = self;
     _weightInput.keyboardType = UIKeyboardTypeDecimalPad;
     _weightInput.inputAccessoryView = [KeyboardToolbarView textFieldDoneToolbarView:_weightInput];
-
-    _weightInputController = [[MDCTextInputControllerUnderline alloc] initWithTextInput:_weightInput];
-    [_weightInputController applyThemeWithScheme:AppTheme.shared.textFieldContainerScheme];
 
     [_genderSelect addTarget:self action:@selector(genderValueChanged:) forControlEvents:UIControlEventValueChanged];
     [_ageSelect addTarget:self action:@selector(ageValueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -233,7 +225,7 @@ static BOOL sWeigthRequired = false;
 {
     [_ageSelect setTitle:RiistaLocalizedString(@"SpecimenAgeAdult", nil) forSegmentAtIndex:0];
     [_ageSelect setTitle:RiistaLocalizedString(@"SpecimenAgeYoung", nil) forSegmentAtIndex:1];
-    _weightInput.placeholder = RiistaLocalizedString(@"SpecimenWeightTitle", nil);
+    _weightInput.label.text = RiistaLocalizedString(@"SpecimenWeightTitle", nil);
 }
 
 - (void)updateItemTitle:(NSString*)titleText

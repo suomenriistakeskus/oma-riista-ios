@@ -17,8 +17,8 @@ class AuthenticationLinkSentView: UIStackView {
 
     private lazy var titleLabel: UILabel = {
         UILabel().apply { label in
-            label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelXLarge)
-            label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: messageLocalizationKey)
+            label.font = UIFont.appFont(fontSize: .xLarge)
+            label.text = titleLocalizationKey.localized()
             label.textColor = .white
             label.numberOfLines = 1
         }
@@ -26,8 +26,8 @@ class AuthenticationLinkSentView: UIStackView {
 
     private lazy var messageLabel: UILabel = {
         UILabel().apply { label in
-            label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelSmall)
-            label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: messageLocalizationKey)
+            label.font = UIFont.appFont(fontSize: .small)
+            label.text = messageLocalizationKey.localized()
             label.textColor = .white
             label.numberOfLines = 0
         }

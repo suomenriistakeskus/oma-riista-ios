@@ -3,8 +3,6 @@
 @class UserInfo, AreaMap;
 
 extern NSInteger const HarvestSpecVersion;
-// harvest spec version having support for 2020 antlers updates (pilot group)
-extern NSInteger const HarvestSpecVersionAntlers2020;
 extern NSInteger const ObservationSpecVersion;
 extern NSInteger const ObservationSpecVersionWithObservationCategory;
 extern NSInteger const SrvaSpecVersion;
@@ -70,6 +68,15 @@ typedef enum {
 
 + (BOOL)showGameTriangles;
 + (void)setShowGameTriangles:(BOOL)show;
+
++ (BOOL)showMooseRestrictions;
++ (void)setShowMooseRestrictions:(BOOL)show;
+
++ (BOOL)showSmallGameRestrictions;
++ (void)setShowSmallGameRestrictions:(BOOL)show;
+
++ (BOOL)showAviHuntingBan;
++ (void)setShowAviHuntingBan:(BOOL)show;
 
 + (AreaMap*)selectedMooseArea;
 + (void)setSelectedMooseArea:(AreaMap*)area;

@@ -2,7 +2,6 @@
 #import "RiistaSettings.h"
 #import "RiistaGameDatabase.h"
 #import "RiistaLocalization.h"
-#import "RiistaNavigationController.h"
 #import "Styles.h"
 
 #import "RiistaCommon/RiistaCommon.h"
@@ -20,6 +19,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *languageSettingLabel;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *languageSegmentedControl;
 
+// added in code
+@property (nonatomic, strong) UIBarButtonItem* synchronizeButton;
 @end
 
 @implementation RiistaSettingsViewController
@@ -46,6 +47,8 @@
 {
     [super viewDidLoad];
 
+    [self createSynchronizeTabButton];
+
     self.view.backgroundColor = [UIColor applicationColor:ViewBackground];
     [AppTheme.shared setupSegmentedControllerWithSegmentedController:self.syncSegmentedControl];
 
@@ -71,12 +74,38 @@
 {
     [super viewWillAppear:animated];
     [self setupLocalizedTexts];
+    [self updateSyncButton];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
     [self pageSelected];
+}
+
+- (void)createSynchronizeTabButton
+{
+    self.synchronizeButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh_white"]
+                                                         style:UIBarButtonItemStylePlain
+                                                        target:self
+                                                        action:@selector(synchronizeEvents)];
+    [self.navigationItem setRightBarButtonItem:self.synchronizeButton];
+
+    [self updateSyncButton];
+}
+
+- (void)updateSyncButton
+{
+    self.synchronizeButton.isHidden = [RiistaSettings syncMode] != RiistaSyncModeManual;
+    self.synchronizeButton.enabled = ![[RiistaGameDatabase sharedInstance] synchronizing];
+}
+
+- (void)synchronizeEvents
+{
+    [self.synchronizeButton setEnabled:NO];
+    [[RiistaGameDatabase sharedInstance] synchronizeDiaryEntries:^() {
+        [self.synchronizeButton setEnabled:YES];
+    }];
 }
 
 - (void)refreshVersionText
@@ -208,6 +237,9 @@
     [userDefaults setInteger:self.syncSegmentedControl.selectedSegmentIndex forKey:RiistaSettingsSyncModeKey];
     [RiistaGameDatabase sharedInstance].autosync = (self.syncSegmentedControl.selectedSegmentIndex == 1);
     [userDefaults synchronize];
+
+    [self updateSyncButton];
+    [SynchronizationAnalytics onSynchronizationModeChanged];
 }
 
 - (void)languageChanged:(id)sender
@@ -234,14 +266,7 @@
 
 - (void)pageSelected
 {
-    UIViewController *vc = self.navigationController;
-    if ([vc isKindOfClass:NSClassFromString(@"UIMoreNavigationController")]) {
-        vc.parentViewController.navigationController.title = RiistaLocalizedString(@"Settings", nil);
-    }
-    else
-    {
-        self.navigationController.title = RiistaLocalizedString(@"Settings", nil);
-    }
+    self.title = RiistaLocalizedString(@"Settings", nil);
 }
 
 - (void)openPrivacyTerms:(id)sender

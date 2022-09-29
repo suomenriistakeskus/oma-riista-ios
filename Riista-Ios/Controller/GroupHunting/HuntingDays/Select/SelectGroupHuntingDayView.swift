@@ -69,7 +69,7 @@ class SelectGroupHuntingDayView: UIView {
         let createDayButton = MaterialButton()
         createDayButton.applyTextTheme(withScheme: MDCContainerScheme().apply { containerScheme in
             containerScheme.colorScheme = AppTheme.shared.colorSchemeInverted()
-            containerScheme.typographyScheme = AppTheme.shared.createTypographyCheme(buttonTextSize: AppConstants.Font.ButtonMedium)
+            containerScheme.typographyScheme = AppTheme.shared.createTypographyCheme()
         })
         createDayButton.setTitle("GroupHuntingAddHuntingDay".localized(), for: .normal)
         createDayButton.setImage(UIImage(named: "plus")?.withRenderingMode(.alwaysTemplate), for: .normal)
@@ -96,7 +96,7 @@ class SelectGroupHuntingDayView: UIView {
 
     private lazy var suggestedDayLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = .white
         label.text = "GroupHuntingSuggestedHuntingDay".localized()
         label.numberOfLines = 0
@@ -179,7 +179,7 @@ class SelectGroupHuntingDayView: UIView {
 
     private lazy var noContentLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = UIColor.applicationColor(GreyDark)
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -265,7 +265,7 @@ class SelectGroupHuntingDayView: UIView {
 
     private func createDateLabel(text: String) -> UILabel {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium, fontWeight: .semibold)
+        label.font = UIFont.appFont(for: .label, fontWeight: .semibold)
         label.textColor = UIColor.applicationColor(TextPrimary)
         label.textAlignment = .center
         label.text = text

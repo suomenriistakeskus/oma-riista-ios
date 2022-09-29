@@ -47,7 +47,7 @@ import Foundation
         guard let navigationBar = self.navigationController?.navigationBar else { return }
 
         if var titleTextAttributes: [NSAttributedString.Key : Any] = navigationBar.titleTextAttributes {
-            titleTextAttributes[.font] = UIFont.systemFont(ofSize: AppConstants.Font.NavigationBarTitle)
+            titleTextAttributes[.font] = UIFont.appFont(for: .navigationBar)
             navigationBar.titleTextAttributes = titleTextAttributes
         }
     }

@@ -36,8 +36,7 @@ class GalleryViewController: UIViewController, UICollectionViewDelegate, UIColle
 
         self.pageSelected()
 
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Gallery"))
+        self.title = "Gallery".localized()
 
         logItemService.logDelegate = self
 
@@ -87,10 +86,6 @@ class GalleryViewController: UIViewController, UICollectionViewDelegate, UIColle
     // MARK: - RiistaPageDelegate
 
     func pageSelected() {
-        let navController = self.navigationController as! RiistaNavigationController;
-
-        navController.setLeftBarItem(nil)
-        navController.setRightBarItems(nil)
     }
 
     // MARK: - UICollectionViewDataSource
@@ -140,9 +135,10 @@ class GalleryViewController: UIViewController, UICollectionViewDelegate, UIColle
 
     // Mark: - LogFilterDelegate
 
-    func onFilterTypeSelected(type: RiistaEntryType) {
-        logItemService.setItemType(type: type)
+    func onFilterTypeSelected(selectedType: LogFilterView.FilteredType, oldType: LogFilterView.FilteredType) {
+        guard let type = selectedType.toRiistaEntryType() else { return }
 
+        logItemService.setItemType(type: type)
         filterView.seasonStartYear = logItemService.selectedSeasonStart
     }
 
@@ -169,6 +165,10 @@ class GalleryViewController: UIViewController, UICollectionViewDelegate, UIColle
 
         logItemService.setSpeciesCategory(categoryCode: categoryCode)
         logItemService.setSpeciesList(speciesCodes: speciesCodes)
+    }
+
+    func onFilterPointOfInterestListClicked() {
+        // nop
     }
 
     func presentSpeciesSelect() {

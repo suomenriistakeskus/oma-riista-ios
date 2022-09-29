@@ -15,6 +15,7 @@
 "MenuSettings" = "Inställningar";
 "MenuShootingTests" = "Skjutprov";
 "MenuHuntingDirector" = "Jaktledare";
+"MenuHuntingControl" = "Jatkkontroll";
 "MenuContactDetails" = "Kontaktuppgifter";
 "MenuEventSearch" = "Sök evenemang";
 "MenuReadMagazine" = "Läs senaste numret av Jägaren";
@@ -80,6 +81,7 @@
 "MyDetailsNoValidLicense" = "Jaktkort inte giltig";
 "MyDetailsHuntingBan" = "Jaktförbud";
 "MyDetailsAssignmentsTitle" = "Uppdrag";
+"MyDetailsClubMembershipsTitle" = "Föreningsmedlemsskap";
 "MyDetailsMhPermitsTitle" = "Forststyrelsens licenser";
 "MyDetailsMhPermitTitle" = "Licens";
 "MyDetailsMhCardTitle" = "Forststyrelsen";
@@ -87,15 +89,36 @@
 "MyDetailsMhPermitName" = "Typ av licens";
 "MyDetailsMhPermitPeriod" = "Tid";
 "MyDetailsMhPermitHarvestFeedback" = "Skicka bytesrespons";
-"MyDetailsMhFeedbackAlertTitle" = "Obs";
+"MyDetailsTrainingsTitle" = "Tränings";
+"MyDetailsNoTrainings" = "Inga tränings";
+"MyDetailsTrainingDate" = "Datum";
+"MyDetailsTrainingPlace" = "Plats";
+"TrainingTypeLahi" = "Närutbildning";
+"TrainingTypeSahkoinen" = "Elektronisk";
+"JhtTrainingOccupationTypeMetsastyksenvalvoja" = "Jaktövervakare";
+"JhtTrainingOccupationTypeAmpumakokeenVastaanottaja" = "Examinator för skjutprov";
+"JhtTrainingOccupationTypeMetsastajatutkinnonVastaanottaja" = "Examinator för jägarexamen";
+"JhtTrainingOccupationTypeRhynEdustajaRiistavahinkojenMaastokatselmuksessa" = "JVF:s representant för terrängobservation vid viltskador";
+"OccupationTrainingOccupationTypePetoyhdyshenkilo" = "Rovdjurskontaktperson";
+"AlertTitle" = "Obs";
 "MyDetailsMhFeedbackAlertMessage" = "Du håller på att flytta dig från Oma riista -tjänsten till Forststyrelsens fångstresponssystem.\n\nOm det uppstår problem vid givandet av fångstresponsen eller om du vill ha tilläggsinformation om ärendet, ta kontakt med kundtjänsten för vildmarkstillstånd vid Forststyrelsen, t. 020 69 2424 (vardagar kl. 9-16) eller per e-post till adressen eraluvat@metsa.fi.";
 "Duration" = "I kraft";
 "DurationIndefinite" = "Tills vidare";
+
+"HuntingClubMembershipInvitations" = "Föreningsinbjudningar";
+"HuntingClubMembershipAcceptInvitation" = "Godkänn inbjudan";
+"HuntingClubMembershipRejectInvitation" = "Förkasta inbjudan";
+"HuntingClubMembershipRejectInvitationQuestion" = "Ska inbjudan förkastas?";
+"HuntingClubMemberships" = "Föreningsmedlemsskap";
+"HuntingClubNoMemberships" = "Inga föreningsmedlemsskap";
+"HuntingClubOccupationCode" = "Kundnummer: %@";
 
 "MapNoArea" = "Inget område";
 "MapAddArea" = "Lägg till område";
 "MapAddAreaError" = "Att lägga till område misslyckades";
 "MapHideArea" = "Dölja";
+"MapHideMarkers" = "Dölja markeringar";
+"MapShowMarkers" = "Visa markeringar";
 "MapRemoveArea" = "Ta bort";
 "MapRemoveAreaTitle" = "Ta bort område";
 "MapRemoveAreaConfirm" = "Vill du säkert ta bort området?";
@@ -124,7 +147,32 @@
 "MapSettingGeneralTitle" = "General";
 "MapSettingSelectedAreas" = "De valda områdena";
 "MapSettingNoSelectedAreas" = "Inga valda områdena";
+"MapSettingMooseRestrictions" = "Hjortdjur begränsningsområden";
+"MapSettingMooseRestrictionsLink" = "See på: http://retkikartta.fi";
+"MapSettingSmallGameRestrictions" = "Småvilt begränsningsområden";
+"MapSettingSmallGameRestrictionsLink" = "See på: http://retkikartta.fi";
+"MapSettingAviHuntingBan" = "Rfv jaktförbudsområden";
+"MapSettingAviHuntingBanLink" = "See på: https://avi.fi/sv/pressmeddelanden";
 "MadDisplayPins" = "Visa händelser";
+"MapLocationEntries" = "Kartpunktens händelser";
+
+"PointsOfInterest" = "Positionspunkter";
+"PointsOfInterestListButtonTitle" = "List";
+"PointOfInterestListTitle" = "Positionspunkter";
+"PointOfInterestLocationGroupTypeSightingPlace" = "Pass";
+"PointOfInterestLocationGroupTypeMineralLick" = "Slicksten";
+"PointOfInterestLocationGroupTypeFeedingPlace" = "Utfodringsplats";
+"PointOfInterestLocationGroupTypeOther" = "Annat";
+"PointOfInterestFilterTypeAll" = "Alla";
+"PointOfInterestFilterTypeSightingPlace" = "Pass";
+"PointOfInterestFilterTypeMineralLick" = "Slicksten";
+"PointOfInterestFilterTypeFeedingPlace" = "Utfodringsplats";
+"PointOfInterestFilterTypeOther" = "Annat";
+"PointOfInterestSelectExternalId" = "Välj Oma riista-område från kartans intställningar för att se de till området kopplade positionspunkterna.";
+"PointOfInterestNoPois" = "Inga positionspunkter";
+"PointOfInterestCenterAndReturnToMap" = "Centrera och återgå till kartan";
+"Previous" = "Föregående";
+"Next" = "Nästa";
 
 "FilterSelectCategory" = "Välj kategori";
 "FilterSelectCategoryTwoLine" = "Välj\nkategori";
@@ -164,7 +212,8 @@
 "EntryDetailsDescription" = "Beskrivning";
 
 "MapPageGoToCurrentGps" = "Gå till den aktuella GPS platsen";
-"MapPageSetLocation" = "Ställ en ny platts på kartan";
+"MapPageSetNewLocation" = "Ställ en ny plats på kartan";
+"MapPageSetLocation" = "Ställ en plats på kartan";
 
 "HarvestStateCreateReport" = "Gör en lagstadgad bytesanmälan";
 "HarvestStateProposed" = "Bytesanmälan framförd";
@@ -180,9 +229,14 @@
 "SpecimenGenderTitle" = "Kön";
 "SpecimenGenderFemale" = "Hondjur";
 "SpecimenGenderMale" = "Handjur";
+"SpecimenGenderUnknown" = "Okänd";
 "SpecimenAgeTitle" = "Ålder";
 "SpecimenAgeAdult" = "Vuxen";
 "SpecimenAgeYoung" = "Under 1 År";
+"SpecimenAgeLessThanOneYear" = "Under 1 år";
+"SpecimenAgeBetweenOneAndTwoYears" = "1-2-åring";
+"SpecimenAgeEraus" = "Överåring";
+"SpecimenAgeUnknown" = "Okänd";
 "SpecimenWeightTitle" = "Vikt (kg)";
 "SpecimenValueUnknown" = "Okänd";
 "SpecimenAddSpecimen" = "Anteckna individupgift";
@@ -223,6 +277,10 @@
 "ObservationDetailsMooseMaleWithinDeerHunting" = "Vuxna handjur";
 "ObservationDetailsMooseCalfWithinDeerHunting" = "Ensam kalv";
 "ObservationDetailsMooseUnknownWithinDeerHunting" = "Okända";
+"ObservationDetailsDescription" = "Beskrivning";
+
+"ObservationDetailsCategory" = "Observationssammanhang";
+"ObservationCategoryNormal" = "Vanligt";
 
 "DeerHuntingType" = "Jaktmetod";
 "DeerHuntingTypeDescription" = "Beskrivning av jaktmetoden";
@@ -237,11 +295,23 @@
 "TassuLitter" = "Kull (automatisk konklusion)";
 "TassuPack" = "Flock (automatisk konklusion)";
 
+"SpecimenStateOfHealthHealthy" = "Frisk";
+"SpecimenStateOfHealthIll" = "Sjuk";
+"SpecimenStateOfHealthWounded" = "Skadad";
+"SpecimenStateOfHealthCarcass" = "Kadaver";
+"SpecimenStateOfHealthDead" = "Död";
+
+"SpecimenMarkedNone" = "Inga märken";
+"SpecimenMarkedCollar" = "Halsband / radiosändare";
+"SpecimenMarkedRing" = "Ringmärke, vingmärke";
+"SpecimenMarkedEar" = "Öronmärke";
+
 "Srva" = "Srva";
 "LogSrva" = "SRVA-händelse";
 
 "SrvaOtherSpeciesShort" = "Övrigt";
 "SrvaOtherSpeciesDescription" = "Annan art";
+"SrvaUnknownSpeciesDescription" = "Okänd art";
 "SrvaEvent" = "Händelse";
 "SrvaType" = "Typ";
 "SrvaTypeDescription" = "Beskrivning av typ";
@@ -285,9 +355,9 @@
 "Language" = "Språk";
 
 "MapTypeSelect" = "Karta typ";
-"MapTypeTopographic" = "Terrängkarta";
-"MapTypeBackgound" = "Grundkarta";
-"MapTypeAerial" = "Ortofoton";
+"MapTypeTopographic" = "Terräng";
+"MapTypeBackgound" = "Grund";
+"MapTypeAerial" = "Orto";
 "MapTypeGoogle" = "Google";
 "MapCopyrightMml" = "©Maanmittauslaitos";
 
@@ -472,7 +542,7 @@
 "FilterEndDate" = "Till";
 "MapLocationHarvestsAndObservations" = "Kartpunktens byten och observationer";
 
-"GroupHuntingDiaryFilterDialogTitle" = "Filtrera";
+"FilterDialogTitle" = "Filtrera";
 "GroupHuntingDiaryFilterEventTypeHarvestsAndObservations" = "Byten och observationer";
 "GroupHuntingDiaryFilterEventTypeHarvests" = "Byten";
 "GroupHuntingDiaryFilterEventTypeObservations" = "Observationer";
@@ -487,6 +557,11 @@
 "GroupHuntingProposedObservation" = "Föreslaget observationsanteckning";
 "GroupHuntingAcceptedObservation" = "Godkänt observation";
 "GroupHuntingRejectedObservation" = "Förkastat observation";
+
+"GroupMemberSelectionSelectHunter" = "Välj en skytt";
+"GroupMemberSelectionSelectObserver" = "Välj en observationer";
+"GroupMemberSelectionSearchByName" = "Sök efter namn";
+"GroupMemberSelectionNameHint" = "Namn";
 
 "GroupHuntingContinueToApprove" = "Gå för att godkänna";
 "ApproveHarvest" = "Godkänn bytesanmälan";
@@ -607,6 +682,115 @@
 "ObservationTypeLeppakuusimetsaTaiKoivikuusimetsa" = "Myrens kantskog";
 "ObservationTypeRuokailupajukkoTaiKoivikko" = "Födoplats bland vide- eller björkbestånd";
 "ObservationTypeMuu" = "Annat";
+
+
+/* Hunting control */
+
+"HuntingControlLandingPageTitle" = "Jaktövervakning";
+"HuntingControlAddEvent" = "Skapa händelse";
+"HuntingControlNewEvent" = "Nytt händelse";
+"HuntingControlEditEvent" = "Redigera händelsen";
+"HuntingControlMyEvents" = "Egna händelser";
+"HuntingControlNoEvents" = "Inga händelser";
+"HuntingControlSelectRhyToDisplayEvents" = "Välj jaktvårdsförening för att se händelser";
+"HuntintControlRhy" = "Jaktvårdsförening";
+"HuntingControlViewPageTitle" = "Händelse";
+"HuntingControlStartTime" = "Starttidpunkt";
+"HuntingControlEndTime" = "Sluttidpunkt";
+"HuntingControlDuration" = "Varaktighet";
+"HuntingControlEventType" = "Övervakningshändelse";
+"HuntingControlNumberOfInspectors" = "Antal övervakare";
+"HuntingControlCooperationType" = "Samarbete";
+"HuntingControlWolfTerritory" = "Vargrevir";
+"HuntingControlInspectors" = "Övervakare";
+"HuntingControlLocationDescription" = "Beskrivning av platsen";
+"HuntingControlEventDescription" = "Beskrivning av händelsen";
+"HuntingControlNumberOfCustomers" = "Kunder";
+"HuntingControlNumberOfProofOrders" = "Ålägganden att visa upp bevis";
+"HuntingControlDate" = "Datum";
+"HuntingControlOtherParticipants" = "Övriga deltagare";
+"HuntingControlDurationZero" = "0";
+"HuntingControlChooseInspectors" = "Välj övervakare";
+"HuntingControlChooseCooperation" = "Välj samarbete";
+
+"HuntingControlInspectorSelectionSearchByName" = "Sök efter namn";
+"HuntingControlInspectorSelectionNameHint" = "Namn";
+
+"HuntingControlAttachments" = "Bilagor";
+"HuntingControlInspectorSelectionSearchByName" = "Sök efter namn";
+"HuntingControlInspectorSelectionNameHint" = "Namn";
+"HuntingControlErrorNoInspectorsForSelectedDate" = "Det finns inga övervakare för den valda dagen";
+"HuntingControlEventSaveFailedGeneric" = "Det gick inte att spara övervakningshändelsen";
+"HuntingControlDownloadAttachmentQuestion" = "Ska bilagan laddas ner från servern?";
+"HuntingControlDeleteAttachmentQuestion" = "Ska bilagan %@ tas bort?";
+"HuntingControlAddAttachment" = "Lägg till bilaga";
+"HuntingControlAttachmentTakePhoto" = "Ta bild";
+"HuntingControlAttachmentPickFromPhotos" = "Plocka från galleriet";
+"HuntingControlAttachmentPickFile" = "Plocka en file";
+"FileCancelDownloadQuestion" = "Avbryt nedladdningen?";
+
+"HuntingControlCooperationTypePoliisi" = "Polisen";
+"HuntingControlCooperationTypeRajavartiosto" = "Gränsbevakningsväsendet";
+"HuntingControlCooperationTypeMetsähallitus" = "Forststyrelsen";
+"HuntingControlCooperationTypeOma" = "Egen";
+
+"HuntingControlEventTypeMooselike" = "Övervakning av jakt på hjortdjur";
+"HuntingControlEventTypeLargeCarnivore" = "Övervakning av jakt på stora rovdjur";
+"HuntingControlEventTypeGrouse" = "Övervakning av jakt på hönsfåglar";
+"HuntingControlEventTypeWaterfowl" = "Övervakning av jakt på sjöfåglar";
+"HuntingControlEventTypeDogDiscipline" = "Övervakning av hunddisciplin";
+"HuntingControlEventTypeOther" = "Övrig övervakning";
+
+/* SRVA */
+
+"SrvaDescription" = "Beskrivning";
+
+"SrvaEventCategoryAccident" = "Händelse";
+"SrvaEventCategoryDeportation" = "Fördrivning";
+"SrvaEventCategorySickAnimal" = "Sjukt djur";
+
+"SrvaEventTypeTrafficAccident" = "Trafikolycka";
+"SrvaEventTypeRailwayAccident" = "Olycka på järnväg";
+"SrvaEventTypeInjuredAnimal" = "Skadat djur";
+"SrvaEventTypeAnimalOnIce" = "Djur på isen";
+"SrvaEventTypeAnimalNearHousesArea" = "Djur i närheten av bosättning";
+"SrvaEventTypeAnimalAtFoodDestination" = "Djur vid näringskälla";
+"SrvaEventTypeOther" = "Övrigt";
+
+"SrvaEventResultAnimalFoundDead" = "Djuret hittades dött";
+"SrvaEventResultAnimalFoundAndTerminated" = "Djuret hittades och avlivades";
+"SrvaEventResultAnimalFoundAndNotTerminated" = "Djuret hittades och lämnades vid liv";
+"SrvaEventResultAccidentSiteNotFound" = "Olycksplatsen hittades inte";
+"SrvaEventResultAnimalTerminated" = "Djuret avlivades";
+"SrvaEventResultAnimalDeported" = "Djuret fördrevs";
+"SrvaEventResultAnimalNotFound" = "Djuret hittades inte";
+"SrvaEventResultUndueAlarm" = "Obefogat larm";
+
+"SrvaMethodDog" = "Hund";
+"SrvaMethodTracedWithDog" = "Spårades med hund";
+"SrvaMethodTracedWithoutDog" = "Spårades utan hund";
+"SrvaMethodPainEquipment" = "Anordning som orsakar smärta";
+"SrvaMethodSoundEquipment" = "Anordning som skapar ljud";
+"SrvaMethodOther" = "Övrigt";
+
+"SrvaDeportationOrderNumber" = "Fördrivningsorderns nummer";
+"SrvaEventTypeDetail" = "Specifikation av typ";
+"SrvaOtherEventTypeDescription" = "Beskrivning av typ";
+"SrvaOtherEventTypeDetailDescription" = "Beskrivning av specifikation";
+"SrvaEventResultDetail" = "Resultatets specifikation";
+"SrvaEventTypeDetailCaredHouseArea" = "Vårdad gårdsplan";
+"SrvaEventTypeDetailFarmAnimalBuilding" = "Produktionsdjursbyggnad";
+"SrvaEventTypeDetailUrbanArea" = "Tätort";
+"SrvaEventTypeDetailCarcassAtForest" = "Åtel i skogen";
+"SrvaEventTypeDetailCarcassNearHousesArea" = "Åtel på gårdsplan";
+"SrvaEventTypeDetailGarbageCan" = "Soptunna";
+"SrvaEventTypeDetailBeehive" = "Bikupa";
+"SrvaEventTypeDetailOther" = "Annat";
+"SrvaEventResultDetailAnimalContactedAndDeported" = "Omedelbar kontakt, djuret fördrevs";
+"SrvaEventResultDetailAnimalContacted" = "Fick kontakt med djuret";
+"SrvaEventResultDetailUncertainResult" = "Resultatet oklart";
+"SrvaMethodVehicle" = "Fördrivning med fordon";
+"SrvaMethodChasingWithPeople" = "Fördrivning utförd av människor";
 
 /* Urls */
 

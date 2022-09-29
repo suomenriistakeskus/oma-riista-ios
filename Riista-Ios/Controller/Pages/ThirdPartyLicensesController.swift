@@ -29,15 +29,14 @@ import GoogleMaps
                                                text: GMSServices.openSourceLicenseInfo())
 
         var googleMapsLicenseInjected = false
-        if let acknowledgements = acknowListController.acknowledgements {
-            acknowListController.acknowledgements = acknowledgements.map { acknowledgement in
-                if (acknowledgement.title == googleMapsTitle) {
-                    googleMapsLicenseInjected = true
-                    return googlemapsAcknowledgement
-                }
-                return acknowledgement
+        acknowListController.acknowledgements = acknowListController.acknowledgements.map { acknowledgement in
+            if (acknowledgement.title == googleMapsTitle) {
+                googleMapsLicenseInjected = true
+                return googlemapsAcknowledgement
             }
+            return acknowledgement
         }
+
 
         if (!googleMapsLicenseInjected) {
             acknowListController.acknowledgements = [googlemapsAcknowledgement]

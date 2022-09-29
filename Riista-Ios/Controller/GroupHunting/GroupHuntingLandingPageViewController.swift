@@ -82,7 +82,9 @@ class GroupHuntingLandingPageViewController
 
         tableView.snp.makeConstraints { make in
             // let tableview take all space. The cells need to therefore respect preferred layoutmargins
-            make.edges.equalTo(view).labeled("tableview takes all space")
+            make.leading.trailing.equalTo(view)
+            make.top.equalTo(topLayoutGuide.snp.bottom)
+            make.bottom.equalTo(bottomLayoutGuide.snp.top)
         }
 
         tableView.layoutMargins = AppConstants.UI.DefaultHorizontalEdgeInsets
@@ -103,15 +105,13 @@ class GroupHuntingLandingPageViewController
             stringWithIdEventDispatcher: controller.eventDispatcher
         )
 
-        navigationController?.title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "GroupHuntingLandingPageTitle")
+        title = "GroupHuntingLandingPageTitle".localized()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        if let navController = navigationController as? RiistaNavigationController {
-            navController.setRightBarItems(createNavigationBarItems())
-        }
+        navigationItem.rightBarButtonItems = createNavigationBarItems()
 
         updateGroupHuntingInfoButtonVisibility()
 
@@ -273,7 +273,7 @@ class GroupHuntingLandingPageViewController
 
     override func onViewModelLoadFailed() {
         super.onViewModelLoadFailed()
-        print("gh viewmodel load failed")
+
         setButtonsEnabledStatus(huntingGroupSelected: false,
                                 canCreateHarvest: false,
                                 canCreateObservation: false,

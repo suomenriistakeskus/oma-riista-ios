@@ -38,10 +38,31 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
         refreshTabItem()
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         filterView.delegate = self
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onCalendarEntriesUpdated),
+                                               name: NSNotification.Name(rawValue: RiistaCalendarEntriesUpdatedKey),
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onLanguageChanged),
+                                               name: NSNotification.Name(rawValue: RiistaLanguageSelectionUpdatedKey),
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onUserInfoUpdated),
+                                               name: NSNotification.Name(rawValue: RiistaUserInfoUpdatedKey),
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onLogTypeSelected),
+                                               name: NSNotification.Name(rawValue: RiistaLogTypeSelectedKey),
+                                               object: nil)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -66,27 +87,6 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
         refreshMonthNameFormatterLocale()
         refreshData()
         filterView.setupUserRelatedData()
-
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(onCalendarEntriesUpdated),
-                                               name: NSNotification.Name(rawValue: "RiistaCalendarEntriesUpdatedKey"),
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(onLanguageChanged),
-                                               name: NSNotification.Name(rawValue: "RiistaLanguageSelectionUpdatedKey"),
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(onUserInfoUpdated),
-                                               name: NSNotification.Name(rawValue: "RiistaUserInfoUpdatedKey"),
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(onLogTypeSelected),
-                                               name: NSNotification.Name(rawValue: "RiistaLogTypeSelectedKey"),
-                                               object: nil)
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        NotificationCenter.default.removeObserver(self)
     }
 
     func getHarvestResultController() -> NSFetchedResultsController<DiaryEntry> {
@@ -158,7 +158,7 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
     }
 
     override func refreshTabItem() {
-        self.tabBarItem.title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "MenuGameLog")
+        self.tabBarItem.title = "MenuGameLog".localized()
     }
 
     // Mark: - Notification handlers
@@ -180,9 +180,21 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
         NSLog("onUserInfoUpdated")
     }
 
-    @objc func onLogTypeSelected() {
-        NSLog("onLogTypeSelected")
+    @objc func onLogTypeSelected(notification: Notification) {
+        if let rawEntryTypeValue = (notification.object as? NSNumber)?.uint32Value {
+            switch rawEntryTypeValue {
+            case RiistaEntryTypeHarvest.rawValue:
+                logItemService.setItemType(type: RiistaEntryTypeHarvest)
+            case RiistaEntryTypeObservation.rawValue:
+                logItemService.setItemType(type: RiistaEntryTypeObservation)
+            case RiistaEntryTypeSrva.rawValue:
+                logItemService.setItemType(type: RiistaEntryTypeSrva)
+            default:
+                print("Unknown log type selected")
+            }
+        }
     }
+
 
     // MARK: UITableViewDataSource
 
@@ -288,23 +300,27 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
             })
             segue.perform()
         case RiistaEntryTypeObservation:
-            let sb = UIStoryboard(name: "DetailsStoryboard", bundle: nil)
-            let dest = sb.instantiateInitialViewController() as! DetailsViewController
-            dest.observationId = getObservationResultController().object(at: indexPath).objectID
+            let delegate = UIApplication.shared.delegate as! RiistaAppDelegate
+            let context = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
+            context.parent = delegate.managedObjectContext
+            let objectId = getObservationResultController().object(at: indexPath).objectID
 
-            let segue = UIStoryboardSegue(identifier: "", source: self, destination: dest, performHandler: {
-                self.navigationController?.pushViewController(dest, animated: true)
-            })
-            segue.perform()
+            let observationEntry = RiistaGameDatabase.sharedInstance().observationEntry(with: objectId, context: context)
+            if let observation = observationEntry?.toCommonObservation(objectId: objectId) {
+                let viewController = ViewObservationViewController(observation: observation)
+                self.navigationController?.pushViewController(viewController, animated: true)
+            }
         case RiistaEntryTypeSrva:
-            let sb = UIStoryboard(name: "DetailsStoryboard", bundle: nil)
-            let dest = sb.instantiateInitialViewController() as! DetailsViewController
-            dest.srvaId = getSrvaResultController().object(at: indexPath).objectID
+            let delegate = UIApplication.shared.delegate as! RiistaAppDelegate
+            let context = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
+            context.parent = delegate.managedObjectContext
+            let objectId = getSrvaResultController().object(at: indexPath).objectID
 
-            let segue = UIStoryboardSegue(identifier: "", source: self, destination: dest, performHandler: {
-                self.navigationController?.pushViewController(dest, animated: true)
-            })
-            segue.perform()
+            let srvaEntry = RiistaGameDatabase.sharedInstance().srvaEntry(with: objectId, context: context)
+            if let srvaEvent = srvaEntry?.toSrvaEvent(objectId: objectId) {
+                let viewSrvaViewController = ViewSrvaEventViewController(srvaEvent: srvaEvent)
+                self.navigationController?.pushViewController(viewSrvaViewController, animated: true)
+            }
         default:
             break
         }
@@ -313,13 +329,12 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
     // MARK: - RiistaPageDelegate
 
     func pageSelected() {
-        let navController = navigationController as! RiistaNavigationController
-        navController.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Gamelog"))
+        self.navigationItem.title = "Gamelog".localized()
 
         let plusImage = UIImage(named: "add_white")
         let plusButton = UIBarButtonItem(image: plusImage, style: .plain, target: self, action: #selector(onCreateItemClick))
-        navController.setLeftBarItem(nil)
-        navController.setRightBarItems([plusButton])
+
+        self.navigationItem.rightBarButtonItem = plusButton
     }
 
     @objc func onCreateItemClick() {
@@ -333,32 +348,11 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
             })
             segue.perform()
         case RiistaEntryTypeObservation:
-            if (!(RiistaMetadataManager.sharedInstance()?.hasObservationMetadata())!) {
-                NSLog("No metadata")
-                break
-            }
-
-            let sb = UIStoryboard(name: "DetailsStoryboard", bundle: nil)
-            let dest = sb.instantiateInitialViewController() as! DetailsViewController
-
-            let segue = UIStoryboardSegue(identifier: "", source: self, destination: dest, performHandler: {
-                self.navigationController?.pushViewController(dest, animated: true)
-            })
-            segue.perform()
+            let controller = CreateObservationViewController(initialSpeciesCode: nil)
+            self.navigationController?.pushViewController(controller, animated: true)
         default:
-            if (!(RiistaMetadataManager.sharedInstance()?.hasSrvaMetadata())!) {
-                NSLog("No metadata")
-                break
-            }
-
-            let sb = UIStoryboard(name: "DetailsStoryboard", bundle: nil)
-            let dest = sb.instantiateInitialViewController() as! DetailsViewController
-            dest.srvaNew = NSNumber(booleanLiteral: true)
-
-            let segue = UIStoryboardSegue(identifier: "", source: self, destination: dest, performHandler: {
-                self.navigationController?.pushViewController(dest, animated: true)
-            })
-            segue.perform()
+            let controller = CreateSrvaEventViewController()
+            self.navigationController?.pushViewController(controller, animated: true)
         }
     }
 
@@ -371,9 +365,10 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
 
     // Mark - LogFilterDelegate
 
-    func onFilterTypeSelected(type: RiistaEntryType) {
-        logItemService.setItemType(type: type)
+    func onFilterTypeSelected(selectedType: LogFilterView.FilteredType, oldType: LogFilterView.FilteredType) {
+        guard let type = selectedType.toRiistaEntryType() else { return }
 
+        logItemService.setItemType(type: type)
         filterView.seasonStartYear = logItemService.selectedSeasonStart
 
         updateStatsVisibility()
@@ -406,6 +401,10 @@ class GameLogViewController: RiistaPageViewController, UITableViewDataSource, UI
         logItemService.setSpeciesList(speciesCodes: speciesCodes)
 
         updateStatsVisibility()
+    }
+
+    func onFilterPointOfInterestListClicked() {
+        // nop
     }
 
     func presentSpeciesSelect() {

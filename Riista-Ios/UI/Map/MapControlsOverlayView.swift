@@ -31,7 +31,9 @@ class MapControlsOverlayView: OverlayView {
         view.snp.makeConstraints { make in
             make.height.equalTo(AppConstants.UI.DefaultButtonHeight)
         }
-        view.addTarget(self, action: #selector(toggleEdgeControlsVisibility), for: .touchUpInside)
+        view.onClicked = { [weak self] in
+            self?.toggleEdgeControlsVisibility()
+        }
         return view
     }()
 
@@ -40,6 +42,19 @@ class MapControlsOverlayView: OverlayView {
         view.shapeGenerator = AppTheme.shared.bottomLeftRoundedShapegenerator()
         return view
     }()
+
+    /**
+     * A view that will be constrain the bottom of edge controls. Allows constraining edge
+     * controls above of the bottom right labels and optionally above of the bottom center controls.
+     */
+    private lazy var edgeControlsBottomConstraintView: UIView = UIView()
+
+    /**
+     * A width constraint for bottom center controls. Together with `edgeControlsBottomConstraintView`
+     * allows constraining edge controls either above of the bottom right labels or also above of
+     * bottom center controls
+     */
+    private var bottomCenterControlsWidthConstraint: Constraint?
 
     // Used to 'push' edge controls out of the screen
     private var edgeControlsContainerTrailingConstraint: Constraint?
@@ -108,9 +123,10 @@ class MapControlsOverlayView: OverlayView {
     }()
 
     lazy var copyrightLabel: UILabel = {
-        let label = UILabel()
-        label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelTiny)
-        label.textColor = UIColor.applicationColor(GreyDark)
+        let label = UILabel().configure(
+            fontSize: .tiny,
+            textColor: UIColor.applicationColor(GreyDark)
+        )
         label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapCopyrightMml")
         label.isHidden = true // hidden by default. Needs to be shown if MML maps are displayed.
         return label
@@ -161,8 +177,8 @@ class MapControlsOverlayView: OverlayView {
 
     // MARK: Constructors
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init() {
+        super.init(frame: CGRect.zero)
         setup()
     }
 
@@ -218,6 +234,20 @@ class MapControlsOverlayView: OverlayView {
         updateEdgeControlsVisibility(animate: animateChange)
     }
 
+    /**
+     * Constrains the edge controls so that they appear above of the bottom center controls
+     */
+    func constrainEdgeControlsAboveOfBottomCenterControls() {
+        edgeControlsBottomConstraintView.snp.makeConstraints { make in
+            make.bottom
+                .lessThanOrEqualTo(bottomCenterControls.snp.top)
+                // no offset as bottom center controls has internal spacing (+ internal view)
+                .priority(1000)
+                .labeled("edge controls above of bottom center controls")
+        }
+        bottomCenterControlsWidthConstraint?.update(offset: -24)
+    }
+
 
     // MARK: Private Implementations - map scale
 
@@ -245,7 +275,7 @@ class MapControlsOverlayView: OverlayView {
 
     // MARK: Private Implementations - edge controls
 
-    @objc func toggleEdgeControlsVisibility() {
+    private func toggleEdgeControlsVisibility() {
         edgeControlsHidden = !edgeControlsHidden
         updateEdgeControlsVisibility(animate: true)
     }
@@ -295,6 +325,7 @@ class MapControlsOverlayView: OverlayView {
     private func setup() {
         addSubview(edgeControlsToggle)
         addSubview(edgeControlsContainer)
+        addSubview(edgeControlsBottomConstraintView)
         addSubview(bottomRightStackView)
         addSubview(bottomCenterControls)
 
@@ -313,6 +344,14 @@ class MapControlsOverlayView: OverlayView {
             make.edges.equalToSuperview()
         }
 
+        edgeControlsBottomConstraintView.snp.makeConstraints { make in
+            make.bottom
+                .lessThanOrEqualTo(bottomRightStackView.snp.top)
+                .offset(-16)
+                .priority(1000)
+                .labeled("edge controls above of labels")
+        }
+
         edgeControlsContainer.snp.makeConstraints { make in
             edgeControlsContainerTrailingConstraint = make.trailing.equalToSuperview().constraint
             make.width.equalTo(EdgeControlsConfig.ButtonControls.width)
@@ -324,10 +363,9 @@ class MapControlsOverlayView: OverlayView {
                 .priority(500)
                 .labeled("prefer centering controls vertically")
             make.bottom
-                .lessThanOrEqualTo(bottomRightStackView.snp.top)
-                .offset(-16)
+                .lessThanOrEqualTo(edgeControlsBottomConstraintView.snp.top)
                 .priority(1000)
-                .labeled("controls always on above labels")
+                .labeled("controls always above of bottom constraint view")
             make.top.equalTo(edgeControlsToggle.snp.bottom)
                 .priority(1000)
                 .labeled("controls always below toggle")
@@ -343,7 +381,10 @@ class MapControlsOverlayView: OverlayView {
 
         bottomCenterControls.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.trailing.equalToSuperview().inset(EdgeControlsConfig.Toggle.widthVisible + 2)
+            bottomCenterControlsWidthConstraint = make.width
+                .equalToSuperview()
+                .offset(-2 * (EdgeControlsConfig.Toggle.widthVisible + 2))
+                .constraint
             make.bottom.equalTo(bottomRightStackView.snp.top).offset(-8)
         }
 

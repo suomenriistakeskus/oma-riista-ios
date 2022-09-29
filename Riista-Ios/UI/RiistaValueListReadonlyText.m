@@ -41,8 +41,8 @@
         self.view.frame = frame;
     }
 
-    [AppTheme.shared setupLabelFontWithLabel:self.titleTextLabel];
-    [AppTheme.shared setupValueFontWithLabel:self.valueTextLabel];
+    [self.titleTextLabel configureCompatFor:FontUsageLabel];
+    [self.valueTextLabel configureCompatFor:FontUsageInputValue];
 
     [self addSubview:self.view];
     [self.view constraintToSuperviewBounds];

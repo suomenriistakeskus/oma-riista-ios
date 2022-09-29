@@ -41,20 +41,77 @@ extension UIView {
         }
     }
 
-    func fadeIn(duration: TimeInterval = AppConstants.Animations.durationDefault) {
-        fadeTo(1.0, duration: duration)
+    func updateLayoutMargins(
+        top: CGFloat? = nil,
+        left: CGFloat? = nil,
+        bottom: CGFloat? = nil,
+        right: CGFloat? = nil
+    ) {
+        let old = self.layoutMargins
+
+        layoutMargins = UIEdgeInsets.init(
+            top: top ?? old.top,
+            left: left ?? old.left,
+            bottom: bottom ?? old.bottom,
+            right: right ?? old.right
+        )
     }
 
-    func fadeOut(duration: TimeInterval = AppConstants.Animations.durationDefault) {
-        fadeTo(0.0, duration: duration)
+    func updateLayoutMargins(all: CGFloat) {
+        layoutMargins = UIEdgeInsets(top: all, left: all, bottom: all, right: all)
     }
 
-    func fadeTo(_ targetAlpha: CGFloat, duration: TimeInterval = AppConstants.Animations.durationDefault) {
+    func updateLayoutMargins(horizontal: CGFloat, vertical: CGFloat) {
+        layoutMargins = UIEdgeInsets(top: vertical, left: horizontal,
+                                     bottom: vertical, right: horizontal)
+    }
+
+    func updateFrame(
+        x: CGFloat? = nil,
+        y: CGFloat? = nil,
+        width: CGFloat? = nil,
+        height: CGFloat? = nil
+    ) {
+        let old = self.frame
+
+        frame = CGRect(
+            x: x ?? old.minX,
+            y: y ?? old.minY,
+            width: width ?? old.width,
+            height: height ?? old.height
+        )
+    }
+
+    func isAnimatingView() -> Bool {
+        return (self.layer.animationKeys()?.count ?? 0) > 0
+    }
+
+    func fadeIn(
+        duration: TimeInterval = AppConstants.Animations.durationDefault,
+        completion: OnCompleted? = nil
+    ) {
+        fadeTo(1.0, duration: duration, completion: completion)
+    }
+
+    func fadeOut(
+        duration: TimeInterval = AppConstants.Animations.durationDefault,
+        completion: OnCompleted? = nil
+    ) {
+        fadeTo(0.0, duration: duration, completion: completion)
+    }
+
+    func fadeTo(
+        _ targetAlpha: CGFloat,
+        duration: TimeInterval = AppConstants.Animations.durationDefault,
+        completion: OnCompleted? = nil
+    ) {
         Async.main { [weak self] in
             guard let self = self else { return }
 
             UIView.animate(withDuration: duration) {
                 self.alpha = targetAlpha
+            } completion: { _ in
+                completion?()
             }
         }
     }
@@ -79,17 +136,34 @@ extension UIView {
         return self
     }
 
+    func withSeparatorAtTrailing() -> Self {
+        addSeparatorToTrailing()
+        return self
+    }
+
     func addSeparatorToBottom(respectLayoutMarginsGuide: Bool = false) {
         let separator = SeparatorView(orientation: .horizontal)
         addSubview(separator)
         separator.snp.makeConstraints { make in
             if respectLayoutMarginsGuide, let layoutMarginsGuide = superview?.layoutMarginsGuide {
                 make.leading.trailing.equalTo(layoutMarginsGuide)
+                make.bottom.equalToSuperview()
             } else {
                 make.leading.trailing.bottom.equalToSuperview()
             }
+        }
+    }
 
-            make.bottom.equalToSuperview()
+    func addSeparatorToTrailing(respectLayoutMarginsGuide: Bool = false) {
+        let separator = SeparatorView(orientation: .vertical)
+        addSubview(separator)
+        separator.snp.makeConstraints { make in
+            if respectLayoutMarginsGuide, let layoutMarginsGuide = superview?.layoutMarginsGuide {
+                make.top.bottom.equalTo(layoutMarginsGuide)
+                make.trailing.equalToSuperview()
+            } else {
+                make.top.bottom.trailing.equalToSuperview()
+            }
         }
     }
 
@@ -164,6 +238,6 @@ fileprivate extension CACornerMask {
 
 extension CACornerMask {
     static func allCorners() -> CACornerMask {
-        return [.layerMinXMinYCorner, .layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+        return [.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner]
     }
 }

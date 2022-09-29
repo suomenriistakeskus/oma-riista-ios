@@ -34,12 +34,12 @@ import SnapKit
     }
 
     private func bindToViews() {
-        settingsContainer.clearBackgroundMapsCache.addTarget(
-            self, action: #selector(clearBackgroundMapsCache), for: .touchUpInside
-        )
-        settingsContainer.clearMapLayersCache.addTarget(
-            self, action: #selector(clearMapLayersCache), for: .touchUpInside
-        )
+        settingsContainer.clearBackgroundMapsCache.onClicked = { [weak self] in
+            self?.clearBackgroundMapsCache()
+        }
+        settingsContainer.clearMapLayersCache.onClicked = { [weak self] in
+            self?.clearMapLayersCache()
+        }
     }
 
     private func updateUI() {
@@ -68,7 +68,7 @@ import SnapKit
         }
     }
 
-    @objc func clearBackgroundMapsCache() {
+    private func clearBackgroundMapsCache() {
         TileCacheProvider.shared.clearDiskCache(type: .mmlTiles) { [weak self] in
             guard let self = self else { return }
 
@@ -79,7 +79,7 @@ import SnapKit
         }
     }
 
-    @objc func clearMapLayersCache() {
+    private func clearMapLayersCache() {
         TileCacheProvider.shared.clearDiskCache(type: .vectorTiles) { [weak self] in
             guard let self = self else { return }
 

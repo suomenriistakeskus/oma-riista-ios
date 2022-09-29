@@ -42,6 +42,11 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     private var locationManager: CLLocationManager?
 
     /**
+     * Has the location listening started?
+     */
+    private var started: Bool = false
+
+    /**
      * A configuration for the location manager. Values are applied only when starting location listening (start()).
      */
     var config: Config = Config()
@@ -77,6 +82,20 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         }
     }
 
+    /**
+     * Is the app authorized to acces location?
+     */
+    func isAuthorized() -> Bool {
+        switch (currentAuthorizationStatus()) {
+        case .notDetermined, .restricted, .denied:
+            return false
+        case .authorizedAlways, .authorizedWhenInUse:
+            return true
+        @unknown default:
+            return false
+        }
+    }
+
     func start() {
         // nothing to do if already started
         if (locationManager != nil) {
@@ -90,13 +109,12 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             manager.desiredAccuracy = config.desiredAccuracy
         }
 
-        if (delegates.delegateCount == 0) {
-            print("LocationManager: starting with no delegates..")
+        if (isAuthorized()) {
+            doStart()
         } else {
-            print("LocationManager: starting..")
+            print("LocationManager: not yet authorized, requesting authorization")
+            locationManager?.requestWhenInUseAuthorization()
         }
-
-        locationManager?.startUpdatingLocation()
     }
 
     func stop(clearLastLocation: Bool = false) {
@@ -108,6 +126,8 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         } else {
             print("LocationManager: already stopped!")
         }
+
+        started = false
 
         if (clearLastLocation) {
             lastLocation = nil
@@ -122,6 +142,57 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             }
 
             self.lastLocation = latestLocation
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        startIfAuthorizedOrStopIfDenied()
+    }
+
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        startIfAuthorizedOrStopIfDenied()
+    }
+
+    private func startIfAuthorizedOrStopIfDenied() {
+        switch (currentAuthorizationStatus()) {
+        case .restricted, .denied:
+            stop()
+        case .authorizedAlways, .authorizedWhenInUse:
+            print("LocationManager: authorization granted")
+            doStart()
+        case .notDetermined: fallthrough
+        @unknown default:
+            // nop
+            break
+        }
+    }
+
+    private func doStart() {
+        guard let locationManager = locationManager else {
+            print("LocationManager: cannot start without internal locationManager implementation..")
+            return
+        }
+
+        if (started) {
+            print("LocationManager: already started..")
+            return
+        }
+
+        if (delegates.delegateCount == 0) {
+            print("LocationManager: starting with no delegates..")
+        } else {
+            print("LocationManager: starting..")
+        }
+
+        started = true
+        locationManager.startUpdatingLocation()
+    }
+
+    private func currentAuthorizationStatus() -> CLAuthorizationStatus {
+        if #available(iOS 14.0, *) {
+            return locationManager?.authorizationStatus ?? .notDetermined
+        } else {
+            return CLLocationManager.authorizationStatus()
         }
     }
 }

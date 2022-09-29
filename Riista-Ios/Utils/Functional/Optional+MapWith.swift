@@ -15,3 +15,14 @@ extension Optional {
         }
     }
 }
+
+extension Optional where Wrapped == NSNumber {
+    @inlinable func flatMap<U>(_ transform: (Wrapped) throws -> U?) rethrows -> U? {
+        switch self {
+        case .none:
+            return nil
+        case .some(let wrapped):
+            return try transform(wrapped)
+        }
+    }
+}

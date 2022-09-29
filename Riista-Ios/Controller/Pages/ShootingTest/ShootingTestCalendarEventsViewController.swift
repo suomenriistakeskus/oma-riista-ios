@@ -34,13 +34,8 @@ class ShootingTestCalendarEventsViewController: UIViewController, UITableViewDat
             self.tableView.deselectRow(at: indexPath, animated: animated)
         }
 
-        updateTitle()
+        title = "MenuShootingTests".localized()
         fetchEvents()
-    }
-
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "MenuShootingTests"))
     }
 
     func fetchEvents() {
@@ -118,8 +113,7 @@ class ShootingTestCalendarEventsViewController: UIViewController, UITableViewDat
         cell.officialsLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestOfficialsTitle")
         cell.officialsView.arrangedSubviews.forEach({ $0.removeFromSuperview() })
         for official : ShootingTestOfficial in item.officials! {
-            let label = UILabel()
-            label.font = label.font.withSize(AppConstants.Font.LabelMedium)
+            let label = UILabel().configure(for: .label)
             label.text = String(format: "%@ %@", official.firstName!, official.lastName!)
             cell.officialsView.addArrangedSubview(label)
         }

@@ -32,7 +32,7 @@ class SelectableMaterialButton: ButtonWithRoundedCorners, SelectionIndicator {
 
     private(set) lazy var label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.ButtonMedium, fontWeight: .semibold)
+        label.font = UIFont.appFont(for: .button, fontWeight: .semibold)
         label.textAlignment = .center
         return label
     }()
@@ -118,7 +118,7 @@ class SelectableMaterialButton: ButtonWithRoundedCorners, SelectionIndicator {
         container.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview()
             make.centerX.equalToSuperview()
-            make.width.lessThanOrEqualToSuperview().inset(8)
+            make.width.lessThanOrEqualToSuperview().inset(4)
         }
 
         container.addArrangedSubview(iconImageView)

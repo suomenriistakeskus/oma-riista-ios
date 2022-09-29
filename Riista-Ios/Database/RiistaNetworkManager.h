@@ -27,11 +27,9 @@ typedef void(^RiistaPermitCheckNumberCompletion)(NSDictionary *permit, NSError *
 
 typedef void(^RiistaDiaryObservationFetchCompletion)(NSArray *entries, NSError *error);
 typedef void(^RiistaDiaryObservationSendCompletion)(NSDictionary *response, NSError *error);
-typedef void(^RiistaDiaryObservationMetaCompletion)(NSData *metadata, NSError *error);
 typedef void(^RiistaDiaryObservationImageOperationCompletion)(NSError *error);
 
 typedef void(^RiistaDiarySrvaFetchCompletion)(NSArray *entries, NSError *error);
-typedef void(^RiistaDiarySrvaMetaCompletion)(NSData *metadata, NSError *error);
 typedef void(^RiistaDiarySrvaSendCompletion)(NSDictionary *response, NSError *error);
 
 typedef void(^RiistaAnnouncementsListCompletion)(NSArray *items, NSError *error);
@@ -141,12 +139,6 @@ typedef void(^RiistaJsonCompletion)(NSDictionary *item, NSError *error);
 #pragma mark - Observations
 
 /**
- * Get observation metadata
- * @param completion Completion block
- */
-- (void)preloadObservationMeta:(RiistaDiaryObservationMetaCompletion)completion;
-
-/**
  * Fetches diary observations for given year
  * @param year
  * @param completion Completion block
@@ -175,12 +167,6 @@ typedef void(^RiistaJsonCompletion)(NSDictionary *item, NSError *error);
  * @param completion Completion block
  */
 - (void)srvaEntries:(RiistaDiarySrvaFetchCompletion)completion;
-
-/**
- * Get Srva metadata
- * @param completion Completion block
- */
-- (void)preloadSrvaMeta:(RiistaDiarySrvaMetaCompletion)completion;
 
 /**
  * Sends given diary SRVA to server

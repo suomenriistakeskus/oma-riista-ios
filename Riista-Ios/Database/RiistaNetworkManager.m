@@ -8,7 +8,6 @@
 #import "RiistaUtils.h"
 #import "DataModels.h"
 #import "RiistaPermitManager.h"
-#import "RiistaMetadataManager.h"
 #import "SrvaEntry.h"
 #import "AnnouncementsSync.h"
 #import "NSDateformatter+Locale.h"
@@ -30,7 +29,6 @@ NSString *const RiistaDiaryEntryInsertPath = BASE_API_PATH @"gamediary/harvest";
 NSString *const RiistaDiaryEntryDeletePath = BASE_API_PATH @"gamediary/harvest/%ld";
 NSString *const RiistaDiaryImageUploadPath = BASE_API_PATH @"gamediary/image/uploadforharvest";
 
-NSString *const RiistaObservationMetaPath = BASE_API_PATH @"gamediary/observation/metadata/%ld";
 NSString *const RiistaDiaryObservationsPath = BASE_API_PATH @"gamediary/observations/%ld?observationSpecVersion=%ld";
 NSString *const RiistaDiaryObservationUpdatePath = BASE_API_PATH @"gamediary/observation/%ld";
 NSString *const RiistaDiaryObservationInsertPath = BASE_API_PATH @"gamediary/observation";
@@ -38,7 +36,6 @@ NSString *const RiistaDiaryObservationDeletePath = BASE_API_PATH @"gamediary/obs
 NSString *const RiistaDiaryObservationImageUploadPath = BASE_API_PATH @"gamediary/image/uploadforobservation";
 
 NSString *const RiistaSrvaEventsPath = BASE_API_PATH @"srva/srvaevents?srvaEventSpecVersion=%ld";
-NSString *const RiistaSrvaMetaPath = BASE_API_PATH @"srva/parameters?srvaEventSpecVersion=%ld";
 NSString *const RiistaDiarySrvaUpdatePath = BASE_API_PATH @"srva/srvaevent/%ld";
 NSString *const RiistaDiarySrvaInsertPath = BASE_API_PATH @"srva/srvaevent";
 NSString *const RiistaDiarySrvaDeletePath = BASE_API_PATH @"srva/srvaevent/%ld";
@@ -165,11 +162,11 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 - (void)onLoginSucceeded:(NSDictionary*)userInfo completion:(RiistaLoginCompletionBlock)completion
 {
     [[RiistaSessionManager sharedInstance] storeUserLogin];
-    [[UserSession shared] checkHuntingDirectoryAvailabilityWithCompletionHandler:nil];
+    [[UserSession shared] checkHuntingDirectorAvailabilityWithCompletionHandler:nil];
+    [[UserSession shared] checkHuntingControlAvailabilityWithRefresh:YES completionHandler:nil];
 
     [self saveUserInfo:userInfo];
     [[RiistaPermitManager sharedInstance] preloadPermits:nil];
-    [[RiistaMetadataManager sharedInstance] fetchAll];
     [self registerUserNotificationToken];
 
     if (completion) {
@@ -355,9 +352,6 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 - (void)diaryEntriesForYear:(NSInteger)year context:(NSManagedObjectContext*)context completion:(RiistaDiaryEntryFetchCompletion)completion
 {
     long harvestSpecVersion = HarvestSpecVersion;
-    if ([FeatureAvailabilityChecker.shared isEnabled:FeatureAntlers2020Fields]) {
-        harvestSpecVersion = HarvestSpecVersionAntlers2020;
-    }
 
     MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryEntriesPath, (long)year, (long)harvestSpecVersion]
                                                                    params:@{}
@@ -399,6 +393,8 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
     NSDictionary *diaryEntryDict = [[RiistaGameDatabase sharedInstance] dictFromDiaryEntry:diaryEntry isNew:![diaryEntry.remote boolValue]];
     if (diaryEntryDict == nil) {
+        [SynchronizationAnalytics sendFailedToSendHarvest: diaryEntry];
+
         // harvest is missing required data, don't send this one
         NSError *error = [NSError errorWithDomain:@"InvalidData" code:0 userInfo:nil];
         completion(nil, error);
@@ -412,6 +408,8 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
             completion(completedOperation.responseJSON, nil);
         }
     } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
+        [SynchronizationAnalytics sendFailedToSendHarvest: diaryEntry
+                                               statusCode: error.code];
         if (completion) {
             completion(nil, error);
         }
@@ -446,6 +444,13 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
 - (void)loadDiaryEntryImage:(NSString*)uuid completion:(RiistaDiaryEntryImageDownloadCompletion)completion
 {
+    if (uuid == nil) {
+        // 22 i.e. just some value: this code will be replaced shortly (hopefully at least)
+        NSError *error = [NSError errorWithDomain:@"InvalidData" code:22 userInfo:nil];
+        completion(nil, error);
+        return;
+    }
+
     NSString *lowercaseUuid = [uuid lowercaseString];
     MKNetworkOperation *operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryImageLoadPath, lowercaseUuid]
                                                                         params:@{}
@@ -527,24 +532,6 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 }
 
 #pragma mark - Observations
-
-- (void)preloadObservationMeta:(RiistaDiaryObservationMetaCompletion)completion
-{
-    MKNetworkOperation *preloadMetaOperation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaObservationMetaPath, (long)ObservationSpecVersion]
-                                                                              params:@{}
-                                                                          httpMethod:@"GET"
-                                                                                 ssl:UseSSL];
-    [preloadMetaOperation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        if (completion) {
-            completion([completedOperation responseData], nil);
-        }
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            completion(nil, error);
-        }
-    }];
-    [self.networkEngine enqueueOperation:preloadMetaOperation];
-}
 
 - (void)diaryObservationsForYear:(NSInteger)year completion:(RiistaDiaryObservationFetchCompletion)completion
 {
@@ -674,24 +661,6 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
     [self.networkEngine enqueueOperation:operation];
 }
 
-- (void)preloadSrvaMeta:(RiistaDiarySrvaMetaCompletion)completion
-{
-    MKNetworkOperation *preloadMetaOperation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaSrvaMetaPath, (long)SrvaSpecVersion]
-                                                                              params:@{}
-                                                                          httpMethod:@"GET"
-                                                                                 ssl:UseSSL];
-    [preloadMetaOperation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        if (completion) {
-            completion([completedOperation responseData], nil);
-        }
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            completion(nil, error);
-        }
-    }];
-    [self.networkEngine enqueueOperation:preloadMetaOperation];
-}
-
 - (void)sendDiarySrva:(SrvaEntry*)diarySrva completion:(RiistaDiarySrvaSendCompletion)completion
 {
     NSString *path = @"";
@@ -751,8 +720,16 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 {
     MKNetworkOperation *operation;
     if ([image.status integerValue] == DiaryImageStatusInsertion) {
+        // some of the srva images may have nil imageid
+        // -> generate one if it doesn't exist
+        NSString *imageId = image.imageid;
+        if (imageId == nil) {
+            imageId = [[NSUUID UUID] UUIDString];
+            [image.managedObjectContext save:nil];
+        }
+
         operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiarySrvaImageUploadPath]
-                                                        params:@{@"srvaEventId": srvaEntry.remoteId, @"uuid": image.imageid}
+                                                        params:@{@"srvaEventId": srvaEntry.remoteId, @"uuid": imageId}
                                                     httpMethod:@"POST" ssl:UseSSL];
     } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
         NSString *lowercaseUuid = [image.imageid lowercaseString];

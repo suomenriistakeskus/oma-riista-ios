@@ -11,6 +11,9 @@ class GenderFieldCell<FieldId : DataFieldId>: SelectableButtonCell<FieldId, Gend
     var eventDispatcher: GenderEventDispatcher?
 
     private let genderSelectionController = RadioButtonGroup<RiistaCommon.Gender>()
+    private lazy var unknownGenderButton: SelectableMaterialButton = {
+        return addButton(text: "SpecimenGenderUnknown".localized(), iconName: nil)
+    }()
 
     override func createSubviews(for container: UIView) {
         super.createSubviews(for: container)
@@ -23,6 +26,11 @@ class GenderFieldCell<FieldId : DataFieldId>: SelectableButtonCell<FieldId, Gend
         genderSelectionController.addSelectable(
             addButton(text: "SpecimenGenderMale".localized(), iconName: "male"),
             data: .male
+        )
+
+        genderSelectionController.addSelectable(
+            unknownGenderButton,
+            data: .unknown
         )
 
         captionLabel.text = "SpecimenGenderTitle".localized()
@@ -48,6 +56,7 @@ class GenderFieldCell<FieldId : DataFieldId>: SelectableButtonCell<FieldId, Gend
                 print("No event dispatcher, displaying field \(field.id_) in disabled mode!")
             }
         }
+        unknownGenderButton.isHidden = !field.settings.showUnknown
         genderSelectionController.select(data: field.gender)
     }
 

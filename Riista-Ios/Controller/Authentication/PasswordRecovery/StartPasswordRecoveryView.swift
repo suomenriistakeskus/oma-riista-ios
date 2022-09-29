@@ -5,7 +5,7 @@ class StartPasswordRecoveryView: AuthenticationSendLinkToEmailView {
 
     lazy var cancelButton: MaterialButton = {
         let btn = MaterialButton()
-        btn.setTitleFont(AppTheme.shared.fontForSize(size: AppConstants.Font.ButtonMedium), for: .normal)
+        btn.setTitleFont(UIFont.appFont(for: .button), for: .normal)
         btn.setBorderColor(.white, for: .normal)
         btn.setBorderWidth(1.5, for: .normal)
         btn.setBackgroundColor(.clear)

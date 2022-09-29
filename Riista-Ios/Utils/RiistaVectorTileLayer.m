@@ -11,7 +11,10 @@ NSString *const MooseTileUrlFormat = @"https://kartta.riista.fi/vector/hirvi/%lu
 NSString *const PienriistaTileUrlFormat = @"https://kartta.riista.fi/vector/pienriista/%lu/%lu/%lu";
 NSString *const ValtionmaaTileUrlFormat = @"https://kartta.riista.fi/vector/metsahallitus/%lu/%lu/%lu";
 NSString *const RhyTileUrlFormat = @"https://kartta.riista.fi/vector/rhy/%lu/%lu/%lu";
-NSString *const GameTrianglesFormat =@"https://kartta.riista.fi/vector/riistakolmiot/%lu/%lu/%lu";
+NSString *const GameTrianglesFormat = @"https://kartta.riista.fi/vector/riistakolmiot/%lu/%lu/%lu";
+NSString *const MooseRestrictionsFormat = @"https://kartta.riista.fi/vector/hirvi_rajoitusalueet/%lu/%lu/%lu";
+NSString *const SmallGameRestrictionsFormat = @"https://kartta.riista.fi/vector/pienriista_rajoitusalueet/%lu/%lu/%lu";
+NSString *const AviHuntingBanFormat = @"https://kartta.riista.fi/vector/avi_metsastyskieltoalueet/%lu/%lu/%lu";
 
 NSString *const AreaNameKey = @"KOHDE_NIMI";
 
@@ -42,12 +45,20 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
 
 - (void)setExternalId:(NSString*)externalId
 {
+    if ([self.externalAreaId isEqualToString:externalId]) {
+        return;
+    }
+
     self.externalAreaId = externalId;
     [self clearTileCache];
 }
 
 - (void)setInvertColors:(BOOL)invert
 {
+    if (self.invertAreaColors == invert) {
+        return;
+    }
+
     self.invertAreaColors = invert;
     [self clearTileCache];
 }
@@ -88,6 +99,15 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
         case AreaTypeSeura:
             api = [NSString stringWithFormat:@"https://%@%@", base, @"area/vector/%@/%u/%u/%u"];
             tileUrl = [NSString stringWithFormat:api, self.externalAreaId, zoom, x, y];
+            break;
+        case AreaTypeMooseRestrictions:
+            tileUrl = [NSString stringWithFormat:MooseRestrictionsFormat, (unsigned long)zoom, (unsigned long)x, (unsigned long)y];
+            break;
+        case AreaTypeSmallGameRestrictions:
+            tileUrl = [NSString stringWithFormat:SmallGameRestrictionsFormat, (unsigned long)zoom, (unsigned long)x, (unsigned long)y];
+            break;
+        case AreaTypeAviHuntingBan:
+            tileUrl = [NSString stringWithFormat:AviHuntingBanFormat, (unsigned long)zoom, (unsigned long)x, (unsigned long)y];
             break;
         default:
             break;
@@ -317,6 +337,15 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
             CGContextSetRGBFillColor(context, 0.0, 0.0, 0.0, 0.0);
             break;
         case AreaTypeGameTriangles:
+            CGContextSetRGBFillColor(context, 1, 0, 0, (CGFloat)64/255);
+            break;
+        case AreaTypeMooseRestrictions:
+            CGContextSetRGBFillColor(context, 1, 0, 0, (CGFloat)64/255);
+            break;
+        case AreaTypeSmallGameRestrictions:
+            CGContextSetRGBFillColor(context, 1, 0, 0, (CGFloat)64/255);
+            break;
+        case AreaTypeAviHuntingBan:
             CGContextSetRGBFillColor(context, 1, 0, 0, (CGFloat)64/255);
             break;
         default:

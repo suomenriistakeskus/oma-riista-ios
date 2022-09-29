@@ -45,8 +45,8 @@
     [self addSubview:self.view];
 
     [self.view constraintToSuperviewBounds];
-    [AppTheme.shared setupLabelFontWithLabel:self.titleTextLabel];
-    [AppTheme.shared setupValueFontWithLabel:self.valueTextLabel];
+    [self.titleTextLabel configureCompatFor:FontUsageLabel];
+    [self.valueTextLabel configureCompatFor:FontUsageInputValue];
 
     [self setBackgroundImage:[RiistaUtils imageWithColor:[UIColor applicationColor:GreyLight] width:1 height:1]
                     forState:UIControlStateHighlighted];

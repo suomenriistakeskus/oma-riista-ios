@@ -39,9 +39,11 @@ class GalleryImagePickeriOS14: RiistaImagePicker, PHPickerViewControllerDelegate
         }
 
         let imageIdentifier = ImageIdentifier.create(validLocalIdentifier: localIdentifier, imageUrl: nil)
+        let loadRequest = ImageLoadRequest(imageIdentifier: imageIdentifier)
+        loadRequest.options.deliveryMode = .highQualityFormat
 
         if let imageManager = self.localImageManager {
-            imageManager.loadImage(ImageLoadRequest(imageIdentifier: imageIdentifier)) { result in
+            imageManager.loadImage(loadRequest) { result in
                 switch result {
                 case .success(let identifiableImage):
                     self.dismissWithSuccess(image: identifiableImage)

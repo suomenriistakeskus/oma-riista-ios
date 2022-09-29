@@ -38,12 +38,22 @@ class LoadIndicatorViewController: UIViewController {
 
     func showIn(parentViewController: UIViewController,
                 viewToOverlay: UIView? = nil) -> LoadIndicatorViewController {
-        guard let parentView = viewToOverlay ?? parentViewController.view else {
+        let parentView: UIView
+        if let viewToOverlay = viewToOverlay, let parentViewCandidate = viewToOverlay.superview {
+            // try to add as a sibling to viewToOverlay as that allows preventing touches from passing
+            // to view that is being overlaid
+            // -> no need for separate user input disabling (e.g. uitableview) which can be an issue
+            //    (e.g. uitableview seems to jump slightly when is isScrollEnabled is toggled)
+            self.view.frame = viewToOverlay.frame
+            parentView = parentViewCandidate
+        } else if let parentViewCandidate = parentViewController.view {
+            // no specific viewToOverlay i.e. fill the parentViewController.view
+            self.view.frame = parentViewCandidate.bounds
+            parentView = parentViewCandidate
+        } else {
             print("No parent view, cannot display")
             return self
         }
-
-        self.view.frame = parentView.bounds
 
         willMove(toParent: parentViewController)
         parentViewController.addChild(self)
@@ -57,13 +67,15 @@ class LoadIndicatorViewController: UIViewController {
         return self
     }
 
-    func hide() {
+    func hide(_ completion: OnCompleted? = nil) {
         UIView.animate(withDuration: AppConstants.Animations.durationShort) {
             self.view.alpha = 0
         } completion: { [weak self] _ in
             self?.willMove(toParent: nil)
             self?.view.removeFromSuperview()
             self?.removeFromParent()
+
+            completion?()
         }
     }
 }

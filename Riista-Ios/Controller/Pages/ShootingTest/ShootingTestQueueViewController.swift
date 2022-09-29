@@ -16,6 +16,13 @@ class ShootingTestQueueViewController: UIViewController, UITableViewDataSource, 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "refresh_white"),
+            style: .plain,
+            target: self,
+            action: #selector(onRefreshClicked)
+        )
+
         self.tableView.dataSource = self
         self.tableView.delegate = self
         self.tableView.tableHeaderView = nil;
@@ -26,19 +33,22 @@ class ShootingTestQueueViewController: UIViewController, UITableViewDataSource, 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        updateTitle()
+        navigationItem.title = "ShootingTestViewTitle".localized()
         refreshData()
     }
 
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestViewTitle"))
+    @objc private func onRefreshClicked() {
+        self.navigationItem.rightBarButtonItem?.isEnabled = false
+        refreshData()
     }
 
     func refreshData() {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
+
         tabBarVc.refreshEvent()
         tabBarVc.fetchParticipants() { (result:Array?, error:Error?) in
+            self.navigationItem.rightBarButtonItem?.isEnabled = true
+
             if (error == nil) {
                 do {
                     let json = try JSONSerialization.data(withJSONObject: result!)

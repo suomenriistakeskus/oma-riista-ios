@@ -35,20 +35,20 @@ class DateFilterView: UIView {
         createLabel(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "FilterStartDate"))
     }()
 
-    var startDate: Date = Date() {
-        didSet {
-            startDateValueLabel.text = DatetimeUtil.dateToFormattedStringNoTime(date: startDate)
+    var startDate: Date {
+        get {
+            startDateButton.dateAndTime
+        }
+        set {
+            startDateButton.dateAndTime = newValue
         }
     }
 
-    private lazy var startDateValueLabel: UILabel = {
-        createDateValueLabel(initialDate: startDate)
-    }()
-
-    private lazy var startDateButton: MaterialButton = {
-        createDateButton(dateLabel: startDateValueLabel).apply { btn in
-            btn.onClicked = onChangeStartDate
-        }
+    private lazy var startDateButton: DateOrTimeButton = {
+        let button = DateOrTimeButton(mode: .date)
+        button.valueLabel.font = UIFont.appFont(fontSize: .huge)
+        button.onClicked = onChangeStartDate
+        return button
     }()
 
 
@@ -58,20 +58,20 @@ class DateFilterView: UIView {
         createLabel(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "FilterEndDate"))
     }()
 
-    var endDate: Date = Date() {
-        didSet {
-            endDateValueLabel.text = DatetimeUtil.dateToFormattedStringNoTime(date: endDate)
+    var endDate: Date {
+        get {
+            endDateButton.dateAndTime
+        }
+        set {
+            endDateButton.dateAndTime = newValue
         }
     }
 
-    private lazy var endDateValueLabel: UILabel = {
-        createDateValueLabel(initialDate: endDate)
-    }()
-
-    private lazy var endDateButton: MaterialButton = {
-        createDateButton(dateLabel: endDateValueLabel).apply { btn in
-            btn.onClicked = onChangeEndDate
-        }
+    private lazy var endDateButton: DateOrTimeButton = {
+        let button = DateOrTimeButton(mode: .date)
+        button.valueLabel.font = UIFont.appFont(fontSize: .huge)
+        button.onClicked = onChangeEndDate
+        return button
     }()
 
 
@@ -238,15 +238,6 @@ class DateFilterView: UIView {
         let label = LabelView()
         label.text = text
         label.layoutMargins = UIEdgeInsets(top: 0, left: spacing, bottom: 0, right: spacing)
-        return label
-    }
-
-    private func createDateValueLabel(initialDate: Date) -> UILabel {
-        let label = UILabel()
-        label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelHuge)
-        label.textColor = UIColor.applicationColor(Primary)
-        label.textAlignment = .left
-        label.text = DatetimeUtil.dateToFormattedStringNoTime(date: initialDate)
         return label
     }
 }

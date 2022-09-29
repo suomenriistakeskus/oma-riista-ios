@@ -9,7 +9,9 @@ class UserLocationOnMap: LocationListener {
 
     private(set) var userLocationKnown: Bool = false {
         didSet {
-            onUserLocationKnownChanged?(userLocationKnown)
+            onUserLocationKnownChanged.forEach { callback in
+                callback(userLocationKnown)
+            }
         }
     }
 
@@ -17,7 +19,7 @@ class UserLocationOnMap: LocationListener {
     private var userLocationMarker: GMSMarker? = nil
     private var userLocationAccuracyCircle: GMSCircle? = nil
 
-    var onUserLocationKnownChanged: ((_ locationKnown: Bool) -> Void)?
+    var onUserLocationKnownChanged: [((_ locationKnown: Bool) -> Void)] = []
 
     init(mapView: RiistaMapView, locationManager: LocationManager) {
         self.mapView = mapView

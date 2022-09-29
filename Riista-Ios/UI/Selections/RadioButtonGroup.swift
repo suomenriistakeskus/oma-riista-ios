@@ -44,7 +44,12 @@ class RadioButtonGroup<Data : Equatable>: SelectionControllerWithData<Data> {
         }
     }
 
-    func select(data: Data) {
+    func select(data: Data?) {
+        guard let data = data else {
+            deselectAll()
+            return
+        }
+
         let shouldBeSelected = selectables.first { selectable in
             selectable.data == data
         }

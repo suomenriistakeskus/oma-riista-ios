@@ -5,8 +5,8 @@ class ChangeUsernameView: UIStackView {
 
     private lazy var titleLabel: UILabel = {
         UILabel().apply { label in
-            label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelXLarge)
-            label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ChangeUsernameTitle")
+            label.font = UIFont.appFont(fontSize: .xLarge)
+            label.text = "ChangeUsernameTitle".localized()
             label.textColor = .white
             label.numberOfLines = 0
         }
@@ -14,8 +14,8 @@ class ChangeUsernameView: UIStackView {
 
     private lazy var messageLabel: UILabel = {
         UILabel().apply { label in
-            label.font = AppTheme.shared.fontForSize(size: AppConstants.Font.LabelSmall)
-            label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ChangeUsernameMessage")
+            label.font = UIFont.appFont(fontSize: .small)
+            label.text = "ChangeUsernameMessage".localized()
             label.textColor = .white
             label.numberOfLines = 0
         }
@@ -23,8 +23,9 @@ class ChangeUsernameView: UIStackView {
 
     lazy var startRegistrationButton: MaterialButton = {
         let btn = MaterialButton()
+        btn.setTitleFont(UIFont.appFont(for: .button), for: .normal)
         btn.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
-        btn.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ChangeUsernameAction"), for: .normal)
+        btn.setTitle("ChangeUsernameAction".localized(), for: .normal)
         btn.snp.makeConstraints { make in
             make.height.equalTo(AppConstants.UI.ButtonHeightSmall)
         }
@@ -33,12 +34,12 @@ class ChangeUsernameView: UIStackView {
 
     lazy var cancelButton: MaterialButton = {
         let btn = MaterialButton()
-        btn.setTitleFont(AppTheme.shared.fontForSize(size: AppConstants.Font.ButtonMedium), for: .normal)
+        btn.setTitleFont(UIFont.appFont(for: .button), for: .normal)
         btn.setBorderColor(.white, for: .normal)
         btn.setBorderWidth(1.5, for: .normal)
         btn.setBackgroundColor(.clear)
         btn.setTitleColor(.white, for: .normal)
-        btn.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Cancel"), for: .normal)
+        btn.setTitle("Cancel".localized(), for: .normal)
         btn.snp.makeConstraints { make in
             make.height.equalTo(AppConstants.UI.ButtonHeightSmall)
         }

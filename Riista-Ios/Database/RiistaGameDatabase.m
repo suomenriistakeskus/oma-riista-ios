@@ -38,6 +38,7 @@ typedef void(^RiistaObservationEntryYearLoadCompletion)(NSArray *updates, NSErro
 @interface RiistaGameDatabase ()
 
 @property (strong, nonatomic) NSTimer *syncTimer;
+@property (assign, atomic, readwrite) BOOL synchronizing;
 
 @end
 
@@ -46,14 +47,13 @@ typedef void(^RiistaObservationEntryYearLoadCompletion)(NSArray *updates, NSErro
     NSDateFormatter *dateFormatter;
     Reachability* reachability;
     NSDate *lastSyncDate;
-    BOOL syncing;
 }
 
 #pragma mark - public methods
 
 NSString *const RiistaCalendarEntriesUpdatedKey = @"CalendarEntriesUpdated";
 NSString *const RiistaLanguageSelectionUpdatedKey = @"LanguageSelectionUpdated";
-NSString *const RiistaAutosyncKey = @"AutosyncStatus";
+NSString *const RiistaSynchronizationStatusKey = @"SynchronizationStatus";
 NSString *const ISO_8601 = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
 
 // Start from August
@@ -80,7 +80,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     self = [super init];
     if (self) {
         _autosync = NO;
-        syncing = NO;
+        self.synchronizing = NO;
         dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
         [dateFormatter setDateFormat:ISO_8601];
     }
@@ -471,16 +471,47 @@ NSInteger const RiistaCalendarStartMonth = 8;
     return nil;
 }
 
+- (void)doAutoSync
+{
+    [self synchronizeDiaryEntries:^(void) {
+        // nop
+    }];
+}
+
 - (void)synchronizeDiaryEntries:(RiistaSynchronizationCompletion)completion
+{
+    // Do not start multiple synchronization operations at once
+    if (self.synchronizing) {
+        if (completion) {
+            completion();
+        }
+        return;
+    }
+    self.synchronizing = YES;
+
+    [RiistaSDKHelper synchronizeWithCompletion:^{
+        [self doSynchronizeDiaryEntries:^(void) {
+            self.synchronizing = NO;
+            if (completion) {
+                completion();
+            }
+        }];
+    }];
+}
+
+- (void)doSynchronizeDiaryEntries:(RiistaSynchronizationCompletion)completion
 {
     // Limit rate of user synchronization attempts
     if (lastSyncDate && [lastSyncDate timeIntervalSinceNow] > -MIN_SYNC_INTERVAL_IN_SECONDS) {
-        if (completion)
+        if (completion) {
             completion();
+        }
         return;
     }
+
     lastSyncDate = [NSDate date];
 
+    [[NSNotificationCenter defaultCenter] postNotificationName:RiistaSynchronizationStatusKey object:nil userInfo:@{@"syncing": @YES}];
     [CrashlyticsHelper logWithMsg:@"Synchronizing diary entries.."];
 
     __weak RiistaGameDatabase *weakSelf = self;
@@ -500,8 +531,11 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
                     [[AnnouncementsSync new] sync:^(NSArray *items, NSError *error) {
                         [MhPermitSync.shared syncWithCompletion:^(NSArray *items, NSError *error) {
+
+                            [[NSNotificationCenter defaultCenter] postNotificationName:RiistaSynchronizationStatusKey object:nil userInfo:@{@"syncing": @NO}];
+                            [CrashlyticsHelper logWithMsg:@"Diary entry synchronization completed!"];
+
                             if (completion) {
-                                [CrashlyticsHelper logWithMsg:@"Diary entry synchronization completed!"];
                                 completion();
                             }
                         }];
@@ -715,8 +749,9 @@ NSInteger const RiistaCalendarStartMonth = 8;
         [self doAutoSync];
         self.syncTimer = [NSTimer scheduledTimerWithTimeInterval:SYNC_INTERVAL_IN_MINUTES*60 target:self selector:@selector(doAutoSync) userInfo:nil repeats:YES];
     } else {
-        if (reachability)
+        if (reachability) {
             [reachability stopNotifier];
+        }
         if (self.syncTimer) {
             [self.syncTimer invalidate];
             self.syncTimer = nil;
@@ -783,6 +818,9 @@ NSInteger const RiistaCalendarStartMonth = 8;
     temporaryContext.parentContext = delegate.managedObjectContext;
     
     NSArray *localYears = [self eventYears:DiaryEntryTypeHarvest];
+
+    [SynchronizationAnalytics sendLoadingHarvestsBegin];
+
     [manager diaryEntryYears:retry completion:^(NSArray *years, NSError *error) {
 
         // Clear data from years which do not have any events
@@ -798,6 +836,8 @@ NSInteger const RiistaCalendarStartMonth = 8;
         }
 
         if (error) {
+            [SynchronizationAnalytics sendLoadingHarvestsFailed];
+
             if (completion) {
                 [CrashlyticsHelper logWithMsg:@"Failed to load diary entry years!"];
                 completion(nil, error);
@@ -806,6 +846,9 @@ NSInteger const RiistaCalendarStartMonth = 8;
         }
 
         if (years.count == 0) {
+            [SynchronizationAnalytics sendLoadingHarvestsCompletedWithUpdatedHarvestCount: 0
+                                                                      removedHarvestCount: 0];
+
             if (completion) {
                 [CrashlyticsHelper logWithMsg:@"No diary entry years -> nothing to load!"];
                 completion([allLoadedEntries copy], nil);
@@ -821,9 +864,29 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
                 [allLoadedEntries addObjectsFromArray:loadedEntries];
                 yearsLoaded++;
-                if (yearsLoaded == years.count && completion) {
+                if (yearsLoaded == years.count) {
                     [CrashlyticsHelper logWithMsg:@"Finished loading diary entries for all years"];
-                    completion(allLoadedEntries, nil);
+
+                    int updatedCount = 0;
+                    int removedCount = 0;
+                    RiistaDiaryEntryUpdate *current;
+                    for (int entryIndex = 0; entryIndex < allLoadedEntries.count; entryIndex++) {
+                        current = (RiistaDiaryEntryUpdate *)(allLoadedEntries[entryIndex]);
+                        if (current) {
+                            if (current.type == UpdateTypeInsert || current.type == UpdateTypeUpdate) {
+                                updatedCount++;
+                            } else if (current.type == UpdateTypeDelete) {
+                                removedCount++;
+                            }
+                        }
+                    }
+
+                    [SynchronizationAnalytics sendLoadingHarvestsCompletedWithUpdatedHarvestCount: updatedCount
+                                                                              removedHarvestCount: removedCount];
+
+                    if (completion) {
+                        completion(allLoadedEntries, nil);
+                    }
                 }
             }];
         }
@@ -917,10 +980,16 @@ NSInteger const RiistaCalendarStartMonth = 8;
 {
     __weak RiistaGameDatabase *weakSelf = self;
     __block NSInteger sentEntries = 0;
+    __block NSInteger sendSuccessCount = 0;
+    __block NSInteger sendFailureCount = 0;
     NSMutableArray *updates = [NSMutableArray new];
     NSArray *unsentEntries = [self unsentDiaryEntries];
 
+    [SynchronizationAnalytics sendHarvestSendBeginWithUnsentHarvestCount: unsentEntries.count];
     if (unsentEntries.count == 0) {
+        // counter-part for begin. Added so that it is possible to create funnels i.e. data is now skewed.
+        [SynchronizationAnalytics sendHarvestSendCompletedWithSuccessCount: sendSuccessCount
+                                                              failureCount: sendFailureCount];
         completion(updates, nil);
         return;
     }
@@ -928,6 +997,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
     [[FIRCrashlytics crashlytics] logWithFormat:@"Synchronizing %lu unsent diary entries..", (unsigned long)unsentEntries.count];
 
     __block BOOL finished = NO;
+
     for (int i=0; i<unsentEntries.count; i++) {
         DiaryEntry *entry = unsentEntries[i];
         [[RiistaNetworkManager sharedInstance] sendDiaryEntry:entry completion:^(NSDictionary *response, NSError *error) {
@@ -935,6 +1005,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
             // When user doesn't have a session, it is pointless to continue sending events
             if (!finished && (error.code == 401 || error.code == 403)) {
                 [[FIRCrashlytics crashlytics] logWithFormat:@"Failed to synchronize unsent diary entry at index %d (error code = %ld)", i, (long)error.code];
+                [SynchronizationAnalytics sendHarvestSendFailedWithStatusCode: error.code];
 
                 finished = YES;
                 if (retry) {
@@ -959,6 +1030,8 @@ NSInteger const RiistaCalendarStartMonth = 8;
             }
 
             if (!error) {
+                sendSuccessCount++;
+
                 entry.remoteId = response[@"id"];
                 entry.rev = response[@"rev"];
                 entry.harvestSpecVersion = response[@"harvestSpecVersion"];
@@ -1019,15 +1092,22 @@ NSInteger const RiistaCalendarStartMonth = 8;
                     }
                     sentEntries++;
                     if (sentEntries == unsentEntries.count) {
+                        [SynchronizationAnalytics sendHarvestSendCompletedWithSuccessCount: sendSuccessCount
+                                                                              failureCount: sendFailureCount];
+
                         completion(updates, nil);
                     }
                 }];
             } else {
+                sendFailureCount++;
+
                 entry.sent = [NSNumber numberWithBool:NO];
                 NSError *err = nil;
                 [[entry managedObjectContext] save:&err];
                 sentEntries++;
                 if (sentEntries == unsentEntries.count) {
+                    [SynchronizationAnalytics sendHarvestSendCompletedWithSuccessCount: sendSuccessCount
+                                                                          failureCount: sendFailureCount];
                     completion(updates, nil);
                 }
             }
@@ -1305,20 +1385,6 @@ NSInteger const RiistaCalendarStartMonth = 8;
     }
 }
 
-- (void)doAutoSync
-{
-    // Do not start multiple auto sync operations at once
-    if (syncing)
-        return;
-    syncing = YES;
-
-    [[NSNotificationCenter defaultCenter] postNotificationName:RiistaAutosyncKey object:nil userInfo:@{@"syncing": @YES}];
-    [self synchronizeDiaryEntries:^(void) {
-        self->syncing = NO;
-        [[NSNotificationCenter defaultCenter] postNotificationName:RiistaAutosyncKey object:nil userInfo:@{@"syncing": @NO}];
-    }];
-}
-
 - (void)updateFetchDateForYear:(NSInteger)year date:(NSDate*)date
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -1478,10 +1544,13 @@ NSInteger const RiistaCalendarStartMonth = 8;
 - (void)editLocalObservation:(ObservationEntry*)observationEntry newImages:(NSArray*)images
 {
     [self editImagesForObservationEntry:observationEntry newImages:images];
+    [self editLocalObservation:observationEntry];
+}
 
+- (void)editLocalObservation:(ObservationEntry*)observationEntry
+{
     NSError *error = nil;
     if ([[observationEntry managedObjectContext] save:&error]) {
-
         // Modifying child context. Save parent to persistent store
         RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
         [delegate.managedObjectContext performBlock:^(void) {
@@ -1670,6 +1739,13 @@ NSInteger const RiistaCalendarStartMonth = 8;
     return nil;
 }
 
+- (void)synchronizeObservationEntry:(ObservationEntry *)observationEntry completion:(RiistaOperationCompletion)completion
+{
+    [self editObservationEntry:observationEntry completion:^(NSDictionary *response, NSError *error) {
+        completion(error == nil);
+    }];
+}
+
 - (void)editObservationEntry:(ObservationEntry*)observationEntry completion:(RiistaObservationEntryEditCompletion)completion
 {
     NSManagedObjectContext* context = observationEntry.managedObjectContext; //Keep a strong reference during the operations
@@ -1703,6 +1779,13 @@ NSInteger const RiistaCalendarStartMonth = 8;
         if (completion) {
             completion(nil, error);
         }
+    }];
+}
+
+- (void)deleteObservationEntryCompat:(ObservationEntry *)observationEntry completion:(RiistaOperationCompletion)completion
+{
+    [self deleteObservationEntry:observationEntry completion:^(NSError *error) {
+        completion(error == nil);
     }];
 }
 

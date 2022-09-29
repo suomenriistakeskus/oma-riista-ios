@@ -1,5 +1,6 @@
 import Foundation
 import MaterialComponents
+import RiistaCommon
 
 class FilterSpeciesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -39,23 +40,24 @@ class FilterSpeciesViewController: UIViewController, UITableViewDataSource, UITa
         self.navigationItem.rightBarButtonItem = nil
 
         let languageCode = RiistaSettings.language()
-        var list: [RiistaSpecies?]
+        var speciesList: [RiistaSpecies?]
 
         if (isSrva) {
             self.title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "SRVA")
 
-            let srvaMeta = RiistaMetadataManager.sharedInstance().getSrvaMetadata()
-
-            list = srvaMeta!.species
+            let srvaMetadata = RiistaSDK.shared.metadataProvider.srvaMetadata
+            speciesList = srvaMetadata.species.map { knownSpecies in
+                RiistaGameDatabase.sharedInstance().species(byId: Int(knownSpecies.speciesCode))
+            }
         }
         else {
             let categories = RiistaGameDatabase.sharedInstance()?.categories as! [Int : RiistaSpeciesCategory]
             self.title = categories[categoryId]?.name[RiistaSettings.language()] as? String
 
-            list = RiistaGameDatabase.sharedInstance()?.speciesList(withCategoryId: categoryId) as! [RiistaSpecies]
+            speciesList = RiistaGameDatabase.sharedInstance()?.speciesList(withCategoryId: categoryId) as! [RiistaSpecies]
         }
 
-        tableViewItems = list.sorted(by: {$1?.name[languageCode!] as! String > $0?.name[languageCode!] as! String})
+        tableViewItems = speciesList.sorted(by: {$1?.name[languageCode!] as! String > $0?.name[languageCode!] as! String})
 
         if (isSrva) {
             tableViewItems.append(nil)
@@ -79,7 +81,7 @@ class FilterSpeciesViewController: UIViewController, UITableViewDataSource, UITa
             cell.speciesName.text = RiistaUtils.name(withPreferredLanguage: item.name)
         } else {
             // SRVA "other" species
-            cell.speciesImage.image = UIImage.init(named: "unknown_white")
+            cell.speciesImage.image = UIImage.init(named: "unknown_white")?.withRenderingMode(.alwaysTemplate)
             cell.speciesImage.tintColor = UIColor.black
             cell.speciesName.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "SrvaOtherSpeciesDescription")
         }

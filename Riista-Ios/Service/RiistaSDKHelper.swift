@@ -123,6 +123,18 @@ import MaterialComponents.MaterialDialogs
         */
     }
 
+    @objc class func synchronize(completion: @escaping OnCompleted) {
+        if (!riistaSdkInitialized) {
+            CrashlyticsHelper.log(msg: "Refusing to synchronize before RiistaSDK has been initialized")
+            completion()
+            return
+        }
+
+        RiistaSDK.shared.synchronizeAllDataPieces { _, _ in
+            completion()
+        }
+    }
+
     @objc class func displayAppStartupMessage(parentViewController: UIViewController) {
         if (!riistaSdkInitialized) {
             CrashlyticsHelper.log(msg: "Refusing to display app startup message before RiistaSDK has been initialized")
@@ -164,7 +176,7 @@ import MaterialComponents.MaterialDialogs
 
     /**
      * Copies all network cookies from RiistaSDK to MKNetworkKit and thus allows making authenticated
-     * network
+     * network calls
      */
     @objc class func copyAuthenticationCookiesFromRiistaSDK() {
         let cookies = RiistaSDK.shared.getAllNetworkCookies()
@@ -188,6 +200,7 @@ import MaterialComponents.MaterialDialogs
             }
 
             if let cookie = HTTPCookie(properties: cookieProperties) {
+                // both MKNetwork and Alamofire use the same cookieStorage
                 cookieStorage.setCookie(cookie)
             } else {
                 CrashlyticsHelper.log(msg: "Failed to create cookie with properties!")

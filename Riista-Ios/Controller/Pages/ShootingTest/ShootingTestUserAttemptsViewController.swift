@@ -64,7 +64,7 @@ class ShootingTestUserAttemptsViewController: UIViewController, UITableViewDataS
         Styles.styleButton(self.addButton)
         self.addButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptListAdd"), for: .normal)
 
-        self.updateTitle()
+        title = "ShootingTestAttemptListViewTitle".localized()
         self.refreshData()
     }
 
@@ -74,11 +74,6 @@ class ShootingTestUserAttemptsViewController: UIViewController, UITableViewDataS
         self.dateOfBirthLabel.text = ShootingTestUtil.serverDateStringToDisplayDate(serverDate: user.dateOfBirth!)
 
         self.addButton.isEnabled = !self.isLocked
-    }
-
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptListViewTitle"))
     }
 
     func refreshData() {

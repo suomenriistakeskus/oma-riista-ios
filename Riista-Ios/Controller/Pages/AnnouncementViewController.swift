@@ -12,13 +12,7 @@ import Foundation
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        updateTitle()
         refreshData()
-    }
-
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(nil)
     }
 
     func refreshData() {

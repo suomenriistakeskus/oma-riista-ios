@@ -2,11 +2,13 @@ import Foundation
 import GoogleMapsUtils
 import RiistaCommon
 
-class GroupHuntingMarkerSource: MarkerSource {
+class GroupHuntingMarkerSource: MarkerSource<GroupHuntingMarkerType, GroupHuntingMarkerItem> {
 
     // MARK: MarkerSources for harvests
 
-    class func proposedHarvests(using storage: GroupHuntingMarkerStorage) -> MarkerSource {
+    class func proposedHarvests(
+        using storage: GroupHuntingMarkerStorage
+    ) -> MarkerSource<GroupHuntingMarkerType, GroupHuntingMarkerItem> {
         GroupHuntingMarkerSource(storage: storage) { storage in
             storage.harvests.filter { harvest in
                 harvest.acceptStatus == AcceptStatus.proposed
@@ -16,7 +18,9 @@ class GroupHuntingMarkerSource: MarkerSource {
         }
     }
 
-    class func acceptedHarvests(using storage: GroupHuntingMarkerStorage) -> MarkerSource {
+    class func acceptedHarvests(
+        using storage: GroupHuntingMarkerStorage
+    ) -> MarkerSource<GroupHuntingMarkerType, GroupHuntingMarkerItem> {
         GroupHuntingMarkerSource(storage: storage) { storage in
             storage.harvests.filter { harvest in
                 harvest.acceptStatus == AcceptStatus.accepted
@@ -26,7 +30,9 @@ class GroupHuntingMarkerSource: MarkerSource {
         }
     }
 
-    class func rejectedHarvests(using storage: GroupHuntingMarkerStorage) -> MarkerSource {
+    class func rejectedHarvests(
+        using storage: GroupHuntingMarkerStorage
+    ) -> MarkerSource<GroupHuntingMarkerType, GroupHuntingMarkerItem> {
         GroupHuntingMarkerSource(storage: storage) { storage in
             storage.harvests.filter { harvest in
                 harvest.acceptStatus == AcceptStatus.rejected
@@ -39,7 +45,9 @@ class GroupHuntingMarkerSource: MarkerSource {
 
     // MARK: MarkerSources for observations
 
-    class func proposedObservations(using storage: GroupHuntingMarkerStorage) -> MarkerSource {
+    class func proposedObservations(
+        using storage: GroupHuntingMarkerStorage
+    ) -> MarkerSource<GroupHuntingMarkerType, GroupHuntingMarkerItem> {
         GroupHuntingMarkerSource(storage: storage) { storage in
             storage.observations.filter { observation in
                 observation.acceptStatus == AcceptStatus.proposed
@@ -49,7 +57,9 @@ class GroupHuntingMarkerSource: MarkerSource {
         }
     }
 
-    class func acceptedObservations(using storage: GroupHuntingMarkerStorage) -> MarkerSource {
+    class func acceptedObservations(
+        using storage: GroupHuntingMarkerStorage
+    ) -> MarkerSource<GroupHuntingMarkerType, GroupHuntingMarkerItem> {
         GroupHuntingMarkerSource(storage: storage) { storage in
             storage.observations.filter { observation in
                 observation.acceptStatus == AcceptStatus.accepted
@@ -59,7 +69,9 @@ class GroupHuntingMarkerSource: MarkerSource {
         }
     }
 
-    class func rejectedObservations(using storage: GroupHuntingMarkerStorage) -> MarkerSource {
+    class func rejectedObservations(
+        using storage: GroupHuntingMarkerStorage
+    ) -> MarkerSource<GroupHuntingMarkerType, GroupHuntingMarkerItem> {
         GroupHuntingMarkerSource(storage: storage) { storage in
             storage.observations.filter { observation in
                 observation.acceptStatus == AcceptStatus.rejected
@@ -71,15 +83,15 @@ class GroupHuntingMarkerSource: MarkerSource {
 
 
     let storage: GroupHuntingMarkerStorage
-    let createMarkers: (GroupHuntingMarkerStorage) -> [GroupHuntingMarkerItem]
+    let createMarkersFunc: (GroupHuntingMarkerStorage) -> [GroupHuntingMarkerItem]
 
     private init(storage: GroupHuntingMarkerStorage,
                  createMarkers: @escaping (GroupHuntingMarkerStorage) -> [GroupHuntingMarkerItem] ) {
         self.storage = storage
-        self.createMarkers = createMarkers
+        self.createMarkersFunc = createMarkers
     }
 
-    func addMarkers(to clusterManager: GMUClusterManager) {
-        clusterManager.add(createMarkers(storage))
+    override func createMarkers() -> [GroupHuntingMarkerItem] {
+        return createMarkersFunc(storage)
     }
 }

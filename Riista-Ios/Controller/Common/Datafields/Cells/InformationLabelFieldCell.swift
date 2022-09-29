@@ -14,7 +14,7 @@ class InformationLabelFieldCell<FieldId : DataFieldId>: TypedDataFieldCell<Field
 
     private lazy var informationLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium)
+        label.font = UIFont.appFont(for: .label)
         label.textColor = UIColor.applicationColor(TextPrimary)
         label.numberOfLines = 0
         return label
@@ -33,7 +33,11 @@ class InformationLabelFieldCell<FieldId : DataFieldId>: TypedDataFieldCell<Field
     }
 
     override func fieldWasBound(field: LabelField<FieldId>) {
-        informationLabel.text = field.text
+        if (field.settings.allCaps) {
+            informationLabel.text = field.text.uppercased()
+        } else {
+            informationLabel.text = field.text
+        }
     }
 
     class Factory<FieldId : DataFieldId>: DataFieldCellFactory<FieldId> {

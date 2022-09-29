@@ -16,24 +16,30 @@ class AppTheme: NSObject {
         configureDropDown()
     }
 
-    func createTypographyCheme(buttonTextSize: CGFloat = AppConstants.Font.ButtonMedium, bolded: Bool = false) -> MDCTypographyScheme {
+    func createTypographyCheme(buttonTextSize: CGFloat = AppConstants.FontUsage.button.toSizePoints(), bolded: Bool = false) -> MDCTypographyScheme {
         let scheme = MDCTypographyScheme()
 
-        scheme.headline1 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
-        scheme.headline2 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
-        scheme.headline3 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
-        scheme.headline4 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
-        scheme.headline5 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
-        scheme.headline6 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
-        scheme.subtitle1 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
-        scheme.subtitle2 = fontForSize(size: AppConstants.Font.Headline, bolded: bolded)
-        scheme.body1 = fontForSize(size: AppConstants.Font.LabelMedium, bolded: bolded)
-        scheme.body2 = fontForSize(size: AppConstants.Font.LabelMedium, bolded: bolded)
-        scheme.caption = fontForSize(size: AppConstants.Font.LabelMedium, bolded: bolded)
+        let headLineSize = AppConstants.FontUsage.title.fontSize()
+        let labelSize = AppConstants.FontUsage.label.fontSize()
+        scheme.headline1 = fontForSize(size: headLineSize, bolded: bolded)
+        scheme.headline2 = fontForSize(size: headLineSize, bolded: bolded)
+        scheme.headline3 = fontForSize(size: headLineSize, bolded: bolded)
+        scheme.headline4 = fontForSize(size: headLineSize, bolded: bolded)
+        scheme.headline5 = fontForSize(size: headLineSize, bolded: bolded)
+        scheme.headline6 = fontForSize(size: headLineSize, bolded: bolded)
+        scheme.subtitle1 = fontForSize(size: headLineSize, bolded: bolded)
+        scheme.subtitle2 = fontForSize(size: headLineSize, bolded: bolded)
+        scheme.body1 = fontForSize(size: labelSize, bolded: bolded)
+        scheme.body2 = fontForSize(size: labelSize, bolded: bolded)
+        scheme.caption = fontForSize(size: labelSize, bolded: bolded)
         scheme.button = fontForSize(size: buttonTextSize, bolded: bolded)
-        scheme.overline = fontForSize(size: AppConstants.Font.LabelMedium, bolded: bolded)
+        scheme.overline = fontForSize(size: labelSize, bolded: bolded)
 
         return scheme
+    }
+
+    @objc func fontForSize(size: AppConstants.FontSize, bolded: Bool = false) -> UIFont {
+        return fontForSize(size: size.toSizePoints(), bolded: bolded)
     }
 
     func fontForSize(size: CGFloat, bolded: Bool = false) -> UIFont {
@@ -69,7 +75,7 @@ class AppTheme: NSObject {
         let containerScheme = MDCContainerScheme()
 
         containerScheme.colorScheme = colorScheme()
-        containerScheme.typographyScheme = createTypographyCheme(buttonTextSize: AppConstants.Font.ButtonMedium, bolded: true)
+        containerScheme.typographyScheme = createTypographyCheme(bolded: true)
 
         return containerScheme
     }
@@ -78,7 +84,7 @@ class AppTheme: NSObject {
         let containerScheme = MDCContainerScheme()
 
         containerScheme.colorScheme = colorScheme()
-        containerScheme.typographyScheme = createTypographyCheme(buttonTextSize: AppConstants.Font.ButtonSmall)
+        containerScheme.typographyScheme = createTypographyCheme(buttonTextSize: AppConstants.FontSize.small.toSizePoints())
 
         return containerScheme
     }
@@ -123,7 +129,7 @@ class AppTheme: NSObject {
         let containerScheme = MDCContainerScheme()
 
         containerScheme.colorScheme = colorScheme()
-        containerScheme.typographyScheme = createTypographyCheme(buttonTextSize: AppConstants.Font.ButtonSmall)
+        containerScheme.typographyScheme = createTypographyCheme(buttonTextSize: AppConstants.FontSize.small.toSizePoints())
 
         return containerScheme
     }
@@ -219,28 +225,6 @@ class AppTheme: NSObject {
         return shapeGenerator
     }
 
-    @objc func setupValueFont(textField: MDCTextField) {
-        textField.font = fontForSize(size: AppConstants.Font.LabelLarge)
-        textField.placeholderLabel.font = fontForSize(size: AppConstants.Font.LabelLarge)
-    }
-
-    @objc func setupValueFont(multilineTextField: MDCMultilineTextField) {
-        multilineTextField.font = fontForSize(size: AppConstants.Font.LabelLarge)
-    }
-
-    @objc func setupLabelFont(label: UILabel) {
-        label.font = fontForSize(size: AppConstants.Font.LabelMedium)
-    }
-
-    @objc func setupValueFont(label: UILabel) {
-        label.font = fontForSize(size: AppConstants.Font.LabelLarge)
-    }
-
-    @objc func setupLargeValueFont(label: UILabel) {
-        // default font size for values is LabelLarge so use LabelHuge for 'large values'
-        label.font = fontForSize(size: AppConstants.Font.LabelHuge)
-    }
-
     @objc func setupEditButtonArea(view: UIView) {
         view.layer.shadowPath = UIBezierPath(roundedRect: view.bounds,
                                              cornerRadius: view.layer.cornerRadius).cgPath
@@ -270,7 +254,7 @@ class AppTheme: NSObject {
 
     @objc func setupTextButtonTheme(button: MDCButton) {
         button.applyTextTheme(withScheme: textButtonScheme())
-        button.setTitleFont(UIFont.init(name: AppConstants.Font.Name, size: AppConstants.Font.ButtonMedium), for: .normal)
+        button.setTitleFont(UIFont.appFont(for: .button), for: .normal)
     }
 
     @objc func setupImageButtonTheme(button: MDCButton) {
@@ -281,7 +265,7 @@ class AppTheme: NSObject {
 
     @objc func setupPrimaryButtonTheme(button: MDCButton) {
         button.applyContainedTheme(withScheme: primaryButtonScheme())
-        button.setTitleFont(UIFont.init(name: AppConstants.Font.Name, size: AppConstants.Font.ButtonMedium), for: .normal)
+        button.setTitleFont(UIFont.appFont(for: .button), for: .normal)
 
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         button.imageView?.contentMode = .scaleAspectFit
@@ -289,7 +273,7 @@ class AppTheme: NSObject {
 
     @objc func setupSecondaryButtonTheme(button: MDCButton) {
         button.applyContainedTheme(withScheme: secondaryButtonScheme())
-        button.setTitleFont(UIFont.init(name: AppConstants.Font.Name, size: AppConstants.Font.ButtonMedium), for: .normal)
+        button.setTitleFont(UIFont.appFont(for: .button), for: .normal)
     }
 
     @objc func setupSpeciesButtonTheme(button: MDCButton) {
@@ -317,13 +301,14 @@ class AppTheme: NSObject {
     }
 
     @objc func setupSegmentedController(segmentedController: UISegmentedControl) {
-        let font = fontForSize(size: AppConstants.Font.LabelMedium)
+        let font = fontForSize(size: .medium)
         segmentedController.setTitleTextAttributes([NSAttributedString.Key.font: font], for: .normal)
         segmentedController.setTitleTextAttributes([NSAttributedString.Key.font: font], for: .selected)
         segmentedController.selectedConfiguration()
     }
 
-    @objc func setupAmountTextField(textField: MDCTextField, delegate: UITextFieldDelegate) -> MDCTextInputControllerUnderline {
+    @objc func setupAmountTextField(textField: MDCUnderlinedTextField, delegate: UITextFieldDelegate) {
+        textField.configure(for: .inputValue)
         textField.delegate = delegate
         textField.keyboardType = .numberPad
         textField.placeholder = nil
@@ -332,41 +317,115 @@ class AppTheme: NSObject {
         textField.clearButtonMode = .never
         textField.inputAccessoryView = KeyboardToolbarView.textFieldDoneToolbarView(textField) as? UIView
 
-        let textFieldController = MDCTextInputControllerUnderline(textInput: textField)
-        textFieldController.applyTheme(withScheme: AppTheme.shared.textFieldContainerScheme())
-        textFieldController.isFloatingEnabled = false
-
-        return textFieldController
+        textField.labelBehavior = .disappears
     }
 
-    @objc func setupDescriptionTextField(textField: MDCMultilineTextField, delegate: UITextViewDelegate) -> MDCTextInputControllerUnderline {
-        textField.textView?.delegate = delegate
-        textField.minimumLines = 1;
-        textField.clearButtonMode = .never;
-        textField.textView!.inputAccessoryView = KeyboardToolbarView.textViewDoneToolbarView(textField.textView) as? UIView
+    @objc func setupDescriptionTextArea(_ textArea: MDCFilledTextArea, delegate: UITextViewDelegate) {
+        themeUnderlinedTextArea(textArea, for: .inputValue, backgroundColor: UIColor.applicationColor(ViewBackground))
 
-        let textFieldController = MDCTextInputControllerUnderline(textInput: textField)
-        textFieldController.isFloatingEnabled = false
-        textFieldController.applyTheme(withScheme: AppTheme.shared.textFieldContainerScheme())
+        textArea.labelBehavior = .disappears
 
-        return textFieldController
-    }
+        textArea.textView.delegate = delegate
+        textArea.textView.inputAccessoryView = KeyboardToolbarView.textViewDoneToolbarView(textArea.textView) as? UIView
 
-    @objc func setupNumberTextField(textField: MDCTextField, delegate: UITextFieldDelegate) -> MDCTextInputControllerUnderline {
-        textField.delegate = delegate
-        textField.clearButtonMode = .never;
-        textField.inputAccessoryView = KeyboardToolbarView.textFieldDoneToolbarView(textField) as? UIView
-
-        let textFieldController = MDCTextInputControllerUnderline(textInput: textField)
-        textFieldController.isFloatingEnabled = false
-        textFieldController.applyTheme(withScheme: AppTheme.shared.textFieldContainerScheme())
-
-        return textFieldController
+        textArea.clipsToBounds = true
+        textArea.minimumNumberOfVisibleRows = 1
+        textArea.maximumNumberOfVisibleRows = 5
     }
 
     private func configureDropDown() {
         DropDown.appearance().cellHeight = AppConstants.UI.ButtonHeightSmall
-        DropDown.appearance().textFont = UIFont.appFont(fontSize: AppConstants.Font.LabelMedium)
+        DropDown.appearance().textFont = UIFont.appFont(for: .label)
         DropDown.appearance().textColor = UIColor.applicationColor(TextPrimary)
+    }
+
+    func themeUnderlinedTextField(
+        _ field: MDCUnderlinedTextField,
+        for usage: AppConstants.FontUsage,
+        backgroundColor: UIColor
+    ) {
+        field.font = UIFont.appFont(for: usage)
+        if let textControl = field as? MDCTextControl {
+            // override container style in order to override floating label font size
+            textControl.containerStyle = UnderlinedTextFieldStyle()
+        }
+
+        field.leadingEdgePaddingOverride = 0
+        field.trailingEdgePaddingOverride = 0
+        field.verticalDensity = 1
+
+        field.setUnderlineColor(UIColor.applicationColor(Primary), for: .editing)
+        field.setUnderlineColor(UIColor.applicationColor(GreyDark), for: .normal)
+        field.setUnderlineColor(UIColor.applicationColor(GreyMedium), for: .disabled)
+
+        field.setNormalLabelColor(UIColor.applicationColor(Primary), for: .editing)
+        field.setNormalLabelColor(UIColor.applicationColor(GreyDark), for: .normal)
+        field.setNormalLabelColor(UIColor.applicationColor(GreyMedium), for: .disabled)
+
+        field.setFloatingLabelColor(UIColor.applicationColor(Primary), for: .editing)
+        field.setFloatingLabelColor(UIColor.applicationColor(GreyDark), for: .normal)
+        field.setFloatingLabelColor(UIColor.applicationColor(GreyMedium), for: .disabled)
+    }
+
+    func themeUnderlinedTextArea(
+        _ area: MDCFilledTextArea,
+        for usage: AppConstants.FontUsage,
+        backgroundColor: UIColor
+    ) {
+        area.textView.font = UIFont.appFont(for: usage)
+
+        // textview is masked for some reason. This appears as if first letters are only partially visible
+        // when leading/trailing paddings are set to 0 (first letters have alpha of 50% or something).
+        // -> Remove mask by adding textView as direct subview to area
+        //
+        // see: https://github.com/material-components/material-components-ios/blob/08d01596dfd0d79581b58b563e69a1d1f6ff109f/components/TextControls/src/BaseTextAreas/MDCBaseTextArea.m#L158
+        area.textView.removeFromSuperview()
+        area.addSubview(area.textView)
+
+        area.leadingEdgePaddingOverride = 0
+        area.trailingEdgePaddingOverride = 0
+        area.verticalDensity = 1
+
+        area.setFilledBackgroundColor(backgroundColor, for: .editing)
+        area.setFilledBackgroundColor(backgroundColor, for: .normal)
+        area.setFilledBackgroundColor(backgroundColor, for: .disabled)
+
+        area.placeholderColor = UIColor.applicationColor(GreyDark)
+
+        area.setUnderlineColor(UIColor.applicationColor(Primary), for: .editing)
+        area.setUnderlineColor(UIColor.applicationColor(GreyDark), for: .normal)
+        area.setUnderlineColor(UIColor.applicationColor(GreyMedium), for: .disabled)
+
+        area.setNormalLabel(UIColor.applicationColor(Primary), for: .editing)
+        area.setNormalLabel(UIColor.applicationColor(GreyDark), for: .normal)
+        area.setNormalLabel(UIColor.applicationColor(GreyMedium), for: .disabled)
+
+        area.setFloatingLabel(UIColor.applicationColor(Primary), for: .editing)
+        area.setFloatingLabel(UIColor.applicationColor(GreyDark), for: .normal)
+        area.setFloatingLabel(UIColor.applicationColor(GreyMedium), for: .disabled)
+    }
+}
+
+extension MDCUnderlinedTextField {
+    @discardableResult
+    @objc func configure(
+        for usage: AppConstants.FontUsage
+    ) -> Self {
+        return configure(for: usage, backgroundColor: UIColor.applicationColor(ViewBackground))
+    }
+
+    @discardableResult
+    @objc func configure(
+        for usage: AppConstants.FontUsage,
+        backgroundColor: UIColor
+    ) -> Self {
+        AppTheme.shared.themeUnderlinedTextField(self, for: usage, backgroundColor: backgroundColor)
+        return self
+    }
+}
+
+fileprivate class UnderlinedTextFieldStyle: MDCTextControlStyleUnderlined {
+    override func floatingFont(withNormalFont font: UIFont) -> UIFont {
+        return font.withSize(AppConstants.FontSize.medium.toSizePoints())
     }
 }

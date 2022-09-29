@@ -1,5 +1,4 @@
 #import "RiistaMagazineViewController.h"
-#import "RiistaNavigationController.h"
 #import "RiistaLocalization.h"
 #import "RiistaSettings.h"
 
@@ -21,21 +20,11 @@
     [super viewWillAppear:animated];
     self.contentWebView.delegate = self;
 
-    [self updateTitle];
+    self.title = @"Oma riista";
 
     NSURLRequest *requestObj = [NSURLRequest requestWithURL:[NSURL URLWithString:self.urlAddress]];
 
     [self.contentWebView loadRequest:requestObj];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-}
-
-- (void)updateTitle
-{
-    RiistaNavigationController *navController = (RiistaNavigationController*)self.navigationController;
-    [navController changeTitle:RiistaLocalizedString(@"Oma riista", nil)];
 }
 
 @end

@@ -21,12 +21,10 @@
 {
     [super layoutSubviews];
 
+    [_weightInput configureFor:FontUsageInputValue];
     _weightInput.delegate = self;
     _weightInput.keyboardType = UIKeyboardTypeDecimalPad;
     _weightInput.inputAccessoryView = [KeyboardToolbarView textFieldDoneToolbarView:_weightInput];
-
-    _weightInputController = [[MDCTextInputControllerUnderline alloc] initWithTextInput:_weightInput];
-    [_weightInputController applyThemeWithScheme:AppTheme.shared.textFieldContainerScheme];
 
     [AppTheme.shared setupSegmentedControllerWithSegmentedController:_genderSelect];
     [AppTheme.shared setupSegmentedControllerWithSegmentedController:_ageSelect];
@@ -57,7 +55,7 @@
     [_ageSelect setTitle:RiistaLocalizedString(@"SpecimenAgeAdult", nil) forSegmentAtIndex:0];
     [_ageSelect setTitle:RiistaLocalizedString(@"SpecimenAgeYoung", nil) forSegmentAtIndex:1];
 
-    [_weightInputController setPlaceholderText:RiistaLocalizedString(@"SpecimenWeightTitle", nil)];
+    _weightInput.label.text = RiistaLocalizedString(@"SpecimenWeightTitle", nil);
 }
 
 - (void)updateValueSelections

@@ -8,9 +8,7 @@
 @property (weak, nonatomic) IBOutlet UIView *view;
 
 @property (weak, nonatomic) IBOutlet UILabel *titleTextLabel;
-@property (weak, nonatomic) IBOutlet MDCTextField *textField;
-
-@property (strong, nonatomic) MDCTextInputControllerUnderline *inputController;
+@property (weak, nonatomic) IBOutlet MDCUnderlinedTextField *textField;
 
 @property (strong, nonatomic) NSNumber *minNumberValue;
 @property (strong, nonatomic) NSNumber *maxNumberValue;

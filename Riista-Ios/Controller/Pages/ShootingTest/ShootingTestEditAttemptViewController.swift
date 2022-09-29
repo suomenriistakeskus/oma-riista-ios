@@ -82,17 +82,12 @@ class ShootingTestEditAttemptViewController : UIViewController, UITextFieldDeleg
         self.cancelButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Cancel"), for: .normal)
         self.saveButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Save"), for: .normal)
 
-        self.updateTitle()
+        title = "ShootingTestAttemptEditViewTitle".localized()
         self.updateUiState()
 
         if (self.attempt == nil && self.attemptId != nil) {
             self.refreshData()
         }
-    }
-
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptEditViewTitle"))
     }
 
     func refreshData() {

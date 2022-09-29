@@ -48,15 +48,10 @@ class ShootingTestEditPaymentViewController: UIViewController, ShootingTestValue
         self.cancelButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Cancel"), for: .normal)
         self.saveButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Save"), for: .normal)
 
-        self.updateTitle()
+        title = "ShootingTestPaymentEditTitle".localized()
         if (self.participant == nil) {
             self.refreshData()
         }
-    }
-
-    func updateTitle() {
-        let navController = self.navigationController as? RiistaNavigationController
-        navController?.changeTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentEditTitle"))
     }
 
     func refreshData() {
