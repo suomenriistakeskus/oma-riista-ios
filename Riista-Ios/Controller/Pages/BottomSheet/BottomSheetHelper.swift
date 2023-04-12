@@ -25,7 +25,7 @@ class BottomSheetHelper: NSObject,
     }
 
     func display(contentViewController: UIViewController) {
-        let container = OverlayContainerViewController()
+        let container = OverlayContainerViewController(style: .flexibleHeight)
         container.viewControllers = [contentViewController]
         container.delegate = self
         container.moveOverlay(toNotchAt: Notch.medium.rawValue, animated: false)

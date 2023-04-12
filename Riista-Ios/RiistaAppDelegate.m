@@ -41,6 +41,8 @@
 
     [RiistaSDKHelper initializeRiistaSDK];
 
+    [AppSync.shared configureUponAppStartup];
+
     // Load previous session information
     [[RiistaSessionManager sharedInstance] initializeSession];
 
@@ -115,8 +117,22 @@
     if (credentials) {
         [CrashlyticsHelper logWithMsg:@"Attempting re-login"];
 
-        [[RiistaNetworkManager sharedInstance] relogin:credentials.username password:credentials.password completion:^(NSError *error) {
+        // let first login attempt be fast one i.e. timeout early if we don't have response soon enough
+        // -> this approach enables e.g. manual sync possibility faster if it seems that response
+        //    is taking longer to receive
+        [BackgroundOperationStatusHelper setInitialReloginInProgress:YES];
+
+        [[RiistaNetworkManager sharedInstance] relogin:credentials.username
+                                              password:credentials.password
+                                        timeoutSeconds:20
+                                            completion:^(NSError *error) {
+            // only init user session if user credentials still seem to be ok
+            // - having an error (not 401 or 403) is still fine as this can be e.g. a timeout (user is offline)
+            if (error == nil || (error.code != 401 && error.code != 403)) {
                 [[RiistaGameDatabase sharedInstance] initUserSession];
+            }
+
+            [BackgroundOperationStatusHelper setInitialReloginInProgress:NO];
         }];
     };
 }
@@ -177,6 +193,9 @@
     // Setting username resets core data context & coordinator
     self.managedObjectContext = nil;
     self.persistentStoreCoordinator = nil;
+
+    // disable sync precondition since migration has not yet been performed for the next managed object context
+    [AppSync.shared disableSyncPrecondition:SyncPreconditionDatabaseMigrationFinished];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:ManagedObjectContextChangedNotification object:nil];
 
@@ -242,6 +261,8 @@
     if (coordinator != nil) {
         _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
         [_managedObjectContext setPersistentStoreCoordinator:coordinator];
+
+        [self migrateCoreDataToCommonLib:_managedObjectContext];
     }
     return _managedObjectContext;
 }
@@ -288,6 +309,21 @@
     
     return _persistentStoreCoordinator;
 }
+
+- (void)migrateCoreDataToCommonLib:(NSManagedObjectContext *)context
+{
+    // refuse to migrate if there's no valid username. Managed object context cannot contain valid
+    // data in that case and we would perform "empty" migration. The problem would rise from the fact
+    // that we would mark the "migration completed" appsync precondition completed --> don't do that.
+    if (self.username == nil || self.username.length == 0) {
+        return;
+    }
+
+    [[MigrateCoreDataDatabaseToRiistaCommon shared] migrateFrom:context :^{
+        [AppSync.shared enableSyncPrecondition:SyncPreconditionDatabaseMigrationFinished];
+    }];
+}
+
 
 #pragma mark - Application's Documents directory
 

@@ -95,7 +95,7 @@ class SelectStringView: UIView {
         arrowImageView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.trailing.equalToSuperview()
-            // same height and value as in RiistaValueListButton.xib
+
             make.height.equalTo(18)
             make.width.equalTo(12)
         }

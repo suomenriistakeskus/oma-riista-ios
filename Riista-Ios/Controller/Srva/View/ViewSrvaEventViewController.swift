@@ -4,11 +4,14 @@ import RiistaCommon
 
 class ViewSrvaEventViewController:
     BaseControllerWithViewModel<ViewSrvaEventViewModel, ViewSrvaEventController>,
-    ProvidesNavigationController
+    ProvidesNavigationController, ModifySrvaEventViewControllerListener
 {
+    let srvaEventId: Int64
 
     private lazy var _controller: ViewSrvaEventController = {
         ViewSrvaEventController(
+            srvaEventId: srvaEventId,
+            srvaContext: RiistaSDK.shared.srvaContext,
             metadataProvider: RiistaSDK.shared.metadataProvider,
             stringProvider: LocalizedStringProvider()
         )
@@ -20,18 +23,8 @@ class ViewSrvaEventViewController:
         }
     }
 
-    private lazy var appDelegate: RiistaAppDelegate = {
-        return UIApplication.shared.delegate as! RiistaAppDelegate
-    }()
-
-    internal lazy var moContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
-        context.parent = appDelegate.managedObjectContext
-        return context
-    }()
-
     private let tableViewController = DataFieldTableViewController<SrvaEventField>()
-    var srvaEvent: CommonSrvaEvent
+
 
     private lazy var editSrvaNavBarButton: UIBarButtonItem = {
         UIBarButtonItem(
@@ -64,8 +57,8 @@ class ViewSrvaEventViewController:
         return tableView
     }()
 
-    @objc init(srvaEvent: CommonSrvaEvent) {
-        self.srvaEvent = srvaEvent
+    @objc init(srvaEventId: Int64) {
+        self.srvaEventId = srvaEventId
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -98,32 +91,8 @@ class ViewSrvaEventViewController:
         )
 
         title = "Srva".localized()
-    }
 
-    override func viewWillAppear(_ animated: Bool) {
-        controllerHolder.bindToViewModelLoadStatus()
-
-        super.viewWillAppear(animated)
         navigationItem.rightBarButtonItems = [deleteSrvaNavBarButton, editSrvaNavBarButton]
-
-        // Reload srva event, user might have edited it
-        guard let localUri = srvaEvent.localUrl,
-              let uri = URL(string: localUri),
-              let objectId = moContext.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri) else {
-                  print("Unable to retrieve objectID")
-                  return
-        }
-
-        if let srvaEntry = RiistaGameDatabase.sharedInstance().srvaEntry(with: objectId, context: moContext) {
-            self.moContext.refresh(srvaEntry, mergeChanges: true)
-
-            if let srvaEvent = srvaEntry.toSrvaEvent(objectId: objectId) {
-                self.srvaEvent = srvaEvent
-                controller.srvaEvent = self.srvaEvent
-
-                controllerHolder.loadViewModel(refresh: controllerHolder.shouldRefreshViewModel)
-            }
-        }
     }
 
     override func onViewModelLoaded(viewModel: ViewModelType) {
@@ -161,8 +130,18 @@ class ViewSrvaEventViewController:
     }
 
     @objc private func onEditSrvaClicked() {
+        guard let srvaEvent = controller.getLoadedViewModelOrNull()?.editableSrvaEvent else {
+            print("Canno edit, no editable srva event?")
+            return
+        }
+
         let editSrvaViewController = EditSrvaEventViewController(srvaEvent: srvaEvent)
-        self.navigationController?.pushViewController(editSrvaViewController, animated: false)
+        editSrvaViewController.listener = self
+        self.navigationController?.pushViewController(editSrvaViewController, animated: true)
+    }
+
+    func onSrvaEventUpdated() {
+        controllerHolder.shouldRefreshViewModel = true
     }
 
     @objc private func onDeleteSrvaClicked() {
@@ -178,15 +157,13 @@ class ViewSrvaEventViewController:
     }
 
     private func deleteSrva() {
-        guard let localUri = srvaEvent.localUrl,
-              let uri = URL(string: localUri),
-              let objectId = moContext.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri) else {
-                  print("Unable to retrieve objectID")
-                  return
-          }
+        tableView.showLoading()
 
-        let entry = RiistaGameDatabase.sharedInstance().srvaEntry(with: objectId, context: moContext)
-        SrvaSaveOperations.sharedInstance().deleteSrva(entry)
-        navigationController?.popViewController(animated: true)
+        controller.deleteSrvaEvent(updateToBackend: AppSync.shared.isAutomaticSyncEnabled()) { [weak self] success, _ in
+            guard let self = self else { return }
+
+            self.tableView.hideLoading()
+            self.navigationController?.popViewController(animated: true)
+        }
     }
 }

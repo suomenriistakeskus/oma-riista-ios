@@ -18,6 +18,7 @@ class CreateObservationViewController :
     private lazy var _controller: CreateObservationController = {
         let controller = CreateObservationController(
             userContext: RiistaSDK.shared.currentUserContext,
+            observationContext: RiistaSDK.shared.observationContext,
             metadataProvider: RiistaSDK.shared.metadataProvider,
             stringProvider: LocalizedStringProvider()
         )
@@ -64,45 +65,14 @@ class CreateObservationViewController :
         locationManager.removeListener(self)
     }
 
-    override func onSaveClicked() {
-        guard let observation = controller.getValidatedObservation() else {
-            return
-        }
-
-        tableView.showLoading()
-        saveButton.isEnabled = false
-
-        let observationEntry = observation.toObservationEntry(context: moContext)
-        observationEntry.sent = false
-        observationEntry.pendingOperation = NSNumber(value: DiaryEntryOperationInsert)
-
-        saveAndSynchronizeEditedObservation(observation: observationEntry) { [weak self] success in
-            guard let self = self else {
-                return
-            }
-
-            self.saveButton.isEnabled = true
-            self.tableView.hideLoading { [weak self] in
-                guard let self = self else {
-                    return
-                }
-
-                if (!success) {
-                    let errorDialog = AlertDialogBuilder.createError(message: "NetworkOperationFailed".localized())
-                    self.present(errorDialog, animated: true)
-                    return
-                }
-
-                NotificationCenter.default.post(Notification(name: .LogEntrySaved))
-                NotificationCenter.default.post(Notification(name: .LogEntryTypeSelected,
-                                                             object: NSNumber(value: RiistaEntryTypeObservation.rawValue)))
-
-                if let modifyListener: ModifyObservationCompletionListener = self.navigationController?.findViewController() {
-                    modifyListener.updateUserInterfaceAfterObservationSaved()
-                } else {
-                    self.navigationController?.popViewController(animated: true)
-                }
-            }
+    override func navigateToNextViewAfterSaving(observation: CommonObservation) {
+        if let observationId = observation.localId?.int64Value {
+            let viewObservationViewController = ViewObservationViewController(observationId: observationId)
+            self.navigationController?.popViewController(animated: false)
+            self.navigationController?.pushViewController(viewObservationViewController, animated: true)
+        } else {
+            // just pop the navigation controller as we're unable to display observation
+            self.navigationController?.popViewController(animated: true)
         }
     }
 

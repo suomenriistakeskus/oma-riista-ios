@@ -1,6 +1,5 @@
 #import <UIKit/UIKit.h>
 
-@class RiistaLogGameViewController;
 @class RiistaSpeciesCategory;
 @class RiistaSpecies;
 

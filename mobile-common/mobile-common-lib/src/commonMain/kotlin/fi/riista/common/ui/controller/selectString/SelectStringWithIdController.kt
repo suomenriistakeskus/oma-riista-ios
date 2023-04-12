@@ -9,6 +9,7 @@ import fi.riista.common.ui.controller.HasUnreproducibleState
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.ui.dataField.StringListField
 import fi.riista.common.ui.intent.IntentHandler
+import fi.riista.common.util.contains
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Serializable
@@ -59,7 +60,7 @@ class SelectStringWithIdController(
         val allValues = possibleValues.map { value ->
             SelectableStringWithId(
                 value = value,
-                selected = (selectedValues.firstOrNull { it.id == value.id } != null)
+                selected = selectedValues.contains { it.id == value.id }
             )
         }
         emit(
@@ -153,13 +154,13 @@ class SelectStringWithIdController(
         val newAllValues = viewModel.allValues.map { selectableStringWithId ->
             SelectableStringWithId(
                 value = selectableStringWithId.value,
-                selected = (selectedValues.firstOrNull { it.id == selectableStringWithId.value.id } != null)
+                selected = selectedValues.contains { it.id == selectableStringWithId.value.id }
             )
         }
         val newFilteredValues = viewModel.filteredValues.map { selectableStringWithId ->
             SelectableStringWithId(
                 value = selectableStringWithId.value,
-                selected = (selectedValues.firstOrNull { it.id == selectableStringWithId.value.id } != null)
+                selected = selectedValues.contains { it.id == selectableStringWithId.value.id }
             )
         }
         updateViewModel(

@@ -3,9 +3,19 @@ import RiistaCommon
 
 class LocalizedStringProvider: RiistaCommon.StringProvider {
 
+    private let dateFormatter = DateFormatter()
+
+    private lazy var zeroDecimalsNumberFormatter: NumberFormatter = {
+        getDecimalsFormatter(decimals: 0)
+    }()
+
+    private lazy var oneDecimalNumberFormatter: NumberFormatter = {
+        getDecimalsFormatter(decimals: 1)
+    }()
+
     func getString(stringId: RR.string) -> String {
         if let localizationKey = getLocalizationKey(stringId: stringId) {
-            return RiistaBridgingUtils.RiistaLocalizedString(forkey: localizationKey)
+            return localizationKey.localized()
         } else {
             return "<\(stringId)>"
         }
@@ -13,7 +23,7 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
 
     func getFormattedString(stringFormatId: RR.stringFormat, arg: String) -> String {
         if let localizationKey = getStringFormatLocalizationKey(stringFormatId: stringFormatId) {
-            return String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: localizationKey), arg)
+            return String(format: localizationKey.localized(), arg)
         }
 
         return "<\(stringFormatId.name)>"
@@ -21,10 +31,23 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
 
     func getFormattedString(stringFormatId: RR.stringFormat, arg1: String, arg2: String) -> String {
         if let localizationKey = getStringFormatLocalizationKey(stringFormatId: stringFormatId) {
-            return String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: localizationKey), arg1, arg2)
+            return String(format: localizationKey.localized(), arg1, arg2)
         }
 
         return "<\(stringFormatId.name)>"
+    }
+
+    func getFormattedDouble(stringFormatId: RR.stringFormat, arg: Double) -> String {
+        switch stringFormatId {
+        case .doubleFormatOneDecimal:
+            return oneDecimalNumberFormatter.string(for: arg)!
+        case .doubleFormatZeroDecimals:
+            return zeroDecimalsNumberFormatter.string(for: arg)!
+        default:
+            print("UNSUPPORTED DOUBLE FORMAT \(stringFormatId)")
+        }
+
+        return String(format: "%f", arg)
     }
 
     func getQuantityString(pluralsId: RR.plurals, quantity: Int32, arg: Int32) -> String {
@@ -32,6 +55,19 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
             return String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: localizationKey), arg)
         }
         return "<\(pluralsId.name): \(arg)>"
+    }
+
+    func getFormattedDate(dateFormatId: RR.stringFormat, arg: LocalDate) -> String {
+        dateFormatter.locale = RiistaUtils.appLocale()
+
+        switch dateFormatId {
+        case .dateFormatShort:
+            dateFormatter.dateStyle = .short
+        default:
+            return "<\(dateFormatId.name)>"
+        }
+
+        return dateFormatter.string(from: arg.toFoundationDate())
     }
 
     func getLocalizationKey(stringId: RR.string) -> String? {
@@ -51,43 +87,61 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
         case .groupHuntingErrorHuntingHasFinished:
             return "GroupHuntingErrorHuntingHasFinished"
 
-        case .groupHuntingHarvestFieldActor:
+        case .harvestLabelSelectPermit:
+            return "PermitDescription"
+        case .harvestLabelPermitInformation:
+            return "PermitInformation"
+        case .harvestLabelPermitRequired:
+            return "PermitNumberRequired"
+        case .harvestLabelWildBoarFeedingPlace:
+            return "HarvestFeedingPlaceTitle"
+        case .harvestLabelGreySealHuntingMethod:
+            return "HarvestHuntingTypeTitle"
+        case .harvestLabelIsTaigaBeanGoose:
+            return "HarvestTaigaBeanGooseTitle"
+        case .harvestLabelAmount:
+            return "Amount"
+        case .harvestLabelDescription:
+            return "Description"
+        case .harvestLabelActor:
             return "GroupHuntingHarvestFieldActor"
-        case .groupHuntingHarvestFieldAuthor:
+        case .harvestLabelAuthor:
             return "GroupHuntingHarvestFieldAuthor"
-        case .groupHuntingHarvestFieldDeerHuntingType:
+        case .harvestLabelDeerHuntingType:
             return "DeerHuntingType"
-        case .groupHuntingHarvestFieldDeerHuntingOtherTypeDescription:
+        case .harvestLabelDeerHuntingOtherTypeDescription:
             return "DeerHuntingTypeDescription"
-        case .groupHuntingHarvestFieldNotEdible:
+        case .harvestLabelNotEdible:
             return "MooseNotEdible"
-        case .groupHuntingHarvestFieldWeightEstimated:
+        case .harvestLabelWeight:
+            return "SpecimenWeightTitle"
+        case .harvestLabelWeightEstimated:
             return "MooseWeightEstimated"
-        case .groupHuntingHarvestFieldWeightMeasured:
+        case .harvestLabelWeightMeasured:
             return "MooseWeightWeighted"
-        case .groupHuntingHarvestFieldFitnessClass:
+        case .harvestLabelFitnessClass:
             return "MooseFitnessClass"
-        case .groupHuntingHarvestFieldAntlersType:
+        case .harvestLabelAntlersType:
             return "MooseAntlersType"
-        case .groupHuntingHarvestFieldAntlersWidth:
+        case .harvestLabelAntlersWidth:
             return "MooseAntlersWidth"
-        case .groupHuntingHarvestFieldAntlerPointsLeft:
+        case .harvestLabelAntlerPointsLeft:
             return "MooseAntlersPointsLeft"
-        case .groupHuntingHarvestFieldAntlerPointsRight:
+        case .harvestLabelAntlerPointsRight:
             return "MooseAntlersPointsRight"
-        case .groupHuntingHarvestFieldAntlersLost:
+        case .harvestLabelAntlersLost:
             return "AntlersLost"
-        case .groupHuntingHarvestFieldAntlersGirth:
+        case .harvestLabelAntlersGirth:
             return "AntlersGirth"
-        case .groupHuntingHarvestFieldAntlerShaftWidth:
+        case .harvestLabelAntlerShaftWidth:
             return "AntlerShaftDiameter"
-        case .groupHuntingHarvestFieldAntlersLength:
+        case .harvestLabelAntlersLength:
             return "AntlersLength"
-        case .groupHuntingHarvestFieldAntlersInnerWidth:
+        case .harvestLabelAntlersInnerWidth:
             return "AntlersInnerWidth"
-        case .groupHuntingHarvestFieldAlone:
+        case .harvestLabelAlone:
             return "HarvestFieldLoneCalf"
-        case .groupHuntingHarvestFieldAdditionalInformation:
+        case .harvestLabelAdditionalInformation:
             return "MooseAdditionalInfo"
 
         case .groupHuntingHunterId:
@@ -110,11 +164,11 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
             return "GroupHuntingOtherObserver"
         case .groupHuntingProposedGroupHarvestSpecimen:
             return "GroupHuntingSpecimenDetails"
-        case .groupHuntingHarvestFieldAdditionalInformationInstructions:
+        case .harvestLabelAdditionalInformationInstructions:
             return "HarvestAdditionalInformationInstructions"
-        case .groupHuntingHarvestFieldAdditionalInformationInstructionsWhiteTailedDeer:
+        case .harvestLabelAdditionalInformationInstructionsWhiteTailedDeer:
             return "HarvestAdditionalInformationInstructionsWhiteTailedDeer"
-        case .groupHuntingHarvestFieldHuntingDayAndTime:
+        case .harvestLabelHuntingDayAndTime:
             return "GroupHuntingHuntingDayAndTime"
         case .groupHuntingProposedGroupHarvestShooter:
             return "GroupHuntingHarvestShooterInformation"
@@ -136,6 +190,8 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
             return "GroupHuntingErrorTimeNotWithinHuntingDay"
         case .errorDateNotAllowed:
             return "ErrorDateNotAllowed"
+        case .errorDatetimeInFuture:
+            return "ErrorDatetimeInFuture"
         case .groupHuntingDayLabelStartDateAndTime:
             return "FilterStartDate"
         case .groupHuntingDayLabelEndDateAndTime:
@@ -291,6 +347,32 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
         case .harvestAntlerTypeSeka:
             return "AntlersTypeSeka"
 
+        // grey seal hunting methods
+        case .greySealHuntingMethodShot:
+            return "GreySealHuntingMethodShot"
+        case .greySealHuntingMethodCapturedAlive:
+            return "GreySealHuntingMethodCapturedAlive"
+        case .greySealHuntingMethodShotButLost:
+            return "GreySealHuntingMethodShotButLost"
+
+        // harvest report states
+        case .harvestReportRequired:
+            return "HarvestStateCreateReport"
+        case .harvestReportStateSentForApproval:
+            return "HarvestStateSentForApproval"
+        case .harvestReportStateApproved:
+            return "HarvestStateApproved"
+        case .harvestReportStateRejected:
+            return "HarvestStateRejected"
+
+        // harvest permit statuses
+        case .harvestPermitAccepted:
+            return "HarvestPermitStateAccepted"
+        case .harvestPermitProposed:
+            return "HarvestPermitStateProposed"
+        case .harvestPermitRejected:
+            return "HarvestPermitStateRejected"
+
         // Deer hunting types
         case .deerHuntingTypeStandHunting:
             return "DeerHuntingTypeStanding"
@@ -405,6 +487,50 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
             return "HuntingControlEventTypeDogDiscipline"
         case .huntingControlEventTypeOther:
             return "HuntingControlEventTypeOther"
+
+        // Hunting control hunter info
+        case .huntingControlHunterDetails:
+            return "HuntingControlHunterDetails"
+        case .huntingControlHunterName:
+            return "HuntingControlHunterName"
+        case .huntingControlHunterDateOfBirth:
+            return "HuntingControlHunterDateOfBirth"
+        case .huntingControlHunterHomeMunicipality:
+            return "HuntingControlHunterNomeMunicipality"
+        case .huntingControlHunterNumber:
+            return "HuntingControlHunterNumber"
+        case .huntingControlHuntingLicense:
+            return "HuntingControlHuntingLicense"
+        case .huntingControlHuntingLicenseStatus:
+            return "HuntingControlHuntingLicenseStatus"
+        case .huntingControlHuntingLicenseStatusActive:
+            return "HuntingControlHuntingLicenseStatusActive"
+        case .huntingControlHuntingLicenseStatusInactive:
+            return "HuntingControlHuntingLicenseStatusInactive"
+        case .huntingControlHuntingLicenseDateOfPayment:
+            return "HuntingControlHuntingLicenseDateOfPayment"
+        case .huntingControlShootingTests:
+            return "HuntingControlShootingTests"
+        case .huntingControlSsn:
+            return "HuntingControlSsn"
+        case .huntingControlSearchingHunter:
+            return "HuntingControlSearchingHunter"
+        case .huntingControlResetHunterInfo:
+            return "HuntingControlResetHunterInfo"
+        case .huntingControlHunterNotFound:
+            return "HuntingControlHunterNotFound"
+        case .huntingControlNetworkError:
+            return "HuntingControlNetworkError"
+        case .huntingControlRetry:
+            return "HuntingControlRetry"
+        case .shootingTestTypeMoose:
+            return "ShootingTestTypeMoose"
+        case .shootingTestTypeBear:
+            return "ShootingTestTypeBear"
+        case .shootingTestTypeRoeDeer:
+            return "ShootingTestTypeRoeDeer"
+        case .shootingTestTypeBow:
+            return "ShootingTestTypeBow"
 
         // Training
         case .trainingTypeLahi:
@@ -645,5 +771,16 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
             print("MISSING LOCALIZATION for plural \(pluralsId)")
             return nil
         }
+    }
+
+    private func getDecimalsFormatter(decimals: Int) -> NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.usesGroupingSeparator = false
+        numberFormatter.locale = RiistaSettings.locale()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.roundingMode = .halfUp
+        numberFormatter.minimumFractionDigits = decimals
+        numberFormatter.maximumFractionDigits = decimals
+        return numberFormatter
     }
 }

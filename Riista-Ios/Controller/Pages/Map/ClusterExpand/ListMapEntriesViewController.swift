@@ -7,6 +7,7 @@ typealias ListMapEntriesViewControllerListener = MapHarvestCellClickHandler & Ma
 class ListMapEntriesViewController: UIViewController, ProvidesNavigationController, ContainsTableViewForBottomsheet {
 
     private let clusteredItems: ClusteredMapItems
+    private let mapDataSource: MapDataSource
     private weak var listener: ListMapEntriesViewControllerListener?
 
     private lazy var tableViewController: MapClusteredItemsTableViewController = {
@@ -34,20 +35,12 @@ class ListMapEntriesViewController: UIViewController, ProvidesNavigationControll
         return tableView
     }()
 
-    private let harvestControllerHolder: HarvestControllerHolder
-    private let observationsControllerHolder: ObservationControllerHolder
-    private let srvaControllerHolder: SrvaControllerHolder
-
     init(clusteredItems: ClusteredMapItems,
-         harvestControllerHolder: HarvestControllerHolder,
-         observationsControllerHolder: ObservationControllerHolder,
-         srvaControllerHolder: SrvaControllerHolder,
+         mapDataSource: MapDataSource,
          listener: ListMapEntriesViewControllerListener
     ) {
         self.clusteredItems = clusteredItems
-        self.harvestControllerHolder = harvestControllerHolder
-        self.observationsControllerHolder = observationsControllerHolder
-        self.srvaControllerHolder = srvaControllerHolder
+        self.mapDataSource = mapDataSource
         self.listener = listener
 
         super.init(nibName: nil, bundle: nil)
@@ -103,8 +96,8 @@ class ListMapEntriesViewController: UIViewController, ProvidesNavigationControll
     }
 
     private func createHarvestViewModels() -> [MapClusteredItemViewModel] {
-        let harvestViewModels = harvestControllerHolder.getObject()
-            .fetchedObjects?.filter { diaryEntry in
+        let harvestViewModels = mapDataSource.harvestDataSource
+            .getEntities().filter { diaryEntry in
                 clusteredItems.harvestIds.contains(.objectId(diaryEntry.objectID))
             }
             .map { diaryEntry in
@@ -117,59 +110,67 @@ class ListMapEntriesViewController: UIViewController, ProvidesNavigationControll
                 )
             }
 
-        return harvestViewModels ?? []
+        return harvestViewModels
     }
 
     private func createObservationViewModels() -> [MapClusteredItemViewModel] {
-        let observationViewModels: [MapClusteredItemViewModel]? = observationsControllerHolder.getObject()
-            .fetchedObjects?.filter { observation in
-                clusteredItems.observationIds.contains(.objectId(observation.objectID))
+        let observationViewModels: [MapClusteredItemViewModel] = mapDataSource.observationDataSource
+            .getEntities().filter { observation in
+                if let obserationLocalId = observation.localId {
+                    return clusteredItems.observationIds.contains(.commonLocalId(obserationLocalId))
+                } else {
+                    return false
+                }
             }
             .compactMap { observation in
-                // ignore observations that don't specify speciesCode or pointOfTime
-                guard let speciesCode = observation.gameSpeciesCode,
-                      let pointOfTime = observation.pointOfTime else {
+                // ignore observations that don't have localId or species code(should not happen)
+                guard let observationLocalId = observation.localId,
+                      let speciesCode = observation.species.knownSpeciesCodeOrNull()?.int32Value else {
                     return nil
                 }
 
                 return MapObservationViewModel(
-                    id: .local(objectId: observation.objectID),
-                    speciesCode: speciesCode.int32Value,
+                    id: .commonLocal(commonLocalId: observationLocalId),
+                    speciesCode: speciesCode,
                     acceptStatus: .accepted,
-                    pointOfTime: pointOfTime.toLocalDateTime(),
+                    pointOfTime: observation.pointOfTime,
                     description: "Observation".localized()
                 )
             }
 
-        return observationViewModels ?? []
+        return observationViewModels
     }
 
     private func createSrvaViewModels() -> [MapClusteredItemViewModel] {
-        let srvaViewModels: [MapClusteredItemViewModel]? = srvaControllerHolder.getObject()
-            .fetchedObjects?.filter { srva in
-                clusteredItems.srvaIds.contains(.objectId(srva.objectID))
+        let srvaViewModels: [MapClusteredItemViewModel] = mapDataSource.srvaDataSource
+            .getEntities().filter { srva in
+                if let srvaLocalId = srva.localId {
+                    return clusteredItems.srvaIds.contains(.commonLocalId(srvaLocalId))
+                } else {
+                    return false
+                }
             }
             .compactMap { srva in
-                // ignore srvas that don't specify speciesCode or pointOfTime
-                guard let speciesCode = srva.gameSpeciesCode,
-                      let pointOfTime = srva.pointOfTime else {
+                // ignore srvas that don't have localId (should not happen)
+                guard let srvaLocalId = srva.localId else {
                     return nil
                 }
 
                 return MapSrvaViewModel(
-                    id: .local(objectId: srva.objectID),
-                    speciesCode: speciesCode.int32Value,
+                    id: .commonLocal(commonLocalId: srvaLocalId),
+                    species: srva.species,
+                    otherSpeciesDescription: srva.otherSpeciesDescription,
                     acceptStatus: .accepted,
-                    pointOfTime: pointOfTime.toLocalDateTime(),
+                    pointOfTime: srva.pointOfTime,
                     description: "Srva".localized()
                 )
             }
 
-        return srvaViewModels ?? []
+        return srvaViewModels
     }
 
     private func createPointOfInterestViewModels() -> [MapClusteredItemViewModel] {
-        let pointOfInterestViewModels: [MapClusteredItemViewModel]? = clusteredItems.pointOfInterests
+        let pointOfInterestViewModels: [MapClusteredItemViewModel] = clusteredItems.pointOfInterests
             .compactMap { markerItemId in
                 guard case .pointOfInterest(let pointOfInterest) = markerItemId else {
                     return nil
@@ -178,7 +179,7 @@ class ListMapEntriesViewController: UIViewController, ProvidesNavigationControll
                 return MapPointOfInterestViewModel(pointOfInterest: pointOfInterest)
             }
 
-        return pointOfInterestViewModels ?? []
+        return pointOfInterestViewModels
     }
 }
 

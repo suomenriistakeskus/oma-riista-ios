@@ -38,6 +38,9 @@ data class LocalDateTime constructor(
                 ?: time.compareTo(other.time)
     }
 
+    /**
+     * Prints the [LocalDateTime] as ISO-8601 formatted string.
+     */
     fun toStringISO8601(): String {
         if (second == 0) {
             // toKotlinxLocalDateTime doesn't return seconds if seconds are 0
@@ -47,7 +50,7 @@ data class LocalDateTime constructor(
     }
 
     /**
-     * Prints the [LocalDateTime] as ISO-8601 formatted string.
+     * Use toStringISO8601
      */
     override fun toString(): String {
         return toStringISO8601()
@@ -134,10 +137,19 @@ fun LocalDateTime.minus(minutes: Int): LocalDateTime {
         .toRiistaCommonLocalDateTime()
 }
 
-fun LocalDateTime.plus(minutes: Int): LocalDateTime {
+fun LocalDateTime.plus(
+    days: Int = 0,
+    minutes: Int = 0
+): LocalDateTime {
     val timeZone = TimeZone.currentSystemDefault()
     return toKotlinxLocalDateTime().toInstant(timeZone)
-        .plus(DateTimePeriod(minutes = minutes), timeZone)
+        .plus(
+            period = DateTimePeriod(
+                days = days,
+                minutes = minutes,
+            ),
+            timeZone = timeZone
+        )
         .toLocalDateTime(timeZone)
         .toRiistaCommonLocalDateTime()
 }

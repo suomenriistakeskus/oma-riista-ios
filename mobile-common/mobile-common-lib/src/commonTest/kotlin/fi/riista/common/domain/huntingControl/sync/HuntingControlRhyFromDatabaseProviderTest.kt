@@ -12,6 +12,7 @@ import fi.riista.common.io.CommonFileProviderMock
 import fi.riista.common.model.LocalizedString
 import fi.riista.common.network.BackendAPIMock
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
+import fi.riista.common.helpers.TestCrashlyticsLogger
 import fi.riista.common.util.MockDateTimeProvider
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -111,7 +112,7 @@ class HuntingControlRhyFromDatabaseProviderTest {
 
     private fun initializeRiistaSDK() {
         val ucProvider = CurrentUserContextProviderFactory.createMocked()
-        val configuration = RiistaSdkConfiguration("1", "2", serverAddress)
+        val configuration = RiistaSdkConfiguration("1", "2", serverAddress, TestCrashlyticsLogger)
         RiistaSDK.initializeMocked(
             sdkConfiguration = configuration,
             databaseDriverFactory = createDatabaseDriverFactory(),

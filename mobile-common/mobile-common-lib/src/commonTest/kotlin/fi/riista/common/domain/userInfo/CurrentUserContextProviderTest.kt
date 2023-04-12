@@ -4,6 +4,7 @@ import fi.riista.common.RiistaSDK
 import fi.riista.common.RiistaSdkConfiguration
 import fi.riista.common.domain.dto.MockUserInfo
 import fi.riista.common.helpers.MockMainScopeProvider
+import fi.riista.common.helpers.TestCrashlyticsLogger
 import fi.riista.common.helpers.createDatabaseDriverFactory
 import fi.riista.common.io.CommonFileProviderMock
 import fi.riista.common.network.BackendAPIMock
@@ -78,7 +79,7 @@ class CurrentUserContextProviderTest {
     }
 
     private fun initializeRiistaSDK() {
-        val configuration = RiistaSdkConfiguration("1", "2", serverAddress)
+        val configuration = RiistaSdkConfiguration("1", "2", serverAddress, TestCrashlyticsLogger)
         RiistaSDK.initializeMocked(
             sdkConfiguration = configuration,
             databaseDriverFactory = createDatabaseDriverFactory(),

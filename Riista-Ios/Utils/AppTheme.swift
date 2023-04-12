@@ -125,6 +125,15 @@ class AppTheme: NSObject {
         return containerScheme
     }
 
+    func destructiveButtonScheme() -> MDCContainerScheme {
+        let containerScheme = MDCContainerScheme()
+
+        containerScheme.colorScheme = colorSchemeDestructive()
+        containerScheme.typographyScheme = createTypographyCheme()
+
+        return containerScheme
+    }
+
     @objc func textButtonScheme() -> MDCContainerScheme {
         let containerScheme = MDCContainerScheme()
 
@@ -159,6 +168,22 @@ class AppTheme: NSObject {
 //        colorScheme.onSecondaryColor = UIColor.applicationColor(Destructive)
         colorScheme.primaryColor = UIColor.applicationColor(Primary)
         colorScheme.primaryColorVariant = UIColor.applicationColor(PrimaryDark)
+//        colorScheme.secondaryColor = UIColor.applicationColor(Destructive)
+//        colorScheme.surfaceColor = UIColor.applicationColor(Destructive)
+
+        return colorScheme
+    }
+
+    func colorSchemeDestructive() -> MDCSemanticColorScheme {
+        let colorScheme = MDCSemanticColorScheme(defaults: .material201907)
+
+        colorScheme.backgroundColor = UIColor.applicationColor(ViewBackground)
+        colorScheme.errorColor = UIColor.applicationColor(Destructive)
+        colorScheme.onBackgroundColor = UIColor.applicationColor(Destructive)
+        colorScheme.onPrimaryColor = UIColor.applicationColor(TextOnPrimary)
+//        colorScheme.onSecondaryColor = UIColor.applicationColor(Destructive)
+        colorScheme.primaryColor = UIColor.applicationColor(Destructive)
+        colorScheme.primaryColorVariant = UIColor.applicationColor(Destructive)
 //        colorScheme.secondaryColor = UIColor.applicationColor(Destructive)
 //        colorScheme.surfaceColor = UIColor.applicationColor(Destructive)
 
@@ -305,32 +330,6 @@ class AppTheme: NSObject {
         segmentedController.setTitleTextAttributes([NSAttributedString.Key.font: font], for: .normal)
         segmentedController.setTitleTextAttributes([NSAttributedString.Key.font: font], for: .selected)
         segmentedController.selectedConfiguration()
-    }
-
-    @objc func setupAmountTextField(textField: MDCUnderlinedTextField, delegate: UITextFieldDelegate) {
-        textField.configure(for: .inputValue)
-        textField.delegate = delegate
-        textField.keyboardType = .numberPad
-        textField.placeholder = nil
-        textField.leftView = nil
-        textField.leftViewMode = .never
-        textField.clearButtonMode = .never
-        textField.inputAccessoryView = KeyboardToolbarView.textFieldDoneToolbarView(textField) as? UIView
-
-        textField.labelBehavior = .disappears
-    }
-
-    @objc func setupDescriptionTextArea(_ textArea: MDCFilledTextArea, delegate: UITextViewDelegate) {
-        themeUnderlinedTextArea(textArea, for: .inputValue, backgroundColor: UIColor.applicationColor(ViewBackground))
-
-        textArea.labelBehavior = .disappears
-
-        textArea.textView.delegate = delegate
-        textArea.textView.inputAccessoryView = KeyboardToolbarView.textViewDoneToolbarView(textArea.textView) as? UIView
-
-        textArea.clipsToBounds = true
-        textArea.minimumNumberOfVisibleRows = 1
-        textArea.maximumNumberOfVisibleRows = 5
     }
 
     private func configureDropDown() {

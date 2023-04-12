@@ -2,6 +2,7 @@ package fi.riista.common
 
 import android.content.Context
 import fi.riista.common.database.DatabaseDriverFactory
+import fi.riista.common.logging.CrashlyticsLogger
 import fi.riista.common.logging.getLogger
 
 actual class RiistaSdkBuilder private constructor(
@@ -35,9 +36,14 @@ actual class RiistaSdkBuilder private constructor(
             applicationVersion: String,
             buildVersion: String,
             serverBaseAddress: String,
+            crashlyticsLogger: CrashlyticsLogger,
         ): RiistaSdkBuilder {
             val configuration = RiistaSdkConfiguration(
-                    applicationVersion, buildVersion, serverBaseAddress)
+                applicationVersion = applicationVersion,
+                applicationBuild = buildVersion,
+                serverBaseAddress = serverBaseAddress,
+                crashlyticsLogger = crashlyticsLogger,
+            )
 
             return RiistaSdkBuilder(configuration)
         }

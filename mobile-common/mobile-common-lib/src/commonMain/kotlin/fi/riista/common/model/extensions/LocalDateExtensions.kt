@@ -1,6 +1,8 @@
 package fi.riista.common.model.extensions
 
 import fi.riista.common.model.*
+import fi.riista.common.resources.RR
+import fi.riista.common.resources.StringProvider
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -20,4 +22,8 @@ fun LocalDate.Companion.fromEpochSeconds(value: Long): LocalDate {
         .toLocalDateTime(conversionTimeZone)
         .toRiistaCommonLocalDateTime()
         .date
+}
+
+fun LocalDate.formatShort(stringProvider: StringProvider): String {
+    return stringProvider.getFormattedDate(RR.stringFormat.date_format_short, this)
 }

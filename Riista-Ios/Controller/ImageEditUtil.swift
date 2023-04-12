@@ -18,20 +18,6 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
         self.parentController = parentController
     }
 
-    func hasImages(entry: DiaryEntryBase) -> Bool {
-        if let harvest = entry as? DiaryEntry {
-            return harvest.diaryImages.count > 0
-        }
-        else if let observation = entry as? ObservationEntry {
-            return observation.diaryImages?.count ?? 0 > 0
-        }
-        else if let srva = entry as? SrvaEntry {
-            return srva.diaryImages?.count ?? 0 > 0
-        }
-
-        return false
-    }
-
     func checkPhotoPermissions(_ actionIfAuthorized: @escaping () -> Void) {
         requestPhotoAuthorizationStatusIfNotDetermined { [weak self] authorizationStatus in
             guard let self = self else { return }

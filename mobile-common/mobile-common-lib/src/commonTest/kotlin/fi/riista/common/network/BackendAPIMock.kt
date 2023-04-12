@@ -7,30 +7,46 @@ import fi.riista.common.domain.dto.UserInfoDTO
 import fi.riista.common.domain.groupHunting.MockGroupHuntingData
 import fi.riista.common.domain.groupHunting.dto.*
 import fi.riista.common.domain.groupHunting.model.HuntingGroupId
+import fi.riista.common.domain.huntingControl.MockHuntingControlData
+import fi.riista.common.domain.huntingControl.dto.HuntingControlHunterInfoDTO
 import fi.riista.common.domain.huntingControl.sync.dto.HuntingControlEventCreateDTO
 import fi.riista.common.domain.huntingControl.sync.dto.HuntingControlEventDTO
 import fi.riista.common.domain.huntingControl.sync.dto.LoadRhysAndHuntingControlEventsDTO
+import fi.riista.common.domain.huntingControl.ui.hunterInfo.MockHunterInfoData
 import fi.riista.common.domain.huntingclub.MockHuntingClubData
 import fi.riista.common.domain.huntingclub.dto.HuntingClubMemberInvitationsDTO
 import fi.riista.common.domain.huntingclub.dto.HuntingClubMembershipsDTO
 import fi.riista.common.domain.huntingclub.model.HuntingClubMemberInvitationId
-import fi.riista.common.domain.huntingControl.MockHuntingControlData
-import fi.riista.common.io.CommonFile
-import fi.riista.common.model.LocalDateTime
 import fi.riista.common.domain.model.OrganizationId
+import fi.riista.common.domain.observation.MockObservationData
+import fi.riista.common.domain.observation.MockObservationPageData
 import fi.riista.common.domain.observation.metadata.MockObservationMetadata
 import fi.riista.common.domain.observation.metadata.dto.ObservationMetadataDTO
+import fi.riista.common.domain.observation.sync.dto.DeletedObservationsDTO
+import fi.riista.common.domain.observation.sync.dto.ObservationCreateDTO
+import fi.riista.common.domain.observation.sync.dto.ObservationDTO
+import fi.riista.common.domain.observation.sync.dto.ObservationPageDTO
+import fi.riista.common.domain.poi.MockPoiData
+import fi.riista.common.domain.poi.dto.PoiLocationGroupsDTO
+import fi.riista.common.domain.srva.MockSrvaEventData
+import fi.riista.common.domain.srva.MockSrvaEventPageData
+import fi.riista.common.domain.srva.metadata.MockSrvaMetadata
+import fi.riista.common.domain.srva.metadata.dto.SrvaMetadataDTO
+import fi.riista.common.domain.srva.sync.dto.DeletedSrvaEventsDTO
+import fi.riista.common.domain.srva.sync.dto.SrvaEventCreateDTO
+import fi.riista.common.domain.srva.sync.dto.SrvaEventDTO
+import fi.riista.common.domain.srva.sync.dto.SrvaEventPageDTO
+import fi.riista.common.domain.training.dto.TrainingsDTO
+import fi.riista.common.domain.training.ui.MockTrainingData
+import fi.riista.common.dto.LocalDateTimeDTO
+import fi.riista.common.io.CommonFile
+import fi.riista.common.model.LocalDateTime
 import fi.riista.common.network.calls.NetworkResponse
 import fi.riista.common.network.calls.NetworkResponseData
 import fi.riista.common.network.cookies.CookieData
-import fi.riista.common.domain.poi.MockPoiData
-import fi.riista.common.domain.poi.dto.PoiLocationGroupsDTO
-import fi.riista.common.domain.srva.metadata.MockSrvaMetadata
-import fi.riista.common.domain.srva.metadata.dto.SrvaMetadataDTO
-import fi.riista.common.domain.training.dto.TrainingsDTO
-import fi.riista.common.domain.training.ui.MockTrainingData
 import fi.riista.common.util.deserializeFromJson
 import io.ktor.utils.io.core.*
+import kotlin.reflect.KCallable
 
 data class MockResponse(
     val statusCode: Int? = 200,
@@ -47,6 +63,8 @@ data class MockResponse(
 @Suppress("MemberVisibilityCanBePrivate")
 open class BackendAPIMock(
     var loginResponse: MockResponse = MockResponse.success(MockUserInfo.Pentti),
+    var unregisterAccountResponse: MockResponse = MockResponse.success("\"2023-03-21T15:13:55.320\""),
+    var cancelUnregisterAccountResponse: MockResponse = MockResponse.successWithNoData(204),
     var groupHuntingClubsAndGroupsResponse: MockResponse = MockResponse.success(MockGroupHuntingData.OneClub),
     var groupHuntingGroupMembersResponse: MockResponse = MockResponse.success(MockGroupHuntingData.Members),
     var groupHuntingGroupHuntingAreaResponse: MockResponse = MockResponse.success(MockGroupHuntingData.HuntingArea),
@@ -73,9 +91,24 @@ open class BackendAPIMock(
     var updateHuntingControlEventReponse: MockResponse = MockResponse.success(MockHuntingControlData.UpdatedHuntingControlEvent),
     var deleteHuntingControlEventAttachmentResponse: MockResponse = MockResponse.successWithNoData(204),
     var uploadHuntingControlEventAttachmentResponse: MockResponse = MockResponse.success(204, "${MockHuntingControlData.UploadedAttachmentRemoteId}"),
+    var fetchHuntingControlHunterInfoResponse: MockResponse = MockResponse.success(MockHunterInfoData.HunterInfo),
     var fetchTrainingsResponse: MockResponse = MockResponse.success(MockTrainingData.Trainings),
     var fetchSrvaMetadataResponse: MockResponse = MockResponse.success(MockSrvaMetadata.METADATA_SPEC_VERSION_2),
     var fetchObservationMetadataResponse: MockResponse = MockResponse.success(MockObservationMetadata.METADATA_SPEC_VERSION_4),
+    var fetchSrvaEventsResponse: MockResponse = MockResponse.success(MockSrvaEventPageData.srvaPageWithOneEvent),
+    var createSrvaEventResponse: MockResponse = MockResponse.success(MockSrvaEventData.srvaEvent),
+    var updateSrvaEventResponse: MockResponse = MockResponse.success(MockSrvaEventData.srvaEvent),
+    var deleteSrvaEventResponse: MockResponse = MockResponse.successWithNoData(204),
+    var fetchDeletedSrvaEventsResponse: MockResponse = MockResponse.success(MockSrvaEventPageData.deletedSrvaEvents),
+    var uploadSrvaEventImageResponse: MockResponse = MockResponse.successWithNoData(200),
+    var deleteSrvaEventImageResponse: MockResponse = MockResponse.successWithNoData(200),
+    var fetchObservationPageResponse: MockResponse = MockResponse.success(MockObservationPageData.observationPage),
+    var createObservationResponse: MockResponse = MockResponse.success(MockObservationData.observation),
+    var updateObservationResponse: MockResponse = MockResponse.success(MockObservationData.observation),
+    var deleteObservationResponse: MockResponse = MockResponse.successWithNoData(204),
+    var fetchDeletedObservationsResponse: MockResponse = MockResponse.success(MockObservationPageData.deletedObservations),
+    var uploadObservationImageResponse: MockResponse = MockResponse.successWithNoData(200),
+    var deleteObservationImageResponse: MockResponse = MockResponse.successWithNoData(200),
 ) : BackendAPI {
     private val callCounts: MutableMap<String, Int> = mutableMapOf()
     private val callParameters: MutableMap<String, Any> = mutableMapOf()
@@ -84,9 +117,19 @@ open class BackendAPIMock(
 
     override fun getNetworkCookies(requestUrl: String): List<CookieData> = listOf()
 
-    override suspend fun login(username: String, password: String): NetworkResponse<UserInfoDTO> {
+    override suspend fun login(username: String, password: String, timeoutSeconds: Int): NetworkResponse<UserInfoDTO> {
         increaseCallCount(::login.name)
         return respond(loginResponse)
+    }
+
+    override suspend fun unregisterAccount(): NetworkResponse<LocalDateTimeDTO> {
+        increaseCallCount(::unregisterAccount.name)
+        return respond(unregisterAccountResponse)
+    }
+
+    override suspend fun cancelUnregisterAccount(): NetworkResponse<Unit> {
+        increaseCallCount(::cancelUnregisterAccount.name)
+        return respond(cancelUnregisterAccountResponse)
     }
 
     override suspend fun fetchGroupHuntingClubsAndHuntingGroups(): NetworkResponse<GroupHuntingClubsAndGroupsDTO> {
@@ -285,13 +328,124 @@ open class BackendAPIMock(
         return respond(uploadHuntingControlEventAttachmentResponse)
     }
 
-    data class UploadHuntingControlEventAttachmentCallParameters(
-        val eventRemoteId: Long,
-        val uuid: String,
-        val fileName: String,
-        val contentType: String,
-        val file: CommonFile,
-    )
+    override suspend fun fetchHuntingControlHunterInfoByHunterNumber(
+        hunterNumber: String,
+    ): NetworkResponse<HuntingControlHunterInfoDTO> {
+        increaseCallCount(::fetchHuntingControlHunterInfoByHunterNumber.name)
+        callParameters[::fetchHuntingControlHunterInfoByHunterNumber.name] = hunterNumber
+        return respond(fetchHuntingControlHunterInfoResponse)
+    }
+
+    override suspend fun fetchHuntingControlHunterInfoBySsn(ssn: String): NetworkResponse<HuntingControlHunterInfoDTO> {
+        increaseCallCount(::fetchHuntingControlHunterInfoBySsn.name)
+        callParameters[::fetchHuntingControlHunterInfoBySsn.name] = ssn
+        return respond(fetchHuntingControlHunterInfoResponse)
+    }
+
+    override suspend fun fetchSrvaEvents(modifiedAfter: LocalDateTime?): NetworkResponse<SrvaEventPageDTO> {
+        increaseCallCount(::fetchSrvaEvents.name)
+        return respond(fetchSrvaEventsResponse)
+    }
+
+    override suspend fun createSrvaEvent(event: SrvaEventCreateDTO): NetworkResponse<SrvaEventDTO> {
+        increaseCallCount(::createSrvaEvent.name)
+        callParameters[::createSrvaEvent.name] = event
+        return respond(createSrvaEventResponse)
+    }
+
+    override suspend fun updateSrvaEvent(event: SrvaEventDTO): NetworkResponse<SrvaEventDTO> {
+        increaseCallCount(::updateSrvaEvent.name)
+        callParameters[::updateSrvaEvent.name] = event
+        return respond(updateSrvaEventResponse)
+    }
+
+    override suspend fun deleteSrvaEvent(eventRemoteId: Long): NetworkResponse<Unit> {
+        increaseCallCount(::deleteSrvaEvent.name)
+        callParameters[::deleteSrvaEvent.name] = eventRemoteId
+        return respond(deleteSrvaEventResponse)
+    }
+
+    override suspend fun fetchDeletedSrvaEvents(deletedAfter: LocalDateTime?): NetworkResponse<DeletedSrvaEventsDTO> {
+        increaseCallCount(::fetchDeletedSrvaEventsResponse.name)
+        if (deletedAfter != null) {
+            callParameters[::fetchDeletedSrvaEvents.name] = deletedAfter
+        }
+        return respond(fetchDeletedSrvaEventsResponse)
+    }
+
+    override suspend fun uploadSrvaEventImage(
+        eventRemoteId: Long,
+        uuid: String,
+        contentType: String,
+        file: CommonFile
+    ): NetworkResponse<Unit> {
+        increaseCallCount(::uploadSrvaEventImage.name)
+        callParameters[::uploadSrvaEventImage.name] = UploadImageCallParameters(
+            eventRemoteId = eventRemoteId,
+            uuid = uuid,
+            contentType = contentType,
+            file = file,
+        )
+        return respond(uploadSrvaEventImageResponse)
+    }
+
+    override suspend fun deleteSrvaEventImage(imageUuid: String): NetworkResponse<Unit> {
+        increaseCallCount(::deleteSrvaEventImage.name)
+        callParameters[::deleteSrvaEventImage.name] = imageUuid
+        return respond(deleteSrvaEventImageResponse)
+    }
+
+    override suspend fun fetchObservations(modifiedAfter: LocalDateTime?): NetworkResponse<ObservationPageDTO> {
+        increaseCallCount(::fetchObservations.name)
+        modifiedAfter?.let { callParameters[::fetchObservations.name] = it }
+        return respond(fetchObservationPageResponse)
+    }
+
+    override suspend fun createObservation(observation: ObservationCreateDTO): NetworkResponse<ObservationDTO> {
+        increaseCallCount(::createObservation.name)
+        callParameters[::createObservation.name] = observation
+        return respond(createObservationResponse)
+    }
+
+    override suspend fun updateObservation(observation: ObservationDTO): NetworkResponse<ObservationDTO> {
+        increaseCallCount(::updateObservation.name)
+        callParameters[::updateObservation.name] = observation
+        return respond(updateObservationResponse)
+    }
+
+    override suspend fun deleteObservation(observationRemoteId: Long): NetworkResponse<Unit> {
+        increaseCallCount(::deleteObservation.name)
+        callParameters[::deleteObservation.name] = observationRemoteId
+        return respond(deleteObservationResponse)
+    }
+
+    override suspend fun fetchDeletedObservations(deletedAfter: LocalDateTime?): NetworkResponse<DeletedObservationsDTO> {
+        increaseCallCount(::fetchDeletedObservations.name)
+        deletedAfter?.let { callParameters[::fetchDeletedObservations.name] }
+        return respond(fetchDeletedObservationsResponse)
+    }
+
+    override suspend fun uploadObservationImage(
+        observationRemoteId: Long,
+        uuid: String,
+        contentType: String,
+        file: CommonFile
+    ): NetworkResponse<Unit> {
+        increaseCallCount(::uploadObservationImage.name)
+        callParameters[::uploadObservationImage.name] = UploadImageCallParameters(
+            eventRemoteId = observationRemoteId,
+            uuid = uuid,
+            contentType = contentType,
+            file = file,
+        )
+        return respond(uploadObservationImageResponse)
+    }
+
+    override suspend fun deleteObservationImage(imageUuid: String): NetworkResponse<Unit> {
+        increaseCallCount(::deleteObservationImage.name)
+        callParameters[::deleteObservationImage.name] = imageUuid
+        return respond(deleteObservationImageResponse)
+    }
 
     override suspend fun fetchSrvaMetadata(): NetworkResponse<SrvaMetadataDTO> {
         increaseCallCount(::fetchSrvaMetadata.name)
@@ -314,6 +468,17 @@ open class BackendAPIMock(
         return (callCounts[methodName] ?: 0)
     }
 
+    fun <R> callCount(method: KCallable<R>): Int {
+        return callCount(methodName = method.name)
+    }
+
+    /**
+     * Returns how many times all BackendAPI functions all called combined.
+     */
+    fun totalCallCount(): Int {
+        return callCounts.values.sum()
+    }
+
     /**
      * Returns the last parameter the given method was called with.
      *
@@ -321,6 +486,10 @@ open class BackendAPIMock(
      */
     fun callParameter(methodName: String): Any? {
         return callParameters[methodName]
+    }
+
+    fun <R> callParameter(method: KCallable<R>): Any? {
+        return callParameter(methodName = method.name)
     }
 
     private fun increaseCallCount(methodName: String) {
@@ -348,4 +517,19 @@ open class BackendAPIMock(
             NetworkResponse.NetworkError(exception = null)
         }
     }
+
+    data class UploadHuntingControlEventAttachmentCallParameters(
+        val eventRemoteId: Long,
+        val uuid: String,
+        val fileName: String,
+        val contentType: String,
+        val file: CommonFile,
+    )
+
+    data class UploadImageCallParameters(
+        val eventRemoteId: Long,
+        val uuid: String,
+        val contentType: String,
+        val file: CommonFile,
+    )
 }

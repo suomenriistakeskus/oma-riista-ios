@@ -321,7 +321,7 @@ fileprivate struct MoreItem {
             return
         }
 
-        tabController.logout()
+        tabController.logout(navigateToLoginController: true)
     }
 
 }

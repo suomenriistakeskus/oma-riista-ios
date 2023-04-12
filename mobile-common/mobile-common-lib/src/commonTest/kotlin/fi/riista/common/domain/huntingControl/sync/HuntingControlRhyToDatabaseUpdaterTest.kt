@@ -42,13 +42,23 @@ class HuntingControlRhyToDatabaseUpdaterTest {
         assertEquals("1234", rhy.officialCode)
 
         val gameWardens = repository.getGameWardens(username, rhy.id)
-        assertEquals(1, gameWardens.size)
-        val gameWarden = gameWardens[0]
-        assertEquals(999, gameWarden.remoteId)
-        assertEquals("Game", gameWarden.firstName)
-        assertEquals("Warden", gameWarden.lastName)
-        assertEquals(LocalDate(year = 2022, monthNumber = 1, dayOfMonth = 12), gameWarden.startDate)
-        assertEquals(LocalDate(year = 2022, monthNumber = 12, dayOfMonth = 31), gameWarden.endDate)
+        val expectedGameWardens = setOf(
+            HuntingControlGameWarden(
+                remoteId = 999,
+                firstName = "Game",
+                lastName = "Warden",
+                startDate = LocalDate(year = 2022, monthNumber = 1, dayOfMonth = 12),
+                endDate = LocalDate(year = 2022, monthNumber = 12, dayOfMonth = 31),
+            ),
+            HuntingControlGameWarden(
+                remoteId = 888,
+                firstName = "Other",
+                lastName = "Warden",
+                startDate = null,
+                endDate = null
+            )
+        )
+        assertEquals(expectedGameWardens, gameWardens.toSet())
 
         val events = repository.getHuntingControlEvents(username, rhy.id)
         assertEquals(1, events.size)

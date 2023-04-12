@@ -19,8 +19,34 @@ internal fun <T> Collection<T>.firstAndOnly(): T? {
     }
 }
 
+/**
+ * Checks whether `this` contains an element matching the given [predicate]. Returns `true` if does and `false` if not.
+ */
+inline fun <T> Iterable<T>.contains(predicate: (T) -> Boolean): Boolean {
+    return firstOrNull(predicate) != null
+}
+
 internal fun <T> Collection<T>.hasSameElements(other: Collection<T>): Boolean {
     return toSet() == other.toSet()
+}
+
+/**
+ * Checks whether this [Iterable] contains any of the items in the [others] [Iterable].
+ *
+ * Explicitly use [Iterable] as [others] type instead of vararg parameter. This ensures that
+ * types match. With varargs it would have been possible to check e.g.
+ *
+ *   listOf(1, 2).containsAny("foo")
+ *
+ * as it assumes T == Comparable<*> and there wouldn't be a compiler error. Prevent possible
+ * mistakes like that by always requiring an [Iterable].
+ */
+inline fun <T> Iterable<T>.containsAny(others: Iterable<T>): Boolean {
+    val found = others.firstOrNull { other ->
+        contains(other)
+    }
+
+    return found != null
 }
 
 /**

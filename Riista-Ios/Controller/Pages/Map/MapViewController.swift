@@ -9,10 +9,12 @@ fileprivate let showMarkersImage = UIImage(named: "pins_white")
  * A view controller for displaying the normal map (i.e. harvests, observations, srvas)
  */
 class MapViewController: BaseMapViewController, RiistaTabPage,
-                         LogFilterDelegate, LogDelegate,
+                         LogFilterViewDelegate,
+                         EntityDataSourceListener,
+                         EntityFilterChangeListener,
                          MapMeasureDistanceControlObserver,
                          ListMapEntriesViewControllerListener,
-                         ListensViewModelStatusChanges, PointOfInterestFilterViewControllerDelegate {
+                         PointOfInterestFilterViewControllerDelegate {
     typealias ViewModelType = PoisViewModel
 
     private lazy var markerManager: MapMarkerManager = {
@@ -21,6 +23,21 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
         markerManager.markerClickHandler = markerClickHandler
         return markerManager
     }()
+
+    private lazy var mapDataSource: MapDataSource = {
+        let dataSource = MapDataSource(markerManager: markerManager)
+        dataSource.dataSourceListener = self
+        dataSource.addEntityFilterChangeListener(self)
+        return dataSource
+    }()
+
+    private var pointOfInterestController: PoiController {
+        mapDataSource.pointOfInterestDataSource.poiController
+    }
+
+    private var pointOfInterestFilter: PoiFilter? {
+        pointOfInterestController.getLoadedViewModelOrNull()?.pois?.filter
+    }
 
     private lazy var markerClickHandler: MapMarkerClickHandler = {
         let clickHandler = MapMarkerClickHandler(mapView: mapView)
@@ -34,8 +51,8 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
             return true
         }
         clickHandler.onObservationMarkerClicked = { [weak self] markerItemId in
-            guard case .objectId(let observationId) = markerItemId else {
-                print("markerItemId didn't specify NSManagedObjectId (observation)")
+            guard case .commonLocalId(let observationId) = markerItemId else {
+                print("markerItemId didn't specify common local id (observation)")
                 return false
             }
 
@@ -43,8 +60,8 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
             return true
         }
         clickHandler.onSrvaMarkerClicked = { [weak self] markerItemId in
-            guard case .objectId(let srvaId) = markerItemId else {
-                print("markerItemId didn't specify NSManagedObjectId (srva)")
+            guard case .commonLocalId(let srvaId) = markerItemId else {
+                print("markerItemId didn't specify common local id (srva)")
                 return false
             }
 
@@ -68,8 +85,9 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
 
     private lazy var filterView: LogFilterView = {
         let view = LogFilterView()
-        view.enablePointsOfInterest = true
         view.delegate = self
+        view.dataSource = mapDataSource
+        view.changeListener = SharedEntityFilterStateUpdater()
         return view
     }()
 
@@ -132,20 +150,6 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
         return btn
     }()
 
-    private let harvestControllerHolder = HarvestControllerHolder();
-    private let observationsControllerHolder = ObservationControllerHolder(onlyWithImages: false)
-    private let srvaControllerHolder = SrvaControllerHolder(onlyWithImages: false)
-
-    private lazy var poiControllerHolder: ControllerHolder<PoisViewModel, PoiController, MapViewController> = {
-        let controller = PoiController(
-            poiContext: RiistaSDK.shared.poiContext,
-            externalId: RiistaSettings.activeClubAreaMapId(),
-            initialFilter: PoiFilter(poiFilterType: PoiFilter.PoiFilterType.all)
-        )
-
-        return ControllerHolder(controller: controller, listener: self)
-    }()
-
     private lazy var appDelegate: RiistaAppDelegate = {
         return UIApplication.shared.delegate as! RiistaAppDelegate
     }()
@@ -170,17 +174,21 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        // force reloading map data since visible data may have been modified
+        // - it is possible to e.g. navigate to ViewObservationViewController and edit data there
+        //   -> we want to update observation position once we get back here
+        mapDataSource.shouldReloadData = true
+        SharedEntityFilterState.shared.addListener(mapDataSource)
+        filterView.updateTexts()
+
         tabBarItem.title = "Map".localized()
         navigationItem.title = "" // no nav bar title
         navigationItem.leftBarButtonItem = toggleMarkersBarButton
 
         loadPointsOfInterestWhenViewAppears()
-
-        LogItemService.shared().logDelegate = self
+        showPointsOfInterestOrIndicateMissingAreaId()
 
         updateToggleMarkersButton()
-        updateTopFilter()
-        refreshMarkers()
 
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(refreshAfterManagedObjectContextChange),
@@ -189,9 +197,10 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     }
 
     override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+        SharedEntityFilterState.shared.removeListener(mapDataSource)
         NotificationCenter.default.removeObserver(self)
-        poiControllerHolder.onViewWillDisappear()
+
+        super.viewWillDisappear(animated)
     }
 
 
@@ -242,25 +251,9 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
 
     // MARK: - Marker handling
 
-    private func updateTopFilter() {
-        let sharedService = LogItemService.shared()
-        filterView.updateTexts()
-        // only update filterview data (and override e.g. point-of-interest selection) if
-        // changes have been made elsewhere
-        if (sharedService.selectedLogTypeUpdateTimeStamp > filterView.filteredTypeUpdateTimeStamp) {
-            filterView.logType = sharedService.selectedLogType
-            filterView.seasonStartYear = sharedService.selectedSeasonStart
-        }
-        filterView.setupUserRelatedData()
-
-        filterView.refreshFilteredSpecies(
-            selectedCategory: sharedService.selectedCategory ?? -1,
-            selectedSpecies: sharedService.selectedSpecies
-        )
-    }
-
     private func onToggleMarkerVisibility() {
         let showPins = filterView.isHidden
+        mapDataSource.showMarkers = showPins
 
         UIView.animate(
             withDuration: AppConstants.Animations.durationShort,
@@ -269,7 +262,7 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
             }
         ) { [weak self] _ in
             self?.updateToggleMarkersButton()
-            self?.refreshMarkers()
+            self?.updatePointOfInterestFilterVisiblity()
         }
     }
 
@@ -298,69 +291,9 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     }
 
     @objc private func refreshAfterManagedObjectContextChange() {
-        refreshMarkers()
-        filterView.setupUserRelatedData()
+        mapDataSource.reloadContent()
     }
 
-    private func refreshMarkers() {
-        if (filterView.isHidden) {
-            markerManager.removeAllMarkers()
-            updatePointOfInterestFilterVisiblity()
-            return
-        }
-
-        if (filterView.filteredType == .pointsOfInterest) {
-            showPointsOfInterestOrIndicateMissingAreaId()
-        } else {
-            pointOfInterestFilterView.isHidden = true
-
-            switch (LogItemService.shared().selectedLogType) {
-            case RiistaEntryTypeHarvest:
-                createHarvestMarkers()
-            case RiistaEntryTypeObservation:
-                createObservationMarkers()
-            case RiistaEntryTypeSrva:
-                createSrvaMarkers()
-            default:
-                return
-            }
-        }
-    }
-
-    private func createHarvestMarkers() {
-        let fetchController = harvestControllerHolder.getObject()
-        fetchController.fetchRequest.predicate = LogItemService.shared().setupHarvestPredicate(onlyWithImage: false)
-
-        markerManager.markerStorage.harvests = fetchItemsForMarkers(fetchController: fetchController)
-        markerManager.showOnlyMarkersOfType(markerTypes: [.harvest])
-    }
-
-    private func createObservationMarkers() {
-        let fetchController = observationsControllerHolder.getObject()
-        fetchController.fetchRequest.predicate = LogItemService.shared().setupObservationPredicate(onlyWithImage: false)
-
-        markerManager.markerStorage.observations = fetchItemsForMarkers(fetchController: fetchController)
-        markerManager.showOnlyMarkersOfType(markerTypes: [.observation])
-    }
-
-    private func createSrvaMarkers() {
-        let fetchController = srvaControllerHolder.getObject()
-        fetchController.fetchRequest.predicate = LogItemService.shared().setupSrvaPredicate(onlyWithImage: false)
-
-        markerManager.markerStorage.srvas = fetchItemsForMarkers(fetchController: fetchController)
-        markerManager.showOnlyMarkersOfType(markerTypes: [.srva])
-    }
-
-    private func fetchItemsForMarkers<ItemType>(fetchController: NSFetchedResultsController<ItemType>) -> [ItemType] {
-        do {
-            try fetchController.performFetch()
-        } catch {
-            print("Failed to fetch srvas")
-            return []
-        }
-
-        return fetchController.fetchedObjects ?? []
-    }
 
     // MARK: - Marker click handling
 
@@ -370,47 +303,38 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
         bottomSheetHelper.dismiss() { [weak self] in
             guard let self = self else { return }
 
-            guard let viewController = UIStoryboard(name: "HarvestStoryboard", bundle: nil)
-                    .instantiateInitialViewController() as? RiistaLogGameViewController else {
-                print("No viewcontroller, cannot display harvest!")
-                return
-            }
-
-            viewController.eventId = harvestId
-            self.navigationController?.pushViewController(viewController, animated: true)
-        }
-    }
-
-    internal func onObservationClicked(observationId: NSManagedObjectID) {
-        // observation can be clicked directly on the map but also from bottomsheet
-        // -> ensure bottom sheet is dismissed before navigating forward
-        bottomSheetHelper.dismiss() { [weak self] in
-            guard let self = self else { return }
-
-            let observationEntry = RiistaGameDatabase.sharedInstance().observationEntry(with: observationId, context: self.moContext)
-            if let observation = observationEntry?.toCommonObservation(objectId: observationId) {
-                let viewController = ViewObservationViewController(observation: observation)
+            let diaryEntry = RiistaGameDatabase.sharedInstance().diaryEntry(with: harvestId, context: self.moContext)
+            if let harvest = diaryEntry?.toCommonHarvest(objectId: harvestId) {
+                let viewController = ViewHarvestViewController(harvest: harvest)
                 self.navigationController?.pushViewController(viewController, animated: true)
             }
         }
     }
 
-    internal func onSrvaClicked(srvaId: NSManagedObjectID) {
+    internal func onObservationClicked(observationId: KotlinLong) {
+        // observation can be clicked directly on the map but also from bottomsheet
+        // -> ensure bottom sheet is dismissed before navigating forward
+        bottomSheetHelper.dismiss() { [weak self] in
+            guard let self = self else { return }
+
+            let viewController = ViewObservationViewController(observationId: observationId.int64Value)
+            self.navigationController?.pushViewController(viewController, animated: true)
+        }
+    }
+
+    internal func onSrvaClicked(srvaId: KotlinLong) {
         // srva can be clicked directly on the map but also from bottomsheet
         // -> ensure bottom sheet is dismissed before navigating forward
         bottomSheetHelper.dismiss() { [weak self] in
             guard let self = self else { return }
 
-            let srvaEntry = RiistaGameDatabase.sharedInstance().srvaEntry(with: srvaId, context: self.moContext)
-            if let srvaEvent = srvaEntry?.toSrvaEvent(objectId: srvaId) {
-                let viewSrvaViewController = ViewSrvaEventViewController(srvaEvent: srvaEvent)
-                self.navigationController?.pushViewController(viewSrvaViewController, animated: true)
-            }
+            let viewController = ViewSrvaEventViewController(srvaEventId: srvaId.int64Value)
+            self.navigationController?.pushViewController(viewController, animated: true)
         }
     }
 
     internal func onPointOfInterestClicked(pointOfInterest: PointOfInterest) {
-        guard let areaExternalId = poiControllerHolder.controller.externalId else {
+        guard let areaExternalId = pointOfInterestController.externalId else {
             print("No area id set, cannot handle poi click")
             return
         }
@@ -433,9 +357,7 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     private func expandCluster(clusteredItems: ClusteredMapItems) {
         let viewController = ListMapEntriesViewController(
             clusteredItems: clusteredItems,
-            harvestControllerHolder: harvestControllerHolder,
-            observationsControllerHolder: observationsControllerHolder,
-            srvaControllerHolder: srvaControllerHolder,
+            mapDataSource: mapDataSource,
             listener: self
         )
 
@@ -452,76 +374,23 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     }
 
     func onObservationClicked(observationId: ItemId, acceptStatus: AcceptStatus) {
-        if let observationId = observationId.localId {
+        if let observationId = observationId.commonLocalId {
             onObservationClicked(observationId: observationId)
         }
     }
 
     func onSrvaClicked(srvaId: ItemId) {
-        if let srvaId = srvaId.localId {
+        if let srvaId = srvaId.commonLocalId {
             onSrvaClicked(srvaId: srvaId)
         }
     }
 
 
-    // MARK: - LogDelegate
-
-    func refresh() {
-        refreshMarkers()
-    }
-
-
-    // MARK: - LogFilterDelegate
-
-    func onFilterTypeSelected(selectedType: LogFilterView.FilteredType, oldType: LogFilterView.FilteredType) {
-        switch selectedType {
-        case .harvest, .observation, .srva:
-            pointOfInterestFilterView.isHidden = true
-
-            if let entryType = selectedType.toRiistaEntryType() {
-                LogItemService.shared().setItemType(type: entryType, forceUpdate: selectedType != oldType)
-                filterView.seasonStartYear = LogItemService.shared().selectedSeasonStart
-            }
-        case .pointsOfInterest:
-            if (selectedType != oldType) {
-                showPointsOfInterestOrIndicateMissingAreaId()
-            }
-        }
-    }
-
-    func onFilterSeasonSelected(seasonStartYear: Int) {
-        LogItemService.shared().setSeasonStartYear(year: seasonStartYear)
-    }
-
-    func onFilterSpeciesSelected(speciesCodes: [Int]) {
-        LogItemService.shared().clearSpeciesCategory()
-        LogItemService.shared().setSpeciesList(speciesCodes: speciesCodes)
-
-        filterView.setSelectedSpecies(speciesCodes: speciesCodes)
-    }
-
-    func onFilterCategorySelected(categoryCode: Int) {
-        let speciesCodes: [Int] = RiistaGameDatabase.sharedInstance()
-            .speciesList(withCategoryId: categoryCode)
-            .compactMap { speciesItem  in
-                if let species = speciesItem as? RiistaSpecies {
-                    return species.speciesId
-                } else {
-                    return nil
-                }
-            }
-
-        LogItemService.shared().setSpeciesCategory(categoryCode: categoryCode)
-        LogItemService.shared().setSpeciesList(speciesCodes: speciesCodes)
-
-        filterView.setSelectedCategory(categoryCode: categoryCode)
-    }
-
     func onFilterPointOfInterestListClicked() {
-        let pointOfInterestFilter = poiControllerHolder.controller.getLoadedViewModelOrNull()?.pois?.filter
+        let pointOfInterestFilter = pointOfInterestFilter
 
         let viewController = ListPointsOfInterestViewController(
-            areaExternalId: poiControllerHolder.controller.externalId,
+            areaExternalId: pointOfInterestController.externalId,
             pointOfInterestFilter: pointOfInterestFilter ?? PoiFilter(poiFilterType: .all)
         )
 
@@ -531,10 +400,7 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     func presentSpeciesSelect() {
         guard let navigationController = self.navigationController else { return }
 
-        filterView.presentSpeciesSelect(
-            navigationController: navigationController,
-            delegate: self
-        )
+        filterView.presentSpeciesSelect(navigationController: navigationController)
     }
 
 
@@ -548,18 +414,21 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     // MARK: Points of interest
 
     private func loadPointsOfInterestWhenViewAppears() {
-        poiControllerHolder.controller.externalId = RiistaSettings.activeClubAreaMapId()
-
-        // explicitly don't use poiControllerHolder.onViewWillAppear() as that only loads
-        // points of interest if viewmodel has not been updated. Instead do the same thing
-        // manually so that we can refresh loaded points of interest (they can be re-fetched
-        // in poi list)
-        poiControllerHolder.bindToViewModelLoadStatus()
-        poiControllerHolder.loadViewModel(refresh: poiControllerHolder.shouldRefreshViewModel)
+        pointOfInterestController.externalId = RiistaSettings.activeClubAreaMapId()
+        if (mapDataSource.activeDataSource?.filteredEntityType == .pointOfInterest) {
+            mapDataSource.pointOfInterestDataSource.controllerHolder.loadViewModelIfNotLoaded(refresh: false)
+        }
     }
 
     private func showPointsOfInterestOrIndicateMissingAreaId() {
-        if (poiControllerHolder.controller.externalId == nil) {
+        if (mapDataSource.activeDataSource?.filteredEntityType != .pointOfInterest) {
+            print("Refusing to display poi dialog / update filter: not displaying points of interest")
+            return
+        }
+
+        updatePointOfInterestFilterVisiblity()
+
+        if (pointOfInterestController.externalId == nil) {
             let messageController = MDCAlertController(title: "AlertTitle".localized(),
                                                        message: "PointOfInterestSelectExternalId".localized())
             let okAction = MDCAlertAction(title: "Ok".localized(),
@@ -569,98 +438,51 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
             messageController.addAction(okAction)
 
             present(messageController, animated: true, completion: nil)
-        } else {
-            showPointsOfInterest()
-        }
-    }
-
-    private func showPointsOfInterest() {
-        guard let viewModel = poiControllerHolder.controller.getLoadedViewModelOrNull() else {
-            // viewmodel not yet loaded, switch to displaying probably non-existent markers
-            showOrRefreshPointOfInterestMarkers()
-            updatePointOfInterestFilterVisiblity()
-            return
-        }
-
-        showPointsOfInterest(viewModel: viewModel)
-    }
-
-    private func showPointsOfInterest(viewModel: PoisViewModel) {
-        let pointsOfInterest: [PointOfInterest]
-        let poiFilterType: PoiFilter.PoiFilterType
-        if let poiContainer = viewModel.pois {
-            pointsOfInterest = poiContainer.filteredPois
-                .flatMap { poiLocationGroup in
-                    poiLocationGroup.locations.map { poiLocation in
-                        PointOfInterest(
-                            group: poiLocationGroup,
-                            poiLocation: poiLocation
-                        )
-                    }
-                }
-
-            poiFilterType = poiContainer.filter.poiFilterType
-        } else {
-            pointsOfInterest = []
-            poiFilterType = .all
-        }
-
-        markerManager.markerStorage.pointsOfInterest = pointsOfInterest
-        showOrRefreshPointOfInterestMarkers()
-
-        pointOfInterestFilterView.update(with: poiFilterType.toFilterType())
-        updatePointOfInterestFilterVisiblity()
-    }
-
-    private func showOrRefreshPointOfInterestMarkers() {
-        if (!markerManager.shownMarkerTypes.contains(.pointOfInterest)) {
-            markerManager.showOnlyMarkersOfType(markerTypes: [.pointOfInterest])
-        } else {
-            markerManager.refreshMarkersOfType(markerTypes: [.pointOfInterest])
         }
     }
 
     private func updatePointOfInterestFilterVisiblity() {
+        let pointsOfInterestsCannotExist = pointOfInterestController.externalId == nil
         let markersNotShown = filterView.isHidden
         let pointsOfInterestsShown = markerManager.shownMarkerTypes.contains(.pointOfInterest)
         let measuring = getMapMeasureControl()?.measureStarted ?? false
 
-        pointOfInterestFilterView.isHidden = markersNotShown || !pointsOfInterestsShown || measuring
+        pointOfInterestFilterView.isHidden = pointsOfInterestsCannotExist || markersNotShown || !pointsOfInterestsShown || measuring
     }
 
-    func onWillLoadViewModel(willRefresh: Bool) {
-        // nop
-    }
 
-    func onLoadViewModelCompleted() {
-        // nop
-    }
+    // MARK: EntityDataSourceListener
 
-    func onViewModelNotLoaded() {
-        // nop
-    }
+    func onDataSourceDataUpdated(for entityType: FilterableEntityType) {
+        filterView.refresh()
 
-    func onViewModelLoading() {
-        // nop
-    }
+        updatePointOfInterestFilterVisiblity()
 
-    func onViewModelLoaded(viewModel: PoisViewModel) {
-        if (filterView.isHidden || filterView.filteredType != .pointsOfInterest) {
-            print("Not updating points of interest on map as they are not yet displayed")
-            return
+        if (entityType == .pointOfInterest) {
+            if let poiFilterType = pointOfInterestFilter?.poiFilterType {
+                pointOfInterestFilterView.update(with: poiFilterType.toFilterType())
+            }
         }
-        showPointsOfInterest(viewModel: viewModel)
     }
 
-    func onViewModelLoadFailed() {
-        pointOfInterestFilterView.isHidden = true
+
+    // MARK: EntityFilterChangeListener
+
+    func onEntityFilterChanged(change: EntityFilterChange) {
+        if (change.hasEntityTypeChanged()) {
+            if (change.filter.entityType == .pointOfInterest) {
+                showPointsOfInterestOrIndicateMissingAreaId()
+            } else {
+                pointOfInterestFilterView.isHidden = true
+            }
+        }
     }
 
 
     // MARK: Point of Interest filter dialog
 
     private func displayPointOfInterestFilterDialog() {
-        let viewModel = poiControllerHolder.controller.getLoadedViewModelOrNull()
+        let viewModel = pointOfInterestController.getLoadedViewModelOrNull()
         if let poiFilter = viewModel?.pois?.filter {
             displayPointOfInterestFilterDialog(filter: poiFilter)
         } else {
@@ -679,7 +501,7 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
 
     func onPointOfInterestFilterChanged(pointOfInterestFilterType: PointOfInterestFilterType) {
         let newPoiFilter = PoiFilter(poiFilterType: pointOfInterestFilterType.toCommonFilterType())
-        poiControllerHolder.controller.eventDispatcher.dispatchPoiFilterChanged(newPoiFilter: newPoiFilter)
+        pointOfInterestController.eventDispatcher.dispatchPoiFilterChanged(newPoiFilter: newPoiFilter)
     }
 
 
@@ -690,7 +512,7 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     }
 
     func onMapMeasureEnded() {
-        if (filterView.isHidden || filterView.filteredType != .pointsOfInterest) {
+        if (filterView.isHidden || filterView.filteredType != .pointOfInterest) {
             return
         }
 

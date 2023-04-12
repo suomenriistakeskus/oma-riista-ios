@@ -179,6 +179,8 @@ class CommonObservationValidatorTest {
                 )
             ).map { it.toCommonSpecimenData() },
             canEdit = true,
+            modified = true,
+            deleted = false,
             totalSpecimenAmount = 1,
             mooselikeMaleAmount = 2,
             mooselikeFemaleAmount = 3,

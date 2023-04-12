@@ -19,20 +19,20 @@ import MaterialComponents.MaterialProgressView
         }
     }
 
-    private var synchronizationStatus: Bool = false {
+    private var backgroundOperationStatus: Bool = false {
         didSet {
-            if (synchronizationStatus) {
-                synchronizationIndicator.startAnimating()
-                synchronizationIndicator.fadeIn()
+            if (backgroundOperationStatus) {
+                backgroundOperationIndicator.startAnimating()
+                backgroundOperationIndicator.fadeIn()
             } else {
-                synchronizationIndicator.fadeOut() { [weak self] in
-                    self?.synchronizationIndicator.stopAnimating()
+                backgroundOperationIndicator.fadeOut() { [weak self] in
+                    self?.backgroundOperationIndicator.stopAnimating()
                 }
             }
         }
     }
 
-    private lazy var synchronizationIndicator: MDCProgressView = {
+    private lazy var backgroundOperationIndicator: MDCProgressView = {
         let progressView = MDCProgressView()
         progressView.mode = .indeterminate
         progressView.progressTintColor = .white
@@ -73,23 +73,32 @@ import MaterialComponents.MaterialProgressView
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationBar.addSubview(synchronizationIndicator)
+        self.navigationBar.addSubview(backgroundOperationIndicator)
 
-
-        synchronizationIndicator.snp.makeConstraints { make in
+        backgroundOperationIndicator.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
             make.height.equalTo(3)
         }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(onSynchronizationStatusChanged(notification:)),
-                                               name: RiistaSynchronizationStatusKey.toNotificationName(), object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onBackgroundOperationInProgressStatusChanged(notification:)),
+            name: .BackgroundOperationInProgressStatusChanged,
+            object: nil
+        )
+        self.backgroundOperationStatus = BackgroundOperationStatus.shared.backgroundOperationInProgress
     }
 
 
-    // MARK: - synchronization indication
+    // MARK: - Background operation indication
 
-    @objc private func onSynchronizationStatusChanged(notification: Notification) {
-        self.synchronizationStatus = (notification.userInfo?["syncing"] as? NSNumber)?.boolValue ?? false
+    @objc private func onBackgroundOperationInProgressStatusChanged(notification: Notification) {
+        guard let backgroundOperationInProgress = (notification.object as? NSNumber)?.boolValue else {
+            print("No in progress data, cannot update indicator")
+            return
+        }
+
+        self.backgroundOperationStatus = backgroundOperationInProgress
     }
 
 

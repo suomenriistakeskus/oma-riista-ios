@@ -254,9 +254,11 @@ extension DataFieldTableViewController where FieldId: DataFieldId {
         attachmentRemoveListener: AttachmentFieldAction<FieldId>? = nil,
         attachmentStatusProvider: AttachmentFieldStatusProvider? = nil,
         buttonClickHandler: OnButtonClicked<FieldId>? = nil,
+        actionEventDispatcher: ActionEventDispatcher? = nil,
         specimenLauncher: SpecimenLauncher<FieldId>? = nil,
         speciesEventDispatcher: SpeciesEventDispatcher? = nil,
-        speciesImageClickListener: SpeciesImageClickListener<FieldId>? = nil
+        speciesImageClickListener: SpeciesImageClickListener<FieldId>? = nil,
+        selectSpeciesAndImageFieldCellEntryType: SelectSpeciesAndImageFieldCellEntryType = .unknown
     ) {
         let factories: [DataFieldCellFactory<FieldId>?] = [
             // explicitly DO NOT ADD a default factory for custom user interface
@@ -264,6 +266,8 @@ extension DataFieldTableViewController where FieldId: DataFieldId {
             // by the actual viewcontroller
             CaptionLabelFieldCell<FieldId>.Factory<FieldId>(),
             InformationLabelFieldCell<FieldId>.Factory<FieldId>(),
+            IndicatorLabelFieldCell<FieldId>.Factory<FieldId>(),
+            LinkLabelFieldCell<FieldId>.Factory<FieldId>(actionEventDispatcher: actionEventDispatcher),
             ErrorLabelFieldCell<FieldId>.Factory<FieldId>(),
             ReadOnlySingleLineStringFieldCell<FieldId>.Factory<FieldId>(),
             SingleLineStringFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: stringEventDispatcher),
@@ -281,7 +285,8 @@ extension DataFieldTableViewController where FieldId: DataFieldId {
             SelectSpeciesAndImageFieldCell<FieldId>.Factory<FieldId>(
                 navigationControllerProvider: navigationControllerProvider,
                 speciesEventDispatcher: speciesEventDispatcher,
-                speciesImageClickListener: speciesImageClickListener
+                speciesImageClickListener: speciesImageClickListener,
+                entryType: selectSpeciesAndImageFieldCellEntryType
             ),
             DateAndTimeFieldCell<FieldId>.Factory<FieldId>(
                 navigationControllerProvider: navigationControllerProvider,

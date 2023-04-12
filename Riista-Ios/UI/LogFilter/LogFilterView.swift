@@ -2,47 +2,66 @@ import Foundation
 import DropDown
 import MaterialComponents
 import SnapKit
+import RiistaCommon
 
-protocol LogFilterDelegate {
-    func onFilterTypeSelected(selectedType: LogFilterView.FilteredType, oldType: LogFilterView.FilteredType)
-    func onFilterSeasonSelected(seasonStartYear: Int)
-    func onFilterSpeciesSelected(speciesCodes: [Int])
-    func onFilterCategorySelected(categoryCode: Int)
-    func onFilterPointOfInterestListClicked()
-
+protocol LogFilterViewDelegate {
     func presentSpeciesSelect()
+    func onFilterPointOfInterestListClicked()
 }
 
-class LogFilterView: UIView {
+protocol LogFilterChangeListener: AnyObject {
+    func onFilterChangeRequested(filter: EntityFilter)
+}
+
+class LogFilterView: UIView, EntityFilterChangeListener, FilterCategoryViewControllerDelegate {
+
     // 15 seems to be the largest that allows multiline labels for species
     private static let fontSize: CGFloat = 15
 
-    var delegate: LogFilterDelegate?
+    var delegate: LogFilterViewDelegate?
+
+    var changeListener: LogFilterChangeListener?
 
     private var enableSrva = false
-    var enablePointsOfInterest: Bool = false
 
-    enum FilteredType {
-        case harvest, observation, srva, pointsOfInterest
+    /**
+     * Set the data source that will also act as a source when reacting to filter changes.
+     */
+    var dataSource: UnifiedEntityDataSource? {
+        didSet {
+            oldValue?.removeEntityFilterChangeListener(self)
+            dataSource?.addEntityFilterChangeListener(self)
+        }
+    }
 
-        func toRiistaEntryType() -> RiistaEntryType? {
-            switch self {
-            case .harvest:          return RiistaEntryTypeHarvest
-            case .observation:      return RiistaEntryTypeObservation
-            case .srva:             return RiistaEntryTypeSrva
-            case .pointsOfInterest: return nil
+    var enabledFilteredTypes: [FilterableEntityType] {
+        let supportedDataSourceTypes = dataSource?.supportedDataSourceTypes ?? []
+
+        return supportedDataSourceTypes.filter { entityType in
+            switch entityType {
+            case .harvest:              return true
+            case .observation:          return true
+            case .srva:                 return enableSrva
+            case .pointOfInterest:      return true
             }
         }
     }
 
-    var filteredType: FilteredType = .harvest {
+    var displayedFilter: EntityFilter? {
         didSet {
-            filteredTypeUpdateTimeStamp = Date()
+            refresh()
+        }
+    }
+
+    var filteredType: FilterableEntityType = .harvest {
+        didSet {
             onFilteredTypeChanged(type: filteredType)
         }
     }
 
-    private(set) var filteredTypeUpdateTimeStamp: Date = Date(timeIntervalSince1970: 0)
+
+
+    //private(set) var filteredTypeUpdateTimeStamp: Date = Date(timeIntervalSince1970: 0)
 
     // convenience access for old code
     var logType: RiistaEntryType? {
@@ -126,7 +145,7 @@ class LogFilterView: UIView {
         button.setImage(UIImage(named: "list_white")?.withRenderingMode(.alwaysTemplate), for: .normal)
         button.setImageTintColor(UIColor.applicationColor(Primary), for: .normal)
 
-        button.isHidden = (filteredType != .pointsOfInterest)
+        button.isHidden = (filteredType != .pointOfInterest)
         button.onClicked = {
             self.onListPoisClicked()
         }
@@ -193,13 +212,45 @@ class LogFilterView: UIView {
         topContainer.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-
-        setupUserRelatedData()
-        clearSpeciesFilter()
     }
 
-    func setupUserRelatedData() {
+    func onEntityFilterChanged(change: EntityFilterChange) {
         enableSrva = RiistaSettings.userInfo()?.enableSrva.boolValue ?? false
+
+        let newFilter = change.filter
+
+        guard let currentFilter = displayedFilter else {
+            // no need to check anything if there's no valid filter
+            displayedFilter = newFilter
+            return
+        }
+
+        // only update filterview data (and override e.g. point-of-interest selection) if
+        // changes have been made elsewhere
+        if (currentFilter.updateTimeStamp < newFilter.updateTimeStamp && isFilterSupported(filter: newFilter)) {
+            displayedFilter = newFilter
+        }
+    }
+
+    func refresh() {
+        guard let displayedFilter = displayedFilter else {
+            return
+        }
+
+        filteredType = displayedFilter.entityType
+
+        if let filter = displayedFilter as? HarvestFilter {
+            seasonStartYear = filter.seasonStartYear
+            updateSpeciesFiltering(speciesCategory: filter.speciesCategory, species: filter.species)
+        } else if let filter = displayedFilter as? ObservationFilter {
+            seasonStartYear = filter.seasonStartYear
+            updateSpeciesFiltering(speciesCategory: filter.speciesCategory, species: filter.species)
+        } else if let filter = displayedFilter as? SrvaFilter {
+            seasonStartYear = filter.calendarYear
+            updateSpeciesFiltering(speciesCategory: nil, species: filter.species)
+        } else if displayedFilter is PointOfInterestFilter {
+            updateSpeciesFiltering(speciesCategory: nil, species: [])
+        }
     }
 
     func updateTexts() {
@@ -208,23 +259,46 @@ class LogFilterView: UIView {
         listPoisButton.setTitle("PointsOfInterestListButtonTitle".localized(), for: .normal)
     }
 
-    func setSelectedSpecies(speciesCodes: [Int]) {
+    private func isFilterSupported(filter: EntityFilter) -> Bool {
+        enabledFilteredTypes.contains(filter.entityType)
+    }
+
+    private func updateSpeciesFiltering(
+        speciesCategory: Int?,
+        species: [RiistaCommon.Species]
+    ) {
+        if (speciesCategory == nil && species.isEmpty) {
+            clearSelectionsArea.isHidden = true
+        }
+
+        // indicate category if one exists
+        if let speciesCategory = speciesCategory {
+            setSelectedCategory(categoryCode: speciesCategory)
+            return
+        }
+
+        setSelectedSpecies(species: species)
+    }
+
+    func setSelectedSpecies(species: [RiistaCommon.Species]) {
         let speciesButtonText: String
-        switch speciesCodes.count {
+        switch species.count {
         case 0:
             speciesButtonText = "ChooseSpecies".localized()
         case 1:
-            if (speciesCodes[0] == AppConstants.SrvaOtherCode) {
+            if species[0] is Species.Other {
                 speciesButtonText = "SrvaOtherSpeciesDescription".localized()
+            } else if let speciesCode = species[0].knownSpeciesCodeOrNull()?.intValue,
+                      let speciesName = RiistaGameDatabase.sharedInstance()?.species(byId: speciesCode)?.name {
+                speciesButtonText = RiistaUtils.name(withPreferredLanguage: speciesName)
             }
             else {
-                let species = RiistaGameDatabase.sharedInstance()?.species(byId: speciesCodes[0])
-                speciesButtonText = RiistaUtils.name(withPreferredLanguage: species?.name)
+                speciesButtonText = "\(species.count) " + "FilterSelectedSpeciesCount".localized()
             }
 
             showSpeciesClear()
         default:
-            speciesButtonText = "\(speciesCodes.count) " + RiistaBridgingUtils.RiistaLocalizedString(forkey: "FilterSelectedSpeciesCount")
+            speciesButtonText = "\(species.count) " + "FilterSelectedSpeciesCount".localized()
 
             showSpeciesClear()
         }
@@ -239,41 +313,26 @@ class LogFilterView: UIView {
         showSpeciesClear()
     }
 
-    func refreshFilteredSpecies(selectedCategory: Int, selectedSpecies: [Int]) {
-        if (selectedCategory < 0 && selectedSpecies.count == 0) {
-            clearSelectionsArea.isHidden = true
-        }
-
-        if selectedCategory >= 0 {
-            setSelectedCategory(categoryCode: selectedCategory)
-        } else {
-            setSelectedSpecies(speciesCodes: selectedSpecies)
-        }
-    }
-
     func showSpeciesClear() {
         self.clearSelectionsArea.isHidden = false
     }
 
     func clearSpeciesFilter() {
+        guard let filter = displayedFilter else { return }
+
         UIView.animate(withDuration: AppConstants.Animations.durationShort) {
             self.clearSelectionsArea.isHidden = true
         }
 
-        setSelectedSpecies(speciesCodes: [])
-        delegate?.onFilterSpeciesSelected(speciesCodes: [])
+        changeListener?.onFilterChangeRequested(
+            filter: filter.changeSpecies(speciesCategoryId: nil, species: [])
+        )
     }
 
     private func onTypeClicked() {
         let dropDown = DropDown()
 
-        var filteredTypes: [FilteredType] = [.harvest, .observation]
-        if (enableSrva) {
-            filteredTypes.append(.srva)
-        }
-        if (enablePointsOfInterest) {
-            filteredTypes.append(.pointsOfInterest)
-        }
+        let filteredTypes = enabledFilteredTypes
 
         dropDown.anchorView = typeButton
         dropDown.direction = .bottom
@@ -288,39 +347,34 @@ class LogFilterView: UIView {
         dropDown.show()
     }
 
-    private func onFilteredTypeSelected(_ type: FilteredType) {
-        let oldType = filteredType
-        filteredType = type
-        delegate?.onFilterTypeSelected(selectedType: type, oldType: oldType)
+    private func onFilteredTypeSelected(_ type: FilterableEntityType) {
+        guard let filter = displayedFilter else { return }
+
+        changeListener?.onFilterChangeRequested(
+            filter: filter.changeEntityType(entityType: type)
+        )
     }
 
     private func onSeasonsButtonClicked() {
-        let years: [Int]
-        switch filteredType {
-        case .harvest:
-            years = RiistaGameDatabase.sharedInstance()?.eventYears(DiaryEntryTypeHarvest)
-                .compactMap { eventYear in
-                    (eventYear as? NSNumber)?.intValue
-                } ?? []
-        case .observation:
-            years = RiistaGameDatabase.sharedInstance()?.observationYears()
-                .compactMap { eventYear in
-                    (eventYear as? NSNumber)?.intValue
-                } ?? []
-        case .srva:
-            years = RiistaGameDatabase.sharedInstance()?.eventYears(DiaryEntryTypeSrva)
-                .compactMap { eventYear in
-                    if let year = (eventYear as? NSNumber)?.intValue {
-                        return year + 1
-                    } else {
-                        return nil
-                    }
-                } ?? []
-        case .pointsOfInterest:
+        if (filteredType == .pointOfInterest) {
             print("How can seasons button be clicked while POI is selected?")
             return
         }
-        let sortedYears = years.sorted(by: >)
+
+        dataSource?.activeDataSource?.getPossibleSeasonsOrYears { [weak self] seasonsOrYears in
+            guard let self = self else { return }
+
+            guard let seasonsOrYears = seasonsOrYears else {
+                print("No seasons available for type \(self.filteredType)")
+                return
+            }
+
+            self.displaySeasonsFilterDropdown(seasonsOrYears: seasonsOrYears)
+        }
+    }
+
+    private func displaySeasonsFilterDropdown(seasonsOrYears: [Int]) {
+        let sortedYears = seasonsOrYears.sorted(by: >)
 
         let dropDown = DropDown()
         dropDown.anchorView = seasonsButton
@@ -330,16 +384,19 @@ class LogFilterView: UIView {
             year.formatToSeasonsText(srva: filteredType == .srva)
         }
 
-        dropDown.selectionAction = { [unowned self] (index: Int, item: String) in
-            self.onSeasonStartYearSelected(year: sortedYears[index])
+        dropDown.selectionAction = { [weak self] (index: Int, item: String) in
+            self?.onSeasonStartYearSelected(year: sortedYears[index])
         }
 
         dropDown.show()
     }
 
     private func onSeasonStartYearSelected(year: Int) {
-        self.seasonStartYear = year
-        self.delegate?.onFilterSeasonSelected(seasonStartYear: year)
+        guard let filter = displayedFilter else { return }
+
+        changeListener?.onFilterChangeRequested(
+            filter: filter.changeYear(year: year)
+        )
     }
 
     private func onSpeciesButtonClicked() {
@@ -350,11 +407,38 @@ class LogFilterView: UIView {
         clearSpeciesFilter()
     }
 
-    private func onListPoisClicked() {
-        delegate?.onFilterPointOfInterestListClicked()
+    func onFilterSpeciesSelected(species: [Species]) {
+        guard let filter = displayedFilter else { return }
+
+        changeListener?.onFilterChangeRequested(
+            filter: filter.changeSpecies(speciesCategoryId: nil, species: species)
+        )
     }
 
-    func presentSpeciesSelect(navigationController: UINavigationController, delegate: LogFilterDelegate) {
+    func onFilterCategorySelected(speciesCategoryId: Int) {
+        guard let filter = displayedFilter else { return }
+
+        let categorySpecies = RiistaGameDatabase.sharedInstance()?
+            .speciesList(withCategoryId: speciesCategoryId) as? [RiistaSpecies]
+            ?? []
+
+        let species = categorySpecies.compactMap { species in
+            Species.Known(speciesCode: Int32(species.speciesId))
+        }
+
+        let selectedCategoryId: Int?
+        if (species.isEmpty) {
+            selectedCategoryId = nil
+        } else {
+            selectedCategoryId = speciesCategoryId
+        }
+
+        changeListener?.onFilterChangeRequested(
+            filter: filter.changeSpecies(speciesCategoryId: selectedCategoryId, species: species)
+        )
+    }
+
+    func presentSpeciesSelect(navigationController: UINavigationController) {
         guard let storyBoard = navigationController.storyboard else {
             print("No storyboard, cannot present species select!")
             return
@@ -362,20 +446,24 @@ class LogFilterView: UIView {
 
         if (filteredType == .srva) {
             let destination = storyBoard.instantiateViewController(withIdentifier: "FilterSpeciesController") as! FilterSpeciesViewController
-            destination.delegate = delegate
+            destination.delegate = self
             destination.isSrva = true
 
             navigationController.pushViewController(destination, animated: true)
         }
         else {
             let destination = storyBoard.instantiateViewController(withIdentifier: "FilterCategoryController") as! FilterCategoryViewController
-            destination.delegate = delegate
+            destination.delegate = self
 
             navigationController.pushViewController(destination, animated: true)
         }
     }
 
-    private func onFilteredTypeChanged(type: FilteredType) {
+    private func onListPoisClicked() {
+        delegate?.onFilterPointOfInterestListClicked()
+    }
+
+    private func onFilteredTypeChanged(type: FilterableEntityType) {
         typeButton.setTitle(type.localizationKey.localized(), for: .normal)
 
         let viewHiddenStatuses: [UIView : Bool]
@@ -386,7 +474,7 @@ class LogFilterView: UIView {
                 speciesButton : false,
                 listPoisButton : true
             ]
-        case .pointsOfInterest:
+        case .pointOfInterest:
             viewHiddenStatuses = [
                 seasonsButton : true,
                 speciesButton : true,
@@ -418,19 +506,19 @@ class LogFilterView: UIView {
     }
 }
 
-fileprivate extension LogFilterView.FilteredType {
+fileprivate extension FilterableEntityType {
     var localizationKey: String {
         switch self {
         case .harvest:          return "Harvest"
         case .observation:      return "Observation"
         case .srva:             return "Srva"
-        case .pointsOfInterest: return "PointsOfInterest"
+        case .pointOfInterest:  return "PointsOfInterest"
         }
     }
 }
 
 fileprivate extension RiistaEntryType {
-    func toFilteredType() -> LogFilterView.FilteredType {
+    func toFilteredType() -> FilterableEntityType {
         switch self {
         case RiistaEntryTypeHarvest:        return .harvest
         case RiistaEntryTypeObservation:    return .observation

@@ -14,7 +14,9 @@ class CreateSrvaEventViewController :
     private lazy var _controller: RiistaCommon.CreateSrvaEventController = {
         RiistaCommon.CreateSrvaEventController(
             metadataProvider: RiistaSDK.shared.metadataProvider,
+            srvaContext: RiistaSDK.shared.srvaContext,
             stringProvider: LocalizedStringProvider()
+
         )
     }()
 
@@ -41,24 +43,14 @@ class CreateSrvaEventViewController :
         locationManager.removeListener(self)
     }
 
-    override func onSaveClicked() {
-        guard let srvaEvent = controller.getValidatedSrvaEvent() else {
-            return
-        }
-
-        tableView.showLoading()
-        saveButton.isEnabled = false
-
-        let srvaEntry = srvaEvent.toSrvaEntry(context: moContext)
-        srvaEntry.sent = false
-        let diaryImageSet = NSOrderedSet(array: newImages(srvaEvent) as [Any])
-        srvaEntry.addDiaryImages(diaryImageSet)
-
-        SrvaSaveOperations.sharedInstance().saveNewSrv(srvaEntry) { [weak self] response, error in
-            NotificationCenter.default.post(Notification(name: .LogEntrySaved))
-            NotificationCenter.default.post(Notification(name: .LogEntryTypeSelected,
-                                                         object: NSNumber(value: RiistaEntryTypeSrva.rawValue)))
-            self?.navigateToDiaryLog()
+    override func navigateToNextViewAfterSaving(srvaEvent: CommonSrvaEvent) {
+        if let srvaEventId = srvaEvent.localId?.int64Value {
+            let viewSrvaEventController = ViewSrvaEventViewController(srvaEventId: srvaEventId)
+            self.navigationController?.popViewController(animated: false)
+            self.navigationController?.pushViewController(viewSrvaEventController, animated: true)
+        } else {
+            // just pop the navigation controller as we're unable to display srva
+            self.navigationController?.popViewController(animated: true)
         }
     }
 
@@ -79,9 +71,5 @@ class CreateSrvaEventViewController :
         if (!locationChanged) {
             locationManager.removeListener(self, stopIfLastListener: true)
         }
-    }
-
-    private func navigateToDiaryLog() {
-        navigationController?.popViewController(animated: true)
     }
 }

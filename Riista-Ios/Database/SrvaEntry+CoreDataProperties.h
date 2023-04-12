@@ -9,6 +9,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SrvaEntry (CoreDataProperties)
 
+// The id of the srva entry after it has been migrated to common library
+@property (nullable, nonatomic, retain) NSNumber *commonSrvaEventId;
 @property (nullable, nonatomic, retain) NSNumber *remoteId;
 @property (nullable, nonatomic, retain) NSNumber *rev;
 @property (nullable, nonatomic, retain) NSString *type;

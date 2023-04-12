@@ -14,7 +14,29 @@ data class CommonSrvaSpecimen(
 
 internal fun CommonSrvaSpecimen.toCommonSpecimenData(): CommonSpecimenData {
     return CommonSpecimenData(
+        remoteId = null,
+        revision = null,
         gender = gender,
         age = age,
+        stateOfHealth = null,
+        marking = null,
+        lengthOfPaw = null,
+        widthOfPaw = null,
+        weight = null,
+        weightEstimated = null,
+        weightMeasured = null,
+        fitnessClass = null,
+        antlersLost = null,
+        antlersType = null,
+        antlersWidth = null,
+        antlerPointsLeft = null,
+        antlerPointsRight = null,
+        antlersGirth = null,
+        antlersLength = null,
+        antlersInnerWidth = null,
+        antlerShaftWidth = null,
+        notEdible = null,
+        alone = null,
+        additionalInfo = null,
     )
 }

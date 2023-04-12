@@ -1,8 +1,9 @@
 import Foundation
+import RiistaCommon
 
 class MapMarkerStorage {
     var harvests = [DiaryEntry]()
-    var observations = [ObservationEntry]()
-    var srvas = [SrvaEntry]()
+    var observations = [CommonObservation]()
+    var srvas = [CommonSrvaEvent]()
     var pointsOfInterest = [PointOfInterest]()
 }

@@ -65,12 +65,17 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
 
 - (NSString*)getCacheKeyDiscriminator
 {
+    NSString *areaId = self.externalAreaId;
+    if (areaId == nil) {
+        areaId = @"no-area-id";
+    }
+
     // discriminate tiles based on whether colors have been inverted or not
     // -> allows storing multiple images for same x-y-zoom combination
     if (self.invertAreaColors) {
-        return @"area-colors-inverted";
+        return [NSString stringWithFormat:@"area-colors-inverted-%@", areaId];
     } else {
-        return @"normal-area-colors";
+        return [NSString stringWithFormat:@"normal-area-colors-%@", areaId];
     }
 }
 

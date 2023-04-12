@@ -175,14 +175,6 @@ internal object CommonSrvaEventValidator {
             }
         }
     }
-
-    private fun <R> FieldSpecification<SrvaEventField>.ifRequired(block: () -> R?): R? {
-        return if (requirementStatus.isRequired()) {
-            block()
-        } else {
-            null
-        }
-    }
 }
 
 private fun SrvaEventCategory?.containsEventType(eventType: BackendEnum<SrvaEventType>): Boolean {

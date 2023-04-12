@@ -7,6 +7,7 @@ typealias SpeciesCode = Int32
 
 enum ItemId: Hashable {
     case remote(id: BackendId)
+    case commonLocal(commonLocalId: KotlinLong)
     case local(objectId: NSManagedObjectID)
     case pointOfInterest(poiGroupId: Int64, poiLocationId: Int64)
 
@@ -21,6 +22,14 @@ enum ItemId: Hashable {
     var localId: NSManagedObjectID? {
         if case .local(let objectId) = self {
             return objectId
+        }
+
+        return nil
+    }
+
+    var commonLocalId: KotlinLong? {
+        if case .commonLocal(let commonLocalId) = self {
+            return commonLocalId
         }
 
         return nil
@@ -127,19 +136,22 @@ class MapObservationViewModel: MapClusteredItemViewModel {
 
 
 class MapSrvaViewModel: MapClusteredItemViewModel {
-    let speciesCode: SpeciesCode
+    let species: Species
+    let otherSpeciesDescription: String?
     let acceptStatus: AcceptStatus
     let pointOfTime: LocalDateTime
     let description: String?
 
     init(
         id: ItemId,
-        speciesCode: SpeciesCode,
+        species: Species,
+        otherSpeciesDescription: String?,
         acceptStatus: AcceptStatus,
         pointOfTime: LocalDateTime,
         description: String?
     ) {
-        self.speciesCode = speciesCode
+        self.species = species
+        self.otherSpeciesDescription = otherSpeciesDescription
         self.acceptStatus = acceptStatus
         self.pointOfTime = pointOfTime
         self.description = description
@@ -153,7 +165,8 @@ class MapSrvaViewModel: MapClusteredItemViewModel {
         }
 
         return super.isContentEqual(to: source) &&
-            speciesCode == other.speciesCode &&
+            species == other.species &&
+            otherSpeciesDescription == other.otherSpeciesDescription &&
             acceptStatus == other.acceptStatus &&
             pointOfTime == other.pointOfTime &&
             description == other.description

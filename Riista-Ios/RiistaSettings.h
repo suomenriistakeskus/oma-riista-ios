@@ -13,7 +13,6 @@ extern NSInteger const WhiteTailedDeerId;
 extern NSInteger const WildForestDeerId;
 extern NSInteger const BearId;
 
-extern NSString *const RiistaSettingsSyncModeKey;
 extern NSString *const RiistaSettingsLanguageKey;
 extern NSString *const RiistaDefaultAppLanguage;
 extern NSString *const RiistaUserInfoUpdatedKey;
@@ -26,11 +25,6 @@ static const CGFloat RiistaCheckboxElementHeight = 50;
 static const CGFloat RiistaInstructionsViewHeight = 80;
 
 typedef enum {
-    RiistaSyncModeManual,
-    RiistaSyncModeAutomatic
-} RiistaSyncMode;
-
-typedef enum {
     GoogleMapType         = 10,
     MmlMapType            = 20,
     MmlTopographicMapType = 21,
@@ -40,7 +34,6 @@ typedef enum {
 
 @interface RiistaSettings : NSObject
 
-+ (RiistaSyncMode)syncMode;
 + (NSString*)language;
 + (NSLocale*)locale;
 + (RiistaMapType)mapType;

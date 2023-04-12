@@ -19,6 +19,10 @@ import fi.riista.common.ui.dataField.DataField
 import fi.riista.common.ui.dataField.LabelField
 import fi.riista.common.ui.dataField.Padding
 import fi.riista.common.ui.dataField.StringField
+import fi.riista.common.ui.helpers.DoubleFormatter
+import fi.riista.common.ui.helpers.WeightFormatter
+import fi.riista.common.ui.helpers.formatWithOneDecimal
+import fi.riista.common.ui.helpers.formatWeight
 import fi.riista.common.util.toStringOrMissingIndicator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -34,6 +38,8 @@ class ViewSpecimensController(
 ) : ControllerWithLoadableModel<ViewSpecimensViewModel>() {
 
     private var specimenData: SpecimenFieldDataContainer? = null
+    private val weightFormatter = WeightFormatter(stringProvider)
+    private val doubleFormatter = DoubleFormatter(stringProvider)
 
     init {
         // should be accessed from UI thread only
@@ -102,14 +108,23 @@ class ViewSpecimensController(
                                 fieldId = fieldSpecification.fieldType.toField(index),
                                 fieldSpecification = fieldSpecification
                             )
+                    SpecimenFieldType.WEIGHT ->
+                        specimen.weight
+                            ?.formatWeight(weightFormatter, specimenData.species)
+                            .createValueField(
+                                fieldId = fieldSpecification.fieldType.toField(index),
+                                fieldSpecification = fieldSpecification
+                            )
                     SpecimenFieldType.WIDTH_OF_PAW ->
                         specimen.widthOfPaw
+                            ?.formatWithOneDecimal(doubleFormatter)
                             .createValueField(
                                 fieldId = fieldSpecification.fieldType.toField(index),
                                 fieldSpecification = fieldSpecification
                             )
                     SpecimenFieldType.LENGTH_OF_PAW ->
                         specimen.lengthOfPaw
+                            ?.formatWithOneDecimal(doubleFormatter)
                             .createValueField(
                                 fieldId = fieldSpecification.fieldType.toField(index),
                                 fieldSpecification = fieldSpecification

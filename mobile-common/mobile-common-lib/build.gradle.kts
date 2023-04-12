@@ -164,7 +164,7 @@ kotlin.iosArm32().binaries.getFramework(org.jetbrains.kotlin.gradle.plugin.mpp.N
 // Optimization flags are not used for release builds. Instead lower the inlining threshold
 // as instructed in comments of https://youtrack.jetbrains.com/issue/KT-37368
 kotlin.iosArm32().binaries.getFramework(org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.RELEASE).apply {
-    val properties = "llvmInlineThreshold=90"
+    val properties = "llvmInlineThreshold=70"
     freeCompilerArgs = freeCompilerArgs + listOf(
         "-Xoverride-konan-properties=$properties"
     )

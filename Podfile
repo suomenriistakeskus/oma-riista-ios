@@ -34,6 +34,7 @@ def allPods
     pod 'Protobuf'
     pod 'QRCodeReader.swift'
     pod 'RMDateSelectionViewController', '~> 2.3.1'
+    pod 'Siren'
     pod 'SnapKit', '~> 5.0.0'
     pod 'Tabman', '~> 2.12'
     pod 'Toast-Swift', '~> 5.0.0'

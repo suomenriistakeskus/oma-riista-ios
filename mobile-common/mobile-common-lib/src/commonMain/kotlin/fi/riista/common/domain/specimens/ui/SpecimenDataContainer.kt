@@ -30,7 +30,7 @@ abstract class SpecimenSpecifications {
     internal abstract val minWidthOfPawCentimetres: Double?
 
     internal val containsOnlyAdultYoungOrUnknownAgeValues: Boolean by lazy {
-        val ages = setOf(GameAge.ADULT, GameAge.YOUNG, GameAge.UNKNOWN).map { BackendEnum.create(it) }
+        val ages = setOf(GameAge.ADULT, GameAge.YOUNG, GameAge.UNKNOWN).mapTo(HashSet()) { BackendEnum.create(it) }
         (allowedAges - ages).isEmpty()
     }
 
@@ -101,6 +101,23 @@ data class SpecimenFieldDataContainer internal constructor(
             specimens = specimens,
             fieldSpecifications = fieldSpecifications,
             allowedAges = listOf(GameAge.ADULT, GameAge.YOUNG, GameAge.UNKNOWN).map { BackendEnum.create(it) },
+            allowedStatesOfHealth = listOf(),
+            allowedMarkings = listOf(),
+            maxLengthOfPawCentimetres = null,
+            minLengthOfPawCentimetres = null,
+            maxWidthOfPawCentimetres = null,
+            minWidthOfPawCentimetres = null,
+        )
+
+        internal fun createForHarvest(
+            species: Species,
+            specimens: List<CommonSpecimenData>,
+            fieldSpecifications: List<SpecimenFieldSpecification>,
+        ) = SpecimenFieldDataContainer(
+            species = species,
+            specimens = specimens,
+            fieldSpecifications = fieldSpecifications,
+            allowedAges = listOf(GameAge.ADULT, GameAge.YOUNG).map { BackendEnum.create(it) },
             allowedStatesOfHealth = listOf(),
             allowedMarkings = listOf(),
             maxLengthOfPawCentimetres = null,

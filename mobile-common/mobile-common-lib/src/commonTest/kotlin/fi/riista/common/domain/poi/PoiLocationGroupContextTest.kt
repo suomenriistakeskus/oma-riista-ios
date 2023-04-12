@@ -9,6 +9,7 @@ import fi.riista.common.network.BackendAPI
 import fi.riista.common.network.BackendAPIMock
 import fi.riista.common.network.MockResponse
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
+import fi.riista.common.helpers.TestCrashlyticsLogger
 import fi.riista.common.util.MockDateTimeProvider
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -47,7 +48,7 @@ class PoiLocationGroupContextTest {
     }
 
     private fun getPoiContext(backendAPI: BackendAPI = BackendAPIMock()): PoiContext {
-        val configuration = RiistaSdkConfiguration("1", "2", serverAddress)
+        val configuration = RiistaSdkConfiguration("1", "2", serverAddress, TestCrashlyticsLogger)
         RiistaSDK.initializeMocked(
             sdkConfiguration = configuration,
             databaseDriverFactory = createDatabaseDriverFactory(),

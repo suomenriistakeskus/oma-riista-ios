@@ -16,7 +16,7 @@ class ModifyGroupHuntingHarvestViewController<Controller: ModifyGroupHarvestCont
      */
     private var groupAreaMapExternalId: String?
 
-    private let tableViewController = DataFieldTableViewController<GroupHarvestField>()
+    private let tableViewController = DataFieldTableViewController<CommonHarvestField>()
     private var keyboardHandler: KeyboardHandler?
 
     private(set) lazy var tableView: TableView = {

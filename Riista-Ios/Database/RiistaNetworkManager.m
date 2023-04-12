@@ -4,11 +4,9 @@
 #import "RiistaSettings.h"
 #import "DiaryEntry.h"
 #import "DiaryImage.h"
-#import "ObservationEntry.h"
 #import "RiistaUtils.h"
 #import "DataModels.h"
 #import "RiistaPermitManager.h"
-#import "SrvaEntry.h"
 #import "AnnouncementsSync.h"
 #import "NSDateformatter+Locale.h"
 #import "RiistaCommon/RiistaCommon.h"
@@ -28,19 +26,6 @@ NSString *const RiistaDiaryEntryUpdatePath = BASE_API_PATH @"gamediary/harvest/%
 NSString *const RiistaDiaryEntryInsertPath = BASE_API_PATH @"gamediary/harvest";
 NSString *const RiistaDiaryEntryDeletePath = BASE_API_PATH @"gamediary/harvest/%ld";
 NSString *const RiistaDiaryImageUploadPath = BASE_API_PATH @"gamediary/image/uploadforharvest";
-
-NSString *const RiistaDiaryObservationsPath = BASE_API_PATH @"gamediary/observations/%ld?observationSpecVersion=%ld";
-NSString *const RiistaDiaryObservationUpdatePath = BASE_API_PATH @"gamediary/observation/%ld";
-NSString *const RiistaDiaryObservationInsertPath = BASE_API_PATH @"gamediary/observation";
-NSString *const RiistaDiaryObservationDeletePath = BASE_API_PATH @"gamediary/observation/%ld";
-NSString *const RiistaDiaryObservationImageUploadPath = BASE_API_PATH @"gamediary/image/uploadforobservation";
-
-NSString *const RiistaSrvaEventsPath = BASE_API_PATH @"srva/srvaevents?srvaEventSpecVersion=%ld";
-NSString *const RiistaDiarySrvaUpdatePath = BASE_API_PATH @"srva/srvaevent/%ld";
-NSString *const RiistaDiarySrvaInsertPath = BASE_API_PATH @"srva/srvaevent";
-NSString *const RiistaDiarySrvaDeletePath = BASE_API_PATH @"srva/srvaevent/%ld";
-NSString *const RiistaDiarySrvaImageUploadPath = BASE_API_PATH @"srva/image/upload";
-NSString *const RiistaSrvaImageDeletePath = BASE_API_PATH @"srva/image/%@";
 
 NSString *const RiistaDiaryImageLoadPath = BASE_API_PATH @"gamediary/image/%@";
 NSString *const RiistaDiaryImageDeletePath = BASE_API_PATH @"gamediary/image/%@";
@@ -66,6 +51,7 @@ NSInteger const LOGIN_NETWORK_UNREACHABLE = 0;
 NSInteger const LOGIN_TIMEOUT = -1001;
 NSInteger const LOGIN_INCORRECT_CREDENTIALS = 403;
 NSInteger const LOGIN_OUTDATED_VERSION = 418;
+int const LOGIN_DEFAULT_TIMEOUT_SECONDS = 60;
 
 NSString *const RiistaReloginFailedKey = @"reloginFailed";
 
@@ -110,7 +96,7 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
     return [NSString stringWithFormat:@"%@/%@", Environment.apiHostName, BASE_API_PATH];
 }
 
-- (void)login:(NSString*)username password:(NSString*)password completion:(RiistaLoginCompletionBlock)completion
+- (void)login:(NSString*)username password:(NSString*)password timeoutSeconds:(int)timeoutSeconds completion:(RiistaLoginCompletionBlock)completion
 {
     [CrashlyticsHelper logWithMsg:@"Logging in using RiistaSDK"];
 
@@ -120,6 +106,7 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
 
     [[RiistaCommonRiistaSDK riistaSDK] loginUsername:username
                                             password:password
+                                      timeoutSeconds:timeoutSeconds
                                    completionHandler:^(RiistaCommonNetworkResponse<RiistaCommonUserInfoDTO *> * _Nullable response, NSError * _Nullable error) {
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 
@@ -181,9 +168,9 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
     [RiistaSettings setUserInfo:user];
 }
 
-- (void)relogin:(NSString*)username password:(NSString*)password completion:(RiistaLoginCompletionBlock)completion
+- (void)relogin:(NSString*)username password:(NSString*)password timeoutSeconds:(int)timeoutSeconds completion:(RiistaLoginCompletionBlock)completion
 {
-    [self login:username password:password completion:^(NSError* error) {
+    [self login:username password:password timeoutSeconds:timeoutSeconds completion:^(NSError* error) {
         if (error && (error.code == 401 || error.code == 403)) {
             [[NSNotificationCenter defaultCenter] postNotificationName:RiistaReloginFailedKey object:self];
         }
@@ -301,7 +288,10 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
             if (retry) {
                 RiistaCredentials *credentials = [[RiistaSessionManager sharedInstance] userCredentials];
                 if (credentials) {
-                    [weakSelf relogin:credentials.username password:credentials.password completion:^(NSError *error) {
+                    [weakSelf relogin:credentials.username
+                             password:credentials.password
+                       timeoutSeconds:LOGIN_DEFAULT_TIMEOUT_SECONDS
+                           completion:^(NSError *error) {
                         if (!error) {
                             [weakSelf diaryEntryYears:NO completion:completion];
                         } else if (completion) {
@@ -531,228 +521,7 @@ NSString *const RiistaLoginDomain = @"RiistaLogin";
     }];
 }
 
-#pragma mark - Observations
 
-- (void)diaryObservationsForYear:(NSInteger)year completion:(RiistaDiaryObservationFetchCompletion)completion
-{
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryObservationsPath, (long)year, (long)ObservationSpecVersion]
-                                                                   params:@{}
-                                                               httpMethod:@"GET"
-                                                                      ssl:UseSSL];
-    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        NSArray *entries = [completedOperation responseJSON];
-        if (completion) {
-            completion(entries, nil);
-        }
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            completion(nil, error);
-        }
-    }];
-    [self.networkEngine enqueueOperation:operation];
-}
-
-- (void)sendDiaryObservation:(ObservationEntry*)observationEntry completion:(RiistaDiaryObservationSendCompletion)completion
-{
-    NSString *path = @"";
-    NSString *httpMethod = @"POST";
-    if ([observationEntry.pendingOperation isEqualToNumber:[NSNumber numberWithInteger:DiaryEntryOperationDelete]]) {
-        [self deleteDiaryObservation:observationEntry completion:completion];
-        return;
-    } else if ([observationEntry.remote boolValue]) {
-        path = [NSString stringWithFormat:RiistaDiaryObservationUpdatePath, [observationEntry.remoteId longValue]];
-        httpMethod = @"PUT";
-    } else {
-        path = RiistaDiaryObservationInsertPath;
-    }
-
-    NSDictionary *diaryEntryDict = [[RiistaGameDatabase sharedInstance] dictFromObservationEntry:observationEntry isNew:![observationEntry.remote boolValue]];
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:path params:diaryEntryDict httpMethod:httpMethod ssl:UseSSL];
-    operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
-
-    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        if (completion) {
-            completion(completedOperation.responseJSON, nil);
-        }
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            completion(nil, error);
-        }
-    }];
-    [self.networkEngine enqueueOperation:operation];
-}
-
-- (void)deleteDiaryObservation:(ObservationEntry*)observationEntry completion:(RiistaDiaryObservationSendCompletion)completion
-{
-    NSString *path = [NSString stringWithFormat:RiistaDiaryObservationDeletePath, [observationEntry.remoteId longValue]];
-    NSString *httpMethod = @"DELETE";
-
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:path params:nil httpMethod:httpMethod ssl:UseSSL];
-
-    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        if (completion) {
-            completion(nil, nil);
-        }
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            // Trying to delete entry which does not exist on server is treated as successfull operation
-            if (error.code == 404) {
-                completion(nil, nil);
-            }
-            else {
-                completion(nil, error);
-            }
-        }
-    }];
-    [self.networkEngine enqueueOperation:operation];
-}
-
-- (void)diaryObservationImageOperationForImage:(DiaryImage*)image observationEntry:(ObservationEntry*)observationEntry completion:(RiistaDiaryObservationImageOperationCompletion)completion
-{
-    MKNetworkOperation *operation;
-    if ([image.status integerValue] == DiaryImageStatusInsertion) {
-        operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryObservationImageUploadPath]
-                                                        params:@{@"observationId": observationEntry.remoteId, @"uuid": image.imageid}
-                                                    httpMethod:@"POST" ssl:UseSSL];
-    } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
-        NSString *lowercaseUuid = [image.imageid lowercaseString];
-        operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiaryImageDeletePath, lowercaseUuid]
-                                                        params:@{}
-                                                    httpMethod:@"DELETE"
-                                                           ssl:UseSSL];
-    }
-    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        if (completion) {
-            completion(nil);
-        }
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            completion(error);
-        }
-    }];
-
-    if ([image.status integerValue] == DiaryImageStatusInsertion) {
-        [self sendImage:image networkOperation:operation completion:completion];
-    } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
-        [self.networkEngine enqueueOperation:operation];
-    } else {
-        completion(nil);
-    }
-}
-
-- (void)srvaEntries:(RiistaDiarySrvaFetchCompletion)completion
-{
-    NSString *path = [NSString stringWithFormat:RiistaSrvaEventsPath, (long)SrvaSpecVersion];
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:path
-                                                                   params:@{}
-                                                               httpMethod:@"GET"
-                                                                      ssl:UseSSL];
-
-    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        if (completion) {
-            NSArray *entries = [completedOperation responseJSON];
-            completion(entries, nil);
-        }
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            completion(nil, error);
-        }
-    }];
-    [self.networkEngine enqueueOperation:operation];
-}
-
-- (void)sendDiarySrva:(SrvaEntry*)diarySrva completion:(RiistaDiarySrvaSendCompletion)completion
-{
-    NSString *path = @"";
-    NSString *httpMethod = @"POST";
-    if ([diarySrva.pendingOperation isEqualToNumber:[NSNumber numberWithInteger:DiaryEntryOperationDelete]]) {
-        [self deleteDiarySrva:diarySrva completion:completion];
-        return;
-    } else if (diarySrva.remoteId != nil) {
-        path = [NSString stringWithFormat:RiistaDiarySrvaUpdatePath, [diarySrva.remoteId longValue]];
-        httpMethod = @"PUT";
-    } else {
-        path = RiistaDiarySrvaInsertPath;
-    }
-
-    NSDictionary *diaryEntryDict = [[RiistaGameDatabase sharedInstance] dictFromSrvaEntry:diarySrva isNew:diarySrva.remoteId == nil];
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:path params:diaryEntryDict httpMethod:httpMethod ssl:UseSSL];
-    operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
-
-    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        if (completion) {
-            completion(completedOperation.responseJSON, nil);
-        }
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            completion(nil, error);
-        }
-    }];
-    [self.networkEngine enqueueOperation:operation];
-}
-
-- (void)deleteDiarySrva:(SrvaEntry*)srvaEntry completion:(RiistaDiarySrvaSendCompletion)completion
-{
-    NSString *path = [NSString stringWithFormat:RiistaDiarySrvaDeletePath, [srvaEntry.remoteId longValue]];
-    NSString *httpMethod = @"DELETE";
-
-    MKNetworkOperation *operation = [self.networkEngine operationWithPath:path params:nil httpMethod:httpMethod ssl:UseSSL];
-
-    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        if (completion) {
-            completion(nil, nil);
-        }
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            // Trying to delete entry which does not exist on server is treated as successfull operation
-            if (error.code == 404) {
-                completion(nil, nil);
-            }
-            else {
-                completion(nil, error);
-            }
-        }
-    }];
-    [self.networkEngine enqueueOperation:operation];
-}
-
-- (void)diarySrvaImageOperationForImage:(DiaryImage*)image srvaEntry:(SrvaEntry*)srvaEntry completion:(RiistaDiaryEntryImageOperationCompletion)completion
-{
-    MKNetworkOperation *operation;
-    if ([image.status integerValue] == DiaryImageStatusInsertion) {
-        // some of the srva images may have nil imageid
-        // -> generate one if it doesn't exist
-        NSString *imageId = image.imageid;
-        if (imageId == nil) {
-            imageId = [[NSUUID UUID] UUIDString];
-            [image.managedObjectContext save:nil];
-        }
-
-        operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaDiarySrvaImageUploadPath]
-                                                        params:@{@"srvaEventId": srvaEntry.remoteId, @"uuid": imageId}
-                                                    httpMethod:@"POST" ssl:UseSSL];
-    } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
-        NSString *lowercaseUuid = [image.imageid lowercaseString];
-        operation = [self.imageNetworkEngine operationWithPath:[NSString stringWithFormat:RiistaSrvaImageDeletePath, lowercaseUuid] params:@{} httpMethod:@"DELETE" ssl:UseSSL];
-    }
-    [operation addCompletionHandler:^(MKNetworkOperation *completedOperation) {
-        if (completion) {
-            completion(nil);
-        }
-    } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
-        if (completion) {
-            completion(error);
-        }
-    }];
-
-    if ([image.status integerValue] == DiaryImageStatusInsertion) {
-        [self sendImage:image networkOperation:operation completion:completion];
-    } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
-        [self.networkEngine enqueueOperation:operation];
-    } else {
-        completion(nil);
-    }
-}
 
 - (void)clubAreaMaps:(RiistaJsonArrayCompletion)completion
 {

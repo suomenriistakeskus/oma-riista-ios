@@ -23,7 +23,8 @@ class MapSrvaCell: MapDiaryEntryCell {
 
     func bind(srvaViewModel: MapSrvaViewModel) {
         bindValues(
-            speciesCode: srvaViewModel.speciesCode,
+            species: srvaViewModel.species,
+            otherSpeciesDescription: srvaViewModel.otherSpeciesDescription,
             pointOfTime: srvaViewModel.pointOfTime,
             acceptStatus: srvaViewModel.acceptStatus,
             description: srvaViewModel.description

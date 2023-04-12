@@ -5,6 +5,9 @@ package fi.riista.common.domain.srva.ui.modify
 import co.touchlab.stately.ensureNeverFrozen
 import fi.riista.common.domain.model.CommonSpecimenData
 import fi.riista.common.domain.model.asKnownLocation
+import fi.riista.common.domain.srva.SaveSrvaResponse
+import fi.riista.common.domain.srva.SrvaContext
+import fi.riista.common.domain.srva.SrvaEventOperationResponse
 import fi.riista.common.domain.srva.model.CommonSrvaEvent
 import fi.riista.common.domain.srva.model.CommonSrvaEventData
 import fi.riista.common.domain.srva.model.toCommonSrvaMethod
@@ -21,7 +24,6 @@ import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.ui.dataField.FieldSpecification
 import fi.riista.common.ui.intent.IntentHandler
 import fi.riista.common.util.LocalDateTimeProvider
-import fi.riista.common.util.SystemDateTimeProvider
 import fi.riista.common.util.replace
 import fi.riista.common.util.withNumberOfElements
 import kotlinx.serialization.Serializable
@@ -31,21 +33,12 @@ import kotlinx.serialization.Serializable
  */
 abstract class ModifySrvaEventController internal constructor(
     private val metadataProvider: MetadataProvider,
+    protected val srvaContext: SrvaContext,
+    protected val localDateTimeProvider: LocalDateTimeProvider,
     stringProvider: StringProvider,
-    localDateTimeProvider: LocalDateTimeProvider
 ) : ControllerWithLoadableModel<ModifySrvaEventViewModel>(),
     IntentHandler<ModifySrvaEventIntent>,
     HasUnreproducibleState<ModifySrvaEventController.SavedState> {
-
-    constructor(
-        metadataProvider: MetadataProvider,
-        stringProvider: StringProvider,
-    ): this(
-        metadataProvider = metadataProvider,
-        stringProvider = stringProvider,
-        localDateTimeProvider = SystemDateTimeProvider()
-    )
-
 
     private val srvaEventFields = SrvaEventFields(metadataProvider = metadataProvider)
     val eventDispatchers: ModifySrvaEventDispatcher by lazy {
@@ -79,6 +72,36 @@ abstract class ModifySrvaEventController internal constructor(
         return getLoadedViewModelOrNull()
             ?.getValidatedSrvaDataOrNull()
             ?.toSrvaEvent()
+    }
+
+    /**
+     * Saves the srva event to local database and optionally tries to send it to backend.
+     */
+    suspend fun saveSrvaEvent(updateToBackend: Boolean): SaveSrvaResponse {
+        val srvaEventToBeSaved = getValidatedSrvaEvent()?.copy(modified = true) ?: kotlin.run {
+            return SaveSrvaResponse(
+                databaseSaveResponse = SrvaEventOperationResponse.Error("no valid SRVA event")
+            )
+        }
+
+        return when (val saveResponse = srvaContext.saveSrvaEvent(srvaEventToBeSaved)) {
+            is SrvaEventOperationResponse.Error,
+            is SrvaEventOperationResponse.SaveFailure,
+            is SrvaEventOperationResponse.NetworkFailure -> {
+                SaveSrvaResponse(databaseSaveResponse = saveResponse)
+            }
+            is SrvaEventOperationResponse.Success -> {
+                if (updateToBackend) {
+                    val networkResponse = srvaContext.sendSrvaEventToBackend(srvaEvent = saveResponse.srvaEvent)
+                    SaveSrvaResponse(
+                        databaseSaveResponse = saveResponse,
+                        networkSaveResponse = networkResponse
+                    )
+                } else {
+                    SaveSrvaResponse(databaseSaveResponse = saveResponse)
+                }
+            }
+        }
     }
 
     override fun handleIntent(intent: ModifySrvaEventIntent) {

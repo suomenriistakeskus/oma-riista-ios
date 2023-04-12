@@ -5,12 +5,10 @@
 @class ObservationEntry;
 @class RiistaSpecies;
 @class RiistaDiaryEntryUpdate;
-@class SrvaEntry;
 @class SeasonStats;
 
 extern NSString *const RiistaCalendarEntriesUpdatedKey;
 extern NSString *const RiistaLanguageSelectionUpdatedKey;
-extern NSString *const RiistaSynchronizationStatusKey;
 extern NSString *const ISO_8601;
 extern NSInteger const RiistaCalendarStartMonth;
 
@@ -18,9 +16,6 @@ typedef void(^RiistaOperationCompletion)(BOOL wasSuccess);
 typedef void(^RiistaDiaryEntryUploadCompletion)(NSArray *updates, NSError *error);
 typedef void(^RiistaDiaryEntryEditCompletion)(NSDictionary *response, NSError *error);
 typedef void(^RiistaDiaryEntryDeleteCompletion)(NSError *error);
-typedef void(^RiistaObservationEntryUploadCompletion)(NSArray *updates, NSError *error);
-typedef void(^RiistaObservationEntryEditCompletion)(NSDictionary *response, NSError *error);
-typedef void(^RiistaObservationEntryDeleteCompletion)(NSError *error);
 typedef void(^RiistaSynchronizationCompletion)(void);
 typedef void(^DiaryImageSubmitCompletion)(BOOL errors);
 typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger currentIndex);
@@ -29,9 +24,6 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
 
 @property (strong, nonatomic, readonly) NSDictionary *categories;
 @property (strong, nonatomic, readonly) NSDictionary *species;
-
-// Used for enabling/disabling automatic synchronization
-@property (assign, nonatomic) BOOL autosync;
 
 // Is the data currently being synchronized?
 @property (assign, atomic, readonly) BOOL synchronizing;
@@ -73,6 +65,7 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
  * @param newImages New diary images
  */
 - (void)editLocalEvent:(DiaryEntry*)diaryEntry newImages:(NSArray*)images;
+- (void)editLocalEvent:(DiaryEntry*)diaryEntry;
 
 /**
  * Marks local database event as deleted
@@ -134,6 +127,9 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
  */
 - (void)sendAndNotifyUnsentDiaryEntries:(RiistaDiaryEntryUploadCompletion)completion;
 
+// Same as editDiaryEntry but for swift-world
+- (void)synchronizeDiaryEntry:(DiaryEntry*)diaryEntry completion:(RiistaOperationCompletion)completion;
+
 /**
  * Edits single event on server
  * Update will be notified with notifications
@@ -141,6 +137,9 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
  * @param completion Completion block
  */
 - (void)editDiaryEntry:(DiaryEntry*)diaryEntry completion:(RiistaDiaryEntryEditCompletion)completion;
+
+// a helper for swift-world. Same as deleteDiaryEntry but with different completion block
+- (void)deleteDiaryEntryCompat:(DiaryEntry*)diaryEntry completion:(RiistaOperationCompletion)completion;
 
 /**
  * Delete single event on server
@@ -168,41 +167,6 @@ typedef void(^RiistaUserImageLoadCompletion)(NSArray *images, NSUInteger current
  */
 - (void)userImagesWithCurrentImage:(DiaryImage*)image entryType:(NSString*)entryType completion:(RiistaUserImageLoadCompletion)completion;
 
-#pragma mark - Observations
 
-- (NSArray*)allObservations;
-- (ObservationEntry*)observationEntryWithId:(NSInteger)id;
-- (ObservationEntry*)observationEntryWithObjectId:(NSManagedObjectID*)objectId context:(NSManagedObjectContext*)context;
-- (void)addLocalObservation:(ObservationEntry*)observationEntry;
-- (void)editLocalObservation:(ObservationEntry*)observationEntry newImages:(NSArray*)images;
-- (void)editLocalObservation:(ObservationEntry*)observationEntry;
-- (void)deleteLocalObservation:(ObservationEntry*)observationEntry;
-- (void)clearObservations;
-
-- (NSArray*)observationYears;
-- (SeasonStats*)statsForObservationSeason:(NSInteger)startYear;
-- (NSArray*)latestObservationSpecies:(NSInteger)amount;
-
-// a helper for swift-world. Same as editObservationEntry but with different completion block
-- (void)synchronizeObservationEntry:(ObservationEntry *)observationEntry completion:(RiistaOperationCompletion)completion;
-- (void)editObservationEntry:(ObservationEntry *)observationEntry completion:(RiistaDiaryEntryEditCompletion)completion;
-// a helper for swift-world. Same as deleteObservationEntry but with different completion block
-- (void)deleteObservationEntryCompat:(ObservationEntry *)observationEntry completion:(RiistaOperationCompletion)completion;
-- (void)deleteObservationEntry:(ObservationEntry *)observationEntry completion:(RiistaDiaryEntryDeleteCompletion)completion;
-
-- (NSArray*)observationEntriesFromDictValues:(NSArray*)dictValues context:(NSManagedObjectContext*)context;
-- (NSDictionary*)dictFromObservationEntry:(ObservationEntry*)observationEntry isNew:(BOOL)isNew;
-
-#pragma mark - Srva
-
-- (SeasonStats*)statsForSrvaYear:(NSInteger)startYear;
-- (NSArray*)latestSrvaSpecies:(NSInteger)amount;
-- (SrvaEntry*)srvaEntryWithObjectId:(NSManagedObjectID*)objectId context:(NSManagedObjectContext*)context;
-- (void)addLocalSrva:(SrvaEntry*)srvaEntry;
-- (void)editLocalSrva:(SrvaEntry*)srvaEntry newImages:(NSArray*)images;
-- (void)editSrvaEntry:(SrvaEntry*)srvaEntry completion:(RiistaDiaryEntryEditCompletion)completion;
-- (void)deleteLocalSrva:(SrvaEntry*)srvaEntry;
-- (void)deleteSrvaEntry:(SrvaEntry*)srvaEntry completion:(RiistaDiaryEntryDeleteCompletion)completion;
-- (NSDictionary*)dictFromSrvaEntry:(SrvaEntry*)srvaEntry isNew:(BOOL)isNew;
 
 @end

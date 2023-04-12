@@ -7,6 +7,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSFetchRequest<ObservationEntry *> *)fetchRequest;
 
+// The id of the observation entry after it has been migrated to common library
+@property (nullable, nonatomic, retain) NSNumber *commonObservationId;
 @property (nullable, nonatomic, copy) NSNumber *canEdit;
 @property (nullable, nonatomic, copy) NSString *diarydescription;
 @property (nullable, nonatomic, copy) NSNumber *gameSpeciesCode;

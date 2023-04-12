@@ -1,6 +1,7 @@
 package fi.riista.common.domain.srva.ui.view
 
 import co.touchlab.stately.ensureNeverFrozen
+import fi.riista.common.domain.srva.SrvaContext
 import fi.riista.common.domain.srva.model.CommonSrvaEvent
 import fi.riista.common.domain.srva.model.CommonSrvaEventData
 import fi.riista.common.domain.srva.model.toSrvaEventData
@@ -20,14 +21,14 @@ import kotlinx.coroutines.flow.flow
  * A controller for viewing [CommonSrvaEvent] information
  */
 class ViewSrvaEventController(
+    private val srvaEventId: Long,
+    private val srvaContext: SrvaContext,
     metadataProvider: MetadataProvider,
     stringProvider: StringProvider,
 ) : ControllerWithLoadableModel<ViewSrvaEventViewModel>() {
 
     private val srvaEventFields = SrvaEventFields(metadataProvider = metadataProvider)
     private val dataFieldProducer = ViewSrvaEventFieldProducer(stringProvider = stringProvider)
-
-    var srvaEvent: CommonSrvaEvent? = null
 
     init {
         // should be accessed from UI thread only
@@ -38,7 +39,9 @@ class ViewSrvaEventController(
             Flow<ViewModelLoadStatus<ViewSrvaEventViewModel>> = flow {
         emit(ViewModelLoadStatus.Loading)
 
-        val event = srvaEvent?.toSrvaEventData()
+        srvaContext.srvaEventProvider.fetch(refresh = refresh)
+
+        val event = srvaContext.srvaEventProvider.getByLocalId(localId = srvaEventId)?.toSrvaEventData()
         if (event != null) {
             emit(ViewModelLoadStatus.Loaded(
                 viewModel = createViewModel(
@@ -46,8 +49,25 @@ class ViewSrvaEventController(
                 )
             ))
         } else {
-            logger.w { "Did you forget to set SRVA event before loading viewModel?" }
+            logger.w { "No srva event found with local id $srvaEventId." }
             emit(ViewModelLoadStatus.LoadFailed)
+        }
+    }
+
+    suspend fun deleteSrvaEvent(updateToBackend: Boolean): Boolean {
+        val srvaEventId = getLoadedViewModelOrNull()?.srvaEvent?.localId ?: kotlin.run {
+            logger.w { "No srva event found, cannot delete" }
+            return false
+        }
+
+        val deletedSrvaEvent = srvaContext.deleteSrvaEvent(srvaEventId)
+        return if (deletedSrvaEvent != null) {
+            if (updateToBackend) {
+                srvaContext.deleteSrvaEventInBackend(deletedSrvaEvent)
+            }
+            true
+        } else {
+            false
         }
     }
 

@@ -17,7 +17,9 @@ import MaterialComponents.MaterialDialogs
         RiistaSdkBuilder.Companion()
             .with(applicationVersion: appVersion ?? unknownVersion,
                   buildVersion: buildVersion ?? unknownVersion,
-                  serverBaseAddress: Environment.serverBaseAddress)
+                  serverBaseAddress: Environment.serverBaseAddress,
+                  crashlyticsLogger: CommonCrashlyticsLogger()
+            )
             // only allow redirects to absolute urls for debug/beta builds. NOT FOR PRODUCTION!
             .setAllowRedirectsToAbsoluteHosts(allowed: env == .dev || env == .staging)
             .initializeRiistaSDK()
@@ -135,10 +137,11 @@ import MaterialComponents.MaterialDialogs
         }
     }
 
-    @objc class func displayAppStartupMessage(parentViewController: UIViewController) {
+    // Returns true if startup message was displayed, otherwise returns false
+    @objc class func displayAppStartupMessage(parentViewController: UIViewController) -> Bool {
         if (!riistaSdkInitialized) {
             CrashlyticsHelper.log(msg: "Refusing to display app startup message before RiistaSDK has been initialized")
-            return
+            return false
         }
 
         CrashlyticsHelper.log(msg: "Trying to obtain application startup message")
@@ -146,32 +149,60 @@ import MaterialComponents.MaterialDialogs
         let startupMessageHandler = RiistaSDK.shared.appStartupMessageHandler()
         guard let startupMessage = startupMessageHandler.getAppStartupMessageToBeDisplayed() else {
             CrashlyticsHelper.log(msg: "No startup message to be displayed")
-            return
+            return false
         }
 
         guard let language = RiistaSettings.language() else {
             CrashlyticsHelper.log(msg: "Language must be known before attempting to display startup message")
-            return
+            return false
         }
 
         let title = startupMessage.localizedTitle(languageCode: language)
         let message = startupMessage.localizedMessage(languageCode: language)
+        let linkName = startupMessage.link?.localizedName(languageCode: language)
+        let linkUrl = startupMessage.link?.localizedUrl(languageCode: language)
+
         // either title or message is required
         if (title == nil && message == nil) {
             CrashlyticsHelper.log(msg: "Not showing startup message with no title or message")
-            return
+            return false
         }
 
         CrashlyticsHelper.log(msg: "Displaying application startup message")
 
-        let messageController = MDCAlertController(title: title, message: message)
-        let okAction = MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "Ok"),
-                                      handler: { (alert: MDCAlertAction!) -> Void in
-            CrashlyticsHelper.log(msg: "Application startup message dismissed")
-        })
-        messageController.addAction(okAction)
+        if (startupMessage.preventFurtherAppUsage) {
+            // prevent further app usage i.e. prevent sync
+            AppSync.shared.disableSyncPrecondition(.furtherAppUsageAllowed)
 
-        parentViewController.present(messageController, animated: true, completion: nil)
+            WarningViewController(
+                navBarTitle: title,
+                messageTitle: nil,
+                message: message,
+                buttonText: linkName,
+                buttonOnClicked: {
+                    if let linkUrl = linkUrl, let url = URL(string: linkUrl) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+            ).showAsNonDismissible(parentViewController: parentViewController)
+        } else {
+            let messageController = MDCAlertController(title: title, message: message)
+            let okAction = MDCAlertAction(title: "Ok".localized()) { _ in
+                CrashlyticsHelper.log(msg: "Application startup message dismissed")
+            }
+            messageController.addAction(okAction)
+
+            if let linkName = linkName, let linkUrl = linkUrl, let targetUrl = URL(string: linkUrl) {
+                let linkAction = MDCAlertAction(title: linkName) { _ in
+                    UIApplication.shared.open(targetUrl)
+                }
+                messageController.addAction(linkAction)
+            }
+
+            parentViewController.present(messageController, animated: true, completion: nil)
+        }
+
+        return true
     }
 
     /**

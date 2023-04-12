@@ -14,6 +14,7 @@ import fi.riista.common.domain.poi.PoiContext
 import fi.riista.common.domain.poi.model.PointOfInterestType
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
+import fi.riista.common.helpers.TestCrashlyticsLogger
 import fi.riista.common.util.MockDateTimeProvider
 import kotlin.test.*
 
@@ -187,7 +188,7 @@ class PoiControllerTest {
     }
 
     private fun getPoiContext(backendAPI: BackendAPI = BackendAPIMock()): PoiContext {
-        val configuration = RiistaSdkConfiguration("1", "2", serverAddress)
+        val configuration = RiistaSdkConfiguration("1", "2", serverAddress, TestCrashlyticsLogger)
         RiistaSDK.initializeMocked(
             sdkConfiguration = configuration,
             databaseDriverFactory = createDatabaseDriverFactory(),

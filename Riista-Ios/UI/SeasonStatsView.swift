@@ -80,12 +80,19 @@ import Foundation
     }
 
     func refreshStats(stats: SeasonStats) {
-        category1name.text = String(describing: stats.catNames[0])
-        category2name.text = String(describing: stats.catNames[1])
-        category3name.text = String(describing: stats.catNames[2])
+        if let categoryStats = stats.getCategoryStats(categoryId: 1) {
+            category1name.text = categoryStats.categoryName
+            category1value.text = "\(categoryStats.amount)"
+        }
 
-        category1value.text = String(describing: stats.catValues[0])
-        category2value.text = String(describing: stats.catValues[1])
-        category3value.text = String(describing: stats.catValues[2])
+        if let categoryStats = stats.getCategoryStats(categoryId: 2) {
+            category2name.text = categoryStats.categoryName
+            category2value.text = "\(categoryStats.amount)"
+        }
+
+        if let categoryStats = stats.getCategoryStats(categoryId: 3) {
+            category3name.text = categoryStats.categoryName
+            category3value.text = "\(categoryStats.amount)"
+        }
     }
 }

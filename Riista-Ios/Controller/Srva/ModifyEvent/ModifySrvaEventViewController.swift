@@ -2,6 +2,10 @@ import Foundation
 import RiistaCommon
 import CoreData
 
+protocol ModifySrvaEventViewControllerListener: AnyObject {
+    func onSrvaEventUpdated()
+}
+
 class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
     BaseControllerWithViewModel<ModifySrvaEventViewModel, Controller>,
     ProvidesNavigationController,
@@ -11,19 +15,17 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
     private let tableViewController = DataFieldTableViewController<SrvaEventField>()
     private var keyboardHandler: KeyboardHandler?
 
-    private lazy var appDelegate: RiistaAppDelegate = {
-        return UIApplication.shared.delegate as! RiistaAppDelegate
-    }()
+    // prevent appsync while modifying
+    private lazy var appsyncPreventer = PreventAppSyncWhileModifyingSynchronizableEntry(viewController: self)
 
-    internal lazy var moContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
-        context.parent = appDelegate.managedObjectContext
-        return context
-    }()
+    private lazy var imageEditUtil: ImageEditUtil = ImageEditUtil(parentController: self)
+    private lazy var commonImageManager: CommonImageManager = CommonImageManager()
 
-    private lazy var imageEditUtil: ImageEditUtil = {
-        ImageEditUtil(parentController: self)
-    }()
+    /**
+     * Listener to be notified when srva event is updated.
+     */
+    weak var listener: ModifySrvaEventViewControllerListener?
+
 
     private(set) lazy var tableView: TableView = {
         let tableView = TableView()
@@ -130,7 +132,8 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
             speciesEventDispatcher: controller.eventDispatchers.speciesEventDispatcher,
             speciesImageClickListener: { [weak self] fieldId, entityImage in
                 self?.onSpeciesImageClicked(fieldId: fieldId, entityImage: entityImage)
-            }
+            },
+            selectSpeciesAndImageFieldCellEntryType: .srva
         )
 
         title = getViewTitle()
@@ -139,12 +142,14 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        appsyncPreventer.onViewWillAppear()
         keyboardHandler?.listenKeyboardEvents()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         keyboardHandler?.hideKeyboard()
         keyboardHandler?.stopListenKeyboardEvents()
+        appsyncPreventer.onViewWillDisappear()
 
         super.viewWillDisappear(animated)
     }
@@ -174,13 +179,15 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
         }
     }
 
+
+    // MARK: Handling images
+
     func imagePicked(image: IdentifiableImage) {
-        let entityImage = EntityImage(
-            serverId: UUID().uuidString, // generate one
-            localIdentifier: image.imageIdentifier.localIdentifier,
-            localUrl: image.imageIdentifier.imageUrl?.absoluteString,
-            status: .local
-        )
+        guard let entityImage = commonImageManager.saveImageToTemporaryImages(identifiableImage: image) else {
+            print("Failed to obtain entity image")
+            return
+        }
+
         controller.eventDispatchers.imageEventDispatcher.setEntityImage(image: entityImage)
     }
 
@@ -193,9 +200,57 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
             self, reason: reason, imageLoadRequest: loadRequest, allowAnotherPhotoSelection: true)
     }
 
-    func onSaveClicked() {
-        fatalError("You should subclass this class and override onSaveClicked()")
+    func saveImagesUnderLocalImages(srvaEvent: CommonSrvaEvent, _ onCompleted: @escaping OnCompleted) {
+        let imagesToKeep = srvaEvent.images.localImages.filter { entityImage in
+            entityImage.status == .local
+        }
+
+        commonImageManager.moveTemporaryImagesToLocalImages(images: imagesToKeep, onCompleted: onCompleted)
     }
+
+
+    // MARK: Save & cancel
+
+    func onSaveClicked() {
+        tableView.showLoading()
+        saveButton.isEnabled = false
+
+
+        controller.saveSrvaEvent(updateToBackend: AppSync.shared.isAutomaticSyncEnabled()) { [weak self] response, error in
+            guard let self = self else { return }
+
+            self.tableView.hideLoading()
+            self.saveButton.isEnabled = true
+
+            // notify possible parent about saved srva event
+            self.listener?.onSrvaEventUpdated()
+
+            let databaseSaveResponse = response?.databaseSaveResponse
+            let networkSaveResponse = response?.networkSaveResponse
+
+            if let networkFailure = networkSaveResponse as? SrvaEventOperationResponse.NetworkFailure,
+               networkFailure.statusCode == 409 {
+                let errorDialog = AlertDialogBuilder.createError(message: "OutdatedDiaryEntry".localized())
+                self.present(errorDialog, animated: true)
+            } else if let successResponse = databaseSaveResponse as? SrvaEventOperationResponse.Success {
+                self.handleSuccessfullySavedSrvaEvent(srvaEvent: successResponse.srvaEvent)
+            } else {
+                let errorDialog = AlertDialogBuilder.createError(message: "DiaryEditFailed".localized())
+                self.present(errorDialog, animated: true)
+            }
+        }
+    }
+
+    private func handleSuccessfullySavedSrvaEvent(srvaEvent: CommonSrvaEvent) {
+        saveImagesUnderLocalImages(srvaEvent: srvaEvent) { [weak self] in
+            self?.navigateToNextViewAfterSaving(srvaEvent: srvaEvent)
+        }
+    }
+
+    func navigateToNextViewAfterSaving(srvaEvent: CommonSrvaEvent) {
+        fatalError("You should subclass this class and override navigateToNextViewAfterSaving(srvaEvent:)")
+    }
+
 
     func onCancelClicked() {
         navigationController?.popViewController(animated: true)
@@ -216,23 +271,10 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
         )
     }
 
-    internal func newImages(_ srvaEvent: CommonSrvaEvent) -> [DiaryImage] {
-        var newImages = [DiaryImage]()
-        srvaEvent.images.localImages.forEach { image in
-            if (image.status == .local) {
-                let diaryImage = image.toDiaryImage(context: moContext)
-                diaryImage.imageid = NSUUID().uuidString
-                diaryImage.status = NSNumber(value: DiaryImageStatusInsertion)
-                newImages.append(diaryImage)
-            }
-        }
-        return newImages
-    }
 
     // MARK: KeyboardHandlerDelegate
 
     func getBottommostVisibleViewWhileKeyboardVisible() -> UIView? {
         tableView
     }
-
 }

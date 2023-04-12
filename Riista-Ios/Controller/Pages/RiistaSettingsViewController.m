@@ -16,6 +16,7 @@
 @property (weak, nonatomic) IBOutlet MDCButton *thirdPartyLicenseButton;
 @property (weak, nonatomic) IBOutlet MDCButton *termsOfServiceButton;
 @property (weak, nonatomic) IBOutlet MDCButton *accessibilityStatementButton;
+@property (weak, nonatomic) IBOutlet MDCButton *forgetMeButton;
 @property (weak, nonatomic) IBOutlet UILabel *languageSettingLabel;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *languageSegmentedControl;
 
@@ -52,8 +53,7 @@
     self.view.backgroundColor = [UIColor applicationColor:ViewBackground];
     [AppTheme.shared setupSegmentedControllerWithSegmentedController:self.syncSegmentedControl];
 
-    RiistaSyncMode mode = [RiistaSettings syncMode];
-    if (mode == RiistaSyncModeManual) {
+    if ([AppSync.shared isAutomaticSyncEnabled] == false) {
         [self.syncSegmentedControl setSelectedSegmentIndex:0];
     } else {
         [self.syncSegmentedControl setSelectedSegmentIndex:1];
@@ -68,6 +68,7 @@
     [self setupTermsOfServiceButton];
     [self setupAccessibilityStatementButton];
     [self setupThirdPartyLibrariesButton];
+    [self setupForgetMeButton];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -75,6 +76,11 @@
     [super viewWillAppear:animated];
     [self setupLocalizedTexts];
     [self updateSyncButton];
+
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(onManualSynchronizationPossibleStatusChanged:)
+                                               name:NotificationNames.ManualSynchronizationPossibleStatusChanged
+                                             object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -83,12 +89,18 @@
     [self pageSelected];
 }
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [NSNotificationCenter.defaultCenter removeObserver:self];
+    [super viewWillDisappear:animated];
+}
+
 - (void)createSynchronizeTabButton
 {
     self.synchronizeButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh_white"]
-                                                         style:UIBarButtonItemStylePlain
-                                                        target:self
-                                                        action:@selector(synchronizeEvents)];
+                                                              style:UIBarButtonItemStylePlain
+                                                             target:self
+                                                             action:@selector(performManualAppSync)];
     [self.navigationItem setRightBarButtonItem:self.synchronizeButton];
 
     [self updateSyncButton];
@@ -96,17 +108,24 @@
 
 - (void)updateSyncButton
 {
-    self.synchronizeButton.isHidden = [RiistaSettings syncMode] != RiistaSyncModeManual;
-    self.synchronizeButton.enabled = ![[RiistaGameDatabase sharedInstance] synchronizing];
+    self.synchronizeButton.isHidden = [AppSync.shared isAutomaticSyncEnabled];
+    self.synchronizeButton.enabled = AppSync.shared.manualSynchronizationPossible;
 }
 
-- (void)synchronizeEvents
+- (void)onManualSynchronizationPossibleStatusChanged:(NSNotification *)notification
 {
-    [self.synchronizeButton setEnabled:NO];
-    [[RiistaGameDatabase sharedInstance] synchronizeDiaryEntries:^() {
-        [self.synchronizeButton setEnabled:YES];
-    }];
+    if (notification.object && [notification.object isKindOfClass:[NSNumber class]]) {
+        BOOL manualSyncPossible = [((NSNumber *)notification.object) boolValue];
+
+        [self.synchronizeButton setEnabled:manualSyncPossible];
+    }
 }
+
+- (void)performManualAppSync
+{
+    [AppSync.shared synchronizeUsingMode:SynchronizationModeManual];
+}
+
 
 - (void)refreshVersionText
 {
@@ -207,6 +226,12 @@
     [_thirdPartyLicenseButton addTarget:self action:@selector(openThirdPartyLibrariesPage:) forControlEvents:UIControlEventTouchUpInside];
 }
 
+- (void)setupForgetMeButton
+{
+    [_forgetMeButton applyTextThemeWithScheme:AppTheme.shared.outlineButtonScheme];
+    [_forgetMeButton addTarget:self action:@selector(openForgetMePage:) forControlEvents:UIControlEventTouchUpInside];
+}
+
 - (void)setupLocalizedTexts
 {
     RiistaLanguageRefresh;
@@ -225,7 +250,8 @@
                                        forState:UIControlStateNormal];
     [self.thirdPartyLicenseButton setTitle:RiistaLocalizedString(@"ThirdPartyLibraries", nil)
                                   forState:UIControlStateNormal];
-
+    [self.forgetMeButton setTitle:RiistaLocalizedString(@"DeleteUserAccount", nil)
+                         forState:UIControlStateNormal];
 
 
     [self pageSelected];
@@ -233,10 +259,11 @@
 
 - (void)syncModeChanged:(id)sender
 {
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults setInteger:self.syncSegmentedControl.selectedSegmentIndex forKey:RiistaSettingsSyncModeKey];
-    [RiistaGameDatabase sharedInstance].autosync = (self.syncSegmentedControl.selectedSegmentIndex == 1);
-    [userDefaults synchronize];
+    if (self.syncSegmentedControl.selectedSegmentIndex == 0) {
+        [AppSync.shared disableAutomaticSync];
+    } else {
+        [AppSync.shared enableAutomaticSync];
+    }
 
     [self updateSyncButton];
     [SynchronizationAnalytics onSynchronizationModeChanged];
@@ -291,6 +318,17 @@
 {
     UIViewController *controller = [[ThirdPartyLicensesController alloc] init];
     [self.navigationController pushViewController:controller animated:YES];
+}
+
+- (void)openForgetMePage:(id)sender
+{
+    // show notification instead if user has already requested to delete account
+    BOOL notified = [UserAccountUnregisterRequestedViewController notifyIfUnregistrationRequestedWithNavigationController:self.navigationController ignoreCooldown:YES];
+
+    if (!notified) {
+        UIViewController *controller = [[DeleteUserAccountViewController alloc] init];
+        [self.navigationController pushViewController:controller animated:YES];
+    }
 }
 
 @end

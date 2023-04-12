@@ -39,6 +39,15 @@ public enum SavePhotoResult {
 typealias SavePhotoCompletion = (SavePhotoResult) -> Void
 
 
+/**
+ * A manager for images with main responsibilities:
+ * - pick image from gallery
+ * - load image from gallery
+ * - save image to gallery
+ *
+ * It is not this manager's responsibility to load/save images from/to directories managed by RiistaCommon. See `CommonImageManager`
+ * for that purpose.
+ */
 class LocalImageManager: NSObject {
     @objc static let instance = LocalImageManager()
 

@@ -235,7 +235,11 @@ class LoginOrRegisterViewController: UIViewController, KeyboardHandlerDelegate {
     // MARK: Logging in
 
     private func login(username: String, password: String) {
-        RiistaNetworkManager.sharedInstance().login(username, password: password) { [weak self] error in
+        RiistaNetworkManager.sharedInstance().login(
+            username,
+            password: password,
+            timeoutSeconds: LOGIN_DEFAULT_TIMEOUT_SECONDS
+        ) { [weak self] error in
             guard let self = self else {
                 return
             }

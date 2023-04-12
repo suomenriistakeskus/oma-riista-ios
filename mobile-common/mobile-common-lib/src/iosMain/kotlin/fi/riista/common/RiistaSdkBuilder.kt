@@ -1,6 +1,7 @@
 package fi.riista.common
 
 import fi.riista.common.database.DatabaseDriverFactory
+import fi.riista.common.logging.CrashlyticsLogger
 
 actual class RiistaSdkBuilder private constructor(
     internal actual var configuration: RiistaSdkConfiguration,
@@ -18,9 +19,10 @@ actual class RiistaSdkBuilder private constructor(
             applicationVersion: String,
             buildVersion: String,
             serverBaseAddress: String,
+            crashlyticsLogger: CrashlyticsLogger,
         ): RiistaSdkBuilder {
             val configuration = RiistaSdkConfiguration(
-                    applicationVersion, buildVersion, serverBaseAddress)
+                    applicationVersion, buildVersion, serverBaseAddress, crashlyticsLogger)
 
             return RiistaSdkBuilder(configuration)
         }

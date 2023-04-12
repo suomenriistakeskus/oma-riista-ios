@@ -119,13 +119,40 @@ class MapDiaryEntryCell: UITableViewCell {
         }
     }
 
-    func bindValues(speciesCode: Int32,
-                    pointOfTime: LocalDateTime,
-                    acceptStatus: AcceptStatus,
-                    description: String?) {
+    func bindValues(
+        speciesCode: Int32,
+        pointOfTime: LocalDateTime,
+        acceptStatus: AcceptStatus,
+        description: String?
+    ) {
+        bindValues(
+            species: Species.Known(speciesCode: speciesCode),
+            otherSpeciesDescription: nil,
+            pointOfTime: pointOfTime,
+            acceptStatus: acceptStatus,
+            description: description
+        )
+    }
+
+    func bindValues(
+        species: Species,
+        otherSpeciesDescription: String?,
+        pointOfTime: LocalDateTime,
+        acceptStatus: AcceptStatus,
+        description: String?
+    ) {
         let locale = RiistaSettings.locale()
 
-        speciesNameLabel.text = speciesNameResolver.getSpeciesName(speciesCode: speciesCode)?.uppercased(with: locale)
+        if let speciesCode = species.knownSpeciesCodeOrNull()?.int32Value {
+            speciesNameLabel.text = speciesNameResolver.getSpeciesName(speciesCode: speciesCode)?.uppercased(with: locale)
+        } else {
+            var otherSpeciesName = "SrvaOtherSpeciesShort".localized()
+            if let otherSpeciesDescription = otherSpeciesDescription {
+                otherSpeciesName = "\(otherSpeciesName) - \(otherSpeciesDescription)"
+            }
+            speciesNameLabel.text = otherSpeciesName
+        }
+
         pointOfTimeLabel.text = pointOfTime.toFoundationDate().formatDateAndTime()
         iconTintColor = getImageTintColor(acceptStatus: acceptStatus)
         descriptionLabel.text = description ?? ""

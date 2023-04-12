@@ -41,8 +41,11 @@ typedef enum {
     GreyDark,
     GreyMedium,
     GreyLight,
-    Destructive
+    Destructive,
 
+    ApplicationGreen,
+    ApplicationYellow,
+    ApplicationRed
 } RiistaApplicationColor;
 
 @interface UIColor (ApplicationColor)

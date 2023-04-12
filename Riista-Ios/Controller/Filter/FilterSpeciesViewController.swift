@@ -2,6 +2,10 @@ import Foundation
 import MaterialComponents
 import RiistaCommon
 
+protocol FilterSpeciesViewControllerDelegate: AnyObject {
+    func onFilterSpeciesSelected(species: [RiistaCommon.Species])
+}
+
 class FilterSpeciesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var clearButton: MDCButton!
@@ -10,7 +14,7 @@ class FilterSpeciesViewController: UIViewController, UITableViewDataSource, UITa
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var okButton: MDCButton!
 
-    var delegate: LogFilterDelegate?
+    var delegate: FilterSpeciesViewControllerDelegate?
 
     var categoryId: Int = -1
     var isSrva = false
@@ -147,27 +151,29 @@ class FilterSpeciesViewController: UIViewController, UITableViewDataSource, UITa
     }
 
     @objc func didTapOk(sender: Any) {
-        let selectedItems = tableView.indexPathsForSelectedRows
+        guard let selectedIndexPaths = tableView.indexPathsForSelectedRows else {
+            selectAllRows()
+            return
+        }
 
         // Ok tap without any selections confirms all species ids in category
-        if (selectedItems == nil || selectedItems!.count == 0) {
+        if (selectedIndexPaths.count == 0) {
             selectAllRows()
         }
 
-        var selectedIds = [Int]()
+        var selectedSpecies = [RiistaCommon.Species]()
 
-        for indexPath in tableView.indexPathsForSelectedRows! {
+        for indexPath in selectedIndexPaths {
             let species = tableViewItems[indexPath.row]
             if (species == nil) {
-                // SRVA "other" species
-                selectedIds.append(AppConstants.SrvaOtherCode)
+                selectedSpecies.append(Species.Other())
             }
             else {
-                selectedIds.append(species!.speciesId)
+                selectedSpecies.append(Species.Known(speciesCode: Int32(species!.speciesId)))
             }
         }
 
-        delegate?.onFilterSpeciesSelected(speciesCodes: selectedIds)
+        delegate?.onFilterSpeciesSelected(species: selectedSpecies)
 
         if let vcStack = navigationController?.viewControllers {
             // Pop both category and species views or just species view for SRVA case

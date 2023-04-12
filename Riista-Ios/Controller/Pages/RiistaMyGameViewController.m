@@ -1,11 +1,7 @@
 #import "RiistaMyGameViewController.h"
-#import "RiistaLogGameViewController.h"
 #import "RiistaHeaderLabel.h"
 #import "Styles.h"
 #import "RiistaUtils.h"
-#import "RiistaGameDatabase.h"
-#import "DiaryEntry.h"
-#import "SrvaEntry.h"
 #import "RiistaSpecies.h"
 #import "RiistaSettings.h"
 #import "RiistaLocalization.h"
@@ -33,7 +29,6 @@
 @property (weak, nonatomic) IBOutlet MDCButton *huntingLicenseButton;
 
 @property (nonatomic, strong) NSArray *latestHarvestSpecies;
-@property (nonatomic, strong) NSArray *latestObservationSpecies;
 
 @property (nonatomic, strong) UIBarButtonItem* synchronizeButton;
 
@@ -50,14 +45,13 @@
 NSInteger const quickHarvest1Default = 47503; // Hirvi
 NSInteger const quickHarvest2Default = 50106; // Metsajanis
 
-NSInteger const quickObservation1Default = 47503; // Hirvi
-NSInteger const quickObservation2Default = 47629; // Valkohantapeura
-
 NSInteger const quickSrva1Default = 47503; // Hirvi
 NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 @implementation RiistaMyGameViewController
 {
+    MyGameQuickButtonsHelper *quickButtonHelper;
+
     // Keeps track of language used when refreshing UI texts.
     NSString* previousLanguage;
 
@@ -83,6 +77,9 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    quickButtonHelper = [[MyGameQuickButtonsHelper alloc] initWithNavigationController:self.navigationController];
+
 
     [self createSynchronizeTabButton];
 
@@ -130,6 +127,8 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(calendarEntriesUpdated:) name:RiistaCalendarEntriesUpdatedKey object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userInfoUpdated:) name:RiistaUserInfoUpdatedKey object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tryDisplayAppStartupMessage) name:RiistaUserInfoUpdatedKey object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(calendarEntriesUpdated:) name:NotificationNames.ObservationModified object:nil];
 
     [self updateNavigationItemTitleView];
     [self setupQuickButtons];
@@ -188,6 +187,12 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     // - currently RiistaCommon initialization and related functionality require that remote configuration
     //   does not change after app has been launched
     [RemoteConfigurationManager.sharedInstance fetchRemoteConfigurationIfNotRecentWithCompletionHandler:nil];
+
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(onManualSynchronizationPossibleStatusChanged:)
+                                               name:NotificationNames.ManualSynchronizationPossibleStatusChanged
+                                             object:nil];
+
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -197,7 +202,9 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     currentlyVisible = YES;
     [self pageSelected];
 
-    [self tryDisplayAppStartupMessage];
+    if (![self tryDisplayUnregistrationRequestedNotification]) {
+        [self tryDisplayAppStartupMessage];
+    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -261,9 +268,9 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 - (void)createSynchronizeTabButton
 {
     self.synchronizeButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh_white"]
-                                                         style:UIBarButtonItemStylePlain
-                                                        target:self
-                                                        action:@selector(refresh:)];
+                                                              style:UIBarButtonItemStylePlain
+                                                             target:self
+                                                             action:@selector(performManualAppSync)];
     [self.navigationItem setRightBarButtonItem:self.synchronizeButton];
 
     [self updateSyncButton];
@@ -271,28 +278,29 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)updateSyncButton
 {
-    self.synchronizeButton.isHidden = [RiistaSettings syncMode] != RiistaSyncModeManual;
-    self.synchronizeButton.enabled = ![[RiistaGameDatabase sharedInstance] synchronizing];
+    self.synchronizeButton.isHidden = [AppSync.shared isAutomaticSyncEnabled];
+    self.synchronizeButton.enabled = AppSync.shared.manualSynchronizationPossible;
 }
 
-- (void)refresh:(id)sender
+- (void)onManualSynchronizationPossibleStatusChanged:(NSNotification *)notification
 {
-    [self.synchronizeButton setEnabled:NO];
-    [[RiistaGameDatabase sharedInstance] synchronizeDiaryEntries:^() {
-        [self.synchronizeButton setEnabled:YES];
-    }];
+    if (notification.object && [notification.object isKindOfClass:[NSNumber class]]) {
+        BOOL manualSyncPossible = [((NSNumber *)notification.object) boolValue];
+
+        [self.synchronizeButton setEnabled:manualSyncPossible];
+    }
 }
+
+- (void)performManualAppSync
+{
+    [AppSync.shared synchronizeUsingMode:SynchronizationModeManual];
+}
+
 
 - (void)logHarvestButtonClick:(id)sender
 {
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"HarvestStoryboard" bundle:nil];
-    UIViewController *destination = [sb instantiateInitialViewController];
-
-    UIStoryboardSegue *segue = [UIStoryboardSegue segueWithIdentifier:@"" source:self destination:destination performHandler:^(void) {
-        [self.navigationController pushViewController:destination animated:YES];
-    }];
-
-    [segue perform];
+    UIViewController *viewController = [CreateHarvestViewControllerHelper createViewController];
+    [self.navigationController pushViewController:viewController animated:YES];
 }
 
 - (void)logObservationButtonClick:(id)sender
@@ -318,6 +326,21 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     [self updateSrvaVisibility];
 }
 
+- (BOOL)tryDisplayUnregistrationRequestedNotification
+{
+    TopLevelTabBarViewController *tabController = (TopLevelTabBarViewController*)self.tabBarController;
+
+    BOOL loggingIn = [tabController isDisplayingLoginScreen];
+    if (currentlyVisible == NO || loggingIn == YES) {
+        return NO;
+    }
+
+    // check whether there's a pending unregistration
+    BOOL notified = [UserAccountUnregisterRequestedViewController notifyIfUnregistrationRequestedWithNavigationController:self.navigationController ignoreCooldown:NO];
+
+    return notified;
+}
+
 - (void)tryDisplayAppStartupMessage
 {
     TopLevelTabBarViewController *tabController = (TopLevelTabBarViewController*)self.tabBarController;
@@ -326,7 +349,10 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     if (currentlyVisible == YES && loggingIn == NO) {
         [CrashlyticsHelper logWithMsg:@"Trying to display app startup message"];
 
-        [RiistaSDKHelper displayAppStartupMessageWithParentViewController:self];
+        BOOL startupMessageDisplayed = [RiistaSDKHelper displayAppStartupMessageWithParentViewController:self];
+        if (!startupMessageDisplayed) {
+            [AppUpdateNotifier checkVersionAndLaunchUpdateDialogFromLandingPage];
+        }
     }
 }
 
@@ -350,11 +376,9 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     NSArray *latestSpecies = [[RiistaGameDatabase sharedInstance] latestEventSpecies:quickButtons.count];
     [self setupQuickButtonGroup:quickButtons species:latestSpecies defaults:defaultItems isHarvest:YES];
 
-    // Observation buttons
-    quickButtons = @[self.quickObservationButton1, self.quickObservationButton2];
-    defaultItems = [@[@(quickObservation1Default), @(quickObservation2Default)] mutableCopy];
-    latestSpecies = [[RiistaGameDatabase sharedInstance] latestObservationSpecies:quickButtons.count];
-    [self setupQuickButtonGroup:quickButtons species:latestSpecies defaults:defaultItems isHarvest:NO];
+
+    [quickButtonHelper setupObservationButtonsWithButton1:self.quickObservationButton1
+                                                  button2:self.quickObservationButton2];
 }
 
 - (void)setupQuickButtonGroup:(NSArray*)quickButtons species:(NSArray*)latestSpecies defaults:(NSMutableArray*)defaultItems isHarvest:(BOOL)isHarvest
@@ -393,13 +417,6 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
             [self setupQuickButton:quickButtons[i] ordinal:i titleResource:@"LogGameFormat" speciesList:self.latestHarvestSpecies presetSpecies:@selector(logHarvestSpecies:)];
         }
     }
-    else {
-        self.latestObservationSpecies = [speciesArray copy];
-
-        for (int i=0; i<quickButtons.count; i++) {
-            [self setupQuickButton:quickButtons[i] ordinal:i titleResource:@"LogObservationFormat" speciesList:self.latestObservationSpecies presetSpecies:@selector(logObservationSpecies:)];
-        }
-    }
 }
 
 /**
@@ -428,22 +445,9 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)logHarvestSpecies:(id)sender
 {
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"HarvestStoryboard" bundle:nil];
-    RiistaLogGameViewController *destination = (RiistaLogGameViewController*)[sb instantiateInitialViewController];
-    destination.species = self.latestHarvestSpecies[[sender tag]];
+    RiistaSpecies *species = self.latestHarvestSpecies[[sender tag]];
 
-    UIStoryboardSegue *segue = [UIStoryboardSegue segueWithIdentifier:@"" source:self destination:destination performHandler:^(void) {
-        [self.navigationController pushViewController:destination animated:YES];
-    }];
-
-    [segue perform];
-}
-
-- (void)logObservationSpecies:(id)sender
-{
-    RiistaSpecies *species = self.latestObservationSpecies[[sender tag]];
-
-    UIViewController *viewController = [CreateObservationViewControllerHelper createViewControllerWithSpecies:species];
+    UIViewController *viewController = [CreateHarvestViewControllerHelper createViewControllerWithSpecies:species];
     [self.navigationController pushViewController:viewController animated:YES];
 }
 

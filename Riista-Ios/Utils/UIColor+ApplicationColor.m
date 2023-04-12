@@ -50,7 +50,10 @@
              @(GreyDark): [UIColor colorWithHexValue:0x6A6A6A],
              @(GreyMedium): [UIColor colorWithHexValue:0x9E9E9E],
              @(GreyLight): [UIColor colorWithHexValue:0xD9D9D9],
-             @(Destructive): [UIColor colorWithHexValue:0xC72525]
+             @(Destructive): [UIColor colorWithHexValue:0xC72525],
+             @(ApplicationGreen): [UIColor colorWithHexValue:0x2F882E],
+             @(ApplicationYellow): [UIColor colorWithHexValue:0xFFCC00],
+             @(ApplicationRed): [UIColor colorWithHexValue:0xC72525],
             };
     });
 

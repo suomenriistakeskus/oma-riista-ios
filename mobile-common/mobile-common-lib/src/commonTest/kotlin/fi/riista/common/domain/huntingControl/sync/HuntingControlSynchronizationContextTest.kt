@@ -7,6 +7,7 @@ import fi.riista.common.domain.dto.MockUserInfo
 import fi.riista.common.domain.huntingControl.MockHuntingControlData
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
 import fi.riista.common.helpers.MockMainScopeProvider
+import fi.riista.common.helpers.TestCrashlyticsLogger
 import fi.riista.common.helpers.createDatabaseDriverFactory
 import fi.riista.common.helpers.runBlockingTest
 import fi.riista.common.io.CommonFileProviderMock
@@ -29,7 +30,7 @@ class HuntingControlSynchronizationContextTest {
         val databaseDriver = dbDriverFactory.createDriver()
         val database = RiistaDatabase(driver = databaseDriver)
         val backendApi = BackendAPIMock()
-        val configuration = RiistaSdkConfiguration("1", "2", serverAddress)
+        val configuration = RiistaSdkConfiguration("1", "2", serverAddress, TestCrashlyticsLogger)
         val userContextProvider = CurrentUserContextProviderFactory.createMocked()
         userContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
 

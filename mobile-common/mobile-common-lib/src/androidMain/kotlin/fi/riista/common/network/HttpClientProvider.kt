@@ -49,6 +49,7 @@ internal actual class HttpClientProvider {
             install(HttpCookies) {
                 storage = cookiesStorage
             }
+            install(HttpTimeout)
             defaultRequest {
                 configureDefaultRequest(this, sdkConfiguration)
             }

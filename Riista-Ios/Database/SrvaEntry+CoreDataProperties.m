@@ -7,6 +7,7 @@
 
 @implementation SrvaEntry (CoreDataProperties)
 
+@dynamic commonSrvaEventId;
 @dynamic remoteId;
 @dynamic rev;
 @dynamic type;

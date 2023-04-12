@@ -1,16 +1,55 @@
 package fi.riista.common.network
 
 import fi.riista.common.authentication.LoginService
+import fi.riista.common.authentication.registration.CancelUnregisterAccount
+import fi.riista.common.authentication.registration.UnregisterAccount
 import fi.riista.common.domain.dto.HunterNumberDTO
 import fi.riista.common.domain.dto.PersonWithHunterNumberDTO
 import fi.riista.common.domain.dto.UserInfoDTO
-import fi.riista.common.domain.groupHunting.dto.*
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingClubsAndGroupsDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingDayCreateDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingDayDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingDayForDeerDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingDayUpdateDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingDaysDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingDiaryDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingHarvestCreateDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingHarvestDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingObservationCreateDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingObservationDTO
+import fi.riista.common.domain.groupHunting.dto.GroupHuntingObservationUpdateDTO
+import fi.riista.common.domain.groupHunting.dto.HuntingGroupAreaDTO
+import fi.riista.common.domain.groupHunting.dto.HuntingGroupMembersDTO
+import fi.riista.common.domain.groupHunting.dto.HuntingGroupStatusDTO
+import fi.riista.common.domain.groupHunting.dto.RejectDiaryEntryDTO
 import fi.riista.common.domain.groupHunting.model.HuntingGroupId
-import fi.riista.common.domain.groupHunting.network.*
+import fi.riista.common.domain.groupHunting.network.CreateGroupHuntingHarvest
+import fi.riista.common.domain.groupHunting.network.CreateGroupHuntingObservation
+import fi.riista.common.domain.groupHunting.network.CreateHuntingGroupHuntingDay
+import fi.riista.common.domain.groupHunting.network.FetchGroupHuntingClubsAndGroups
+import fi.riista.common.domain.groupHunting.network.FetchGroupHuntingDiary
+import fi.riista.common.domain.groupHunting.network.FetchHuntingDayForDeer
+import fi.riista.common.domain.groupHunting.network.FetchHuntingGroupArea
+import fi.riista.common.domain.groupHunting.network.FetchHuntingGroupHuntingDays
+import fi.riista.common.domain.groupHunting.network.FetchHuntingGroupMembers
+import fi.riista.common.domain.groupHunting.network.FetchHuntingGroupStatus
+import fi.riista.common.domain.groupHunting.network.RejectGroupHuntingDiaryEntry
+import fi.riista.common.domain.groupHunting.network.SearchPersonByHunterNumber
+import fi.riista.common.domain.groupHunting.network.UpdateGroupHuntingHarvest
+import fi.riista.common.domain.groupHunting.network.UpdateGroupHuntingObservation
+import fi.riista.common.domain.groupHunting.network.UpdateHuntingGroupHuntingDay
+import fi.riista.common.domain.huntingControl.dto.HuntingControlHunterInfoDTO
+import fi.riista.common.domain.huntingControl.network.FetchHunterInfoByHunterNumber
+import fi.riista.common.domain.huntingControl.network.FetchHunterInfoBySsn
 import fi.riista.common.domain.huntingControl.sync.dto.HuntingControlEventCreateDTO
 import fi.riista.common.domain.huntingControl.sync.dto.HuntingControlEventDTO
 import fi.riista.common.domain.huntingControl.sync.dto.LoadRhysAndHuntingControlEventsDTO
-import fi.riista.common.domain.huntingControl.sync.network.*
+import fi.riista.common.domain.huntingControl.sync.network.CreateHuntingControlEvent
+import fi.riista.common.domain.huntingControl.sync.network.DeleteHuntingControlEventAttachment
+import fi.riista.common.domain.huntingControl.sync.network.FetchAttachmentThumbnail
+import fi.riista.common.domain.huntingControl.sync.network.FetchRhysAndHuntingControlEvents
+import fi.riista.common.domain.huntingControl.sync.network.UpdateHuntingControlEvent
+import fi.riista.common.domain.huntingControl.sync.network.UploadHuntingControlEventAttachment
 import fi.riista.common.domain.huntingclub.dto.HuntingClubMemberInvitationsDTO
 import fi.riista.common.domain.huntingclub.dto.HuntingClubMembershipsDTO
 import fi.riista.common.domain.huntingclub.model.HuntingClubMemberInvitationId
@@ -20,12 +59,35 @@ import fi.riista.common.domain.huntingclub.network.HuntingClubMemberInvitationRe
 import fi.riista.common.domain.model.OrganizationId
 import fi.riista.common.domain.observation.metadata.dto.ObservationMetadataDTO
 import fi.riista.common.domain.observation.metadata.network.FetchObservationMetadata
+import fi.riista.common.domain.observation.sync.dto.DeletedObservationsDTO
+import fi.riista.common.domain.observation.sync.dto.ObservationCreateDTO
+import fi.riista.common.domain.observation.sync.dto.ObservationDTO
+import fi.riista.common.domain.observation.sync.dto.ObservationPageDTO
+import fi.riista.common.domain.observation.sync.network.CreateObservation
+import fi.riista.common.domain.observation.sync.network.DeleteObservation
+import fi.riista.common.domain.observation.sync.network.DeleteObservationImage
+import fi.riista.common.domain.observation.sync.network.FetchDeletedObservations
+import fi.riista.common.domain.observation.sync.network.FetchObservationPage
+import fi.riista.common.domain.observation.sync.network.UpdateObservation
+import fi.riista.common.domain.observation.sync.network.UploadObservationImage
 import fi.riista.common.domain.poi.dto.PoiLocationGroupsDTO
 import fi.riista.common.domain.poi.network.FetchPoiLocationGroups
 import fi.riista.common.domain.srva.metadata.dto.SrvaMetadataDTO
 import fi.riista.common.domain.srva.metadata.network.FetchSrvaMetadata
+import fi.riista.common.domain.srva.sync.dto.DeletedSrvaEventsDTO
+import fi.riista.common.domain.srva.sync.dto.SrvaEventCreateDTO
+import fi.riista.common.domain.srva.sync.dto.SrvaEventDTO
+import fi.riista.common.domain.srva.sync.dto.SrvaEventPageDTO
+import fi.riista.common.domain.srva.sync.network.CreateSrvaEvent
+import fi.riista.common.domain.srva.sync.network.DeleteSrvaEvent
+import fi.riista.common.domain.srva.sync.network.DeleteSrvaEventImage
+import fi.riista.common.domain.srva.sync.network.FetchDeletedSrvaEvents
+import fi.riista.common.domain.srva.sync.network.FetchSrvaEvents
+import fi.riista.common.domain.srva.sync.network.UpdateSrvaEvent
+import fi.riista.common.domain.srva.sync.network.UploadSrvaEventImage
 import fi.riista.common.domain.training.dto.TrainingsDTO
 import fi.riista.common.domain.training.network.FetchTrainings
+import fi.riista.common.dto.LocalDateTimeDTO
 import fi.riista.common.io.CommonFile
 import fi.riista.common.logging.getLogger
 import fi.riista.common.model.LocalDateTime
@@ -47,8 +109,16 @@ class AuthenticationAwareBackendAPI internal constructor(
         return networkClient.cookiesStorage.getCookies(requestUrl)
     }
 
-    override suspend fun login(username: String, password: String) : NetworkResponse<UserInfoDTO> {
-        return loginService.login(username, password)
+    override suspend fun login(username: String, password: String, timeoutSeconds: Int) : NetworkResponse<UserInfoDTO> {
+        return loginService.login(username, password, timeoutSeconds)
+    }
+
+    override suspend fun unregisterAccount(): NetworkResponse<LocalDateTimeDTO> {
+        return performRequest(UnregisterAccount())
+    }
+
+    override suspend fun cancelUnregisterAccount(): NetworkResponse<Unit> {
+        return performRequest(CancelUnregisterAccount())
     }
 
     override suspend fun fetchGroupHuntingClubsAndHuntingGroups(): NetworkResponse<GroupHuntingClubsAndGroupsDTO> {
@@ -187,6 +257,104 @@ class AuthenticationAwareBackendAPI internal constructor(
                 fileName = fileName,
                 contentType = contentType,
                 file = file
+            )
+        )
+    }
+
+    override suspend fun fetchHuntingControlHunterInfoByHunterNumber(
+        hunterNumber: String,
+    ): NetworkResponse<HuntingControlHunterInfoDTO> {
+        return performRequest(FetchHunterInfoByHunterNumber(hunterNumber))
+    }
+
+    override suspend fun fetchHuntingControlHunterInfoBySsn(ssn: String): NetworkResponse<HuntingControlHunterInfoDTO> {
+        return performRequest(FetchHunterInfoBySsn(ssn))
+    }
+
+    override suspend fun fetchSrvaEvents(modifiedAfter: LocalDateTime?): NetworkResponse<SrvaEventPageDTO> {
+        return performRequest(FetchSrvaEvents(modifiedAfter))
+    }
+
+    override suspend fun createSrvaEvent(event: SrvaEventCreateDTO): NetworkResponse<SrvaEventDTO> {
+        return performRequest(CreateSrvaEvent(event))
+    }
+
+    override suspend fun updateSrvaEvent(event: SrvaEventDTO): NetworkResponse<SrvaEventDTO> {
+        return performRequest(UpdateSrvaEvent(event))
+    }
+
+    override suspend fun deleteSrvaEvent(eventRemoteId: Long): NetworkResponse<Unit> {
+        return performRequest(DeleteSrvaEvent(eventRemoteId))
+    }
+
+    override suspend fun fetchDeletedSrvaEvents(deletedAfter: LocalDateTime?): NetworkResponse<DeletedSrvaEventsDTO> {
+        return performRequest(FetchDeletedSrvaEvents(deletedAfter))
+    }
+
+    override suspend fun uploadSrvaEventImage(
+        eventRemoteId: Long,
+        uuid: String,
+        contentType: String,
+        file: CommonFile
+    ): NetworkResponse<Unit> {
+        return performRequest(
+            UploadSrvaEventImage(
+                eventRemoteId = eventRemoteId,
+                uuid = uuid,
+                contentType = contentType,
+                file = file,
+            )
+        )
+    }
+
+    override suspend fun deleteSrvaEventImage(imageUuid: String): NetworkResponse<Unit> {
+        return performRequest(
+            DeleteSrvaEventImage(
+                imageUuid = imageUuid,
+            )
+        )
+    }
+
+    override suspend fun fetchObservations(modifiedAfter: LocalDateTime?): NetworkResponse<ObservationPageDTO> {
+        return performRequest(FetchObservationPage(modifiedAfter))
+    }
+
+    override suspend fun createObservation(observation: ObservationCreateDTO): NetworkResponse<ObservationDTO> {
+        return performRequest(CreateObservation(observation))
+    }
+
+    override suspend fun updateObservation(observation: ObservationDTO): NetworkResponse<ObservationDTO> {
+        return performRequest(UpdateObservation(observation))
+    }
+
+    override suspend fun deleteObservation(observationRemoteId: Long): NetworkResponse<Unit> {
+        return performRequest(DeleteObservation(observationRemoteId))
+    }
+
+    override suspend fun fetchDeletedObservations(deletedAfter: LocalDateTime?): NetworkResponse<DeletedObservationsDTO> {
+        return performRequest(FetchDeletedObservations(deletedAfter))
+    }
+
+    override suspend fun uploadObservationImage(
+        observationRemoteId: Long,
+        uuid: String,
+        contentType: String,
+        file: CommonFile
+    ): NetworkResponse<Unit> {
+        return performRequest(
+            UploadObservationImage(
+                observationRemoteId = observationRemoteId,
+                uuid = uuid,
+                contentType = contentType,
+                file = file,
+            )
+        )
+    }
+
+    override suspend fun deleteObservationImage(imageUuid: String): NetworkResponse<Unit> {
+        return performRequest(
+            DeleteObservationImage(
+                imageUuid = imageUuid,
             )
         )
     }

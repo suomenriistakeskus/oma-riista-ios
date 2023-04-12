@@ -14,6 +14,8 @@ enum class SyncDataPiece(val timestampKey: String) {
     HUNTING_CONTROL(timestampKey = "HuntingControlKey"),
     SRVA_METADATA(timestampKey = "SyncSrvaMetadataKey"),
     OBSERVATION_METADATA(timestampKey = "SyncObservationMetadataKey"),
+    SRVA_EVENTS(timestampKey = "SrvaEventsKey"),
+    OBSERVATIONS(timestampKey = "ObservationsKey"),
 }
 
 internal interface SynchronizationContextProvider {
@@ -39,6 +41,11 @@ internal abstract class AbstractSynchronizationContextProvider(
 internal interface SynchronizationContext {
     suspend fun synchronize()
 }
+
+internal data class UserSynchronizationContext(
+    val username: String,
+    val synchronizationContext: AbstractSynchronizationContext
+)
 
 internal abstract class AbstractSynchronizationContext(
     private val preferences: Preferences,
@@ -88,14 +95,14 @@ internal abstract class AbstractSynchronizationContext(
      */
     protected abstract fun logger(): Logger?
 
-    protected fun getLastSynchronizationTimeStamp(): LocalDateTime? {
-        return preferences.getString(syncDataPiece.timestampKey)?.let { prevSyncTime ->
+    protected fun getLastSynchronizationTimeStamp(suffix: String? = null): LocalDateTime? {
+        return preferences.getString(syncDataPiece.timestampKey.addSuffix(suffix))?.let { prevSyncTime ->
             LocalDateTime.parseLocalDateTime(prevSyncTime)
         }
     }
 
-    protected fun saveLastSynchronizationTimeStamp(timestamp: LocalDateTime) {
-        preferences.putString(syncDataPiece.timestampKey, timestamp.toStringISO8601())
+    protected fun saveLastSynchronizationTimeStamp(timestamp: LocalDateTime, suffix: String? = null) {
+        preferences.putString(syncDataPiece.timestampKey.addSuffix(suffix), timestamp.toStringISO8601())
     }
 }
 
@@ -110,6 +117,7 @@ class SynchronizationService internal constructor() {
     }
 
     suspend fun synchronizeDataPieces(dataPieces: List<SyncDataPiece>) {
+        logger.d { "synchronizeDataPieces: $dataPieces" }
         dataPieces.forEach { dataPiece ->
             val syncProvider = syncContextProviders[dataPiece]
 
@@ -126,4 +134,11 @@ class SynchronizationService internal constructor() {
     companion object {
         private val logger by getLogger(SynchronizationService::class)
     }
+}
+
+private fun String.addSuffix(suffix: String?): String {
+    if (suffix != null) {
+        return "$this-$suffix"
+    }
+    return this
 }

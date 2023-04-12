@@ -2,7 +2,6 @@
 #import "DiaryEntry.h"
 #import "ObservationEntry.h"
 #import "ObservationSpecimen.h"
-#import "ObservationSync.h"
 #import "GeoCoordinate.h"
 #import "DiaryImage.h"
 #import "RiistaAppDelegate.h"
@@ -16,8 +15,6 @@
 #import "RiistaSessionManager.h"
 #import "RiistaSettings.h"
 #import "UserInfo.h"
-#import "SrvaSync.h"
-#import "SrvaEntry.h"
 #import "AnnouncementsSync.h"
 #import "NSDateformatter+Locale.h"
 #import "Oma_riista-Swift.h"
@@ -32,12 +29,9 @@ const CGFloat MIN_SYNC_INTERVAL_IN_SECONDS = 5.0;
 typedef void(^RiistaDiaryEntryLoadCompletion)(NSArray *updates, NSError *error);
 typedef void(^RiistaDiaryEntryYearLoadCompletion)(NSArray *updates, NSError *error);
 
-typedef void(^RiistaObservationEntryLoadCompletion)(NSArray *updates, NSError *error);
-typedef void(^RiistaObservationEntryYearLoadCompletion)(NSArray *updates, NSError *error);
 
 @interface RiistaGameDatabase ()
 
-@property (strong, nonatomic) NSTimer *syncTimer;
 @property (assign, atomic, readwrite) BOOL synchronizing;
 
 @end
@@ -45,7 +39,6 @@ typedef void(^RiistaObservationEntryYearLoadCompletion)(NSArray *updates, NSErro
 @implementation RiistaGameDatabase
 {
     NSDateFormatter *dateFormatter;
-    Reachability* reachability;
     NSDate *lastSyncDate;
 }
 
@@ -53,7 +46,6 @@ typedef void(^RiistaObservationEntryYearLoadCompletion)(NSArray *updates, NSErro
 
 NSString *const RiistaCalendarEntriesUpdatedKey = @"CalendarEntriesUpdated";
 NSString *const RiistaLanguageSelectionUpdatedKey = @"LanguageSelectionUpdated";
-NSString *const RiistaSynchronizationStatusKey = @"SynchronizationStatus";
 NSString *const ISO_8601 = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
 
 // Start from August
@@ -79,15 +71,10 @@ NSInteger const RiistaCalendarStartMonth = 8;
 {
     self = [super init];
     if (self) {
-        _autosync = NO;
         self.synchronizing = NO;
         dateFormatter = [[NSDateFormatter alloc] initWithSafeLocale];
         [dateFormatter setDateFormat:ISO_8601];
     }
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appWillEnterForeground)
-                                                 name:UIApplicationWillEnterForegroundNotification
-                                               object:nil];
 
     return self;
 }
@@ -96,7 +83,9 @@ NSInteger const RiistaCalendarStartMonth = 8;
 {
     RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
     delegate.username = [[RiistaSessionManager sharedInstance] userCredentials].username;
-    [self initSync];
+
+    // todo: consider moving user session init + this line should somewhere else
+    [AppSync.shared enableSyncPrecondition:SyncPreconditionCredentialsVerified];
 }
 
 - (NSArray*)allEvents
@@ -160,7 +149,11 @@ NSInteger const RiistaCalendarStartMonth = 8;
 - (void)editLocalEvent:(DiaryEntry*)diaryEntry newImages:(NSArray*)images
 {
     [self editImagesForDiaryEntry:diaryEntry newImages:images];
-    
+    [self editLocalEvent:diaryEntry];
+}
+
+- (void)editLocalEvent:(DiaryEntry *)diaryEntry
+{
     NSError *error = nil;
     if ([[diaryEntry managedObjectContext] save:&error]) {
         // Modifying child context. Save parent to persistent store
@@ -330,7 +323,7 @@ NSInteger const RiistaCalendarStartMonth = 8;
             }
             else if ([base isKindOfClass:[SrvaEntry class]]) {
                 SrvaEntry *srva = (SrvaEntry*)base;
-                year = @([srva.year integerValue]-1);
+                year = srva.year;
             }
 
             if (![startYears containsObject:year]) {
@@ -471,13 +464,6 @@ NSInteger const RiistaCalendarStartMonth = 8;
     return nil;
 }
 
-- (void)doAutoSync
-{
-    [self synchronizeDiaryEntries:^(void) {
-        // nop
-    }];
-}
-
 - (void)synchronizeDiaryEntries:(RiistaSynchronizationCompletion)completion
 {
     // Do not start multiple synchronization operations at once
@@ -511,7 +497,6 @@ NSInteger const RiistaCalendarStartMonth = 8;
 
     lastSyncDate = [NSDate date];
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:RiistaSynchronizationStatusKey object:nil userInfo:@{@"syncing": @YES}];
     [CrashlyticsHelper logWithMsg:@"Synchronizing diary entries.."];
 
     __weak RiistaGameDatabase *weakSelf = self;
@@ -523,23 +508,14 @@ NSInteger const RiistaCalendarStartMonth = 8;
             }
             [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":updates}];
 
-            SrvaSync *srvaSync = [[SrvaSync alloc] init];
-            [srvaSync sync:^{
-                ObservationSync *observationSync = [[ObservationSync alloc] init];
-                [observationSync sync:^{
-                    [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:nil];
+            [[AnnouncementsSync new] sync:^(NSArray *items, NSError *error) {
+                [MhPermitSync.shared syncWithCompletion:^(NSArray *items, NSError *error) {
 
-                    [[AnnouncementsSync new] sync:^(NSArray *items, NSError *error) {
-                        [MhPermitSync.shared syncWithCompletion:^(NSArray *items, NSError *error) {
+                    [CrashlyticsHelper logWithMsg:@"Diary entry synchronization completed!"];
 
-                            [[NSNotificationCenter defaultCenter] postNotificationName:RiistaSynchronizationStatusKey object:nil userInfo:@{@"syncing": @NO}];
-                            [CrashlyticsHelper logWithMsg:@"Diary entry synchronization completed!"];
-
-                            if (completion) {
-                                completion();
-                            }
-                        }];
-                    }];
+                    if (completion) {
+                        completion();
+                    }
                 }];
             }];
         }];
@@ -556,75 +532,95 @@ NSInteger const RiistaCalendarStartMonth = 8;
     }];
 }
 
+- (void)synchronizeDiaryEntry:(DiaryEntry *)diaryEntry completion:(RiistaOperationCompletion)completion
+{
+    [self editDiaryEntry:diaryEntry completion:^(NSDictionary *response, NSError *error) {
+        completion(error == nil);
+    }];
+}
+
 - (void)editDiaryEntry:(DiaryEntry*)diaryEntry completion:(RiistaDiaryEntryEditCompletion)completion
 {
     [[RiistaNetworkManager sharedInstance] sendDiaryEntry:diaryEntry completion:^(NSDictionary *response, NSError *error) {
-        if (completion) {
-            if (!error) {
-                [self submitDiaryImagesFromEntry:diaryEntry completion:^(BOOL errors) {
-                    // Mark successfully edited event as sent
-                    NSError *err = nil;
-                    diaryEntry.remoteId = response[@"id"];
-                    diaryEntry.rev = response[@"rev"];
-                    diaryEntry.harvestSpecVersion = response[@"harvestSpecVersion"];
-                    diaryEntry.harvestReportDone = response[@"harvestReportDone"];
-                    diaryEntry.harvestReportRequired = response[@"harvestReportRequired"];
-                    if ([response objectForKey:@"harvestReportState"] && ![response[@"harvestReportState"] isEqual:[NSNull null]]) {
-                        diaryEntry.harvestReportState = response[@"harvestReportState"];
-                    }
-                    else {
-                        diaryEntry.harvestReportState = nil;
-                    }
-                    if ([response objectForKey:@"stateAcceptedToHarvestPermit"] && ![response[@"stateAcceptedToHarvestPermit"] isEqual:[NSNull null]]) {
-                        diaryEntry.stateAcceptedToHarvestPermit = response[@"stateAcceptedToHarvestPermit"];
-                    }
-                    else {
-                        diaryEntry.stateAcceptedToHarvestPermit = nil;
-                    }
-                    if ([response objectForKey:@"deerHuntingType"] && ![response[@"deerHuntingType"] isEqual:[NSNull null]]) {
-                        diaryEntry.deerHuntingType = response[@"deerHuntingType"];
-                    } else {
-                        diaryEntry.deerHuntingType = nil;
-                    }
-                    if ([response objectForKey:@"deerHuntingOtherTypeDescription"] && ![response[@"deerHuntingOtherTypeDescription"] isEqual:[NSNull null]]) {
-                        diaryEntry.deerHuntingTypeDescription = response[@"deerHuntingOtherTypeDescription"];
-                    } else {
-                        diaryEntry.deerHuntingTypeDescription = nil;
-                    }
-                    if ([response objectForKey:@"huntingMethod"] && ![response[@"huntingMethod"] isEqual:[NSNull null]]) {
-                        diaryEntry.huntingMethod = response[@"huntingMethod"];
-                    } else {
-                        diaryEntry.huntingMethod = nil;
-                    }
-                    if ([response objectForKey:@"feedingPlace"] && ![response[@"feedingPlace"] isEqual:[NSNull null]]) {
-                        diaryEntry.feedingPlace = response[@"feedingPlace"];
-                    } else {
-                        diaryEntry.feedingPlace = nil;
-                    }
-                    if ([response objectForKey:@"taigaBeanGoose"] && ![response[@"taigaBeanGoose"] isEqual:[NSNull null]]) {
-                        diaryEntry.taigaBeanGoose = response[@"taigaBeanGoose"];
-                    } else {
-                        diaryEntry.taigaBeanGoose = nil;
-                    }
-                    diaryEntry.canEdit = response[@"canEdit"];
-                    diaryEntry.remote = [NSNumber numberWithBool:YES];
-
-                    NSArray *specimens = response[@"specimens"];
-                    [self setSpecimensFromJson:diaryEntry specimenItems:specimens];
-
-                    diaryEntry.sent = @(!errors);
-                    if ([[diaryEntry managedObjectContext] save:&err]) {
-                        RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-                        update.entry = diaryEntry;
-                        update.type = UpdateTypeUpdate;
-                        [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-                    }
-                    completion(response, nil);
-                }];
-            } else {
-                completion(nil, error);
+        if (!error) {
+            diaryEntry.remoteId = response[@"id"];
+            diaryEntry.rev = response[@"rev"];
+            diaryEntry.harvestSpecVersion = response[@"harvestSpecVersion"];
+            diaryEntry.harvestReportDone = response[@"harvestReportDone"];
+            diaryEntry.harvestReportRequired = response[@"harvestReportRequired"];
+            if ([response objectForKey:@"harvestReportState"] && ![response[@"harvestReportState"] isEqual:[NSNull null]]) {
+                diaryEntry.harvestReportState = response[@"harvestReportState"];
             }
+            else {
+                diaryEntry.harvestReportState = nil;
+            }
+            if ([response objectForKey:@"stateAcceptedToHarvestPermit"] && ![response[@"stateAcceptedToHarvestPermit"] isEqual:[NSNull null]]) {
+                diaryEntry.stateAcceptedToHarvestPermit = response[@"stateAcceptedToHarvestPermit"];
+            }
+            else {
+                diaryEntry.stateAcceptedToHarvestPermit = nil;
+            }
+            if ([response objectForKey:@"deerHuntingType"] && ![response[@"deerHuntingType"] isEqual:[NSNull null]]) {
+                diaryEntry.deerHuntingType = response[@"deerHuntingType"];
+            } else {
+                diaryEntry.deerHuntingType = nil;
+            }
+            if ([response objectForKey:@"deerHuntingOtherTypeDescription"] && ![response[@"deerHuntingOtherTypeDescription"] isEqual:[NSNull null]]) {
+                diaryEntry.deerHuntingTypeDescription = response[@"deerHuntingOtherTypeDescription"];
+            } else {
+                diaryEntry.deerHuntingTypeDescription = nil;
+            }
+            if ([response objectForKey:@"huntingMethod"] && ![response[@"huntingMethod"] isEqual:[NSNull null]]) {
+                diaryEntry.huntingMethod = response[@"huntingMethod"];
+            } else {
+                diaryEntry.huntingMethod = nil;
+            }
+            if ([response objectForKey:@"feedingPlace"] && ![response[@"feedingPlace"] isEqual:[NSNull null]]) {
+                diaryEntry.feedingPlace = response[@"feedingPlace"];
+            } else {
+                diaryEntry.feedingPlace = nil;
+            }
+            if ([response objectForKey:@"taigaBeanGoose"] && ![response[@"taigaBeanGoose"] isEqual:[NSNull null]]) {
+                diaryEntry.taigaBeanGoose = response[@"taigaBeanGoose"];
+            } else {
+                diaryEntry.taigaBeanGoose = nil;
+            }
+            diaryEntry.canEdit = response[@"canEdit"];
+            diaryEntry.remote = [NSNumber numberWithBool:YES];
+
+            NSArray *specimens = response[@"specimens"];
+            [self setSpecimensFromJson:diaryEntry specimenItems:specimens];
+
+            // don't mark sent yet as images have not been uploaded
+            NSError *err = nil;
+            [[diaryEntry managedObjectContext] save:&err];
+
+            [self submitDiaryImagesFromEntry:diaryEntry completion:^(BOOL errors) {
+                // mark as sent if images have been uploaded
+                diaryEntry.sent = @(!errors);
+
+                NSError *err = nil;
+                if ([[diaryEntry managedObjectContext] save:&err]) {
+                    RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
+                    update.entry = diaryEntry;
+                    update.type = UpdateTypeUpdate;
+                    [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
+                }
+
+                if (completion) {
+                    completion(response, nil);
+                }
+            }];
+        } else if (completion) {
+            completion(nil, error);
         }
+    }];
+}
+
+- (void)deleteDiaryEntryCompat:(DiaryEntry *)diaryEntry completion:(RiistaOperationCompletion)completion
+{
+    [self deleteDiaryEntry:diaryEntry completion:^(NSError *error) {
+        completion(error == nil);
     }];
 }
 
@@ -738,25 +734,6 @@ NSInteger const RiistaCalendarStartMonth = 8;
         [entries addObject:[self diaryEntryFromDict:dictValues[i] context:context]];
     }
     return [entries copy];
-}
-
-- (void)setAutosync:(BOOL)enabled
-{
-    _autosync = enabled;
-    if (enabled) {
-        reachability = [Reachability reachabilityForInternetConnection];
-        [reachability startNotifier];
-        [self doAutoSync];
-        self.syncTimer = [NSTimer scheduledTimerWithTimeInterval:SYNC_INTERVAL_IN_MINUTES*60 target:self selector:@selector(doAutoSync) userInfo:nil repeats:YES];
-    } else {
-        if (reachability) {
-            [reachability stopNotifier];
-        }
-        if (self.syncTimer) {
-            [self.syncTimer invalidate];
-            self.syncTimer = nil;
-        }
-    }
 }
 
 - (void)userImagesWithCurrentImage:(DiaryImage*)image entryType:(NSString*)entryType completion:(RiistaUserImageLoadCompletion)completion;
@@ -1011,7 +988,10 @@ NSInteger const RiistaCalendarStartMonth = 8;
                 if (retry) {
                     RiistaCredentials *credentials = [[RiistaSessionManager sharedInstance] userCredentials];
                     if (credentials) {
-                        [[RiistaNetworkManager sharedInstance] relogin:credentials.username password:credentials.password completion:^(NSError *error) {
+                        [[RiistaNetworkManager sharedInstance] relogin:credentials.username
+                                                              password:credentials.password
+                                                        timeoutSeconds:LOGIN_DEFAULT_TIMEOUT_SECONDS
+                                                            completion:^(NSError *error) {
                             if (!error) {
                                 [weakSelf sendUnsentDiaryEntries:NO completion:completion];
                             } else {
@@ -1377,14 +1357,6 @@ NSInteger const RiistaCalendarStartMonth = 8;
     return result;
 }
 
-- (void)initSync
-{
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleNetworkChange:) name:kReachabilityChangedNotification object:nil];
-    if ([RiistaSettings syncMode] == RiistaSyncModeAutomatic) {
-        self.autosync = YES;
-    }
-}
-
 - (void)updateFetchDateForYear:(NSInteger)year date:(NSDate*)date
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -1413,13 +1385,6 @@ NSInteger const RiistaCalendarStartMonth = 8;
     return nil;
 }
 
-- (void)handleNetworkChange:(NSNotification*)notice
-{
-    NetworkStatus remoteHostStatus = [reachability currentReachabilityStatus];
-    if (self.autosync && remoteHostStatus != NotReachable) {
-        [self doAutoSync];
-    }
-}
 
 - (BOOL)sameImagesInEntry:(DiaryEntry*)existingEntry andNewEntry:(DiaryEntry*)newEntry
 {
@@ -1475,133 +1440,9 @@ NSInteger const RiistaCalendarStartMonth = 8;
     return NO;
 }
 
-- (void)appWillEnterForeground
-{
-    if (self.autosync) {
-        [self doAutoSync];
-    }
-}
 
 #pragma mark - Observations
 
-- (NSArray*)allObservations
-{
-    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
-
-    NSError *error = nil;
-    NSArray *results = [delegate.managedObjectContext executeFetchRequest:fetch error:&error];
-    if(results) {
-        return results;
-    }
-    return [NSArray new];
-}
-
-- (ObservationEntry*)observationEntryWithId:(NSInteger)remoteId context:(NSManagedObjectContext*)context excludeObject:(NSManagedObjectID*)objectId {
-
-    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
-
-    NSPredicate *predicate = nil;
-    if (objectId) {
-        predicate = [NSPredicate predicateWithFormat:@"remoteId = %d AND self != %@", remoteId, objectId];
-    } else {
-        predicate = [NSPredicate predicateWithFormat:@"remoteId = %d", remoteId];
-    }
-    [fetch setPredicate:predicate];
-
-    NSError *error = nil;
-    NSArray *results = [context executeFetchRequest:fetch error:&error];
-    if(results && results.count > 0) {
-        return results[0];
-    }
-    return nil;
-}
-
-- (ObservationEntry*)observationEntryWithId:(NSInteger)remoteId
-{
-    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-    return [self observationEntryWithId:remoteId context:delegate.managedObjectContext excludeObject:nil];
-}
-
-- (ObservationEntry*)observationEntryWithObjectId:(NSManagedObjectID*)objectId context:(NSManagedObjectContext*)context
-{
-    NSError *error = nil;
-    ObservationEntry *result = (ObservationEntry*)[context existingObjectWithID:objectId error:&error];
-    return result;
-}
-
-- (void)addLocalObservation:(ObservationEntry*)observationEntry
-{
-    NSManagedObjectContext *context = [observationEntry managedObjectContext];
-    if ([self saveContexts:context]) {
-        RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-        update.observation = observationEntry;
-        update.type = UpdateTypeInsert;
-        [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-    }
-}
-
-- (void)editLocalObservation:(ObservationEntry*)observationEntry newImages:(NSArray*)images
-{
-    [self editImagesForObservationEntry:observationEntry newImages:images];
-    [self editLocalObservation:observationEntry];
-}
-
-- (void)editLocalObservation:(ObservationEntry*)observationEntry
-{
-    NSError *error = nil;
-    if ([[observationEntry managedObjectContext] save:&error]) {
-        // Modifying child context. Save parent to persistent store
-        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-        [delegate.managedObjectContext performBlock:^(void) {
-            NSError *mErr;
-            [delegate.managedObjectContext save:&mErr];
-        }];
-
-        RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-        update.observation = observationEntry;
-        update.type = UpdateTypeUpdate;
-        [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-    }
-}
-
-- (void)deleteLocalObservation:(ObservationEntry*)observationEntry
-{
-    observationEntry.sent = @(NO);
-    observationEntry.pendingOperation = [NSNumber numberWithInteger:DiaryEntryOperationDelete];
-
-    NSError *error = nil;
-    if ([[observationEntry managedObjectContext] save:&error]) {
-
-        // Modifying child context. Save parent to persistent store
-        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-        [delegate.managedObjectContext performBlock:^(void) {
-            NSError *mErr;
-            [delegate.managedObjectContext save:&mErr];
-        }];
-
-        RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-        update.observation = observationEntry;
-        update.type = UpdateTypeDelete;
-        [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-    }
-}
-
-- (void)clearObservations
-{
-    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
-
-    NSError *error = nil;
-    NSArray *results = [delegate.managedObjectContext executeFetchRequest:fetch error:&error];
-    if(results) {
-        NSError *error;
-        for (int i=0; i<results.count; i++) {
-            [delegate.managedObjectContext deleteObject:results[i]];
-        }
-        [delegate.managedObjectContext save:&error];
-    }
-}
 
 - (NSArray*)clearSentObservationsFromYear:(NSInteger)year
 {
@@ -1625,566 +1466,6 @@ NSInteger const RiistaCalendarStartMonth = 8;
             return updates;
     }
     return nil;
-}
-
-- (NSArray*)observationYears
-{
-    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-    NSManagedObjectContext *ctx = delegate.managedObjectContext;
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"ObservationEntry" inManagedObjectContext:ctx];
-    NSDictionary *entityProperties = [entity propertiesByName];
-    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
-    [fetch setReturnsDistinctResults:YES];
-    [fetch setPropertiesToFetch:@[[entityProperties objectForKey:@"month"], [entityProperties objectForKey:@"year"]]];
-
-    NSSortDescriptor *yearDescriptor = [[NSSortDescriptor alloc] initWithKey:@"year" ascending:YES];
-    NSSortDescriptor *monthDescriptor = [[NSSortDescriptor alloc] initWithKey:@"month" ascending:YES];
-
-    [fetch setSortDescriptors:@[yearDescriptor, monthDescriptor]];
-    NSArray *result = [ctx executeFetchRequest:fetch error:nil];
-    if (result) {
-        NSMutableArray *startYears = [NSMutableArray new];
-        for (int i=0; i<result.count; i++) {
-            NSNumber *year = 0;
-            if ([((ObservationEntry*)result[i]).month integerValue] >= RiistaCalendarStartMonth) {
-                year = ((ObservationEntry*)result[i]).year;
-            } else {
-                year = @([((ObservationEntry*)result[i]).year integerValue]-1);
-            }
-            if (![startYears containsObject:year]) {
-                [startYears addObject:year];
-            }
-        }
-        return startYears;
-    }
-    return [NSArray new];
-}
-
-- (SeasonStats *)statsForObservationSeason:(NSInteger)startYear
-{
-    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-
-    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
-    // Ignore deleted observations
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"((year = %d AND month >= %d) OR (year = %d AND month < %d)) AND (pendingOperation != %d)",
-                              startYear,
-                              RiistaCalendarStartMonth,
-                              startYear + 1,
-                              RiistaCalendarStartMonth,
-                              DiaryEntryOperationDelete];
-    [fetch setPredicate:predicate];
-
-    SeasonStats *season = [SeasonStats empty];
-    season.startYear = startYear;
-
-    NSError *error = nil;
-    NSArray *results = [delegate.managedObjectContext executeFetchRequest:fetch error:&error];
-
-    if(results) {
-        NSMutableArray *monthAmounts = [season mutableMonthArray];
-
-        for (int i = 0; i<results.count; i++) {
-            ObservationEntry *observation = results[i];
-
-            NSInteger amount = [observation.totalSpecimenAmount integerValue];
-            if ([observation getMooselikeSpecimenCount] > 0) {
-                amount = [observation getMooselikeSpecimenCount];
-            }
-            amount = MAX(amount, 1);
-
-            NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:observation.pointOfTime];
-            // Month range is 1-12
-            NSInteger monthIndex = components.month - 1;
-
-            monthAmounts[monthIndex] = [NSNumber numberWithInteger:[monthAmounts[monthIndex] intValue] + amount];
-
-            RiistaSpecies *species = [self speciesById:[observation.gameSpeciesCode integerValue]];
-
-            if ([observation.type isEqual:DiaryEntryTypeObservation] && species) {
-                NSNumber *prevValue = season.catValues[species.categoryId - 1];
-                season.catValues[species.categoryId - 1] = [NSNumber numberWithLong: prevValue.intValue + amount];
-            }
-
-            season.totalAmount += amount;
-        }
-
-        season.monthAmounts = monthAmounts;
-    }
-
-    return season;
-}
-
-- (NSArray*)latestObservationSpecies:(NSInteger)amount
-{
-    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"ObservationEntry"];
-    NSSortDescriptor *dateSort = [[NSSortDescriptor alloc] initWithKey:@"pointOfTime" ascending:NO];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"ObservationEntry" inManagedObjectContext:delegate.managedObjectContext];
-    fetch.entity = entity;
-    [fetch setSortDescriptors:@[dateSort]];
-    fetch.resultType = NSManagedObjectResultType;
-    NSError *error = nil;
-    NSArray *results = [delegate.managedObjectContext executeFetchRequest:fetch error:&error];
-    if (results && results.count > 0) {
-        NSMutableArray *species = [NSMutableArray new];
-        for (ObservationEntry *observationEntry in results) {
-            if (![species containsObject:observationEntry.gameSpeciesCode] && [observationEntry.pendingOperation integerValue] != DiaryEntryOperationDelete) {
-                [species addObject:observationEntry.gameSpeciesCode];
-                if (species.count == amount)
-                    break;
-            }
-        }
-        return [species copy];
-    }
-    return nil;
-}
-
-- (void)synchronizeObservationEntry:(ObservationEntry *)observationEntry completion:(RiistaOperationCompletion)completion
-{
-    [self editObservationEntry:observationEntry completion:^(NSDictionary *response, NSError *error) {
-        completion(error == nil);
-    }];
-}
-
-- (void)editObservationEntry:(ObservationEntry*)observationEntry completion:(RiistaObservationEntryEditCompletion)completion
-{
-    NSManagedObjectContext* context = observationEntry.managedObjectContext; //Keep a strong reference during the operations
-
-    [[RiistaNetworkManager sharedInstance] sendDiaryObservation:observationEntry completion:^(NSDictionary *response, NSError *error) {
-        if (!error) {
-            if (response) {
-                ObservationEntry *newEntry = [[ObservationSync new] observationEntryFromDict:response objectContext:context];
-
-                [newEntry removeDiaryImages:newEntry.diaryImages];
-                [newEntry addDiaryImages:observationEntry.diaryImages];
-
-                [context deleteObject:observationEntry];
-                [context insertObject:newEntry];
-
-                [RiistaModelUtils saveContexts:context];
-
-                [self submitObservationImagesFromEntry:newEntry context:context completion:^(BOOL errors) {
-                    RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-                    update.observation = newEntry;
-                    update.type = UpdateTypeUpdate;
-                    [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-
-                    if (completion) {
-                        completion(nil, nil);
-                    }
-                }];
-                return;
-            }
-        }
-        if (completion) {
-            completion(nil, error);
-        }
-    }];
-}
-
-- (void)deleteObservationEntryCompat:(ObservationEntry *)observationEntry completion:(RiistaOperationCompletion)completion
-{
-    [self deleteObservationEntry:observationEntry completion:^(NSError *error) {
-        completion(error == nil);
-    }];
-}
-
-- (void)deleteObservationEntry:(ObservationEntry*)observationEntry completion:(RiistaObservationEntryDeleteCompletion)completion
-{
-    [[RiistaNetworkManager sharedInstance] sendDiaryObservation:observationEntry completion:^(NSDictionary *response, NSError *error) {
-        if (completion) {
-            if (!error) {
-                // Mark successfully edited event as sent
-                NSError *err = nil;
-                observationEntry.sent = [NSNumber numberWithBool:YES];
-                if ([[observationEntry managedObjectContext] save:&err]) {
-                    RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-                    update.observation = observationEntry;
-                    update.type = UpdateTypeDelete;
-                    [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-                }
-                completion(nil);
-            } else {
-                completion(error);
-            }
-        }
-    }];
-}
-
-- (void)submitObservationImagesFromEntry:(ObservationEntry*)observationEntry context:(NSManagedObjectContext*)context completion:(DiaryImageSubmitCompletion)completion
-{
-    if (observationEntry.diaryImages.count == 0) {
-        completion(NO);
-        return;
-    }
-
-    __block BOOL errors = NO;
-    __block NSInteger sentImages = 0;
-    NSMutableArray *images = [[observationEntry.diaryImages array] mutableCopy];
-    int originalCount = (int)images.count;
-
-    for (int i=(int)images.count-1; i>=0; i--) {
-
-        DiaryImage *image = images[i];
-
-        [[RiistaNetworkManager sharedInstance] diaryObservationImageOperationForImage:image observationEntry:observationEntry completion:^(NSError* error) {
-            if (!error) {
-                if ([image.status integerValue] == DiaryImageStatusInsertion) {
-                    image.type = [NSNumber numberWithInteger:DiaryImageTypeRemote];
-                    image.status = 0;
-                    [RiistaModelUtils saveContexts:context];
-                } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
-                    [images removeObject:image];
-                }
-            } else if ([image.status integerValue] == DiaryImageStatusDeletion && error.code == 404) {
-                // Unsuccessful deletion of already deleted image can be ignored
-                [images removeObject:image];
-            } else {
-                errors = YES;
-            }
-            sentImages++;
-            if (sentImages == originalCount) {
-                observationEntry.diaryImages = [NSOrderedSet orderedSetWithArray:[images copy]];
-
-                [RiistaModelUtils saveContexts:context];
-
-                if (completion)
-                    completion(errors);
-            }
-        }];
-    }
-}
-
-- (void)editImagesForObservationEntry:(ObservationEntry*)observationEntry newImages:(NSArray*)images
-{
-    NSMutableArray *currentImages = [[observationEntry.diaryImages array] mutableCopy];
-    NSMutableArray *addedImages = [images mutableCopy];
-
-    NSInteger originalCount = currentImages.count;
-    for (int i=(int)originalCount-1; i>=0; i--) {
-        BOOL found = NO;
-        NSUInteger foundImageIndex = 0;
-        for (int i2=0; i2<addedImages.count; i2++) {
-            if ([((DiaryImage*)currentImages[i]).imageid isEqual:((DiaryImage*)addedImages[i2]).imageid]) {
-                foundImageIndex = i2;
-                found = YES;
-            }
-        }
-        if (found) {
-            ((DiaryImage*)addedImages[foundImageIndex]).status = 0;
-            [addedImages removeObjectAtIndex:foundImageIndex];
-        } else {
-            if ([((DiaryImage*)currentImages[i]).status integerValue] == DiaryImageStatusInsertion) {
-                // Image hasn't been sent yet so it can be deleted
-                [observationEntry removeDiaryImagesObject:currentImages[i]];
-            } else {
-                // If a image isn't in the list of new images, it is marked as pending deletion
-                // User doesn't supply images that are already pending deletion. Those images are marked as pending deletion again
-                ((DiaryImage*)currentImages[i]).status = [NSNumber numberWithInteger:DiaryImageStatusDeletion];
-            }
-        }
-    }
-    // Insert images that did not already exist
-    for (int i=0; i<addedImages.count; i++) {
-        ((DiaryImage*)addedImages[i]).status = [NSNumber numberWithInteger:DiaryImageStatusInsertion];
-        [observationEntry addDiaryImagesObject:addedImages[i]];
-    }
-}
-
-- (NSArray*)observationEntriesFromDictValues:(NSArray*)dictValues context:(NSManagedObjectContext*)context
-{
-    NSMutableArray *entries = [NSMutableArray new];
-    for (int i=0; i<dictValues.count; i++) {
-        [entries addObject:[[ObservationSync new] observationEntryFromDict:dictValues[i] objectContext:context]];
-    }
-    return [entries copy];
-}
-
-- (NSDictionary*)dictFromObservationEntry:(ObservationEntry*)observationEntry isNew:(BOOL)isNew
-{
-    return [[ObservationSync new] dictFromObservationEntry:observationEntry isNew:isNew];
-}
-
-- (SeasonStats *)statsForSrvaYear:(NSInteger)startYear
-{
-    RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-
-    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"SrvaEntry"];
-    // Ignore deleted srvas
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(year = %d) AND (pendingOperation != %d)",
-                              (startYear + 1),
-                              DiaryEntryOperationDelete];
-    [fetch setPredicate:predicate];
-
-    SeasonStats *season = [SeasonStats empty];
-    season.startYear = startYear;
-
-    NSError *error = nil;
-    NSArray *results = [delegate.managedObjectContext executeFetchRequest:fetch error:&error];
-
-    if (results) {
-        NSMutableArray *monthData = [season mutableMonthArray];
-
-        for (int i = 0; i < results.count; i++) {
-            SrvaEntry *srva = results[i];
-
-            NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:srva.pointOfTime];
-            // Month range is 1-12
-            NSInteger monthIndex = components.month - 1;
-
-            monthData[monthIndex] = [NSNumber numberWithInteger:[monthData[monthIndex] integerValue] + 1];
-        }
-
-        season.monthAmounts = [monthData copy];
-        season.totalAmount = results.count;
-    }
-
-    return season;
-}
-
-- (NSArray*)latestSrvaSpecies:(NSInteger)amount
-{
-    RiistaAppDelegate *delegate = (RiistaAppDelegate*)[[UIApplication sharedApplication] delegate];
-    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"SrvaEntry"];
-    fetch.resultType = NSManagedObjectResultType;
-
-    NSSortDescriptor *dateSort = [[NSSortDescriptor alloc] initWithKey:@"pointOfTime" ascending:NO];
-    [fetch setSortDescriptors:@[dateSort]];
-
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"SrvaEntry" inManagedObjectContext:delegate.managedObjectContext];
-    fetch.entity = entity;
-
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"eventType != 'OTHER' AND gameSpeciesCode != NULL AND pendingOperation != %d",  DiaryEntryOperationDelete];
-    [fetch setPredicate:predicate];
-
-    NSError *error = nil;
-    NSArray *results = [delegate.managedObjectContext executeFetchRequest:fetch error:&error];
-    if (results && results.count > 0) {
-        NSMutableArray *events = [NSMutableArray new];
-
-        NSInteger lastGameSpeciesCode = [((SrvaEntry*)results[0]).gameSpeciesCode integerValue];
-        [events addObject:results[0]];
-
-        for (NSInteger i = 1; i < results.count; ++i) {
-            SrvaEntry *srva = results[i];
-            if ([srva.gameSpeciesCode integerValue] != lastGameSpeciesCode) {
-                lastGameSpeciesCode = [srva.gameSpeciesCode integerValue];
-
-                [events addObject:srva];
-                if (events.count == amount) {
-                    break;
-                }
-            }
-        }
-        return events;
-    }
-    return nil;
-}
-
-- (SrvaEntry*)srvaEntryWithObjectId:(NSManagedObjectID*)objectId context:(NSManagedObjectContext*)context
-{
-    NSError *error = nil;
-    SrvaEntry *result = (SrvaEntry*)[context existingObjectWithID:objectId error:&error];
-    return result;
-}
-
-- (void)addLocalSrva:(SrvaEntry*)srvaEntry
-{
-    NSManagedObjectContext *context = [srvaEntry managedObjectContext];
-    if ([self saveContexts:context]) {
-        RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-        update.srva = srvaEntry;
-        update.type = UpdateTypeInsert;
-        [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-    }
-}
-
-- (void)editLocalSrva:(SrvaEntry*)srvaEntry newImages:(NSArray*)images
-{
-    [self editImagesForSrvaEntry:srvaEntry newImages:images];
-
-    NSError *error = nil;
-    if ([[srvaEntry managedObjectContext] save:&error]) {
-
-        // Modifying child context. Save parent to persistent store
-        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-        [delegate.managedObjectContext performBlock:^(void) {
-            NSError *mErr;
-            [delegate.managedObjectContext save:&mErr];
-        }];
-
-        RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-        update.srva = srvaEntry;
-        update.type = UpdateTypeUpdate;
-        [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-    }
-}
-
-- (void)editSrvaEntry:(SrvaEntry*)srvaEntry completion:(RiistaDiaryEntryEditCompletion)completion
-{
-    NSManagedObjectContext* context = srvaEntry.managedObjectContext; //Keep a strong reference during the operations
-
-    [[RiistaNetworkManager sharedInstance] sendDiarySrva:srvaEntry completion:^(NSDictionary *response, NSError *error) {
-        if (!error) {
-            if (response) {
-                SrvaEntry *newEntry = [[SrvaSync new] srvaEntryFromDict:response objectContext:context];
-
-                [newEntry removeDiaryImages:newEntry.diaryImages];
-                [newEntry addDiaryImages:srvaEntry.diaryImages];
-
-                [context deleteObject:srvaEntry];
-                [context insertObject:newEntry];
-
-                [RiistaModelUtils saveContexts:newEntry.managedObjectContext];
-
-                [self submitSrvaImagesFromEntry:newEntry context:context completion:^(BOOL errors) {
-                    RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-                    update.srva = newEntry;
-                    update.type = UpdateTypeUpdate;
-                    [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-
-                    if (completion) {
-                        completion(nil, nil);
-                    }
-                }];
-                return;
-            }
-        }
-
-        if (completion) {
-            completion(nil, error);
-        }
-    }];
-}
-
-- (void)editImagesForSrvaEntry:(SrvaEntry*)srvaEntry newImages:(NSArray*)images
-{
-    NSMutableArray *currentImages = [[srvaEntry.diaryImages array] mutableCopy];
-    NSMutableArray *addedImages = [images mutableCopy];
-
-    NSInteger originalCount = currentImages.count;
-    for (int i=(int)originalCount-1; i>=0; i--) {
-        BOOL found = NO;
-        NSUInteger foundImageIndex = 0;
-        for (int i2=0; i2<addedImages.count; i2++) {
-            if ([((DiaryImage*)currentImages[i]).imageid isEqual:((DiaryImage*)addedImages[i2]).imageid]) {
-                foundImageIndex = i2;
-                found = YES;
-            }
-        }
-        if (found) {
-            ((DiaryImage*)addedImages[foundImageIndex]).status = 0;
-            [addedImages removeObjectAtIndex:foundImageIndex];
-        } else {
-            if ([((DiaryImage*)currentImages[i]).status integerValue] == DiaryImageStatusInsertion) {
-                // Image hasn't been sent yet so it can be deleted
-                [srvaEntry removeDiaryImagesObject:currentImages[i]];
-            } else {
-                // If a image isn't in the list of new images, it is marked as pending deletion
-                // User doesn't supply images that are already pending deletion. Those images are marked as pending deletion again
-                ((DiaryImage*)currentImages[i]).status = [NSNumber numberWithInteger:DiaryImageStatusDeletion];
-            }
-        }
-    }
-    // Insert images that did not already exist
-    for (int i=0; i<addedImages.count; i++) {
-        ((DiaryImage*)addedImages[i]).status = [NSNumber numberWithInteger:DiaryImageStatusInsertion];
-        [srvaEntry addDiaryImagesObject:addedImages[i]];
-    }
-}
-
-- (void)submitSrvaImagesFromEntry:(SrvaEntry*)srvaEntry context:(NSManagedObjectContext*)context completion:(DiaryImageSubmitCompletion)completion
-{
-    if (srvaEntry.diaryImages.count == 0) {
-        completion(NO);
-        return;
-    }
-
-    __block BOOL errors = NO;
-    __block NSInteger sentImages = 0;
-    NSMutableArray *images = [[srvaEntry.diaryImages array] mutableCopy];
-    int originalCount = (int)images.count;
-
-    for (int i=(int)images.count-1; i>=0; i--) {
-
-        DiaryImage *image = images[i];
-
-        [[RiistaNetworkManager sharedInstance] diarySrvaImageOperationForImage:image srvaEntry:srvaEntry completion:^(NSError* error) {
-            if (!error) {
-                if ([image.status integerValue] == DiaryImageStatusInsertion) {
-                    image.type = [NSNumber numberWithInteger:DiaryImageTypeRemote];
-                    image.status = 0;
-                    [RiistaModelUtils saveContexts:context];
-                } else if ([image.status integerValue] == DiaryImageStatusDeletion) {
-                    [images removeObject:image];
-                }
-            } else if ([image.status integerValue] == DiaryImageStatusDeletion && error.code == 404) {
-                // Unsuccessful deletion of already deleted image can be ignored
-                [images removeObject:image];
-            } else {
-                errors = YES;
-            }
-            sentImages++;
-            if (sentImages == originalCount) {
-                srvaEntry.diaryImages = [NSOrderedSet orderedSetWithArray:[images copy]];
-
-                [RiistaModelUtils saveContexts:context];
-
-                if (completion)
-                    completion(errors);
-            }
-        }];
-    }
-}
-
-- (void)deleteLocalSrva:(SrvaEntry*)srvaEntry
-{
-    srvaEntry.sent = @(NO);
-    srvaEntry.pendingOperation = [NSNumber numberWithInteger:DiaryEntryOperationDelete];
-
-    NSError *error = nil;
-    if ([[srvaEntry managedObjectContext] save:&error]) {
-
-        // Modifying child context. Save parent to persistent store
-        RiistaAppDelegate *delegate = (RiistaAppDelegate *)[[UIApplication sharedApplication] delegate];
-        [delegate.managedObjectContext performBlock:^(void) {
-            NSError *mErr;
-            [delegate.managedObjectContext save:&mErr];
-        }];
-
-        RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-        update.srva = srvaEntry;
-        update.type = UpdateTypeDelete;
-        [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-    }
-}
-
-- (void)deleteSrvaEntry:(SrvaEntry*)srvaEntry completion:(RiistaDiaryEntryDeleteCompletion)completion
-{
-    srvaEntry.sent = @(NO);
-    srvaEntry.pendingOperation = [NSNumber numberWithInteger:DiaryEntryOperationDelete];
-
-    [[RiistaNetworkManager sharedInstance] sendDiarySrva:srvaEntry completion:^(NSDictionary *response, NSError *error) {
-        if (completion) {
-            if (!error) {
-                [srvaEntry.managedObjectContext deleteObject:srvaEntry];
-                if ([self saveContexts:srvaEntry.managedObjectContext]) {
-                    RiistaDiaryEntryUpdate *update = [RiistaDiaryEntryUpdate new];
-                    update.srva = srvaEntry;
-                    update.type = UpdateTypeDelete;
-                    [[NSNotificationCenter defaultCenter] postNotificationName:RiistaCalendarEntriesUpdatedKey object:nil userInfo:@{@"entries":@[update]}];
-                }
-                completion(nil);
-            } else {
-                completion(error);
-            }
-        }
-    }];
-}
-
-- (NSDictionary*)dictFromSrvaEntry:(SrvaEntry*)srvaEntry isNew:(BOOL)isNew
-{
-    return [[SrvaSync new] dictFromSrvaEntry:srvaEntry isNew:isNew];
 }
 
 - (BOOL)saveContexts:(NSManagedObjectContext*)context

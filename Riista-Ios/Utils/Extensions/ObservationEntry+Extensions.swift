@@ -33,6 +33,8 @@ extension ObservationEntry {
             totalSpecimenAmount: totalSpecimenAmount?.toKotlinInt(),
             specimens: parseCommonSpecimens(),
             canEdit: canEdit?.boolValue ?? false,
+            modified: sent?.boolValue == false && pendingOperation?.intValue != DiaryEntryOperationDelete,
+            deleted: pendingOperation?.intValue == DiaryEntryOperationDelete,
 
             mooselikeMaleAmount: mooselikeMaleAmount?.toKotlinInt(),
             mooselikeFemaleAmount: mooselikeFemaleAmount?.toKotlinInt(),
@@ -54,52 +56,6 @@ extension ObservationEntry {
         )
     }
 
-    @discardableResult
-    func updateWithCommonObservation(observation: CommonObservation, context: NSManagedObjectContext) -> ObservationEntry {
-        self.remoteId = observation.remoteId
-        self.rev = observation.revision
-        self.mobileClientRefId = observation.mobileClientRefId
-        self.observationSpecVersion = observation.observationSpecVersion.toNSNumber()
-        self.gameSpeciesCode = observation.species.toGameSpeciesCode()
-
-        self.observationCategory = observation.observationCategory.rawBackendEnumValue
-        self.observationType = observation.observationType.rawBackendEnumValue
-        self.deerHuntingType = observation.deerHuntingType.rawBackendEnumValue
-        self.deerHuntingTypeDescription = observation.deerHuntingOtherTypeDescription
-
-        self.coordinates = observation.location.toGeoCoordinate(context: context, existingCoordinates: self.coordinates)
-
-        self.pointOfTime = observation.pointOfTime.toFoundationDate()
-        self.year = observation.pointOfTime.year.toNSNumber()
-        self.month = observation.pointOfTime.monthNumber.toNSNumber()
-
-        self.diarydescription = observation.description_ ?? ""
-        self.diaryImages = observation.images.toDiaryImages(context: context, existingImages: self.diaryImages)
-
-        self.totalSpecimenAmount = observation.totalSpecimenAmount
-        self.specimens = observation.specimens?.toObservationSpecimens(context: context)
-
-        self.canEdit = NSNumber(value: observation.canEdit)
-        self.mooselikeMaleAmount = observation.mooselikeMaleAmount
-        self.mooselikeFemaleAmount = observation.mooselikeFemaleAmount
-        self.mooselikeFemale1CalfAmount = observation.mooselikeFemale1CalfAmount
-        self.mooselikeFemale2CalfsAmount = observation.mooselikeFemale2CalfsAmount
-        self.mooselikeFemale3CalfsAmount = observation.mooselikeFemale3CalfsAmount
-        self.mooselikeFemale4CalfsAmount = observation.mooselikeFemale4CalfsAmount
-        self.mooselikeCalfAmount = observation.mooselikeCalfAmount
-        self.mooselikeUnknownSpecimenAmount = observation.mooselikeUnknownSpecimenAmount
-
-        self.observerName = observation.observerName
-        self.observerPhoneNumber = observation.observerPhoneNumber
-        self.officialAdditionalInfo = observation.officialAdditionalInfo
-        self.verifiedByCarnivoreAuthority = observation.verifiedByCarnivoreAuthority
-        self.inYardDistanceToResidence = observation.inYardDistanceToResidence
-
-        self.litter = observation.litter
-        self.pack = observation.pack
-
-        return self
-    }
 
     private func parseCommonSpecimens() -> [CommonObservationSpecimen]? {
         guard let specimens = specimens else {
@@ -158,49 +114,18 @@ extension ObservationSpecimen {
             lengthOfPaw: lengthOfPaw?.doubleValue.toKotlinDouble()
         )
     }
-
-    @discardableResult
-    func updateWithCommonSpecimen(specimen: CommonObservationSpecimen) -> ObservationSpecimen {
-        self.remoteId = specimen.remoteId
-        self.rev = specimen.revision
-        self.gender = specimen.gender.rawBackendEnumValue
-        self.age = specimen.age.rawBackendEnumValue
-        self.state = specimen.stateOfHealth.rawBackendEnumValue
-        self.marking = specimen.marking.rawBackendEnumValue
-        self.widthOfPaw = specimen.widthOfPaw?.toDecimalNumber()
-        self.lengthOfPaw = specimen.lengthOfPaw?.toDecimalNumber()
-
-        return self
-    }
-}
-
-extension Array where Element == CommonObservationSpecimen {
-    func toObservationSpecimens(context: NSManagedObjectContext) -> NSOrderedSet {
-        let observationSpecimens = NSMutableOrderedSet()
-
-        self.forEach { specimen in
-            observationSpecimens.add(specimen.toObservationSpecimen(context: context))
-        }
-
-        return observationSpecimens
-    }
 }
 
 extension CommonObservation {
-    func toObservationEntry(context: NSManagedObjectContext) -> ObservationEntry {
-        let entity = NSEntityDescription.entity(forEntityName: "ObservationEntry", in: context)!
-        let observationEntry = ObservationEntry(entity: entity, insertInto: context)
-        observationEntry.type = DiaryEntryTypeObservation
-
-        return observationEntry.updateWithCommonObservation(observation: self, context: context)
-    }
-}
-
-extension CommonObservationSpecimen {
-    func toObservationSpecimen(context: NSManagedObjectContext) -> ObservationSpecimen {
-        let entity = NSEntityDescription.entity(forEntityName: "ObservationSpecimen", in: context)!
-        let observationSpecimen = ObservationSpecimen(entity: entity, insertInto: context)
-
-        return observationSpecimen.updateWithCommonSpecimen(specimen: self)
+    var mooselikeSpecimenAmount: Int {
+        return
+            (1) * (mooselikeMaleAmount?.intValue ?? 0) +
+            (1) * (mooselikeFemaleAmount?.intValue ?? 0) +
+            (1 + 1) * (mooselikeFemale1CalfAmount?.intValue ?? 0) +
+            (1 + 2) * (mooselikeFemale2CalfsAmount?.intValue ?? 0) +
+            (1 + 3) * (mooselikeFemale3CalfsAmount?.intValue ?? 0) +
+            (1 + 4) * (mooselikeFemale4CalfsAmount?.intValue ?? 0) +
+            (1) * (mooselikeCalfAmount?.intValue ?? 0) +
+            (1) * (mooselikeUnknownSpecimenAmount?.intValue ?? 0)
     }
 }

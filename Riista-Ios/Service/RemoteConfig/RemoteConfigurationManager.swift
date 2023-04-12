@@ -20,6 +20,12 @@ import Async
 
     // is the "experimental mode" allowed?
     case experimentalModeAllowed
+
+    // how long should we wait before promoting new app update?
+    case appUpdatePromotionDelayDays
+
+    // Pattern for parsing Finnish SSN
+    case ssnPattern
 }
 
 
@@ -54,8 +60,14 @@ typealias RemoteConfigurationOperationCompletion = () -> Void
             case .riistaSDKSettings:
                 // no default overrides i.e. let it be null
                 continue
+            case .appUpdatePromotionDelayDays:
+                defaultValue = NSNumber(integerLiteral: AppUpdateNotifier.DEFAULT_PROMOTION_DELAY_DAYS)
+                break
             case .experimentalModeAllowed:
-                defaultValue = NSNumber.init(booleanLiteral: false)
+                defaultValue = NSNumber(booleanLiteral: false)
+                break
+            case .ssnPattern:
+                defaultValue = "^\\d{6}[A+-]\\d{3}[0-9A-FHJ-NPR-Y]$" as NSString
                 break
             }
 
@@ -165,6 +177,14 @@ typealias RemoteConfigurationOperationCompletion = () -> Void
         return getValueFor(configurable: .experimentalModeAllowed).boolValue
     }
 
+    func appUpdatePromotionDelayDays() -> Int? {
+        return getValueFor(configurable: .appUpdatePromotionDelayDays).numberValue.intValue
+    }
+
+    func ssnPattern() -> String {
+        return getValueFor(configurable: .ssnPattern).stringValue!
+    }
+
     private func getValueFor(configurable: RemoteConfigurable) -> RemoteConfigValue {
         return RemoteConfig.remoteConfig().configValue(forKey: configurable.key())
     }
@@ -183,6 +203,10 @@ fileprivate extension RemoteConfigurable {
             return "riista_sdk_remote_settings"
         case .experimentalModeAllowed:
             return "experimental_mode_allowed"
+        case .appUpdatePromotionDelayDays:
+            return "app_update_promotion_delay_days"
+        case .ssnPattern:
+            return "ssn_pattern"
         }
     }
 }

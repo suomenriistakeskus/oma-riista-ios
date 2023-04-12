@@ -7,8 +7,10 @@ import fi.riista.common.domain.huntingControl.sync.model.LoadHuntingControlEvent
 import fi.riista.common.domain.model.CommonLocation
 import fi.riista.common.domain.model.Organization
 import fi.riista.common.domain.model.OrganizationId
+import fi.riista.common.dto.toLocalDate
 import fi.riista.common.logging.getLogger
 import fi.riista.common.model.*
+import fi.riista.common.util.contains
 
 internal class HuntingControlRepository(database: RiistaDatabase) {
 
@@ -99,7 +101,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
                 event_type = eventType,
                 status = status,
                 cooperation_types = event.cooperationTypes.toDbCooperationTypes(),
-                date = event.date.toString(),
+                date = event.date.toStringISO8601(),
                 start_time = startTime,
                 end_time = endTime,
                 wolf_territory = wolfTerritory,
@@ -152,7 +154,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
                 event_type = eventType,
                 status = status,
                 cooperation_types = cooperationTypes,
-                date = event.date.toString(),
+                date = event.date.toStringISO8601(),
                 start_time = startTime,
                 end_time = endTime,
                 wolf_territory = wolfTerritory,
@@ -200,7 +202,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
 
         // First remove attachments that have been deleted on remote
         idsInDb.forEach { attachmentIds ->
-            if (attachments.firstOrNull { it.remoteId == attachmentIds.remote_id } == null) {
+            if (!attachments.contains { it.remoteId == attachmentIds.remote_id }) {
                 deleteAttachment(attachmentIds.local_id)
             }
         }
@@ -224,7 +226,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
             .filter { attachment -> !attachment.deleted }
             .filter { attachment -> attachment.localId == null }
             .forEach { attachment ->
-            if (attachment.remoteId == null || idsInDb.firstOrNull { it.remote_id == attachment.remoteId } == null) {
+            if (attachment.remoteId == null || !idsInDb.contains { it.remote_id == attachment.remoteId }) {
                 attachmentQueries.insert(
                     event_local_id = eventLocalId,
                     remote_id = attachment.remoteId,
@@ -274,8 +276,8 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
                         remote_id = gameWarden.inspector.id,
                         first_name = gameWarden.inspector.firstName,
                         last_name = gameWarden.inspector.lastName,
-                        start_date = gameWarden.beginDate.toString(),
-                        end_date = gameWarden.endDate.toString(),
+                        start_date = gameWarden.beginDate?.toStringISO8601(),
+                        end_date = gameWarden.endDate?.toStringISO8601(),
                     )
                 }
             }
@@ -298,10 +300,10 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
                 if (dateTime != null) {
                     inspectors.forEach { inspector ->
                         val dbGameWarden = rhyGameWardensFromDb.firstOrNull { dbWarden ->
-                                val warden = dbWarden.toHuntingControlGameWarden()
-                                val period = LocalDatePeriod(warden.startDate, warden.endDate)
-                                warden.remoteId == inspector.remote_id && dateTime.isWithinPeriod(period)
-                            }
+                            val warden = dbWarden.toHuntingControlGameWarden()
+                            val period = LocalDatePeriod(warden.startDate.toPeriodDate(), warden.endDate.toPeriodDate())
+                            warden.remoteId == inspector.remote_id && dateTime.isWithinPeriod(period)
+                        }
                         if (dbGameWarden == null) {
                             // An event has an invalid inspector -> remove it
                             inspectorQueries.deleteInspectorFromEvent(
@@ -346,7 +348,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
                                     event_type = eventType,
                                     status = status,
                                     cooperation_types = event.cooperationTypes.toDbCooperationTypes(),
-                                    date = event.date.toString(),
+                                    date = event.date.toStringISO8601(),
                                     start_time = startTime,
                                     end_time = endTime,
                                     wolf_territory = event.wolfTerritory,
@@ -377,7 +379,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
                                 event_type = eventType,
                                 status = status,
                                 cooperation_types = event.cooperationTypes.toDbCooperationTypes(),
-                                date = event.date.toString(),
+                                date = event.date.toStringISO8601(),
                                 start_time = startTime,
                                 end_time = endTime,
                                 wolf_territory = event.wolfTerritory,
@@ -430,7 +432,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
             // First delete from DB RHYs that user is no longer hunting controller for
             val rhysOnDb = getRhys(username)
             rhysOnDb.forEach { rhy ->
-                if (rhys.firstOrNull { it.id == rhy.id } == null) {
+                if (!rhys.contains { it.id == rhy.id }) {
                     deleteRhy(username, rhy.id)
                 }
             }
@@ -565,8 +567,8 @@ internal fun DbHuntingControlGameWarden.toHuntingControlGameWarden(): HuntingCon
         remoteId = remote_id,
         firstName = first_name,
         lastName = last_name,
-        startDate = requireNotNull(LocalDate.parseLocalDate(start_date)),
-        endDate = requireNotNull(LocalDate.parseLocalDate(end_date)),
+        startDate = start_date?.toLocalDate(),
+        endDate = end_date?.toLocalDate(),
     )
 }
 

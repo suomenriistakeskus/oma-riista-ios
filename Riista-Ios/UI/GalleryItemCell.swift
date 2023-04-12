@@ -1,6 +1,29 @@
 import Foundation
-
 import MaterialComponents
+import RiistaCommon
+
+fileprivate enum GalleryItemModel {
+    case diaryEntry(entry: DiaryEntryBase, itemType: FilterableEntityType)
+    case commonEntry(localId: KotlinLong, itemType: FilterableEntityType, image: EntityImage)
+    case none
+
+    static func == (lhs: GalleryItemModel, rhs: GalleryItemModel) -> Bool {
+        switch (lhs, rhs) {
+        case (let diaryEntry(l_entry, l_itemType), let diaryEntry(r_entry, r_itemType)):
+            return l_entry.objectID == r_entry.objectID && l_itemType == r_itemType
+        case (let commonEntry(l_localId, l_itemType, _), let commonEntry(r_localId, r_itemType, _)):
+            return l_localId == r_localId && l_itemType == r_itemType
+        case (.none, .none):
+            return true
+        default:
+            return false
+        }
+    }
+
+    static func != (lhs: GalleryItemModel, rhs: GalleryItemModel) -> Bool {
+        !(lhs == rhs)
+    }
+}
 
 class GalleryItemCell: MDCCardCollectionCell {
 
@@ -8,8 +31,7 @@ class GalleryItemCell: MDCCardCollectionCell {
     @IBOutlet weak var leftButton: MDCButton!
     @IBOutlet weak var rightButton: MDCButton!
 
-    var itemType: RiistaEntryType?
-    var item: DiaryEntryBase?
+    private var displayedItem: GalleryItemModel = .none
     var imageLoadedSuccessfully: Bool?
 
     weak var parent: UIViewController?
@@ -37,31 +59,41 @@ class GalleryItemCell: MDCCardCollectionCell {
         imageView.addGestureRecognizer(tap)
     }
 
+    @discardableResult
     func setupFrom(diaryEntry: DiaryEntry, parent: UIViewController) -> UICollectionViewCell {
         self.parent = parent
 
-        itemType = RiistaEntryTypeHarvest
-        item = diaryEntry
+        displayedItem = .diaryEntry(entry: diaryEntry, itemType: .harvest)
         loadImage()
 
         return self
     }
 
-    func setupFrom(observation: ObservationEntry, parent: UIViewController) -> UICollectionViewCell {
+    @discardableResult
+    func setupFrom(observation: CommonObservation, parent: UIViewController) -> UICollectionViewCell {
         self.parent = parent
 
-        itemType = RiistaEntryTypeObservation
-        item = observation
+        if let localId = observation.localId, let primaryImage = observation.images.primaryImage {
+            displayedItem = .commonEntry(localId: localId, itemType: .observation, image: primaryImage)
+        } else {
+            displayedItem = .none
+        }
+
         loadImage()
 
         return self
     }
 
-    func setupFrom(srva: SrvaEntry, parent: UIViewController) -> UICollectionViewCell {
+    @discardableResult
+    func setupFrom(srva: CommonSrvaEvent, parent: UIViewController) -> UICollectionViewCell {
         self.parent = parent
 
-        itemType = RiistaEntryTypeSrva
-        item = srva
+        if let localId = srva.localId, let primaryImage = srva.images.primaryImage {
+            displayedItem = .commonEntry(localId: localId, itemType: .srva, image: primaryImage)
+        } else {
+            displayedItem = .none
+        }
+
         loadImage()
 
         return self
@@ -71,27 +103,43 @@ class GalleryItemCell: MDCCardCollectionCell {
      * Loads the image from the current item. Only displays the loaded image if item is still the same.
      */
     func loadImage() {
-        let entry = self.item
-
         // loading may take time, hide image that may remain from
         // previous cell use
         imageView.image = nil
 
-        ImageUtils.loadEventImage(
-            entry, for: imageView,
-            options: ImageLoadOptions.aspectFilled(size: imageView.bounds.size),
-            onSuccess: { [weak self, weak entry] image in
-                self?.setDisplayedImage(image, entry: entry)
-            },
-            onFailure: { [weak self] failureReason in
-                self?.displayImageLoadFailedIndicator(entry: entry)
-            }
-        )
+        let itemToDisplay = displayedItem
+
+        switch itemToDisplay {
+        case .diaryEntry(let entry, _):
+            ImageUtils.loadEventImage(
+                entry, for: imageView,
+                options: ImageLoadOptions.aspectFilled(size: imageView.bounds.size),
+                onSuccess: { [weak self] image in
+                    self?.setDisplayedImage(image, itemModel: itemToDisplay)
+                },
+                onFailure: { [weak self] failureReason in
+                    self?.displayImageLoadFailedIndicator(itemModel: itemToDisplay)
+                }
+            )
+        case .commonEntry(_, _, let primaryImage):
+            ImageUtils.loadEntityImage(
+                image: primaryImage,
+                imageView: imageView,
+                options: ImageLoadOptions.aspectFilled(size: imageView.bounds.size),
+                onSuccess: { [weak self] image in
+                    self?.setDisplayedImage(image, itemModel: itemToDisplay)
+                },
+                onFailure: { [weak self] failureReason in
+                    self?.displayImageLoadFailedIndicator(itemModel: itemToDisplay)
+                }
+            )
+        case .none:
+            break
+        }
     }
 
-    func setDisplayedImage(_ image: UIImage, entry: DiaryEntryBase?) {
-        guard let entry = entry else { return }
-        if (entry != self.item) {
+    private func setDisplayedImage(_ image: UIImage, itemModel: GalleryItemModel) {
+        if (itemModel != self.displayedItem) {
             // image loaded but for a cell that was already reused
             return
         }
@@ -101,9 +149,8 @@ class GalleryItemCell: MDCCardCollectionCell {
         imageLoadedSuccessfully = true
     }
 
-    func displayImageLoadFailedIndicator(entry: DiaryEntryBase?) {
-        guard let entry = entry else { return }
-        if (entry != self.item) {
+    private func displayImageLoadFailedIndicator(itemModel: GalleryItemModel) {
+        if (itemModel != self.displayedItem) {
             // image loaded but for a cell that was already reused
             return
         }
@@ -114,35 +161,42 @@ class GalleryItemCell: MDCCardCollectionCell {
     }
 
     @IBAction func leftButtomClick(_ sender: AnyObject?) {
-        switch itemType {
-        case RiistaEntryTypeHarvest:
-            let sb = UIStoryboard(name: "HarvestStoryboard", bundle: nil)
-            let dest = sb.instantiateInitialViewController() as? RiistaLogGameViewController
-            dest?.eventId = item?.objectID
-
-            let segue = UIStoryboardSegue(identifier: "", source: parent!, destination: dest!, performHandler: {
-                self.parent?.navigationController?.pushViewController(dest!, animated: true)
-            })
-            segue.perform()
-        case RiistaEntryTypeObservation:
-            if let objectId = item?.objectID {
-                let observationEntry = RiistaGameDatabase.sharedInstance().observationEntry(with: objectId, context: self.moContext)
-                if let observation = observationEntry?.toCommonObservation(objectId: objectId) {
-                    let viewController = ViewObservationViewController(observation: observation)
-                    self.parent?.navigationController?.pushViewController(viewController, animated: true)
-                }
+        switch displayedItem {
+        case .diaryEntry(let entry, let itemType):
+            if (itemType == .harvest) {
+                viewHarvest(objectId: entry.objectID)
+            } else {
+                print("Unexpected itemType \(itemType) for .diaryEntry (left click)")
             }
-        case RiistaEntryTypeSrva:
-            if let objectId = item?.objectID {
-                let srvaEntry = RiistaGameDatabase.sharedInstance().srvaEntry(with: objectId, context: moContext)
-                if let srvaEvent = srvaEntry?.toSrvaEvent(objectId: objectId) {
-                    let viewSrvaViewController = ViewSrvaEventViewController(srvaEvent: srvaEvent)
-                    self.parent?.navigationController?.pushViewController(viewSrvaViewController, animated: true)
-                }
+        case .commonEntry(let localId, let itemType, _):
+            if (itemType == .srva) {
+                viewSrva(localId: localId)
+            } else if (itemType == .observation) {
+                viewObservation(localId: localId)
+            } else {
+                print("Unexpected itemType \(itemType) for .commonEntry (left click)")
             }
-        default:
+        case .none:
             break
         }
+    }
+
+    private func viewHarvest(objectId: NSManagedObjectID) {
+        let diaryEntry = RiistaGameDatabase.sharedInstance().diaryEntry(with: objectId, context: self.moContext)
+        if let harvest = diaryEntry?.toCommonHarvest(objectId: objectId) {
+            let viewController = ViewHarvestViewController(harvest: harvest)
+            self.parent?.navigationController?.pushViewController(viewController, animated: true)
+            }
+    }
+
+    private func viewObservation(localId: KotlinLong) {
+        let viewController = ViewObservationViewController(observationId: localId.int64Value)
+        self.parent?.navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    private func viewSrva(localId: KotlinLong) {
+        let viewController = ViewSrvaEventViewController(srvaEventId: localId.int64Value)
+        self.parent?.navigationController?.pushViewController(viewController, animated: true)
     }
 
     @IBAction func rightButtomClick(_ sender: AnyObject?) {
@@ -152,11 +206,19 @@ class GalleryItemCell: MDCCardCollectionCell {
         }
 
         let sb = UIStoryboard(name: "Main", bundle: nil)
-        let dest = sb.instantiateViewController(withIdentifier: "ImageFullController") as? ImageFullViewController
-        dest?.item = self.item
+        let dest = sb.instantiateViewController(withIdentifier: "ImageFullController") as! ImageFullViewController
 
-        let segue = UIStoryboardSegue(identifier: "", source: parent!, destination: dest!, performHandler: {
-            self.parent?.navigationController?.pushViewController(dest!, animated: true)
+        switch displayedItem {
+        case .diaryEntry(let entry, _):
+            dest.item = entry
+        case .commonEntry(_, _, let primaryImage):
+            dest.entityImage = primaryImage
+        case .none:
+            break
+        }
+
+        let segue = UIStoryboardSegue(identifier: "", source: parent!, destination: dest, performHandler: {
+            self.parent?.navigationController?.pushViewController(dest, animated: true)
         })
         segue.perform()
     }

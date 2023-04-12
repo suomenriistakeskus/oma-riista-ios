@@ -94,6 +94,16 @@ extension LocalDateTime {
     }
 }
 
+extension LocalDateTime: Comparable {
+    public static func == (lhs: LocalDateTime, rhs: LocalDateTime) -> Bool {
+        return lhs.compareTo(other: rhs) == 0
+    }
+
+    public static func < (lhs: LocalDateTime, rhs: LocalDateTime) -> Bool {
+        return lhs.compareTo(other: rhs) < 0
+    }
+}
+
 extension LocalTime {
     func toFoundationDate() -> Foundation.Date {
         let calendar = Calendar.current
@@ -154,6 +164,14 @@ extension Int {
     func toKotlinInt() -> KotlinInt {
         KotlinInt(integerLiteral: self)
     }
+
+    func toSpecies() -> Species {
+        if (self < 0) {
+            return Species.Other()
+        } else {
+            return Species.Known(speciesCode: Int32(self))
+        }
+    }
 }
 
 extension Double {
@@ -165,6 +183,10 @@ extension Double {
 extension Int32 {
     func toNSNumber() -> NSNumber {
         NSNumber(value: self)
+    }
+
+    func toKotlinInt() -> KotlinInt {
+        KotlinInt(int: self)
     }
 }
 
@@ -181,6 +203,10 @@ extension Int64 {
 extension Bool {
     func toKotlinBoolean() -> KotlinBoolean {
         KotlinBoolean(value: self)
+    }
+
+    func toNSNumber() -> NSNumber {
+        NSNumber(booleanLiteral: self)
     }
 }
 
@@ -304,6 +330,19 @@ extension DiaryImage {
 }
 
 extension EntityImages {
+    // naturally harvests store images in NSSet instead of NSOrderedSet..
+    func toDiaryImages(context: NSManagedObjectContext, existingImages: Set<AnyHashable>?) -> NSSet {
+        guard let existingImages = existingImages else {
+            return []
+        }
+
+        let images = NSOrderedSet(array: Array(existingImages))
+        let result = toDiaryImages(context: context, existingImages: images)
+//        let resultSet = Set(arrayLiteral: result.map { $0 as? DiaryImage } )
+        let resultSet = NSSet(array: result.array)
+        return resultSet
+    }
+
     func toDiaryImages(context: NSManagedObjectContext, existingImages: NSOrderedSet?) -> NSOrderedSet {
         let existingImages = existingImages?.compactMap { image in
             image as? DiaryImage

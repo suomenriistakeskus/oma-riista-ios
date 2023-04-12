@@ -8,6 +8,8 @@ class CheckBoxButton: MaterialButton {
     override init() {
         super.init()
 
+        titleLabel?.numberOfLines = 0
+
         self.setImage(UIImage(named: "tick_box"), for: .selected)
         self.setImage(UIImage(named: "empty_box"), for: .normal)
         self.addTarget(self, action: #selector(CheckBoxButton.buttonClicked(_:)), for: .touchUpInside)

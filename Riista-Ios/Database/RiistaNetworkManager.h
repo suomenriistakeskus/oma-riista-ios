@@ -7,13 +7,15 @@ extern NSInteger const LOGIN_TIMEOUT;
 extern NSInteger const LOGIN_INCORRECT_CREDENTIALS;
 extern NSInteger const LOGIN_OUTDATED_VERSION;
 
+// default timeout in seconds to be used in login
+extern int const LOGIN_DEFAULT_TIMEOUT_SECONDS;
+
 extern NSString *const RiistaReloginFailedKey;
 extern NSString *const RiistaLoginDomain;
 
+
 @class DiaryEntry;
 @class DiaryImage;
-@class ObservationEntry;
-@class SrvaEntry;
 
 typedef void(^RiistaLoginCompletionBlock)(NSError *error);
 typedef void(^RiistaDiaryEntryYearsCompletionBlock)(NSArray* years, NSError *error);
@@ -28,9 +30,6 @@ typedef void(^RiistaPermitCheckNumberCompletion)(NSDictionary *permit, NSError *
 typedef void(^RiistaDiaryObservationFetchCompletion)(NSArray *entries, NSError *error);
 typedef void(^RiistaDiaryObservationSendCompletion)(NSDictionary *response, NSError *error);
 typedef void(^RiistaDiaryObservationImageOperationCompletion)(NSError *error);
-
-typedef void(^RiistaDiarySrvaFetchCompletion)(NSArray *entries, NSError *error);
-typedef void(^RiistaDiarySrvaSendCompletion)(NSDictionary *response, NSError *error);
 
 typedef void(^RiistaAnnouncementsListCompletion)(NSArray *items, NSError *error);
 
@@ -50,7 +49,7 @@ typedef void(^RiistaJsonCompletion)(NSDictionary *item, NSError *error);
 
 + (NSString*)getBaseApiPath;
 
-- (void)login:(NSString*)username password:(NSString*)password completion:(RiistaLoginCompletionBlock)completion;
+- (void)login:(NSString*)username password:(NSString*)password timeoutSeconds:(int)timeoutSeconds completion:(RiistaLoginCompletionBlock)completion;
 
 /**
  * Login wrapper that adds notifications for unsuccessful login attempts with wrong credentials
@@ -58,7 +57,7 @@ typedef void(^RiistaJsonCompletion)(NSDictionary *item, NSError *error);
  * @param password
  * @param completion Completion block
  */
-- (void)relogin:(NSString*)username password:(NSString*)password completion:(RiistaLoginCompletionBlock)completion;
+- (void)relogin:(NSString*)username password:(NSString*)password timeoutSeconds:(int)timeoutSeconds completion:(RiistaLoginCompletionBlock)completion;
 
 /**
  * Send and register user Firebase notification token to the server.
@@ -135,53 +134,6 @@ typedef void(^RiistaJsonCompletion)(NSDictionary *item, NSError *error);
  * @param completion Completion block
  */
 - (void)diaryEntryImageOperationForImage:(DiaryImage*)image diaryEntry:(DiaryEntry*)diaryEntry completion:(RiistaDiaryEntryImageOperationCompletion)completion;
-
-#pragma mark - Observations
-
-/**
- * Fetches diary observations for given year
- * @param year
- * @param completion Completion block
- */
-- (void)diaryObservationsForYear:(NSInteger)year completion:(RiistaDiaryObservationFetchCompletion)completion;
-
-/**
- * Sends given diary observation to server
- * @param diaryEntry
- * @param completion Completion block
- */
-- (void)sendDiaryObservation:(ObservationEntry*)diaryObservation completion:(RiistaDiaryObservationSendCompletion)completion;
-
-/**
- * Completes insert/deletion operations for images having such status
- * @param image DiaryImage object
- * @param diaryEntry DiaryEntry object
- * @param completion Completion block
- */
-- (void)diaryObservationImageOperationForImage:(DiaryImage*)image observationEntry:(ObservationEntry*)observationEntry completion:(RiistaDiaryObservationImageOperationCompletion)completion;
-
-#pragma mark - Srva
-
-/**
- * Fetches all SRVA entries
- * @param completion Completion block
- */
-- (void)srvaEntries:(RiistaDiarySrvaFetchCompletion)completion;
-
-/**
- * Sends given diary SRVA to server
- * @param diaryEntry
- * @param completion Completion block
- */
-- (void)sendDiarySrva:(SrvaEntry*)diarySrva completion:(RiistaDiarySrvaSendCompletion)completion;
-
-/**
- * Completes insert/deletion operations for images having such status
- * @param image DiaryImage object
- * @param srvaEntry SrvaEntry object
- * @param completion Completion block
- */
-- (void)diarySrvaImageOperationForImage:(DiaryImage*)image srvaEntry:(SrvaEntry*)srvaEntry completion:(RiistaDiaryEntryImageOperationCompletion)completion;
 
 
 - (void)clubAreaMaps:(RiistaJsonArrayCompletion)completion;

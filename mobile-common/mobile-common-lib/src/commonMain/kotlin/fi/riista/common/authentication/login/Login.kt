@@ -4,12 +4,16 @@ import fi.riista.common.domain.dto.UserInfoDTO
 import fi.riista.common.network.NetworkClient
 import fi.riista.common.network.calls.NetworkRequest
 import fi.riista.common.network.calls.NetworkResponse
+import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 
-internal class Login(private val username: String,
-                     private val password: String): NetworkRequest<UserInfoDTO> {
+internal class Login(
+    private val username: String,
+    private val password: String,
+    private val timeoutSeconds: Int,
+): NetworkRequest<UserInfoDTO> {
 
     override suspend fun request(client: NetworkClient): NetworkResponse<UserInfoDTO> {
         return client.request(
@@ -26,6 +30,11 @@ internal class Login(private val username: String,
                             encodeInQuery = false
                     ) {
                         accept(ContentType.Application.Json)
+                        timeout {
+                            // iOS doesn't support connection timeout do don't use it
+                            requestTimeoutMillis = this@Login.timeoutSeconds * 1000L
+                            socketTimeoutMillis = this@Login.timeoutSeconds * 1000L
+                        }
                     }
                 },
                 configureResponseHandler = {

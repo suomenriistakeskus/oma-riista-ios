@@ -2,11 +2,15 @@ package fi.riista.common.domain.huntingControl
 
 import co.touchlab.stately.concurrency.AtomicBoolean
 import fi.riista.common.RiistaSDK
+import fi.riista.common.domain.huntingControl.dto.toHuntingControlHunterInfo
 import fi.riista.common.domain.huntingControl.model.IdentifiesRhy
 import fi.riista.common.domain.huntingControl.sync.HuntingControlSynchronizationContextProvider
+import fi.riista.common.domain.huntingControl.ui.HuntingControlHunterInfoResponse
+import fi.riista.common.domain.model.HunterNumber
 import fi.riista.common.domain.model.Organization
 import fi.riista.common.domain.model.OrganizationId
 import fi.riista.common.io.CommonFileProvider
+import fi.riista.common.logging.getLogger
 import fi.riista.common.network.BackendApiProvider
 import fi.riista.common.network.SyncDataPiece
 import fi.riista.common.preferences.Preferences
@@ -75,6 +79,36 @@ class HuntingControlContext internal constructor(
         huntingControlRhyProvider.fetch(refresh = refresh)
     }
 
+    suspend fun fetchHunterInfoByHunterNumber(hunterNumber: HunterNumber): HuntingControlHunterInfoResponse {
+        val response = backendAPI.fetchHuntingControlHunterInfoByHunterNumber(hunterNumber)
+        response.onSuccess { _, data ->
+            return HuntingControlHunterInfoResponse.Success(data.typed.toHuntingControlHunterInfo())
+        }
+        response.onError { statusCode, exception ->
+            logger.w { "Failed to fetch Hunter data $statusCode ${exception?.message}" }
+            return when (statusCode) {
+                404 -> HuntingControlHunterInfoResponse.Error(HuntingControlHunterInfoResponse.ErrorReason.NOT_FOUND)
+                else -> HuntingControlHunterInfoResponse.Error(HuntingControlHunterInfoResponse.ErrorReason.NETWORK_ERROR)
+            }
+        }
+        throw RuntimeException("Unhandled response when fetching hunter info")
+    }
+
+    suspend fun fetchHunterInfoBySsn(ssn: String): HuntingControlHunterInfoResponse {
+        val response = backendAPI.fetchHuntingControlHunterInfoBySsn(ssn)
+        response.onSuccess { _, data ->
+            return HuntingControlHunterInfoResponse.Success(data.typed.toHuntingControlHunterInfo())
+        }
+        response.onError { statusCode, exception ->
+            logger.w { "Failed to fetch Hunter data $statusCode ${exception?.message}" }
+            return when (statusCode) {
+                404 -> HuntingControlHunterInfoResponse.Error(HuntingControlHunterInfoResponse.ErrorReason.NOT_FOUND)
+                else -> HuntingControlHunterInfoResponse.Error(HuntingControlHunterInfoResponse.ErrorReason.NETWORK_ERROR)
+            }
+        }
+        throw RuntimeException("Unhandled response when fetching hunter info")
+    }
+
     private fun syncFinished() {
         _huntingControlRhyProvider.forceRefreshOnNextFetch()
     }
@@ -82,5 +116,9 @@ class HuntingControlContext internal constructor(
     fun clear() {
         _huntingControlRhyProvider.clear()
         synchronizeHuntingControlWhenCheckingAvailability.value = true
+    }
+
+    companion object {
+        private val logger by getLogger(HuntingControlContext::class)
     }
 }

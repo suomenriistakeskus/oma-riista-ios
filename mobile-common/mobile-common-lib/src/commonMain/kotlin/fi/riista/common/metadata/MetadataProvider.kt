@@ -63,10 +63,6 @@ internal class DefaultMetadataProvider internal constructor(
         )
     }
 
-    suspend fun updateMetadata() {
-        srvaMetadataProvider.updateMetadata()
-    }
-
     internal fun initialize() {
         synchronizationService.registerSyncContextProvider(
             syncDataPiece = srvaMetadataProvider.syncDataPiece,
@@ -94,5 +90,10 @@ internal class DefaultMetadataProvider internal constructor(
         mainScopeProvider.scope.launch {
             updateMetadata()
         }
+    }
+
+    private suspend fun updateMetadata() {
+        srvaMetadataProvider.updateMetadata()
+        observationMetadataProvider.updateMetadata()
     }
 }

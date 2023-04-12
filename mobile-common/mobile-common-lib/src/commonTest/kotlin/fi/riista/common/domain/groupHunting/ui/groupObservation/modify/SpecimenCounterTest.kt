@@ -1,8 +1,8 @@
 package fi.riista.common.domain.groupHunting.ui.groupObservation.modify
 
+import fi.riista.common.domain.harvest.model.CommonHarvestSpecimen
 import fi.riista.common.domain.model.GameAge
 import fi.riista.common.domain.model.Gender
-import fi.riista.common.domain.model.HarvestSpecimen
 import fi.riista.common.model.toBackendEnum
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,7 +11,7 @@ class SpecimenCounterTest {
 
     @Test
     fun testOneAdultMale() {
-        val specimen = HarvestSpecimen(
+        val specimen = CommonHarvestSpecimen(
             gender = Gender.MALE.toBackendEnum(),
             age = GameAge.ADULT.toBackendEnum(),
         )
@@ -23,7 +23,7 @@ class SpecimenCounterTest {
 
     @Test
     fun testOneAdultFemale() {
-        val specimen = HarvestSpecimen(
+        val specimen = CommonHarvestSpecimen(
             gender = Gender.FEMALE.toBackendEnum(),
             age = GameAge.ADULT.toBackendEnum(),
         )
@@ -35,7 +35,7 @@ class SpecimenCounterTest {
 
     @Test
     fun testOneAloneCalf() {
-        val specimen = HarvestSpecimen(
+        val specimen = CommonHarvestSpecimen(
             gender = Gender.FEMALE.toBackendEnum(),
             age = GameAge.YOUNG.toBackendEnum(),
             alone = true,
@@ -48,7 +48,7 @@ class SpecimenCounterTest {
 
     @Test
     fun testOneNotAloneCalf() {
-        val specimen = HarvestSpecimen(
+        val specimen = CommonHarvestSpecimen(
             gender = Gender.FEMALE.toBackendEnum(),
             age = GameAge.YOUNG.toBackendEnum(),
         )
@@ -60,17 +60,17 @@ class SpecimenCounterTest {
 
     @Test
     fun testOneFemaleTwoCalfs() {
-        val mother = HarvestSpecimen(
+        val mother = CommonHarvestSpecimen(
             gender = Gender.FEMALE.toBackendEnum(),
             age = GameAge.ADULT.toBackendEnum(),
         )
 
-        val calf1 = HarvestSpecimen(
+        val calf1 = CommonHarvestSpecimen(
             gender = Gender.FEMALE.toBackendEnum(),
             age = GameAge.YOUNG.toBackendEnum(),
         )
 
-        val calf2 = HarvestSpecimen(
+        val calf2 = CommonHarvestSpecimen(
             gender = Gender.MALE.toBackendEnum(),
             age = GameAge.YOUNG.toBackendEnum(),
         )

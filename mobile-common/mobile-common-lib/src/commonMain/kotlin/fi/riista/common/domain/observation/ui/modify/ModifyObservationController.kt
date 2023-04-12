@@ -7,6 +7,9 @@ import fi.riista.common.domain.model.ObservationCategory
 import fi.riista.common.domain.model.ObservationType
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.model.asKnownLocation
+import fi.riista.common.domain.observation.ObservationContext
+import fi.riista.common.domain.observation.ObservationOperationResponse
+import fi.riista.common.domain.observation.SaveObservationResponse
 import fi.riista.common.domain.observation.model.CommonObservation
 import fi.riista.common.domain.observation.model.CommonObservationData
 import fi.riista.common.domain.observation.model.toCommonObservation
@@ -24,7 +27,6 @@ import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.ui.dataField.FieldSpecification
 import fi.riista.common.ui.intent.IntentHandler
 import fi.riista.common.util.LocalDateTimeProvider
-import fi.riista.common.util.SystemDateTimeProvider
 import fi.riista.common.util.firstAndOnly
 import fi.riista.common.util.hasSameElements
 import fi.riista.common.util.withNumberOfElements
@@ -35,24 +37,13 @@ import kotlinx.serialization.Serializable
  */
 abstract class ModifyObservationController internal constructor(
     private val userContext: UserContext,
+    private val observationContext: ObservationContext,
     private val metadataProvider: MetadataProvider,
+    protected val localDateTimeProvider: LocalDateTimeProvider,
     stringProvider: StringProvider,
-    localDateTimeProvider: LocalDateTimeProvider
 ) : ControllerWithLoadableModel<ModifyObservationViewModel>(),
     IntentHandler<ModifyObservationIntent>,
     HasUnreproducibleState<ModifyObservationController.SavedState> {
-
-    constructor(
-        userContext: UserContext,
-        metadataProvider: MetadataProvider,
-        stringProvider: StringProvider,
-    ): this(
-        userContext = userContext,
-        metadataProvider = metadataProvider,
-        stringProvider = stringProvider,
-        localDateTimeProvider = SystemDateTimeProvider()
-    )
-
 
     private val observationFields = ObservationFields(metadataProvider = metadataProvider)
     val eventDispatchers: ModifyObservationEventDispatcher by lazy {
@@ -87,6 +78,36 @@ abstract class ModifyObservationController internal constructor(
         return getLoadedViewModelOrNull()
             ?.getValidatedObservationOrNull()
             ?.toCommonObservation()
+    }
+
+    /**
+     * Saves the observation to local database and optionally tries to send it to backend.
+     */
+    suspend fun saveObservation(updateToBackend: Boolean): SaveObservationResponse {
+        val observationToBeSaved = getValidatedObservation()?.copy(modified = true) ?: kotlin.run {
+            return SaveObservationResponse(
+                databaseSaveResponse = ObservationOperationResponse.Error("Not valid observation"),
+            )
+        }
+
+        return when (val saveResponse = observationContext.saveObservation(observationToBeSaved)) {
+            is ObservationOperationResponse.Error,
+            is ObservationOperationResponse.SaveFailure,
+            is ObservationOperationResponse.NetworkFailure -> {
+                SaveObservationResponse(databaseSaveResponse = saveResponse)
+            }
+            is ObservationOperationResponse.Success -> {
+                if (updateToBackend) {
+                    val networkResponse = observationContext.sendObservationToBackend(observation = saveResponse.observation)
+                    SaveObservationResponse(
+                        databaseSaveResponse = saveResponse,
+                        networkSaveResponse = networkResponse,
+                    )
+                } else {
+                    SaveObservationResponse(databaseSaveResponse = saveResponse)
+                }
+            }
+        }
     }
 
     override fun handleIntent(intent: ModifyObservationIntent) {
@@ -484,4 +505,3 @@ abstract class ModifyObservationController internal constructor(
         private val logger by getLogger(ModifyObservationController::class)
     }
 }
-

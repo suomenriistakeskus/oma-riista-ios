@@ -59,17 +59,31 @@ import FirebaseMessaging
 
         RiistaGameDatabase.sharedInstance().initUserSession()
         selectViewControllerAt(index: 0)
+
+        UserAccountUnregisterRequestedViewController.notifyIfUnregistrationRequested(
+            navigationController: self.navigationController,
+            ignoreCooldown: true
+        )
     }
 
-    @objc func logout() {
+    @objc private func onReloginFailed() {
+        logout(navigateToLoginController: true)
+    }
+
+    @objc private func onLogoutRequested() {
+        logout(navigateToLoginController: false)
+    }
+
+    func logout(navigateToLoginController: Bool) {
         RiistaSDKHelper.logout()
+
+        AppSync.shared.disableSyncPrecondition(.credentialsVerified)
 
         RiistaSessionManager.sharedInstance().removeCredentials()
         RiistaSettings.setUserInfo(nil)
         RiistaSettings.setUseExperimentalMode(false)
 
         RiistaPermitManager.sharedInstance().clearPermits()
-        RiistaGameDatabase.sharedInstance().autosync = false
         RiistaUtils.markAllAnnouncementsAsRead()
         RiistaClubAreaMapManager.clearCache()
 
@@ -84,8 +98,10 @@ import FirebaseMessaging
             }
         }
 
-        self.navigationController?.popToRootViewController(animated: false)
-        showLoginController(animated: true)
+        if (navigateToLoginController) {
+            self.navigationController?.popToRootViewController(animated: false)
+            showLoginController(animated: true)
+        }
     }
 
     @objc private func updateMenuTexts() {
@@ -176,16 +192,19 @@ import FirebaseMessaging
     private func registerAsObserver() {
         let notificationCenter = NotificationCenter.default
 
-        notificationCenter.addObserver(self, selector: #selector(logout),
-                                       name:RiistaReloginFailedKey.toNotificationName(), object: nil)
+        notificationCenter.addObserver(self, selector: #selector(onLogoutRequested),
+                                       name: .RequestLogout, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(onReloginFailed),
+                                       name: RiistaReloginFailedKey.toNotificationName(), object: nil)
 
         notificationCenter.addObserver(self, selector: #selector(updateMenuTexts),
-                                       name:RiistaLanguageSelectionUpdatedKey.toNotificationName(), object: nil)
+                                       name: RiistaLanguageSelectionUpdatedKey.toNotificationName(), object: nil)
         notificationCenter.addObserver(self, selector: #selector(updateMenuTexts),
-                                       name:RiistaPushAnnouncementKey.toNotificationName(), object: nil)
+                                       name: RiistaPushAnnouncementKey.toNotificationName(), object: nil)
 
         notificationCenter.addObserver(self, selector: #selector(logEntrySaved),
-                                       name:RiistaLogEntrySavedKey.toNotificationName(), object: nil)
+                                       name: RiistaLogEntrySavedKey.toNotificationName(), object: nil)
+
     }
 
     @available(iOS 13.0, *)

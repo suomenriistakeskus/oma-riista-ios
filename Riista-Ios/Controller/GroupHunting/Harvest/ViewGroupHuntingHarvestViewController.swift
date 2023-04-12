@@ -48,7 +48,7 @@ class ViewGroupHuntingHarvestViewController:
         }
     }
 
-    private let tableViewController = DataFieldTableViewController<GroupHarvestField>()
+    private let tableViewController = DataFieldTableViewController<CommonHarvestField>()
 
     private lazy var continueToApproveArea: UIView = {
         let view = UIView()

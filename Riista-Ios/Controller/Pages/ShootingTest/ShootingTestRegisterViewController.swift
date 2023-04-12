@@ -366,12 +366,10 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
 
         dismiss(animated: true, completion: nil)
 
-        let pattern = "^.*;.*;.*;\\d*;(\\d{8});\\d*;\\d*;.*$"
-        let regex = try! NSRegularExpression(pattern: pattern, options: [])
+        let regex = try! NSRegularExpression(pattern: ScanPattern.HunterNumberPattern, options: [])
         let matches = regex.matches(in: result.value, options: [], range: NSRange(location: 0, length: result.value.count))
 
-        let ssnPattern = "^\\d{6}[A+-]\\d{3}[0-9A-FHJ-NPR-Y]$"
-        let ssnRegEx = try! NSRegularExpression(pattern: ssnPattern, options: [])
+        let ssnRegEx = try! NSRegularExpression(pattern: RemoteConfigurationManager.sharedInstance.ssnPattern(), options: [])
         let ssnMatches = ssnRegEx.matches(in: result.value, options: [], range: NSRange(location: 0, length: result.value.count))
 
         if (matches.count > 0) {

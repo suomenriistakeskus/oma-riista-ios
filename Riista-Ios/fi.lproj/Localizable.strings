@@ -194,6 +194,7 @@
 "Species" = "Laji";
 "Amount" = "Määrä";
 "DateTime" = "Ajankohta";
+"Description" = "Muistiinpano";
 "AddDescription" = "Lisää muistiinpano";
 "CoordinatesFormat" = "P %d, I %d (ETRS-TM35FIN)";
 "ChooseSpecies" = "Valitse laji";
@@ -241,7 +242,8 @@
 "SpecimenValueUnknown" = "Tuntematon";
 "SpecimenAddSpecimen" = "Lisää yksilö";
 
-"PermitDescription" = "Riistakeskuksen luvalla (ei koske hirvieläimiä)";
+"PermitDescription" = "Riistakeskuksen luvalla\n(ei koske hirvieläimiä)";
+"PermitInformation" = "Lupa";
 "PermitListPageTitle" = "Valitse lupa";
 "PermitListHelpText" = "Hirvieläimille ei tarvitse syöttää lupanumeroa";
 "PermitListInputPrompt" = "Etsi lupanumerolla";
@@ -348,6 +350,14 @@
 "PhoneShort" = "Puh.";
 "ContactLicenseIssuesTitle" = "Metsästyskorttiasiat";
 
+"DeleteUserAccount" = "Poista käyttäjätunnus";
+"DeleteUserAccountMessage" = "Haluan poistaa vapaaehtoiset riistatietoni, käyttäjätilini sekä henkilötietoni Oma\U00A0riista\U00A0-palvelusta.\n\nYmmärrän, että tietojani ei voida palauttaa poistamisen\U00A0jälkeen.";
+"DeleteUserAccountQuestion" = "Oletko varma, että haluat poistaa käyttäjätunnuksesi?";
+"DeleteUserAccountRequestSentTitleShort" = "Pyyntö lähetetty";
+"DeleteUserAccountRequestSentTitle" = "Käyttäjätilin poistopyyntö on lähetetty";
+"DeleteUserAccountRequestSentMessageAtTime" = "Käyttäjätilin poistopyynnöstä on lähetetty automaattinen sähköpostiviesti Oma riista -palvelun ylläpitoon %@ sekä kopio viestistä on välitetty myös omissa tiedoissasi määriteltyyn sähköpostiosoitteeseen. Tyypillisesti käyttäjätili poistetaan ylläpidon toimesta kahden viikon\U00A0kuluessa.\n\nOle hyvä ja ota yhteyttä asiakaspalveluun oma@riista.fi, mikäli pyysit käyttäjätilin poistoa\U00A0erheellisesti.";
+"DeleteUserAccountContinueUsing" = "Jatka palvelun käyttöä";
+
 "Synchronization" = "Synkronointi";
 "Manual" = "Manuaalinen";
 "Automatic" = "Automaattinen";
@@ -418,6 +428,7 @@
 
 "UpdateAvailableTitle" = "Päivitys saatavilla";
 "UpdateAvailableMessage" = "Lataa uusi Oma riista versio App Storesta.";
+"UpdateAction" = "Päivitä";
 
 "ButtonClearTitle" = "Tyhjennä";
 "NetworkOperationFailed" = "Toiminto epäonnistui";
@@ -585,6 +596,7 @@
 "GroupHuntingDayErrorDatesNotWithinPermit" = "Päivä on sallitun lupa-ajan ulkopuolella";
 "GroupHuntingErrorTimeNotWithinHuntingDay" = "Aika ei ole metsästyspäivän määräämissä rajoissa.";
 "ErrorDateNotAllowed" = "Päiväys ei ole sallittu";
+"ErrorDatetimeInFuture" = "Päivämäärä ei saa olla tulevaisuudessa";
 
 "GroupHuntingSuggestedHuntingDay" = "Päivä on ehdolla metsästyspäiväksi, koska sille löytyy saaliita tai havaintoja.";
 "GroupHuntingAddHuntingDay" = "Luo metsästyspäivä";
@@ -637,6 +649,10 @@
 "AntlersTypeLapio" = "Lapio";
 "AntlersTypeSeka" = "Seka";
 
+"GreySealHuntingMethodShot" = "Ammuttu";
+"GreySealHuntingMethodCapturedAlive" = "Elävänä pyytävällä loukulla pyydetty";
+"GreySealHuntingMethodShotButLost" = "Ammuttu, mutta menetetty";
+
 "DeerHuntingTypeStanding" = "Kyttääminen / vahtiminen";
 "DeerHuntingTypeDog" = "Seuruemetsästys koiran kanssa";
 "DeerHuntingTypeOther" = "Muu";
@@ -659,11 +675,11 @@
 "ObservationTypeKelomispuu" = "Kelomispuu";
 "ObservationTypeKiimakuoppa" = "Kiimakuoppa";
 "ObservationTypeMakuupaikka" = "Makuupaikka";
-"ObservationTypePato" = "Pesä";
-"ObservationTypePesa" = "Kekopesä";
-"ObservationTypePesaKeko" = "Penkkapesä";
-"ObservationTypePesaPenkka" = "Sekapesä";
-"ObservationTypePesaSeka" = "Pato";
+"ObservationTypePesa" = "Pesä";
+"ObservationTypePesaKeko" = "Kekopesä";
+"ObservationTypePesaPenkka" = "Penkkapesä";
+"ObservationTypePesaSeka" = "Sekapesä";
+"ObservationTypePato" = "Pato";
 "ObservationTypeSoidin" = "Soidin";
 "ObservationTypeLuolasto" = "Luolasto";
 "ObservationTypePesimaluoto" = "Pesimäluoto";
@@ -740,6 +756,25 @@
 "HuntingControlEventTypeWaterfowl" = "Vesilintujen metsästyksen valvonta";
 "HuntingControlEventTypeDogDiscipline" = "Koirakurin valvonta";
 "HuntingControlEventTypeOther" = "Muu valvonta";
+
+"HuntingControlCheckHunter" = "Tarkasta";
+"HuntingControlHunterDetails" = "Henkilötiedot";
+"HuntingControlHunterName" = "Nimi";
+"HuntingControlHunterDateOfBirth" = "Syntymäaika";
+"HuntingControlHunterNomeMunicipality" = "Kotipaikka";
+"HuntingControlHunterNumber" = "Metsästäjänumero";
+"HuntingControlHuntingLicense" = "Metsästyskortti";
+"HuntingControlHuntingLicenseStatus" = "Tila";
+"HuntingControlHuntingLicenseStatusActive" = "Voimassa";
+"HuntingControlHuntingLicenseStatusInactive" = "Ei voimassa";
+"HuntingControlHuntingLicenseDateOfPayment" = "Maksettu";
+"HuntingControlShootingTests" = "Ampumakoesuoritukset";
+"HuntingControlSsn" = "Henkilötunnus";
+"HuntingControlSearchingHunter" = "Haetaan henkilön tietoja";
+"HuntingControlResetHunterInfo" = "Uusi haku";
+"HuntingControlHunterNotFound" = "Haulla ei löytynyt henkilöä.";
+"HuntingControlNetworkError" = "Verkkovirhe, yritä uudestaan.";
+"HuntingControlRetry" = "Hae uudestaan";
 
 /* SRVA */
 

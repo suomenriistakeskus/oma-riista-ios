@@ -5,6 +5,9 @@ import fi.riista.common.helpers.createDatabaseDriverFactory
 import fi.riista.common.io.CommonFileProviderMock
 import fi.riista.common.network.BackendAPIMock
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
+import fi.riista.common.helpers.TestCrashlyticsLogger
+import fi.riista.common.logging.CrashlyticsLogger
+import fi.riista.common.logging.getLogger
 import fi.riista.common.util.MockDateTimeProvider
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -13,7 +16,7 @@ class RiistaCommonAndroidTest {
 
     @Test
     fun testPlatformIsAndroid() {
-        val configuration = RiistaSdkConfiguration("1", "2", "https://oma.riista.fi")
+        val configuration = RiistaSdkConfiguration("1", "2", "https://oma.riista.fi", TestCrashlyticsLogger)
         RiistaSDK.initializeMocked(
             sdkConfiguration = configuration,
             databaseDriverFactory = createDatabaseDriverFactory(),

@@ -1,6 +1,5 @@
 package fi.riista.common.domain.specimens.ui.edit
 
-import co.touchlab.stately.concurrency.AtomicReference
 import co.touchlab.stately.ensureNeverFrozen
 import fi.riista.common.domain.content.SpeciesResolver
 import fi.riista.common.domain.model.CommonSpecimenData
@@ -129,6 +128,8 @@ class EditSpecimensController(
                 originalSpecimen.copy(age = intent.age)
             is EditSpecimenIntent.ChangeGender ->
                 originalSpecimen.copy(gender = intent.gender?.toBackendEnum())
+            is EditSpecimenIntent.ChangeWeight ->
+                originalSpecimen.copy(weight = intent.weight)
             is EditSpecimenIntent.ChangeSpecimenMarking ->
                 originalSpecimen.copy(marking = intent.marking)
             is EditSpecimenIntent.ChangeStateOfHealth ->

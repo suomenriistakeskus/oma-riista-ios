@@ -111,7 +111,7 @@ struct DatetimeUtil {
 
 fileprivate struct DateFormatters {
     static let dateAndTimeFormatter: DateFormatter = DateFormatter(safeLocale: ()).apply({ formatter in
-        formatter.dateFormat = "d.M.yyyy HH:mm"
+        formatter.dateFormat = "d.M.yyyy\u{00A0}HH:mm"
     })
 
     static let dateOnlyFormatter: DateFormatter = DateFormatter(safeLocale: ()).apply({ formatter in

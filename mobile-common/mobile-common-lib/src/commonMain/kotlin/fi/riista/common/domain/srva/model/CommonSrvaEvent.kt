@@ -20,6 +20,8 @@ data class CommonSrvaEvent(
     val rhyId: Int?,
 
     val canEdit: Boolean,
+    val modified: Boolean,
+    val deleted: Boolean,
 
     val location: ETRMSGeoLocation,
     val pointOfTime: LocalDateTime,
@@ -59,6 +61,8 @@ internal fun CommonSrvaEvent.toSrvaEventData(): CommonSrvaEventData {
         state = state,
         rhyId = rhyId,
         canEdit = canEdit,
+        modified = modified,
+        deleted = deleted,
         location = location.asKnownLocation(),
         pointOfTime = pointOfTime,
         author = author,

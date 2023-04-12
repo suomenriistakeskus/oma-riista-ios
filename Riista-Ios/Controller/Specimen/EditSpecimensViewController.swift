@@ -7,10 +7,13 @@ typealias OnSpecimensEditDone<FieldId : DataFieldId> = (_ fieldId: FieldId, _ sp
 
 class EditSpecimensViewController<FieldId : DataFieldId>:
     BaseControllerWithViewModel<EditSpecimensViewModel, EditSpecimensController>,
+    KeyboardHandlerDelegate,
     ProvidesNavigationController {
 
     private let speciesNameResolver = SpeciesInformationResolver()
     private let tableViewController = DataFieldTableViewController<SpecimenFieldId>()
+
+    private var keyboardHandler: KeyboardHandler?
     private var specimenData: SpecimenFieldDataContainer
     private var fieldId: FieldId
     var onSpecimensEditDone: OnSpecimensEditDone<FieldId>? = nil
@@ -60,6 +63,12 @@ class EditSpecimensViewController<FieldId : DataFieldId>:
             make.top.equalTo(topLayoutGuide.snp.bottom)
             make.bottom.equalTo(bottomLayoutGuide.snp.top)
         }
+
+        keyboardHandler = KeyboardHandler(
+            view: view,
+            contentMovement: .adjustContentInset(scrollView: tableView)
+        )
+        keyboardHandler?.delegate = self
     }
 
     public override func viewDidLoad() {
@@ -68,6 +77,7 @@ class EditSpecimensViewController<FieldId : DataFieldId>:
         tableViewController.addDefaultCellFactories(
             navigationControllerProvider: self,
             stringWithIdEventDispatcher: controller.eventDispatchers.stringWithIdDispatcher,
+            doubleEventDispatcher: controller.eventDispatchers.doubleEventDispatcher,
             genderEventDispatcher: controller.eventDispatchers.genderEventDispatcher,
             ageEventDispatcher: controller.eventDispatchers.ageEventDispatcher
         )
@@ -84,6 +94,19 @@ class EditSpecimensViewController<FieldId : DataFieldId>:
         super.viewWillAppear(animated)
 
         navigationItem.rightBarButtonItems = createRightBarButtonItems()
+        keyboardHandler?.listenKeyboardEvents()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        keyboardHandler?.hideKeyboard()
+        keyboardHandler?.stopListenKeyboardEvents()
+
+        super.viewWillDisappear(animated)
+
+        if let viewModel = controller.getLoadedViewModelOrNull() {
+            let specimenData = viewModel.specimenData
+            onSpecimensEditDone?(fieldId, specimenData)
+        }
     }
 
     private func createRightBarButtonItems() -> [UIBarButtonItem] {
@@ -102,16 +125,6 @@ class EditSpecimensViewController<FieldId : DataFieldId>:
         }
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-        if let viewModel = controller.getLoadedViewModelOrNull() {
-            let specimenData = viewModel.specimenData
-            onSpecimensEditDone?(fieldId, specimenData)
-        }
-    }
-
-
     override func onViewModelLoaded(viewModel: EditSpecimensViewModel) {
         super.onViewModelLoaded(viewModel: viewModel)
         tableViewController.setDataFields(dataFields: viewModel.fields)
@@ -123,5 +136,12 @@ class EditSpecimensViewController<FieldId : DataFieldId>:
 
     func onRemoveSpecimenClicked(fieldId: SpecimenFieldId) {
         controller.removeSpecimen(fieldId: fieldId)
+    }
+
+
+    // MARK: KeyboardHandlerDelegate
+
+    func getBottommostVisibleViewWhileKeyboardVisible() -> UIView? {
+        tableView
     }
 }

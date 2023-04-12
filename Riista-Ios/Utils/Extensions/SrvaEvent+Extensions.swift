@@ -5,6 +5,10 @@ import CoreData
 extension SrvaEntry {
 
     func toSrvaEvent(objectId: NSManagedObjectID) -> CommonSrvaEvent? {
+        toSrvaEvent(localUrl: objectId.uriRepresentation().absoluteString)
+    }
+
+    func toSrvaEvent(localUrl: String) -> CommonSrvaEvent? {
         guard let dateTime = pointOfTime?.toLocalDateTime(),
               let location = coordinates?.toWGS84Coordinate().toETRSCoordinate(source: coordinates?.source ?? "") else {
                 print("returning nil")
@@ -13,7 +17,7 @@ extension SrvaEntry {
 
         return CommonSrvaEvent(
             localId: nil,
-            localUrl: objectId.uriRepresentation().absoluteString,
+            localUrl: localUrl,
             remoteId: remoteId?.toKotlinLong(),
             revision: rev?.toKotlinLong(),
             mobileClientRefId: mobileClientRefId?.toKotlinLong(),
@@ -21,6 +25,8 @@ extension SrvaEntry {
             state: SrvaEventState.Companion.shared.toBackendEnumCompat(value: state),
             rhyId: rhyId?.toKotlinInt(),
             canEdit: canEdit?.boolValue ?? false,
+            modified: sent?.boolValue == false && pendingOperation?.intValue != DiaryEntryOperationDelete,
+            deleted: pendingOperation?.intValue == DiaryEntryOperationDelete,
             location: location,
             pointOfTime: dateTime,
             author: toCommonSrvaEventAuthor(),

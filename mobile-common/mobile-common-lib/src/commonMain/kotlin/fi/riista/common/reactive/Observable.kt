@@ -23,7 +23,7 @@ class Subscription internal constructor(
 }
 
 
-class Observable<T>(initialValue: T) {
+open class Observable<T>(initialValue: T) {
     private val observers = IsoMutableList<ObserverRecord<T>>()
 
     private var _valueHolder = AtomicReference(initialValue)
@@ -42,7 +42,7 @@ class Observable<T>(initialValue: T) {
     /**
      * Only allow updating the value from the RiistaSDK library.
      */
-    internal fun set(value: T) {
+    internal open fun set(value: T) {
         this._value = value
     }
 
@@ -82,3 +82,14 @@ private class ObserverRecord<T>(
     val id: ObserverId,
     val observer: Observer<T>
 )
+
+/**
+ * An [Observable] version that can be used on the application side.
+ *
+ * Don't use in RiistaCommon implementation!
+ */
+class AppObservable<T>(initialValue: T): Observable<T>(initialValue) {
+    public override fun set(value: T) {
+        super.set(value)
+    }
+}

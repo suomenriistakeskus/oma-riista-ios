@@ -61,6 +61,7 @@ class HuntingControlLandingPageViewController :
 
         container.translatesAutoresizingMaskIntoConstraints = false
 
+        container.addView(hunterInfoButton)
         container.addView(addEventButton)
         container.addView(selectRhyView)
 
@@ -72,6 +73,20 @@ class HuntingControlLandingPageViewController :
         return container
     }()
 
+    private(set) lazy var hunterInfoButton: MaterialCardButton = {
+        let button = MaterialCardButton()
+        button.setTitle("HuntingControlCheckHunter".localized())
+        button.setImage(named: "calendar")
+        button.button.iconSize = CGSize(width: 40, height: 40)
+        button.button.imageView?.contentMode = .scaleAspectFit
+        button.setClickTarget(self, action: #selector(onHunterInfoClicked))
+
+        button.snp.makeConstraints { make in
+            make.height.equalTo(button.snp.width).multipliedBy(0.33)
+        }
+        return button
+    }()
+
     private(set) lazy var addEventButton: MaterialCardButton = {
         let button = MaterialCardButton()
         button.setTitle("HuntingControlAddEvent".localized())
@@ -81,7 +96,7 @@ class HuntingControlLandingPageViewController :
         button.setClickTarget(self, action: #selector(onAddEventClicked))
 
         button.snp.makeConstraints { make in
-            make.height.equalTo(button.snp.width).multipliedBy(0.5)
+            make.height.equalTo(button.snp.width).multipliedBy(0.33)
         }
         return button
     }()
@@ -183,6 +198,11 @@ class HuntingControlLandingPageViewController :
             listener: self
         )
 
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    @objc private func onHunterInfoClicked() {
+        let viewController = HunterInfoViewController()
         navigationController?.pushViewController(viewController, animated: true)
     }
 

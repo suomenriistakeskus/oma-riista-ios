@@ -7,6 +7,7 @@
     return [[NSFetchRequest alloc] initWithEntityName:@"ObservationEntry"];
 }
 
+@dynamic commonObservationId;
 @dynamic canEdit;
 @dynamic diarydescription;
 @dynamic gameSpeciesCode;

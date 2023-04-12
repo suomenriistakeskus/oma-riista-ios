@@ -1,17 +1,21 @@
 package fi.riista.common
 
 import co.touchlab.stately.concurrency.AtomicReference
+import fi.riista.common.authentication.AccountService
 import fi.riista.common.authentication.EmailService
 import fi.riista.common.authentication.LoginService
 import fi.riista.common.database.DatabaseDriverFactory
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.dto.UserInfoDTO
+import fi.riista.common.domain.observation.ObservationContext
 import fi.riista.common.domain.poi.PoiContext
 import fi.riista.common.domain.season.HarvestSeasons
+import fi.riista.common.domain.srva.SrvaContext
 import fi.riista.common.domain.userInfo.CurrentUserContextProvider
 import fi.riista.common.domain.userInfo.UserContext
 import fi.riista.common.io.CommonFileProvider
 import fi.riista.common.io.CommonFileStorage
+import fi.riista.common.logging.CrashlyticsLogger
 import fi.riista.common.logging.LogLevel
 import fi.riista.common.logging.Logger
 import fi.riista.common.messages.AppStartupMessageHandler
@@ -19,7 +23,14 @@ import fi.riista.common.messages.MessageHandler
 import fi.riista.common.metadata.DefaultMetadataProvider
 import fi.riista.common.metadata.MetadataProvider
 import fi.riista.common.model.Language
-import fi.riista.common.network.*
+import fi.riista.common.model.LocalDateTime
+import fi.riista.common.network.AuthenticationAwareBackendAPI
+import fi.riista.common.network.BackendAPI
+import fi.riista.common.network.BackendApiProvider
+import fi.riista.common.network.NetworkClient
+import fi.riista.common.network.SyncDataPiece
+import fi.riista.common.network.SynchronizationContextProvider
+import fi.riista.common.network.SynchronizationService
 import fi.riista.common.network.calls.NetworkResponse
 import fi.riista.common.network.cookies.CookieData
 import fi.riista.common.preferences.PlatformPreferences
@@ -94,9 +105,32 @@ object RiistaSDK {
         }
 
     @JvmStatic
+    val srvaContext: SrvaContext
+        get() {
+            return INSTANCE.srvaContext
+        }
+
+    @JvmStatic
+    val observationContext: ObservationContext
+        get() {
+            return INSTANCE.observationContext
+        }
+
+    @JvmStatic
+    val accountService: AccountService
+        get() {
+            return INSTANCE.accountService
+        }
+
+    @JvmStatic
     val commonFileProvider: CommonFileProvider
         get() {
             return INSTANCE.commonFileProvider
+        }
+
+    val crashlyticsLogger: CrashlyticsLogger
+        get() {
+            return INSTANCE.sdkConfiguration.crashlyticsLogger
         }
 
     internal val mainScopeProvider: MainScopeProvider
@@ -176,12 +210,12 @@ object RiistaSDK {
     }
 
     /**
-     * Attempts to login using given [username] and [password].
+     * Attempts to login using given [username] and [password] and using the specified [timeoutSeconds].
      *
      * If successful, the user info can be later obtained using [currentUserContext]
      */
-    suspend fun login(username: String, password: String): NetworkResponse<UserInfoDTO> {
-        return INSTANCE.login(username, password)
+    suspend fun login(username: String, password: String, timeoutSeconds: Int): NetworkResponse<UserInfoDTO> {
+        return INSTANCE.login(username, password, timeoutSeconds)
     }
 
     /**
@@ -196,6 +230,23 @@ object RiistaSDK {
      */
     suspend fun sendStartRegistrationEmail(email: String, language: Language): NetworkResponse<Unit> {
         return INSTANCE.sendStartRegistrationEmail(email, language)
+    }
+
+    /**
+     * Instructs the backend to start "unregister account" process for the current user.
+     *
+     * @return  The date time when unregistration was requested (may be earlier if multiple requests) or
+     *          `null` if network call failed.
+     */
+    suspend fun unregisterAccount(): LocalDateTime? {
+        return INSTANCE.unregisterAccount()
+    }
+
+    /**
+     * Instructs the backend to cancel "unregister account" process.
+     */
+    suspend fun cancelUnregisterAccount(): Boolean {
+        return INSTANCE.cancelUnregisterAccount()
     }
 
     /**
@@ -351,6 +402,14 @@ internal class RiistaSdkImpl(
         EmailService(networkClient)
     }
 
+    internal val accountService by lazy {
+        AccountService(
+            backendApiProvider = this,
+            currentUserContextProvider = currentUserContextProvider,
+            preferences = preferences
+        )
+    }
+
     internal val synchronizationService by lazy {
         SynchronizationService()
     }
@@ -375,6 +434,26 @@ internal class RiistaSdkImpl(
         PoiContext(backendApiProvider = this)
     }
 
+    internal val srvaContext by lazy {
+        SrvaContext(
+            backendApiProvider = this,
+            preferences = preferences,
+            localDateTimeProvider = localDateTimeProvider,
+            commonFileProvider = commonFileProvider,
+            currentUserContextProvider = currentUserContextProvider,
+        )
+    }
+
+    internal val observationContext by lazy {
+        ObservationContext(
+            backendApiProvider = this,
+            preferences = preferences,
+            localDateTimeProvider = localDateTimeProvider,
+            commonFileProvider = commonFileProvider,
+            currentUserContextProvider = currentUserContextProvider,
+        )
+    }
+
     internal val commonFileProvider by lazy {
         mockFileProvider ?: CommonFileStorage
     }
@@ -393,8 +472,8 @@ internal class RiistaSdkImpl(
         loginService.setLoginCredentials(username, password)
     }
 
-    suspend fun login(username: String, password: String): NetworkResponse<UserInfoDTO> {
-        return loginService.login(username.trim(), password)
+    suspend fun login(username: String, password: String, timeoutSeconds: Int): NetworkResponse<UserInfoDTO> {
+        return loginService.login(username.trim(), password, timeoutSeconds)
     }
 
     suspend fun sendPasswordForgottenEmail(email: String, language: Language): NetworkResponse<Unit> {
@@ -403,6 +482,14 @@ internal class RiistaSdkImpl(
 
     suspend fun sendStartRegistrationEmail(email: String, language: Language): NetworkResponse<Unit> {
         return emailService.sendStartRegistrationEmail(email.trim(), language)
+    }
+
+    suspend fun unregisterAccount(): LocalDateTime? {
+        return accountService.unregisterAccount()
+    }
+
+    suspend fun cancelUnregisterAccount(): Boolean {
+        return accountService.cancelUnregisterAccount()
     }
 
     fun logout() {
@@ -415,6 +502,9 @@ internal class RiistaSdkImpl(
 
     internal fun initialize() {
         metadataProvider.initialize()
+        srvaContext.initialize()
+        observationContext.initialize()
+        accountService.initialize()
     }
 }
 

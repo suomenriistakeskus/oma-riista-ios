@@ -19,11 +19,11 @@ class MapMarkerSource: MarkerSource<MapMarkerType, MapMarkerItem> {
     class func observations(using storage: MapMarkerStorage) -> MarkerSource<MapMarkerType, MapMarkerItem> {
         MapMarkerSource(storage: storage) { storage in
             storage.observations.compactMap { observation in
-                if let position = observation.coordinates?.toWGS84Coordinate() {
+                if let observationId = observation.localId {
                     return MapMarkerItem(
-                        objectId: observation.objectID,
+                        itemId: .commonLocalId(observationId),
                         type: .observation,
-                        position: position
+                        position: observation.location.toCoordinate()
                     )
                 } else {
                     return nil
@@ -35,11 +35,11 @@ class MapMarkerSource: MarkerSource<MapMarkerType, MapMarkerItem> {
     class func srvas(using storage: MapMarkerStorage) -> MarkerSource<MapMarkerType, MapMarkerItem> {
         MapMarkerSource(storage: storage) { storage in
             storage.srvas.compactMap { srva in
-                if let position = srva.coordinates?.toWGS84Coordinate() {
+                if let srvaLocalId = srva.localId {
                     return MapMarkerItem(
-                        objectId: srva.objectID,
+                        itemId: .commonLocalId(srvaLocalId),
                         type: .srva,
-                        position: position
+                        position: srva.location.toCoordinate()
                     )
                 } else {
                     return nil

@@ -12,6 +12,8 @@ enum DataFieldCellType {
     case labelCaption
     case labelInformation
     case labelError
+    case labelLink
+    case labelIndicator
 
     case stringSingleLine // readonly + editable
     case stringMultiLine // readonly + editable
@@ -62,10 +64,14 @@ enum DataFieldCellType {
         case .label(let field):
             if (field.type == .caption) {
                 return .labelCaption
-            } else if (field.type == .info) {
-                return .labelInformation
             } else if (field.type == .error) {
                 return .labelError
+            } else if (field.type == .info) {
+                return .labelInformation
+            } else if (field.type == .link) {
+                return .labelLink
+            } else if (field.type == .indicator) {
+                return .labelIndicator
             }
 
             return .placeholder

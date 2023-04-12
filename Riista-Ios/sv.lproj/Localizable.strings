@@ -194,6 +194,7 @@
 "Species" = "Art";
 "Amount" = "Antal";
 "DateTime" = "Tidpunkt";
+"Description" = "Beskrivning";
 "AddDescription" = "Lägg till beskrivning";
 "CoordinatesFormat" = "N %d, E %d (ETRS-TM35FIN)";
 "ChooseSpecies" = "Välj art";
@@ -242,6 +243,7 @@
 "SpecimenAddSpecimen" = "Anteckna individupgift";
 
 "PermitDescription" = "Bytet har fångats med stöd av Viltcentralen beviljad dispens eller jaktlicens";
+"PermitInformation" = "Licens";
 "PermitListPageTitle" = "Välj licens";
 "PermitListHelpText" = "För hjortdjur behöver man inte skriva in licensnumret";
 "PermitListInputPrompt" = "Sök efter licensnummer";
@@ -348,6 +350,14 @@
 "PhoneShort" = "Tel.";
 "ContactLicenseIssuesTitle" = "Jaktkortsärenden";
 
+"DeleteUserAccount" = "Radera användarkoden";
+"DeleteUserAccountMessage" = "Jag vill radera mina frivilliga viltuppgifter, användarkontot samt mina personuppgifter från Oma\U00A0riista\U00A0-tjänsten.\n\nJag förstår, att mina uppgifter inte kan returneras efter\U00A0raderingen.";
+"DeleteUserAccountQuestion" = "Är du säker på att du vill radera din användarkod?";
+"DeleteUserAccountRequestSentTitleShort" = "Begäran har skickats";
+"DeleteUserAccountRequestSentTitle" = "Begäran om radering av användarkontot har skickats";
+"DeleteUserAccountRequestSentMessageAtTime" = "Ett automatiskt e-postmeddelande har skickats till Oma riista -tjänstens underhåll %@ angående begäran om radering av användarkonto och en kopia av meddelandet har även vidarebefordrats till den e-postadress som angetts i dina egna uppgifter. Vanligen raderas användarkontot av underhållet inom två\U00A0veckor.\n\nVar vänlig och ta kontakt med kundtjänsten oma@riista.fi, ifall du i misstag har begärt om radering av användarkontot.";
+"DeleteUserAccountContinueUsing" = "Fortsätt använda tjänsten";
+
 "Synchronization" = "Synkronisering";
 "Manual" = "Manuell";
 "Automatic" = "Automatisk";
@@ -418,6 +428,7 @@
 
 "UpdateAvailableTitle" = "Uppdatering finns att få";
 "UpdateAvailableMessage" = "Ladda ner en ny version av Oma riista från App Store.";
+"UpdateAction" = "Uppdatera";
 
 "ButtonClearTitle" = "Tyhjennä";
 "NetworkOperationFailed" = "Operationen misslyckades";
@@ -585,6 +596,7 @@
 "GroupHuntingDayErrorDatesNotWithinPermit" = "Dagen är ytterom den tillåtna licenstiden";
 "GroupHuntingErrorTimeNotWithinHuntingDay" = "Tiden är inte inom angivna gränser för jaktdagen.";
 "ErrorDateNotAllowed" = "Datum är inte tillåtet";
+"ErrorDatetimeInFuture" = "Datum får inte vara i framtiden";
 
 "GroupHuntingSuggestedHuntingDay" = "Dagen föreslås, eftersom det inte hittas byten eller observationer för den.";
 "GroupHuntingAddHuntingDay" = "Skapa jaktdag";
@@ -637,6 +649,10 @@
 "AntlersTypeLapio" = "Skovel";
 "AntlersTypeSeka" = "Bland";
 
+"GreySealHuntingMethodShot" = "Skjuten";
+"GreySealHuntingMethodCapturedAlive" = "Fångad med levandefångstfälla";
+"GreySealHuntingMethodShotButLost" = "Skjuten men förlorad";
+
 "DeerHuntingTypeStanding" = "Vaktjakt";
 "DeerHuntingTypeDog" = "Sällskapsjakt med hund";
 "DeerHuntingTypeOther" = "Annat";
@@ -659,11 +675,11 @@
 "ObservationTypeKelomispuu" = "Fejningsträd";
 "ObservationTypeKiimakuoppa" = "Brunstgrop";
 "ObservationTypeMakuupaikka" = "Daglega";
-"ObservationTypePato" = "Rede";
-"ObservationTypePesa" = "Bäckhydda";
-"ObservationTypePesaKeko" = "Bankhydda";
-"ObservationTypePesaPenkka" = "Älvhydda";
-"ObservationTypePesaSeka" = "Damm";
+"ObservationTypePesa" = "Rede";
+"ObservationTypePesaKeko" = "Bäckhydda";
+"ObservationTypePesaPenkka" = "Bankhydda";
+"ObservationTypePesaSeka" = "Älvhydda";
+"ObservationTypePato" = "Damm";
 "ObservationTypeSoidin" = "Spel";
 "ObservationTypeLuolasto" = "Gryt";
 "ObservationTypePesimaluoto" = "Häckningskär";
@@ -740,6 +756,25 @@
 "HuntingControlEventTypeWaterfowl" = "Övervakning av jakt på sjöfåglar";
 "HuntingControlEventTypeDogDiscipline" = "Övervakning av hunddisciplin";
 "HuntingControlEventTypeOther" = "Övrig övervakning";
+
+"HuntingControlCheckHunter" = "Personuppgifter";
+"HuntingControlHunterDetails" = "Personuppgifter";
+"HuntingControlHunterName" = "Namn";
+"HuntingControlHunterDateOfBirth" = "Födelsedag";
+"HuntingControlHunterNomeMunicipality" = "Hemort";
+"HuntingControlHunterNumber" = "Jägarnummer";
+"HuntingControlHuntingLicense" = "Jaktkort";
+"HuntingControlHuntingLicenseStatus" = "Status";
+"HuntingControlHuntingLicenseStatusActive" = "Giltig";
+"HuntingControlHuntingLicenseStatusInactive" = "Ej giltig";
+"HuntingControlHuntingLicenseDateOfPayment" = "Betald";
+"HuntingControlShootingTests" = "Skjutprovsprestationerna";
+"HuntingControlSsn" = "Personsignum";
+"HuntingControlSearchingHunter" = "Söker personens uppgifter";
+"HuntingControlResetHunterInfo" = "Ny sökning";
+"HuntingControlHunterNotFound" = "Ingen person hittades med sökningen.";
+"HuntingControlNetworkError" = "Nätverksfel, försök igen.";
+"HuntingControlRetry" = "Sök på nytt";
 
 /* SRVA */
 

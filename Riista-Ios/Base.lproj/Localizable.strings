@@ -194,6 +194,7 @@
 "Species" = "Species";
 "Amount" = "Amount";
 "DateTime" = "Date";
+"Description" = "Description";
 "AddDescription" = "Add description";
 "CoordinatesFormat" = "N %d, E %d (ETRS-TM35FIN)";
 "ChooseSpecies" = "Select species";
@@ -242,6 +243,7 @@
 "SpecimenAddSpecimen" = "Add specimen";
 
 "PermitDescription" = "Harvested using derogation permit issued by Finnish Wildlife Agency";
+"PermitInformation" = "Permit";
 "PermitListPageTitle" = "Choose permit";
 "PermitListHelpText" = "You don't need to enter license number for cervidae animals";
 "PermitListInputPrompt" = "Search with permit number";
@@ -348,6 +350,14 @@
 "PhoneShort" = "Phone";
 "ContactLicenseIssuesTitle" = "Hunting license issues";
 
+"DeleteUserAccount" = "Delete user account";
+"DeleteUserAccountMessage" = "I want to delete my voluntary game data, user account and personal data from the Oma\U00A0riista\U00A0service.\n\nI understand that my data cannot be restored after\U00A0deletion.";
+"DeleteUserAccountQuestion" = "Are you sure you want to delete your user account?";
+"DeleteUserAccountRequestSentTitleShort" = "Request sent";
+"DeleteUserAccountRequestSentTitle" = "User account deletion request has been sent";
+"DeleteUserAccountRequestSentMessageAtTime" = "An automatic e-mail message regarding the user account deletion request has been sent to the customer service of the Oma riista service %@, and a copy of the message has also been forwarded to the e-mail address specified in your personal information. Typically, the user account is deleted by the customer service in two\U00A0weeks.\n\nPlease contact customer service at oma@riista.fi, if you requested to delete the user account\U00A0in\U00A0error.";
+"DeleteUserAccountContinueUsing" = "Continue using the service";
+
 "Synchronization" = "Synchronization";
 "Manual" = "Manual";
 "Automatic" = "Automatic";
@@ -418,6 +428,7 @@
 
 "UpdateAvailableTitle" = "Update available";
 "UpdateAvailableMessage" = "Download new Oma riista version from App Store.";
+"UpdateAction" = "Update";
 
 "ButtonClearTitle" = "Clear";
 "NetworkOperationFailed" = "Operation failed";
@@ -586,6 +597,7 @@
 "GroupHuntingDayErrorDatesNotWithinPermit" = "Permit is not valid on given date";
 "GroupHuntingErrorTimeNotWithinHuntingDay" = "Time is not within the limits set by the hunting day.";
 "ErrorDateNotAllowed" = "Date is not accepted";
+"ErrorDatetimeInFuture" = "Date is not allowed to be in the future";
 
 "GroupHuntingSuggestedHuntingDay" = "The day is suggested as a hunting day because there are harvests or observations for it.";
 "GroupHuntingAddHuntingDay" = "Create hunting day";
@@ -638,6 +650,10 @@
 "AntlersTypeLapio" = "Palmate";
 "AntlersTypeSeka" = "Mixed";
 
+"GreySealHuntingMethodShot" = "Hunting, shot";
+"GreySealHuntingMethodCapturedAlive" = "Trapped, live trap";
+"GreySealHuntingMethodShotButLost" = "Shot but not retrieved";
+
 "DeerHuntingTypeStanding" = "Stand hunting";
 "DeerHuntingTypeDog" = "Dog hunting";
 "DeerHuntingTypeOther" = "Other";
@@ -660,11 +676,11 @@
 "ObservationTypeKelomispuu" = "Scrape";
 "ObservationTypeKiimakuoppa" = "Rub";
 "ObservationTypeMakuupaikka" = "Resting place";
-"ObservationTypePato" = "Nest";
-"ObservationTypePesa" = "Free-standing lodge";
-"ObservationTypePesaKeko" = "Bank burrow";
-"ObservationTypePesaPenkka" = "Bank lodge";
-"ObservationTypePesaSeka" = "Dam";
+"ObservationTypePesa" = "Nest";
+"ObservationTypePesaKeko" = "Free-standing lodge";
+"ObservationTypePesaPenkka" = "Bank burrow";
+"ObservationTypePesaSeka" = "Bank lodge";
+"ObservationTypePato" = "Dam";
 "ObservationTypeSoidin" = "Lek";
 "ObservationTypeLuolasto" = "Cave";
 "ObservationTypePesimaluoto" = "Breeding islet";
@@ -741,6 +757,25 @@
 "HuntingControlEventTypeWaterfowl" = "Waterfowl hunting control";
 "HuntingControlEventTypeDogDiscipline" = "Dog discipline control";
 "HuntingControlEventTypeOther" = "Other control";
+
+"HuntingControlCheckHunter" = "Check";
+"HuntingControlHunterDetails" = "Personal details";
+"HuntingControlHunterName" = "Name";
+"HuntingControlHunterDateOfBirth" = "Date of birth";
+"HuntingControlHunterNomeMunicipality" = "Place of Domicile";
+"HuntingControlHunterNumber" = "Hunter number";
+"HuntingControlHuntingLicense" = "Hunting license";
+"HuntingControlHuntingLicenseStatus" = "Status";
+"HuntingControlHuntingLicenseStatusActive" = "Valid";
+"HuntingControlHuntingLicenseStatusInactive" = "Invalid";
+"HuntingControlHuntingLicenseDateOfPayment" = "Date of payment";
+"HuntingControlShootingTests" = "Shooting tests completed";
+"HuntingControlSsn" = "Social security number";
+"HuntingControlSearchingHunter" = "Fetching person information";
+"HuntingControlResetHunterInfo" = "New search";
+"HuntingControlHunterNotFound" = "Hunter not found.";
+"HuntingControlNetworkError" = "Network error, please try again.";
+"HuntingControlRetry" = "Retry";
 
 /* SRVA */
 

@@ -1,6 +1,7 @@
 package fi.riista.common.domain.observation.ui.view
 
 import co.touchlab.stately.ensureNeverFrozen
+import fi.riista.common.domain.observation.ObservationContext
 import fi.riista.common.domain.observation.model.CommonObservation
 import fi.riista.common.domain.observation.model.CommonObservationData
 import fi.riista.common.domain.observation.model.toObservationData
@@ -21,6 +22,8 @@ import kotlinx.coroutines.flow.flow
  * A controller for viewing [CommonObservation] information
  */
 class ViewObservationController(
+    private val observationId: Long,
+    private val observationContext: ObservationContext,
     private val userContext: UserContext,
     metadataProvider: MetadataProvider,
     stringProvider: StringProvider,
@@ -28,8 +31,6 @@ class ViewObservationController(
 
     private val observationFields = ObservationFields(metadataProvider)
     private val dataFieldProducer = ViewObservationFieldProducer(userContext, metadataProvider, stringProvider)
-
-    var observation: CommonObservation? = null
 
     init {
         // should be accessed from UI thread only
@@ -40,7 +41,9 @@ class ViewObservationController(
             Flow<ViewModelLoadStatus<ViewObservationViewModel>> = flow {
         emit(ViewModelLoadStatus.Loading)
 
-        val observationData = observation?.toObservationData()
+        observationContext.observationProvider.fetch(refresh = refresh)
+
+        val observationData = observationContext.observationProvider.getByLocalId(observationId)?.toObservationData()
         if (observationData != null) {
             emit(ViewModelLoadStatus.Loaded(
                 viewModel = createViewModel(
@@ -48,8 +51,25 @@ class ViewObservationController(
                 )
             ))
         } else {
-            logger.w { "Did you forget to set observation before loading viewModel?" }
+            logger.w { "No observation found with local id $observationId." }
             emit(ViewModelLoadStatus.LoadFailed)
+        }
+    }
+
+    suspend fun deleteObservation(updateToBackend: Boolean): Boolean {
+        val observationId = getLoadedViewModelOrNull()?.observation?.localId ?: kotlin.run {
+            logger.w { "No observation found, cannot delete" }
+            return false
+        }
+
+        val deletedObservation = observationContext.deleteObservation(observationId)
+        return if (deletedObservation != null) {
+            if (updateToBackend) {
+                observationContext.deleteObservationInBackend(deletedObservation)
+            }
+            true
+        } else {
+            false
         }
     }
 

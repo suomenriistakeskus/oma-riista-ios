@@ -33,8 +33,15 @@ data class LocalDate(
     /**
      * Prints the [LocalDate] as ISO-8601 formatted date.
      */
-    override fun toString(): String {
+    fun toStringISO8601(): String {
         return toKotlinxLocalDate().toString()
+    }
+
+    /**
+     * Use toStringISO8601
+     */
+    override fun toString(): String {
+        return toStringISO8601()
     }
 
     companion object {
@@ -64,7 +71,7 @@ data class LocalDate(
 }
 
 fun LocalDate.toLocalDateDTO(): LocalDateDTO {
-    return toString()
+    return toStringISO8601()
 }
 
 internal fun LocalDate.toKotlinxLocalDate(): kotlinx.datetime.LocalDate {

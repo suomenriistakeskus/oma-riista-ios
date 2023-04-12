@@ -119,6 +119,7 @@ import RiistaCommon
     struct UI {
         static let DefaultButtonHeight: CGFloat = 60
         static let ButtonHeightSmall: CGFloat = 50
+        static let TextButtonMinHeight: CGFloat = 40
         static let DefaultToggleHeight: CGFloat = 50
         static let DefaultHorizontalInset: CGFloat = 12
         static let DefaultVerticalInset: CGFloat = 12
@@ -155,6 +156,10 @@ import RiistaCommon
         case SmallGameRestrictions
         case AviHuntingBan
     }
+}
+
+struct ScanPattern {
+    static let HunterNumberPattern = "^.*;.*;.*;\\d*;(\\d{8});\\d*;\\d*;.*$"
 }
 
 extension AppConstants.FontSize {

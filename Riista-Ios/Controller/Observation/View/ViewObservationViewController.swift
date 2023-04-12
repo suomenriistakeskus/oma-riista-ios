@@ -4,11 +4,14 @@ import RiistaCommon
 
 class ViewObservationViewController:
     BaseControllerWithViewModel<ViewObservationViewModel, ViewObservationController>,
-    ProvidesNavigationController, ModifyObservationCompletionListener
+    ProvidesNavigationController, ModifyObservationViewControllerListener
 {
+    let observationId: Int64
 
     private lazy var _controller: ViewObservationController = {
         ViewObservationController(
+            observationId: observationId,
+            observationContext: RiistaSDK.shared.observationContext,
             userContext: RiistaSDK.shared.currentUserContext,
             metadataProvider: RiistaSDK.shared.metadataProvider,
             stringProvider: LocalizedStringProvider()
@@ -21,18 +24,7 @@ class ViewObservationViewController:
         }
     }
 
-    private lazy var appDelegate: RiistaAppDelegate = {
-        return UIApplication.shared.delegate as! RiistaAppDelegate
-    }()
-
-    internal lazy var moContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
-        context.parent = appDelegate.managedObjectContext
-        return context
-    }()
-
     private let tableViewController = DataFieldTableViewController<CommonObservationField>()
-    var observation: CommonObservation
 
     private lazy var editObservationNavBarButton: UIBarButtonItem = {
         UIBarButtonItem(
@@ -65,8 +57,8 @@ class ViewObservationViewController:
         return tableView
     }()
 
-    @objc init(observation: CommonObservation) {
-        self.observation = observation
+    @objc init(observationId: Int64) {
+        self.observationId = observationId
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -99,32 +91,8 @@ class ViewObservationViewController:
         )
 
         title = "Observation".localized()
-    }
 
-    override func viewWillAppear(_ animated: Bool) {
-        controllerHolder.bindToViewModelLoadStatus()
-
-        super.viewWillAppear(animated)
         navigationItem.rightBarButtonItems = [deleteObservationNavBarButton, editObservationNavBarButton]
-
-        // Reload observation, user might have edited it
-        guard let localUri = observation.localUrl,
-              let uri = URL(string: localUri),
-              let objectId = moContext.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri) else {
-                  print("Unable to retrieve objectID")
-                  return
-        }
-
-        if let observationEntry = RiistaGameDatabase.sharedInstance().observationEntry(with: objectId, context: moContext) {
-            self.moContext.refresh(observationEntry, mergeChanges: true)
-
-            if let commonObservation = observationEntry.toCommonObservation(objectId: objectId) {
-                self.observation = commonObservation
-                controller.observation = commonObservation
-
-                controllerHolder.loadViewModel(refresh: controllerHolder.shouldRefreshViewModel)
-            }
-        }
     }
 
     override func onViewModelLoaded(viewModel: ViewModelType) {
@@ -167,8 +135,18 @@ class ViewObservationViewController:
     }
 
     @objc private func onEditObservationClicked() {
-        let viewController = EditObservationViewController(observation: observation)
+        guard let editableObservation = controller.getLoadedViewModelOrNull()?.editableObservation else {
+            print("Canno edit, no editable observation?")
+            return
+        }
+
+        let viewController = EditObservationViewController(observation: editableObservation)
+        viewController.listener = self
         self.navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    func onObservationUpdated() {
+        controllerHolder.shouldRefreshViewModel = true
     }
 
     @objc private func onDeleteObservationClicked() {
@@ -184,76 +162,13 @@ class ViewObservationViewController:
     }
 
     private func deleteObservation() {
-        guard let localUri = observation.localUrl,
-              let uri = URL(string: localUri),
-              let objectId = moContext.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri) else {
-                  print("Unable to retrieve objectID, cannot delete observation")
-                  return
-          }
+        tableView.showLoading()
 
-        guard let observationEntry = RiistaGameDatabase.sharedInstance().observationEntry(with: objectId, context: moContext) else {
-            print("Couldn't find observation, cannot delete")
-            return
+        controller.deleteObservation(updateToBackend: AppSync.shared.isAutomaticSyncEnabled()) { [weak self] success, _ in
+            guard let self = self else { return }
+
+            self.tableView.hideLoading()
+            self.navigationController?.popViewController(animated: true)
         }
-
-        RiistaGameDatabase.sharedInstance().deleteLocalObservation(observationEntry)
-
-        if (deleteObservationIfLocalOnly(observation: observationEntry)) {
-            navigationController?.popViewController(animated: true)
-            return
-        }
-
-        if (RiistaSettings.syncMode() == RiistaSyncModeAutomatic) {
-            tableView.showLoading()
-            updateEditAndDeleteButtonEnabledStatus(enabled: false)
-
-            RiistaGameDatabase.sharedInstance().deleteObservationEntryCompat(observationEntry) { [weak self] wasSuccess in
-                self?.tableView.hideLoading { [weak self] in
-                    if (wasSuccess) {
-                        self?.deleteLocalObservation(observation: observationEntry)
-                        self?.navigationController?.popViewController(animated: true)
-                    } else {
-                        self?.updateEditAndDeleteButtonEnabledStatus(enabled: true)
-
-                        let errorDialog = AlertDialogBuilder.createError(message: "NetworkOperationFailed".localized())
-                        self?.present(errorDialog, animated: true)
-                    }
-                }
-            }
-        }
-    }
-
-    private func deleteObservationIfLocalOnly(observation: ObservationEntry) -> Bool {
-        if (observation.remote?.boolValue == true) {
-            return false
-        }
-
-        deleteLocalObservation(observation: observation)
-        return true
-    }
-
-    private func deleteLocalObservation(observation: ObservationEntry) {
-        observation.managedObjectContext?.performAndWait {
-            observation.managedObjectContext?.delete(observation)
-            observation.managedObjectContext?.performAndWait {
-                try? observation.managedObjectContext?.save()
-
-                if let appDelegate = UIApplication.shared.delegate as? RiistaAppDelegate {
-                    appDelegate.managedObjectContext.performAndWait {
-                        try? appDelegate.managedObjectContext.save()
-                    }
-                } else {
-                    print("Failed to obtain app delegate for saving managed object contexts.")
-                }
-            }
-        }
-    }
-
-    func updateUserInterfaceAfterObservationSaved() {
-        self.navigationController?.popToViewController(self, animated: false)
-
-        // also pop this view controller as observation id (in coredata) may change when it
-        // is synchronized to the backend -> it cannot be modified again
-        self.navigationController?.popViewController(animated: true)
     }
 }

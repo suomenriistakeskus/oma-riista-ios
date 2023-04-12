@@ -79,8 +79,7 @@ internal class EditSrvaEventFieldProducer(
                         fieldSpecification = fieldSpecification,
                         value = srvaEvent.otherSpeciesDescription ?: "",
                         label = RR.string.srva_event_label_other_species_description,
-                    ) {
-                    }
+                    )
                 } else {
                     null
                 }
@@ -142,7 +141,9 @@ internal class EditSrvaEventFieldProducer(
                     fieldSpecification = fieldSpecification,
                     value = srvaEvent.deportationOrderNumber ?: "",
                     label = RR.string.srva_event_label_deportation_order_number
-                )
+                ) {
+                    singleLine = true
+                }
             SrvaEventField.Type.EVENT_TYPE ->
                 createEnumChoiceField(
                     fieldSpecification = fieldSpecification,

@@ -1,5 +1,7 @@
 import Foundation
 import FirebaseCrashlytics
+import RiistaCommon
+
 
 /**
  * A helper for sending log events and non-fatal errors to Crashlytics.
@@ -40,5 +42,16 @@ import FirebaseCrashlytics
         data["errorCode"] = (error as NSError).code
         data["errorDescription"] = error.localizedDescription
         return data
+    }
+}
+
+
+class CommonCrashlyticsLogger: RiistaCommon.CrashlyticsLogger {
+    func log(exception: KotlinThrowable, message: String?) {
+        if let message = message {
+            CrashlyticsHelper.log(msg: message)
+        }
+
+        CrashlyticsHelper.sendError(error: exception.asError() as NSError)
     }
 }

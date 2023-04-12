@@ -218,7 +218,7 @@ internal class ModifyObservationFieldProducer(
         return createEnumChoiceField(
             fieldSpecification = fieldSpecification,
             selected = observation.deerHuntingType,
-            label = RR.string.group_hunting_harvest_field_deer_hunting_type,
+            label = RR.string.harvest_label_deer_hunting_type,
             factory = deerHuntingTypeFieldFactory
         )
     }
@@ -230,7 +230,7 @@ internal class ModifyObservationFieldProducer(
         return createStringField(
             fieldSpecification = fieldSpecification,
             value = observation.deerHuntingOtherTypeDescription ?: "",
-            label = RR.string.group_hunting_harvest_field_deer_hunting_other_type_description
+            label = RR.string.harvest_label_deer_hunting_other_type_description
         )
     }
 

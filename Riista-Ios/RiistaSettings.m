@@ -13,7 +13,6 @@ NSInteger const WhiteTailedDeerId = 47629;
 NSInteger const WildForestDeerId = 200556;
 NSInteger const BearId = 47348;
 
-NSString *const RiistaSettingsSyncModeKey = @"SyncMode";
 NSString *const RiistaSettingsLanguageKey = @"Language";
 NSString *const RiistaSettingsMapTypeKey = @"MapType";
 
@@ -43,15 +42,6 @@ NSString *const kUserInfoFileName = @"/user.json";
 
 @implementation RiistaSettings
 
-+ (RiistaSyncMode)syncMode
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    RiistaSyncMode mode = RiistaSyncModeAutomatic;
-    if ([userDefaults objectForKey:RiistaSettingsSyncModeKey]) {
-        mode = (int)[userDefaults integerForKey:RiistaSettingsSyncModeKey];
-    }
-    return mode;
-}
 
 + (NSString*)language
 {

@@ -14,34 +14,30 @@ class ImageFullViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         self.navigationItem.setRightBarButtonItems([], animated: false)
 
-        guard let entityImage = entityImage else {
+        if let entityImage = entityImage {
+            ImageUtils.loadEntityImage(
+                image: entityImage,
+                imageView: imageView,
+                options: ImageLoadOptions.aspectFitted(size: imageView.bounds.size),
+                onSuccess: { image in
+                    self.imageView.image = image
+                },
+                onFailure: { failureReason in
+                    print("failed to load fullscreen image for entityImage")
+                }
+            )
+        } else {
             ImageUtils.loadEventImage(
-                item, for: imageView,
+                item,
+                for: imageView,
                 options: ImageLoadOptions.aspectFitted(size: imageView.bounds.size),
                 onSuccess: { image in
                     self.imageView.image = image
                 },
                 onFailure: { failureReason in
                     print("failed to load fullscreen image for entry")
-                })
-            return
+                }
+            )
         }
-
-        let delegate = UIApplication.shared.delegate as! RiistaAppDelegate
-        let context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
-        context.parent = delegate.managedObjectContext
-        let diaryImage = entityImage.toDiaryImage(context: context)
-
-        ImageUtils.loadDiaryImage(
-            diaryImage,
-            imageView: imageView,
-            options: ImageLoadOptions.aspectFitted(size: imageView.bounds.size),
-            onSuccess: { image in
-                print("success!")
-                self.imageView.image = image
-            },
-            onFailure: { failureReason in
-                print("failed to load fullscreen image for entry")
-            })
     }
 }

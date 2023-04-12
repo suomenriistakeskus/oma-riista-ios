@@ -89,13 +89,13 @@ internal class ViewObservationFieldProducer(
                 observation.deerHuntingType.localized(stringProvider)
                     .createValueField(
                         fieldSpecification = fieldSpecification,
-                        label = RR.string.group_hunting_harvest_field_deer_hunting_type
+                        label = RR.string.harvest_label_deer_hunting_type
                     )
             CommonObservationField.DEER_HUNTING_OTHER_TYPE_DESCRIPTION ->
                 observation.deerHuntingOtherTypeDescription
                     .createValueField(
                         fieldSpecification = fieldSpecification,
-                        label = RR.string.group_hunting_harvest_field_deer_hunting_other_type_description
+                        label = RR.string.harvest_label_deer_hunting_other_type_description
                     )
             CommonObservationField.SPECIMEN_AMOUNT ->
                 observation.totalSpecimenAmount

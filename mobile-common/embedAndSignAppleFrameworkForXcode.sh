@@ -10,6 +10,19 @@ main()
 
     MODE=$1
 
+    if [ -z "$JAVA_HOME" ]; then
+        echo "JAVA_HOME not set. Available java environments (/usr/libexec/java_home -V):"
+        /usr/libexec/java_home -V
+        echo ""
+
+        export JAVA_HOME=$(/usr/libexec/java_home -v 11)
+    fi
+
+    if [ -z "$JAVA_HOME" ]; then
+        echo "Could not set JAVA_HOME, cannot compile"
+        exit 1
+    fi
+
     echo "Using java: $JAVA_HOME"
 
     if [[ "$MODE" == "Dev" ]]; then

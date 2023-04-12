@@ -232,12 +232,4 @@ internal object CommonObservationValidator {
             }
         }
     }
-
-    private fun <R> FieldSpecification<CommonObservationField>.ifRequired(block: () -> R?): R? {
-        return if (requirementStatus.isRequired()) {
-            block()
-        } else {
-            null
-        }
-    }
 }

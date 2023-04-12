@@ -17,8 +17,8 @@ import Foundation
 
     /**
      * iOS version 2.4.1.1 had an issue where the harvest specimen antler fields (antlersGirth, antlersLength, antlersInnerWidth, antlersShaftWidth)
-     * were initialized with value of 0 (instead of nil) in core data. This was luckily partly mitigated by the RiistaLogGameController which cleared these
-     * fields for the _first_ specimen. For other specimens these were left with initial values and thus caused errors in backend logs.
+     * were initialized with value of 0 (instead of nil) in core data. This was luckily partly mitigated by the RiistaLogGameController (now removed) which
+     * cleared these fields for the _first_ specimen. For other specimens these were left with initial values and thus caused errors in backend logs.
      */
     private class func clearSpecimenFieldsIfNeeded(_ harvest: DiaryEntry) {
         guard let speciesCode = harvest.gameSpeciesCode?.intValue else {

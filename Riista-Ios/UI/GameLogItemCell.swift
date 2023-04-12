@@ -1,4 +1,5 @@
 import UIKit
+import RiistaCommon
 
 class GameLogItemCell: UITableViewCell {
 
@@ -174,87 +175,102 @@ class GameLogItemCell: UITableViewCell {
         }
     }
 
-    func setupFromObservation(observation: ObservationEntry, isFirst: Bool, isLast: Bool) {
+    func setupFromObservation(observation: CommonObservation, isFirst: Bool, isLast: Bool) {
         clearCurrentlyDisplayedData()
 
-        loadImage(entry: observation)
-
-        let species = RiistaGameDatabase.sharedInstance()?.species(byId: observation.gameSpeciesCode as! Int)
-
-        let speciesName = RiistaUtils.name(withPreferredLanguage: species?.name)
-        if (speciesName != nil) {
-            speciesLabel.text = observation.totalSpecimenAmount?.intValue ?? 0 > 1 ?
-                "\(speciesName!) (\(observation.totalSpecimenAmount!))" : speciesName
-        }
-        else {
-            speciesLabel.text = "-"
-        }
-
-        dateLabel.text = GameLogItemCell.dateFormatter.string(from: observation.pointOfTime!)
-        timeLabel.text = GameLogItemCell.timeFormatter.string(from: observation.pointOfTime!)
-
-        infoLabel.text = RiistaBridgingUtils.RiistaMappedString(forkey: observation.observationType!)
-        infoLabel.isHidden = false
-
-        stateLabel.text = nil
-        stateImage.tintColor = UIColor.clear
-        stateView.isHidden = true
-
-        uploadImage.isHidden = observation.sent?.boolValue ?? true
-
-        timeLineUp.isHidden = isFirst
-        timeLineDown.isHidden = isLast
-    }
-
-    func setupFromSrva(srva: SrvaEntry, isFirst: Bool, isLast: Bool) {
-        print("SetupFromSrva: \(srva.gameSpeciesCode)")
-        clearCurrentlyDisplayedData()
-
-        loadImage(entry: srva)
+        loadImage(
+            entityImage: observation.images.primaryImage,
+            speciesCode: observation.species.knownSpeciesCodeOrNull()?.intValue
+        )
 
         var nameText = "-"
 
-        if let speciesCode = srva.gameSpeciesCode?.intValue {
+        if let speciesCode = observation.species.knownSpeciesCodeOrNull()?.intValue {
             let species = RiistaGameDatabase.sharedInstance()?.species(byId: speciesCode)
             nameText = RiistaUtils.name(withPreferredLanguage: species?.name)
             itemImage?.tintColor = nil
         }
         else {
-            nameText = RiistaBridgingUtils.RiistaLocalizedString(forkey: "SrvaOtherSpeciesShort")
+            nameText = "-"
+        }
 
-            if (srva.otherSpeciesDescription != nil) {
-                nameText = "\(nameText) - \(srva.otherSpeciesDescription!)"
+        let specimenCount = observation.totalSpecimenAmount?.intValue ?? observation.mooselikeSpecimenAmount
+        if (specimenCount > 1) {
+            nameText = "\(nameText) (\(specimenCount))"
+        }
+
+        speciesLabel.text = nameText
+
+        dateLabel.text = GameLogItemCell.dateFormatter.string(from: observation.pointOfTime.toFoundationDate())
+        timeLabel.text = GameLogItemCell.timeFormatter.string(from: observation.pointOfTime.toFoundationDate())
+
+        if let observationType = observation.observationType.rawBackendEnumValue {
+            infoLabel.text = RiistaBridgingUtils.RiistaMappedString(forkey: observationType)
+            infoLabel.isHidden = false
+        } else {
+            infoLabel.isHidden = true
+        }
+
+        stateLabel.text = nil
+        stateImage.tintColor = UIColor.clear
+        stateView.isHidden = true
+
+        uploadImage.isHidden = observation.modified == false
+
+        timeLineUp.isHidden = isFirst
+        timeLineDown.isHidden = isLast
+    }
+
+    func setupFromSrva(srva: CommonSrvaEvent, isFirst: Bool, isLast: Bool) {
+        clearCurrentlyDisplayedData()
+
+        loadImage(
+            entityImage: srva.images.primaryImage,
+            speciesCode: srva.species.knownSpeciesCodeOrNull()?.intValue
+        )
+
+        var nameText = "-"
+
+        if let speciesCode = srva.species.knownSpeciesCodeOrNull()?.intValue {
+            let species = RiistaGameDatabase.sharedInstance()?.species(byId: speciesCode)
+            nameText = RiistaUtils.name(withPreferredLanguage: species?.name)
+            itemImage?.tintColor = nil
+        }
+        else {
+            nameText = "SrvaOtherSpeciesShort".localized()
+
+            if let otherSpeciesDescription = srva.otherSpeciesDescription {
+                nameText = "\(nameText) - \(otherSpeciesDescription)"
             }
 
             // If SRVA with unknown species has images, then one of those will be used. If not then unknown icon will be used
             // and tintColor must be set. Otherwise tintColor must be nil.
-            let images = srva.diaryImages?.map({ $0 as! DiaryImage })
-            let hasImages = (images?.count ?? 0) > 0
-            print("hasImages=\(hasImages)")
-            if (hasImages) {
+            if (srva.images.primaryImage != nil) {
                 itemImage?.tintColor = nil
             } else {
                 itemImage?.tintColor = .black
             }
         }
 
-        if let amount = srva.totalSpecimenAmount?.intValue {
-            if (amount > 1) {
-                nameText = "\(nameText) (\(amount))"
-            }
+        if (srva.specimens.count > 1) {
+            nameText = "\(nameText) (\(srva.specimens.count))"
         }
 
         speciesLabel.text = nameText
 
-        dateLabel.text = GameLogItemCell.dateFormatter.string(from: srva.pointOfTime!)
-        timeLabel.text = GameLogItemCell.timeFormatter.string(from: srva.pointOfTime!)
+        dateLabel.text = GameLogItemCell.dateFormatter.string(from: srva.pointOfTime.toFoundationDate())
+        timeLabel.text = GameLogItemCell.timeFormatter.string(from: srva.pointOfTime.toFoundationDate())
 
-        infoLabel.text = RiistaBridgingUtils.RiistaMappedString(forkey: srva.eventName!)
-        infoLabel.isHidden = false
+        if let eventCategory = srva.eventCategory.rawBackendEnumValue {
+            infoLabel.text = RiistaBridgingUtils.RiistaMappedString(forkey: eventCategory)
+            infoLabel.isHidden = false
+        } else {
+            infoLabel.isHidden = true
+        }
 
-        setupSrvaState(state: srva.state)
+        setupSrvaState(state: srva.state.rawBackendEnumValue)
 
-        uploadImage.isHidden = srva.sent?.boolValue ?? true
+        uploadImage.isHidden = srva.modified == false
 
         timeLineUp.isHidden = isFirst
         timeLineDown.isHidden = isLast
@@ -293,9 +309,32 @@ class GameLogItemCell: UITableViewCell {
         )
     }
 
+    func loadImage(entityImage: EntityImage?, speciesCode: Int?) {
+        let imageLoadId = idOf(entityImage: entityImage, speciesCode: speciesCode)
+        self.imageLoadedForId = imageLoadId
+
+        ImageUtils.loadEntityImageOrSpecies(
+            image: entityImage,
+            speciesCode: speciesCode,
+            imageView: itemImage,
+            options: ImageLoadOptions.aspectFilled(size: itemImage.bounds.size),
+            onSuccess: { [weak self] image in
+                self?.setDisplayedImage(image, imageLoadId: imageLoadId)
+            },
+            onFailure: { [weak self] failureReason in
+                self?.displayImageLoadFailedIndicator(imageLoadId: imageLoadId)
+            }
+        )
+    }
+
     func setDisplayedImage(_ image: UIImage, entry: DiaryEntryBase?) {
         guard let entry = entry else { return }
-        if (imageLoadedForId != idOf(entry: entry)) {
+
+        setDisplayedImage(image, imageLoadId: idOf(entry: entry))
+    }
+
+    func setDisplayedImage(_ image: UIImage, imageLoadId: String?) {
+        if (imageLoadedForId != imageLoadId) {
             // cell already recycled, ignore result
             return
         }
@@ -306,7 +345,12 @@ class GameLogItemCell: UITableViewCell {
 
     func displayImageLoadFailedIndicator(entry: DiaryEntryBase?) {
         guard let entry = entry else { return }
-        if (imageLoadedForId != idOf(entry: entry)) {
+
+        displayImageLoadFailedIndicator(imageLoadId: idOf(entry: entry))
+    }
+
+    func displayImageLoadFailedIndicator(imageLoadId: String?) {
+        if (imageLoadedForId != imageLoadId) {
             // cell already recycled, ignore result
             return
         }
@@ -317,5 +361,16 @@ class GameLogItemCell: UITableViewCell {
 
     private func idOf(entry: DiaryEntryBase) -> String? {
         return entry.objectID.uriRepresentation().absoluteString
+    }
+
+    private func idOf(entityImage: EntityImage?, speciesCode: Int?) -> String {
+        // todo: is event type needed?
+        let imageId: String = entityImage?.serverId ??
+            entityImage?.localIdentifier ??
+            entityImage?.localUrl ?? "-"
+
+        let speciesCodeString = "\(speciesCode ?? -1)"
+
+        return "\(imageId)-\(speciesCodeString)"
     }
 }

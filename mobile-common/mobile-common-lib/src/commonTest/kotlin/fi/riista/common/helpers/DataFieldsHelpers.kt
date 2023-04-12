@@ -95,6 +95,11 @@ internal fun <FieldId: DataFieldId> DataFields<FieldId>.getChipField(expectedInd
     return getField(expectedIndex, id)
 }
 
+internal fun <FieldId: DataFieldId> DataFields<FieldId>.getCustomField(expectedIndex: Int, id: FieldId):
+        CustomUserInterfaceField<FieldId> {
+    return getField(expectedIndex, id)
+}
+
 internal inline fun <FieldId: DataFieldId, reified FieldType> DataFields<FieldId>.getField(
     expectedIndex: Int, id: FieldId
 ): FieldType where FieldType : DataField<FieldId> {

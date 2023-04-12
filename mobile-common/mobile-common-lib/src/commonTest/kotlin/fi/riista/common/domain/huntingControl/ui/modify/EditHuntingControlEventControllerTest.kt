@@ -532,7 +532,7 @@ class EditHuntingControlEventControllerTest {
         val userContextProvider = CurrentUserContextProviderFactory.createMocked()
         userContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
 
-        val configuration = RiistaSdkConfiguration("1", "2", serverAddress)
+        val configuration = RiistaSdkConfiguration("1", "2", serverAddress, TestCrashlyticsLogger)
         RiistaSDK.initializeMocked(
             sdkConfiguration = configuration,
             databaseDriverFactory = databaseDriverFactory,

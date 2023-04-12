@@ -2,6 +2,10 @@ import Foundation
 import RiistaCommon
 import CoreData
 
+protocol ModifyObservationViewControllerListener: AnyObject {
+    func onObservationUpdated()
+}
+
 class ModifyObservationViewController<Controller: ModifyObservationController>:
     BaseControllerWithViewModel<ModifyObservationViewModel, Controller>,
     ProvidesNavigationController,
@@ -11,19 +15,17 @@ class ModifyObservationViewController<Controller: ModifyObservationController>:
     private let tableViewController = DataFieldTableViewController<CommonObservationField>()
     private var keyboardHandler: KeyboardHandler?
 
-    private lazy var appDelegate: RiistaAppDelegate = {
-        return UIApplication.shared.delegate as! RiistaAppDelegate
-    }()
+    // prevent appsync while modifying
+    private lazy var appsyncPreventer = PreventAppSyncWhileModifyingSynchronizableEntry(viewController: self)
 
-    internal lazy var moContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
-        context.parent = appDelegate.managedObjectContext
-        return context
-    }()
+    private lazy var imageEditUtil: ImageEditUtil = ImageEditUtil(parentController: self)
+    private lazy var commonImageManager: CommonImageManager = CommonImageManager()
 
-    private lazy var imageEditUtil: ImageEditUtil = {
-        ImageEditUtil(parentController: self)
-    }()
+    /**
+     * Listener to be notified when srva event is updated.
+     */
+    weak var listener: ModifyObservationViewControllerListener?
+
 
     private(set) lazy var tableView: TableView = {
         let tableView = TableView()
@@ -129,7 +131,8 @@ class ModifyObservationViewController<Controller: ModifyObservationController>:
             speciesEventDispatcher: controller.eventDispatchers.speciesEventDispatcher,
             speciesImageClickListener: { [weak self] fieldId, entityImage in
                 self?.onSpeciesImageClicked(fieldId: fieldId, entityImage: entityImage)
-            }
+            },
+            selectSpeciesAndImageFieldCellEntryType: .observation
         )
 
         title = getViewTitle()
@@ -138,12 +141,14 @@ class ModifyObservationViewController<Controller: ModifyObservationController>:
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        appsyncPreventer.onViewWillAppear()
         keyboardHandler?.listenKeyboardEvents()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         keyboardHandler?.hideKeyboard()
         keyboardHandler?.stopListenKeyboardEvents()
+        appsyncPreventer.onViewWillDisappear()
 
         super.viewWillDisappear(animated)
     }
@@ -173,13 +178,15 @@ class ModifyObservationViewController<Controller: ModifyObservationController>:
         }
     }
 
+
+    // MARK: Handling images
+
     func imagePicked(image: IdentifiableImage) {
-        let entityImage = EntityImage(
-            serverId: UUID().uuidString, // generate one
-            localIdentifier: image.imageIdentifier.localIdentifier,
-            localUrl: image.imageIdentifier.imageUrl?.absoluteString,
-            status: .local
-        )
+        guard let entityImage = commonImageManager.saveImageToTemporaryImages(identifiableImage: image) else {
+            print("Failed to obtain entity image")
+            return
+        }
+
         controller.eventDispatchers.imageEventDispatcher.setEntityImage(image: entityImage)
     }
 
@@ -192,31 +199,56 @@ class ModifyObservationViewController<Controller: ModifyObservationController>:
             self, reason: reason, imageLoadRequest: loadRequest, allowAnotherPhotoSelection: true)
     }
 
-    func onSaveClicked() {
-        fatalError("You should subclass this class and override onSaveClicked()")
+    func saveImagesUnderLocalImages(observation: CommonObservation, _ onCompleted: @escaping OnCompleted) {
+        let imagesToKeep = observation.images.localImages.filter { entityImage in
+            entityImage.status == .local
+        }
+
+        commonImageManager.moveTemporaryImagesToLocalImages(images: imagesToKeep, onCompleted: onCompleted)
     }
 
-    func saveAndSynchronizeEditedObservation(
-        observation: ObservationEntry,
-        completion: @escaping OnCompletedWithStatus
-    ) {
-        moContext.refresh(observation, mergeChanges: true)
-        if (observation.isDeleted) {
-            print("Observation was deleted, refusing to save it")
-            completion(false)
-            return
-        }
 
-        RiistaGameDatabase.sharedInstance().editLocalObservation(observation)
+    // MARK: Save & cancel
 
-        if (RiistaSettings.syncMode() == RiistaSyncModeAutomatic) {
-            RiistaGameDatabase.sharedInstance().synchronizeObservationEntry(observation) { wasSuccess in
-                print("observation synchronized successfully == \(wasSuccess)")
-                completion(wasSuccess)
+    func onSaveClicked() {
+        tableView.showLoading()
+        saveButton.isEnabled = false
+
+        controller.saveObservation(updateToBackend: AppSync.shared.isAutomaticSyncEnabled()) { [weak self] response, error in
+            guard let self = self else { return }
+
+            self.tableView.hideLoading()
+            self.saveButton.isEnabled = true
+
+            // notify possible parent about saved observation
+            self.listener?.onObservationUpdated()
+
+            let databaseSaveResponse = response?.databaseSaveResponse
+            let networkSaveResponse = response?.networkSaveResponse
+
+            if let networkFailure = networkSaveResponse as? ObservationOperationResponse.NetworkFailure,
+               networkFailure.statusCode == 409 {
+                let errorDialog = AlertDialogBuilder.createError(message: "OutdatedDiaryEntry".localized())
+                self.present(errorDialog, animated: true)
+            } else if let successResponse = databaseSaveResponse as? ObservationOperationResponse.Success {
+                self.handleSuccessfullySavedObservation(observation: successResponse.observation)
+            } else {
+                let errorDialog = AlertDialogBuilder.createError(message: "DiaryEditFailed".localized())
+                self.present(errorDialog, animated: true)
             }
-        } else {
-            completion(true)
         }
+    }
+
+    private func handleSuccessfullySavedObservation(observation: CommonObservation) {
+        NotificationCenter.default.post(Notification(name: .ObservationModified))
+
+        saveImagesUnderLocalImages(observation: observation) { [weak self] in
+            self?.navigateToNextViewAfterSaving(observation: observation)
+        }
+    }
+
+    func navigateToNextViewAfterSaving(observation: CommonObservation) {
+        fatalError("You should subclass this class and override navigateToNextViewAfterSaving(observation:)")
     }
 
     func onCancelClicked() {

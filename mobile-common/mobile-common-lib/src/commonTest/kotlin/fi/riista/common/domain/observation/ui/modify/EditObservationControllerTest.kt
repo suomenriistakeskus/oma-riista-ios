@@ -11,6 +11,7 @@ import fi.riista.common.domain.model.ObservationCategory
 import fi.riista.common.domain.model.ObservationType
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.model.asKnownLocation
+import fi.riista.common.domain.observation.ObservationContext
 import fi.riista.common.domain.observation.metadata.model.ObservationFieldRequirement
 import fi.riista.common.domain.observation.metadata.model.ObservationMetadata
 import fi.riista.common.domain.observation.metadata.model.SpeciesObservationMetadata
@@ -25,6 +26,7 @@ import fi.riista.common.helpers.TestStringProvider
 import fi.riista.common.helpers.getField
 import fi.riista.common.helpers.getLoadedViewModel
 import fi.riista.common.helpers.runBlockingTest
+import fi.riista.common.io.CommonFileProviderMock
 import fi.riista.common.metadata.MockMetadataProvider
 import fi.riista.common.model.BackendEnum
 import fi.riista.common.model.ETRMSGeoLocation
@@ -32,6 +34,9 @@ import fi.riista.common.model.GeoLocationSource
 import fi.riista.common.model.LocalDateTime
 import fi.riista.common.model.TrueOrFalse
 import fi.riista.common.model.toBackendEnum
+import fi.riista.common.network.BackendAPI
+import fi.riista.common.network.BackendAPIMock
+import fi.riista.common.network.BackendApiProvider
 import fi.riista.common.preferences.MockPreferences
 import fi.riista.common.resources.RR
 import fi.riista.common.resources.StringProvider
@@ -201,7 +206,7 @@ class EditObservationControllerTest {
             fieldId = CommonObservationField.DEER_HUNTING_TYPE
         ) { field ->
             assertEquals(listOf(DeerHuntingType.OTHER.ordinal.toLong()), field.selected)
-            field.settings.label.assertEquals(RR.string.group_hunting_harvest_field_deer_hunting_type)
+            field.settings.label.assertEquals(RR.string.harvest_label_deer_hunting_type)
             assertFalse(field.settings.readOnly)
         }
 
@@ -221,7 +226,7 @@ class EditObservationControllerTest {
             fieldId = CommonObservationField.DEER_HUNTING_OTHER_TYPE_DESCRIPTION
         ) { field ->
             assertEquals("deerHuntingOtherTypeDescription", field.value)
-            field.settings.label.assertEquals(RR.string.group_hunting_harvest_field_deer_hunting_other_type_description)
+            field.settings.label.assertEquals(RR.string.harvest_label_deer_hunting_other_type_description)
             assertFalse(field.settings.readOnly)
         }
     }
@@ -589,6 +594,8 @@ class EditObservationControllerTest {
                 )
             ),
             canEdit = true,
+            modified = true,
+            deleted = false,
             totalSpecimenAmount = 1,
             mooselikeMaleAmount = 2,
             mooselikeFemaleAmount = 3,
@@ -643,6 +650,15 @@ class EditObservationControllerTest {
 
         val controller = EditObservationController(
             userContext = currentUserContextProvider.userContext,
+            observationContext = ObservationContext(
+                backendApiProvider = object : BackendApiProvider {
+                    override val backendAPI: BackendAPI = BackendAPIMock()
+                },
+                preferences = MockPreferences(),
+                localDateTimeProvider = MockDateTimeProvider(),
+                commonFileProvider = CommonFileProviderMock(),
+                currentUserContextProvider = CurrentUserContextProviderFactory.createMocked(),
+            ),
             metadataProvider = metadataProvider,
             stringProvider = stringProvider
         )

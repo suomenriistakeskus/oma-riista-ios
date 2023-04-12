@@ -1,6 +1,10 @@
 import Foundation
 import MaterialComponents
 
+protocol FilterCategoryViewControllerDelegate: FilterSpeciesViewControllerDelegate {
+    func onFilterCategorySelected(speciesCategoryId: Int)
+}
+
 class FilterCategoryViewController: UIViewController {
 
     @IBOutlet weak var category1Title: UILabel!
@@ -15,7 +19,7 @@ class FilterCategoryViewController: UIViewController {
     @IBOutlet weak var openCategory2Button: MDCButton!
     @IBOutlet weak var openCategory3Button: MDCButton!
 
-    var delegate: LogFilterDelegate?
+    var delegate: FilterCategoryViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,8 +64,8 @@ class FilterCategoryViewController: UIViewController {
     }
 
     @objc func didTapSelectCategory(sender: MDCButton) {
-        let catId = sender.tag
-        delegate?.onFilterCategorySelected(categoryCode: catId)
+        let speciesCategoryId = sender.tag
+        delegate?.onFilterCategorySelected(speciesCategoryId: speciesCategoryId)
 
         self.navigationController?.popViewController(animated: true)
     }

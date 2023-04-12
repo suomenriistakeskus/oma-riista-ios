@@ -6,7 +6,7 @@ import fi.riista.common.domain.groupHunting.MockGroupHuntingData
 import fi.riista.common.domain.groupHunting.dto.GroupHuntingHarvestCreateDTO
 import fi.riista.common.domain.groupHunting.model.HuntingGroupId
 import fi.riista.common.domain.groupHunting.model.HuntingGroupTarget
-import fi.riista.common.domain.groupHunting.ui.GroupHarvestField
+import fi.riista.common.domain.harvest.ui.CommonHarvestField
 import fi.riista.common.helpers.TestStringProvider
 import fi.riista.common.helpers.getLoadedViewModel
 import fi.riista.common.helpers.runBlockingTest
@@ -62,17 +62,17 @@ class CreateGroupHarvestControllerTest {
 
         // make sure harvest is valid first
         controller.eventDispatchers.stringWithIdEventDispatcher.dispatchStringWithIdChanged(
-                GroupHarvestField.ACTOR,
+                CommonHarvestField.ACTOR,
                 listOf(StringWithId("Pentti Mujunen", 4))
         )
         controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(
-                GroupHarvestField.AGE, GameAge.ADULT
+                CommonHarvestField.AGE, GameAge.ADULT
         )
         controller.eventDispatchers.genderEventDispatcher.dispatchGenderChanged(
-                GroupHarvestField.GENDER, Gender.MALE
+                CommonHarvestField.GENDER, Gender.MALE
         )
         controller.eventDispatchers.huntingDayEventDispatcher.dispatchHuntingDayChanged(
-                GroupHarvestField.HUNTING_DAY_AND_TIME, MockGroupHuntingData.FirstHuntingDayId
+                CommonHarvestField.HUNTING_DAY_AND_TIME, MockGroupHuntingData.FirstHuntingDayId
         )
 
         val response = controller.createHarvest()
@@ -162,31 +162,31 @@ class CreateGroupHarvestControllerTest {
 
         // First set antlers fields for adult male
         controller.eventDispatchers.stringWithIdEventDispatcher.dispatchStringWithIdChanged(
-                GroupHarvestField.ACTOR,
+                CommonHarvestField.ACTOR,
                 listOf(StringWithId("Pentti Mujunen", 4))
         )
         controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(
-                GroupHarvestField.AGE, GameAge.ADULT
+                CommonHarvestField.AGE, GameAge.ADULT
         )
         controller.eventDispatchers.genderEventDispatcher.dispatchGenderChanged(
-                GroupHarvestField.GENDER, Gender.MALE
+                CommonHarvestField.GENDER, Gender.MALE
         )
         controller.eventDispatchers.huntingDayEventDispatcher.dispatchHuntingDayChanged(
-                GroupHarvestField.HUNTING_DAY_AND_TIME, MockGroupHuntingData.FirstHuntingDayId
+                CommonHarvestField.HUNTING_DAY_AND_TIME, MockGroupHuntingData.FirstHuntingDayId
         )
 
 
         controller.eventDispatchers.stringWithIdEventDispatcher.dispatchStringWithIdChanged(
-            GroupHarvestField.ANTLERS_TYPE,
+            CommonHarvestField.ANTLERS_TYPE,
             listOf(StringWithId("hanko", GameAntlersType.CERVINE.ordinal.toLong()))
         )
-        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(GroupHarvestField.ANTLERS_WIDTH, 2)
-        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(GroupHarvestField.ANTLER_POINTS_LEFT, 3)
-        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(GroupHarvestField.ANTLER_POINTS_RIGHT, 4)
-        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(GroupHarvestField.ANTLERS_GIRTH, 5)
-        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(GroupHarvestField.ANTLERS_LENGTH, 6)
-        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(GroupHarvestField.ANTLERS_INNER_WIDTH, 7)
-        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(GroupHarvestField.ANTLER_SHAFT_WIDTH, 8)
+        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(CommonHarvestField.ANTLERS_WIDTH, 2)
+        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(CommonHarvestField.ANTLER_POINTS_LEFT, 3)
+        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(CommonHarvestField.ANTLER_POINTS_RIGHT, 4)
+        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(CommonHarvestField.ANTLERS_GIRTH, 5)
+        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(CommonHarvestField.ANTLERS_LENGTH, 6)
+        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(CommonHarvestField.ANTLERS_INNER_WIDTH, 7)
+        controller.eventDispatchers.intEventDispatcher.dispatchIntChanged(CommonHarvestField.ANTLER_SHAFT_WIDTH, 8)
 
         val harvest = controller.getLoadedViewModel().harvest
 
@@ -202,8 +202,8 @@ class CreateGroupHarvestControllerTest {
         }
 
         // Then change age to young (+ set alone flag), save and verify that antlers fields are null
-        controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(GroupHarvestField.AGE, GameAge.YOUNG)
-        controller.eventDispatchers.booleanEventDispatcher.dispatchBooleanChanged(GroupHarvestField.ALONE, false)
+        controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(CommonHarvestField.AGE, GameAge.YOUNG)
+        controller.eventDispatchers.booleanEventDispatcher.dispatchBooleanChanged(CommonHarvestField.ALONE, false)
 
         val response = controller.createHarvest()
         assertTrue(response is GroupHuntingHarvestOperationResponse.Success)
@@ -234,29 +234,29 @@ class CreateGroupHarvestControllerTest {
 
         // make sure harvest is valid first
         controller.eventDispatchers.stringWithIdEventDispatcher.dispatchStringWithIdChanged(
-                GroupHarvestField.ACTOR,
+                CommonHarvestField.ACTOR,
                 listOf(StringWithId("Pentti Mujunen", 4))
         )
         controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(
-                GroupHarvestField.AGE, GameAge.ADULT
+                CommonHarvestField.AGE, GameAge.ADULT
         )
         controller.eventDispatchers.genderEventDispatcher.dispatchGenderChanged(
-                GroupHarvestField.GENDER, Gender.MALE
+                CommonHarvestField.GENDER, Gender.MALE
         )
         controller.eventDispatchers.huntingDayEventDispatcher.dispatchHuntingDayChanged(
-                GroupHarvestField.HUNTING_DAY_AND_TIME, MockGroupHuntingData.FirstHuntingDayId
+                CommonHarvestField.HUNTING_DAY_AND_TIME, MockGroupHuntingData.FirstHuntingDayId
         )
 
 
-        controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(GroupHarvestField.AGE, GameAge.YOUNG)
-        controller.eventDispatchers.booleanEventDispatcher.dispatchBooleanChanged(GroupHarvestField.ALONE, true)
+        controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(CommonHarvestField.AGE, GameAge.YOUNG)
+        controller.eventDispatchers.booleanEventDispatcher.dispatchBooleanChanged(CommonHarvestField.ALONE, true)
 
         val harvest = controller.getLoadedViewModel().harvest
 
         assertEquals(GameAge.YOUNG, harvest.specimens[0].age?.value)
         assertTrue(harvest.specimens[0].alone!!)
 
-        controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(GroupHarvestField.AGE, GameAge.ADULT)
+        controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(CommonHarvestField.AGE, GameAge.ADULT)
 
         val response = controller.createHarvest()
         assertTrue(response is GroupHuntingHarvestOperationResponse.Success)
@@ -276,22 +276,22 @@ class CreateGroupHarvestControllerTest {
 
         // make sure harvest is valid first
         controller.eventDispatchers.stringWithIdEventDispatcher.dispatchStringWithIdChanged(
-                GroupHarvestField.ACTOR,
+                CommonHarvestField.ACTOR,
                 listOf(StringWithId("Pentti Mujunen", 4))
         )
         controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(
-                GroupHarvestField.AGE, GameAge.ADULT
+                CommonHarvestField.AGE, GameAge.ADULT
         )
         controller.eventDispatchers.genderEventDispatcher.dispatchGenderChanged(
-                GroupHarvestField.GENDER, Gender.MALE
+                CommonHarvestField.GENDER, Gender.MALE
         )
         controller.eventDispatchers.huntingDayEventDispatcher.dispatchHuntingDayChanged(
-                GroupHarvestField.HUNTING_DAY_AND_TIME, MockGroupHuntingData.FirstHuntingDayId
+                CommonHarvestField.HUNTING_DAY_AND_TIME, MockGroupHuntingData.FirstHuntingDayId
         )
 
         assertTrue(controller.getLoadedViewModel().harvestIsValid)
 
-        controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(GroupHarvestField.AGE, GameAge.UNKNOWN)
+        controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(CommonHarvestField.AGE, GameAge.UNKNOWN)
 
         assertFalse(controller.getLoadedViewModel().harvestIsValid)
     }
@@ -308,22 +308,22 @@ class CreateGroupHarvestControllerTest {
 
         // make sure harvest is valid first
         controller.eventDispatchers.stringWithIdEventDispatcher.dispatchStringWithIdChanged(
-                GroupHarvestField.ACTOR,
+                CommonHarvestField.ACTOR,
                 listOf(StringWithId("Pentti Mujunen", 4))
         )
         controller.eventDispatchers.ageEventDispatcher.dispatchAgeChanged(
-                GroupHarvestField.AGE, GameAge.ADULT
+                CommonHarvestField.AGE, GameAge.ADULT
         )
         controller.eventDispatchers.genderEventDispatcher.dispatchGenderChanged(
-                GroupHarvestField.GENDER, Gender.MALE
+                CommonHarvestField.GENDER, Gender.MALE
         )
         controller.eventDispatchers.huntingDayEventDispatcher.dispatchHuntingDayChanged(
-                GroupHarvestField.HUNTING_DAY_AND_TIME, MockGroupHuntingData.FirstHuntingDayId
+                CommonHarvestField.HUNTING_DAY_AND_TIME, MockGroupHuntingData.FirstHuntingDayId
         )
 
         assertTrue(controller.getLoadedViewModel().harvestIsValid)
 
-        controller.eventDispatchers.genderEventDispatcher.dispatchGenderChanged(GroupHarvestField.GENDER, Gender.UNKNOWN)
+        controller.eventDispatchers.genderEventDispatcher.dispatchGenderChanged(CommonHarvestField.GENDER, Gender.UNKNOWN)
 
         assertFalse(controller.getLoadedViewModel().harvestIsValid)
     }

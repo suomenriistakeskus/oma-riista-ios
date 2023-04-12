@@ -99,10 +99,10 @@ import Foundation
     }
 
     private class func getSynchronizationModeString() -> String {
-        switch RiistaSettings.syncMode() {
-        case RiistaSyncModeAutomatic:   return "automatic"
-        case RiistaSyncModeManual:      return "manual"
-        default:                        return "unknown"
+        switch SynchronizationMode.currentValue {
+        case .automatic:   return "automatic"
+        case .manual:      return "manual"
+        default:           return "unknown"
         }
     }
 

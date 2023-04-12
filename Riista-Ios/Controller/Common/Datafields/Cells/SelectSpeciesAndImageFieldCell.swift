@@ -8,6 +8,10 @@ fileprivate let CELL_TYPE = DataFieldCellType.selectSpeciesAndImage
 
 typealias SpeciesImageClickListener<FieldId> = (_ fieldId: FieldId, _ entityImage: EntityImage?) -> Void
 
+enum SelectSpeciesAndImageFieldCellEntryType {
+    case harvest, observation, srva, unknown
+}
+
 class SelectSpeciesAndImageFieldCell<FieldId : DataFieldId>:
     TypedDataFieldCell<FieldId, SpeciesField<FieldId>>, SpeciesSelectionDelegate {
 
@@ -43,15 +47,20 @@ class SelectSpeciesAndImageFieldCell<FieldId : DataFieldId>:
         return button
     }()
 
-    private lazy var imagesButton: MDCButton = {
-        let button = MDCButton(type: .custom)
+    private lazy var imagesButton: MaterialButtonWithRoundedCorners = {
+        let button = MaterialButtonWithRoundedCorners(type: .custom)
+        button.cornerRadius = 2
+        button.roundedCorners = .allCorners()
+
         AppTheme.shared.setupImagesButtonTheme(button: button)
 
         button.snp.makeConstraints { make in
             make.height.width.equalTo(AppConstants.UI.ButtonHeightSmall).priority(999)
         }
 
-        button.addTarget(self, action: #selector(imagesClicked), for: .touchUpInside)
+        button.onClicked = { [weak self] in
+            self?.imagesClicked()
+        }
 
         return button
     }()
@@ -59,6 +68,8 @@ class SelectSpeciesAndImageFieldCell<FieldId : DataFieldId>:
     private let speciesNameResolver = SpeciesInformationResolver()
     private var speciesEventDispatcher: SpeciesEventDispatcher?
     private var speciesImageClickListener: SpeciesImageClickListener<FieldId>?
+    private var entryType: SelectSpeciesAndImageFieldCellEntryType = .unknown
+
     private weak var navigationControllerProvider: ProvidesNavigationController?
 
     private lazy var dialogTransitionController: MDCDialogTransitionController = {
@@ -86,7 +97,11 @@ class SelectSpeciesAndImageFieldCell<FieldId : DataFieldId>:
             showOtherSpecies(tintColor: tintColor)
             updateSpeciesButton(knownSpecies: false)
         } else if (field.species is Species.Unknown) {
-            showUnknownSpecies()
+            if (field.settings.readOnly) {
+                showUnknownSpecies()
+            } else {
+                showSelectSpecies()
+            }
             updateSpeciesButton(knownSpecies: false)
         }
         updateImagesButton()
@@ -103,24 +118,21 @@ class SelectSpeciesAndImageFieldCell<FieldId : DataFieldId>:
     }
 
     private func showOtherSpecies(tintColor: UIColor?) {
-        let image = unknownImageBasedOnTintColor(tintColor: tintColor)
         speciesButton.setTitle("SrvaOtherSpeciesDescription".localized(), for: .normal)
-        speciesButton.setImage(image, for: .normal)
-        self.speciesButton.imageView?.tintColor = tintColor
-    }
-
-    private func unknownImageBasedOnTintColor(tintColor: UIColor?) -> UIImage? {
-        if (tintColor == nil) {
-            return UIImage(named: "unknown_white")
-        } else {
-            return UIImage(named: "unknown_white")?.withRenderingMode(.alwaysTemplate)
-        }
+        speciesButton.setImage(SelectSpeciesAndImageFieldCellEntryType.unknown.image, for: .normal)
+        self.speciesButton.imageView?.tintColor = tintColor ?? .white
     }
 
     private func showUnknownSpecies() {
         speciesButton.setTitle("SrvaUnknownSpeciesDescription".localized(), for: .normal)
-        speciesButton.setImage(UIImage(named: "unknown_white"), for: .normal)
-        self.speciesButton.imageView?.tintColor = nil
+        speciesButton.setImage(SelectSpeciesAndImageFieldCellEntryType.unknown.image, for: .normal)
+        self.speciesButton.imageView?.tintColor = .white
+    }
+
+    private func showSelectSpecies() {
+        speciesButton.setTitle("ChooseSpecies".localized(), for: .normal)
+        speciesButton.setImage(entryType.image, for: .normal)
+        self.speciesButton.imageView?.tintColor = .white
     }
 
     func updateSpeciesButton(knownSpecies: Bool) {
@@ -144,13 +156,13 @@ class SelectSpeciesAndImageFieldCell<FieldId : DataFieldId>:
         let context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
         context.parent = delegate.managedObjectContext
 
-        guard let diaryImage = boundField?.entityImage?.toDiaryImage(context: context) else {
+        guard let entityImage = boundField?.entityImage else {
             imagesButton.setImage(UIImage(named: "camera"), for: .normal)
             return
         }
 
-        ImageUtils.loadDiaryImage(
-            diaryImage,
+        ImageUtils.loadEntityImage(
+            image: entityImage,
             options: ImageLoadOptions.aspectFilled(
                 size: CGSize(width: AppConstants.UI.ButtonHeightSmall, height: AppConstants.UI.ButtonHeightSmall)
             ),
@@ -171,7 +183,8 @@ class SelectSpeciesAndImageFieldCell<FieldId : DataFieldId>:
                 self.imagesButton.setImageTintColor(UIColor.white, for: .normal)
                 self.imagesButton.setBackgroundImage(nil, for: .normal)
                 self.imagesButton.setImageLoadFailed(reason: reason)
-            })
+            }
+        )
     }
 
     @objc private func selectSpeciesClicked() {
@@ -262,15 +275,18 @@ class SelectSpeciesAndImageFieldCell<FieldId : DataFieldId>:
         private weak var navigationControllerProvider: ProvidesNavigationController?
         private var speciesEventDispatcher: SpeciesEventDispatcher?
         private var speciesImageClickListener: SpeciesImageClickListener<FieldId>?
+        private let entryType: SelectSpeciesAndImageFieldCellEntryType
 
         init(
             navigationControllerProvider: ProvidesNavigationController?,
             speciesEventDispatcher: SpeciesEventDispatcher?,
-            speciesImageClickListener: SpeciesImageClickListener<FieldId>?
+            speciesImageClickListener: SpeciesImageClickListener<FieldId>?,
+            entryType: SelectSpeciesAndImageFieldCellEntryType
         ) {
             self.navigationControllerProvider = navigationControllerProvider
             self.speciesEventDispatcher = speciesEventDispatcher
             self.speciesImageClickListener = speciesImageClickListener
+            self.entryType = entryType
             super.init(cellType: CELL_TYPE)
         }
 
@@ -287,8 +303,24 @@ class SelectSpeciesAndImageFieldCell<FieldId : DataFieldId>:
             cell.navigationControllerProvider = navigationControllerProvider
             cell.speciesEventDispatcher = speciesEventDispatcher
             cell.speciesImageClickListener = speciesImageClickListener
+            cell.entryType = entryType
 
             return cell
+        }
+    }
+}
+
+fileprivate extension SelectSpeciesAndImageFieldCellEntryType {
+    var image: UIImage {
+        switch self {
+        case .harvest:
+            return UIImage(named: "harvest-universal-template")!
+        case .observation:
+            return UIImage(named: "observation-universal-template")!
+        case .srva:
+            return UIImage(named: "srva-universal-template")!
+        case .unknown:
+            return UIImage(named: "question-universal-template")!
         }
     }
 }

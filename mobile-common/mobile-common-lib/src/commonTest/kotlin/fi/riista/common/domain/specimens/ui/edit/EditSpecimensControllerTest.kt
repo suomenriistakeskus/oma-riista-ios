@@ -6,6 +6,7 @@ import fi.riista.common.domain.model.CommonSpecimenData
 import fi.riista.common.domain.model.GameAge
 import fi.riista.common.domain.model.Gender
 import fi.riista.common.domain.model.Species
+import fi.riista.common.domain.model.createForTests
 import fi.riista.common.domain.specimens.ui.SpecimenFieldDataContainer
 import fi.riista.common.domain.specimens.ui.SpecimenFieldSpecification
 import fi.riista.common.domain.specimens.ui.SpecimenFieldType
@@ -345,19 +346,19 @@ class EditSpecimensControllerTest {
         return SpecimenFieldDataContainer.createForSrva(
             species = Species.Known(speciesCode),
             specimens = listOf(
-                CommonSpecimenData(
+                CommonSpecimenData.createForTests(
                     gender = Gender.MALE.toBackendEnum(),
                     age = GameAge.ADULT.toBackendEnum()
                 ),
-                CommonSpecimenData(
+                CommonSpecimenData.createForTests(
                     gender = Gender.FEMALE.toBackendEnum(),
                     age = GameAge.YOUNG.toBackendEnum()
                 ),
-                CommonSpecimenData(
+                CommonSpecimenData.createForTests(
                     gender = Gender.UNKNOWN.toBackendEnum(),
                     age = GameAge.UNKNOWN.toBackendEnum()
                 ),
-                CommonSpecimenData(
+                CommonSpecimenData.createForTests(
                     gender = BackendEnum.create(null),
                     age = BackendEnum.create(null)
                 ),

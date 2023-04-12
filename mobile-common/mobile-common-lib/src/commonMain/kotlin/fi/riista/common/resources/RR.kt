@@ -25,6 +25,7 @@ object RR {
         generic_no,
 
         error_date_not_allowed,
+        error_datetime_in_future,
 
         group_hunting_label_club,
         group_hunting_label_season,
@@ -34,28 +35,37 @@ object RR {
 
         group_hunting_error_time_not_within_hunting_day,
 
-        group_hunting_harvest_field_hunting_day_and_time,
-        group_hunting_harvest_field_actor,
-        group_hunting_harvest_field_author,
-        group_hunting_harvest_field_deer_hunting_type,
-        group_hunting_harvest_field_deer_hunting_other_type_description,
-        group_hunting_harvest_field_not_edible,
-        group_hunting_harvest_field_weight_estimated,
-        group_hunting_harvest_field_weight_measured,
-        group_hunting_harvest_field_fitness_class,
-        group_hunting_harvest_field_antlers_type,
-        group_hunting_harvest_field_antlers_width,
-        group_hunting_harvest_field_antler_points_left,
-        group_hunting_harvest_field_antler_points_right,
-        group_hunting_harvest_field_antlers_lost,
-        group_hunting_harvest_field_antlers_girth,
-        group_hunting_harvest_field_antler_shaft_width,
-        group_hunting_harvest_field_antlers_length,
-        group_hunting_harvest_field_antlers_inner_width,
-        group_hunting_harvest_field_alone,
-        group_hunting_harvest_field_additional_information,
-        group_hunting_harvest_field_additional_information_instructions,
-        group_hunting_harvest_field_additional_information_instructions_white_tailed_deer,
+        harvest_label_select_permit,
+        harvest_label_permit_information,
+        harvest_label_permit_required,
+        harvest_label_wild_boar_feeding_place,
+        harvest_label_grey_seal_hunting_method,
+        harvest_label_is_taiga_bean_goose,
+        harvest_label_amount,
+        harvest_label_description,
+        harvest_label_hunting_day_and_time,
+        harvest_label_actor,
+        harvest_label_author,
+        harvest_label_deer_hunting_type,
+        harvest_label_deer_hunting_other_type_description,
+        harvest_label_not_edible,
+        harvest_label_weight,
+        harvest_label_weight_estimated,
+        harvest_label_weight_measured,
+        harvest_label_fitness_class,
+        harvest_label_antlers_type,
+        harvest_label_antlers_width,
+        harvest_label_antler_points_left,
+        harvest_label_antler_points_right,
+        harvest_label_antlers_lost,
+        harvest_label_antlers_girth,
+        harvest_label_antler_shaft_width,
+        harvest_label_antlers_length,
+        harvest_label_antlers_inner_width,
+        harvest_label_alone,
+        harvest_label_additional_information,
+        harvest_label_additional_information_instructions,
+        harvest_label_additional_information_instructions_white_tailed_deer,
 
         observation_label_observation_category,
         observation_label_within_moose_hunting,
@@ -175,6 +185,22 @@ object RR {
         harvest_fitness_class_laiha,
         harvest_fitness_class_naantynyt,
 
+        // Grey seal hunting method
+        grey_seal_hunting_method_shot,
+        grey_seal_hunting_method_captured_alive,
+        grey_seal_hunting_method_shot_but_lost,
+
+        // Harvest report status / state
+        harvest_report_required,
+        harvest_report_state_sent_for_approval,
+        harvest_report_state_approved,
+        harvest_report_state_rejected,
+
+        // Harvest permit
+        harvest_permit_accepted,
+        harvest_permit_proposed,
+        harvest_permit_rejected,
+
         // Observation category
         observation_category_normal,
         observation_category_moose_hunting,
@@ -264,6 +290,30 @@ object RR {
         hunting_control_event_type_waterfowl,
         hunting_control_event_type_dog_discipline,
         hunting_control_event_type_other,
+
+        hunting_control_hunter_details,
+        hunting_control_hunter_name,
+        hunting_control_hunter_date_of_birth,
+        hunting_control_hunter_home_municipality,
+        hunting_control_hunter_number,
+        hunting_control_hunting_license,
+        hunting_control_hunting_license_status,
+        hunting_control_hunting_license_status_active,
+        hunting_control_hunting_license_status_inactive,
+        hunting_control_hunting_license_date_of_payment,
+        hunting_control_shooting_tests,
+        hunting_control_reset_hunter_info,
+        hunting_control_ssn,
+        hunting_control_searching_hunter,
+        hunting_control_hunter_not_found,
+        hunting_control_network_error,
+        hunting_control_retry,
+
+        // shooting test type
+        shooting_test_type_moose,
+        shooting_test_type_bear,
+        shooting_test_type_roe_deer,
+        shooting_test_type_bow,
 
         // srva
         srva_event_label_other_species_description,
@@ -381,6 +431,14 @@ object RR {
         //
         // should be in format "%s %s" (space should probably be NBSP)
         generic_hours_and_minutes_format,
+
+        // double formats
+        double_format_zero_decimals, // Expected format "%.0f"
+        double_format_one_decimal, // Expected format "%.1f"
+
+        // args expected:
+        // 1. local date
+        date_format_short,
     }
 
     /**

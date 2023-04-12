@@ -4,7 +4,7 @@ import fi.riista.common.domain.constants.SpeciesCodes
 import fi.riista.common.domain.groupHunting.GroupHuntingContext
 import fi.riista.common.domain.groupHunting.MockGroupHuntingData
 import fi.riista.common.domain.groupHunting.model.GroupHuntingHarvestTarget
-import fi.riista.common.domain.groupHunting.ui.GroupHarvestField
+import fi.riista.common.domain.harvest.ui.CommonHarvestField
 import fi.riista.common.helpers.*
 import fi.riista.common.domain.model.*
 import fi.riista.common.network.BackendAPI
@@ -64,9 +64,9 @@ class ViewGroupHarvestControllerTest {
         val viewModel = assertNotNull(controller.viewModelLoadStatus.value.loadedViewModel)
 
         val fields = viewModel.fields
-        assertEquals(17, fields.size)
+        assertEquals(18, fields.size)
         var expectedIndex = 0
-        fields.getLocationField(expectedIndex++, GroupHarvestField.LOCATION).let {
+        fields.getLocationField(expectedIndex++, CommonHarvestField.LOCATION).let {
             val location = ETRMSGeoLocation(
                     latitude = 6820960,
                     longitude = 318112,
@@ -78,90 +78,96 @@ class ViewGroupHarvestControllerTest {
             assertEquals(location, it.location)
             assertTrue(it.settings.readOnly)
         }
-        fields.getSpeciesField(expectedIndex++, GroupHarvestField.SPECIES_CODE).let {
+        fields.getSpeciesField(expectedIndex++, CommonHarvestField.SPECIES_CODE).let {
             assertEquals(Species.Known(SpeciesCodes.MOOSE_ID), it.species)
             assertTrue(it.settings.readOnly)
         }
-        fields.getDateTimeField(expectedIndex++, GroupHarvestField.DATE_AND_TIME).let {
+        fields.getDateTimeField(expectedIndex++, CommonHarvestField.DATE_AND_TIME).let {
             assertEquals(LocalDateTime(2015, 9, 1, 14, 0, 0), it.dateAndTime)
             assertTrue(it.settings.readOnly)
             assertNull(it.settings.label)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.ACTOR).let {
+        fields.getStringField(expectedIndex++, CommonHarvestField.ACTOR).let {
             assertEquals("Pentti Makunen", it.value)
             assertEquals("actor", it.settings.label)
             assertTrue(it.settings.singleLine)
             assertTrue(it.settings.readOnly)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.AUTHOR).let {
+        fields.getStringField(expectedIndex++, CommonHarvestField.AUTHOR).let {
             assertEquals("Pena Mujunen", it.value)
             assertEquals("author", it.settings.label)
             assertTrue(it.settings.singleLine)
             assertTrue(it.settings.readOnly)
         }
-        fields.getGenderField(expectedIndex++, GroupHarvestField.GENDER).let {
+        fields.getGenderField(expectedIndex++, CommonHarvestField.GENDER).let {
             assertEquals(Gender.MALE, it.gender)
             assertTrue(it.settings.readOnly)
         }
-        fields.getAgeField(expectedIndex++, GroupHarvestField.AGE).let {
+        fields.getAgeField(expectedIndex++, CommonHarvestField.AGE).let {
             assertEquals(GameAge.ADULT, it.age)
             assertTrue(it.settings.readOnly)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.NOT_EDIBLE).let {
+        fields.getStringField(expectedIndex++, CommonHarvestField.NOT_EDIBLE).let {
             assertEquals("no", it.value)
             assertTrue(it.settings.readOnly)
             assertTrue(it.settings.singleLine)
             assertEquals("not_edible", it.settings.label)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.WEIGHT_ESTIMATED).let {
-            assertEquals("34.0", it.value)
+        fields.getStringField(expectedIndex++, CommonHarvestField.WEIGHT_ESTIMATED).let {
+            assertEquals("34", it.value)
             assertTrue(it.settings.readOnly)
             assertTrue(it.settings.singleLine)
             assertEquals("weight_estimated", it.settings.label)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.WEIGHT_MEASURED).let {
-            assertEquals("4.0", it.value)
+        fields.getStringField(expectedIndex++, CommonHarvestField.WEIGHT_MEASURED).let {
+            assertEquals("4", it.value)
             assertTrue(it.settings.readOnly)
             assertTrue(it.settings.singleLine)
             assertEquals("weight_measured", it.settings.label)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.FITNESS_CLASS).let {
+        fields.getStringField(expectedIndex++, CommonHarvestField.FITNESS_CLASS).let {
             assertEquals("fitness_class_naantynyt", it.value)
             assertTrue(it.settings.readOnly)
             assertTrue(it.settings.singleLine)
             assertEquals("fitness_class", it.settings.label)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.ANTLERS_LOST).let {
+        fields.getStringField(expectedIndex++, CommonHarvestField.ANTLERS_LOST).let {
             assertEquals("no", it.value)
             assertTrue(it.settings.readOnly)
             assertTrue(it.settings.singleLine)
             assertEquals("antlers_lost", it.settings.label)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.ANTLERS_TYPE).let {
+        fields.getStringField(expectedIndex++, CommonHarvestField.ANTLERS_TYPE).let {
             assertEquals("antler_type_hanko", it.value)
             assertTrue(it.settings.readOnly)
             assertTrue(it.settings.singleLine)
             assertEquals("antlers_type", it.settings.label)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.ANTLERS_WIDTH).let {
+        fields.getStringField(expectedIndex++, CommonHarvestField.ANTLERS_WIDTH).let {
             assertEquals("24", it.value)
             assertTrue(it.settings.readOnly)
             assertTrue(it.settings.singleLine)
             assertEquals("antlers_width", it.settings.label)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.ANTLER_POINTS_LEFT).let {
+        fields.getStringField(expectedIndex++, CommonHarvestField.ANTLER_POINTS_LEFT).let {
             assertEquals("4", it.value)
             assertTrue(it.settings.readOnly)
             assertTrue(it.settings.singleLine)
             assertEquals("antler_points_left", it.settings.label)
         }
-        fields.getStringField(expectedIndex++, GroupHarvestField.ANTLER_POINTS_RIGHT).let {
+        fields.getStringField(expectedIndex++, CommonHarvestField.ANTLER_POINTS_RIGHT).let {
             assertEquals("1", it.value)
             assertTrue(it.settings.readOnly)
             assertTrue(it.settings.singleLine)
             assertEquals("antler_points_right", it.settings.label)
         }
-        fields.getStringField(expectedIndex, GroupHarvestField.ADDITIONAL_INFORMATION).let {
+        fields.getStringField(expectedIndex++, CommonHarvestField.ANTLERS_GIRTH).let {
+            assertEquals("-", it.value)
+            assertTrue(it.settings.readOnly)
+            assertTrue(it.settings.singleLine)
+            assertEquals("antlers_girth", it.settings.label)
+        }
+        fields.getStringField(expectedIndex, CommonHarvestField.ADDITIONAL_INFORMATION).let {
             assertEquals("additional_info", it.value)
             assertTrue(it.settings.readOnly)
             assertTrue(it.settings.singleLine)

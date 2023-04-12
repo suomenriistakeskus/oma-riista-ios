@@ -9,6 +9,7 @@ import fi.riista.common.io.FileSaveResult
 import fi.riista.common.model.LocalDate
 import fi.riista.common.model.LocalDatePeriod
 import fi.riista.common.model.isWithinPeriod
+import fi.riista.common.model.toPeriodDate
 import fi.riista.common.resources.StringProvider
 import fi.riista.common.resources.toBackendEnum
 import fi.riista.common.ui.controller.ControllerWithLoadableModel
@@ -16,6 +17,7 @@ import fi.riista.common.ui.controller.HasUnreproducibleState
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.ui.dataField.*
 import fi.riista.common.ui.intent.IntentHandler
+import fi.riista.common.util.contains
 import kotlinx.serialization.Serializable
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -144,7 +146,7 @@ abstract class ModifyHuntingControlEventController(
                     allWardens = viewModel.gameWardens
                 )
                 event.copy(date = intent.newDate, inspectors = event.inspectors.filter { inspector ->
-                    availableGameWardens.firstOrNull { inspector.id == it.remoteId } != null
+                    availableGameWardens.contains { inspector.id == it.remoteId }
                 })
             }
             is HuntingControlEventIntent.ChangeStartTime -> {
@@ -342,7 +344,7 @@ abstract class ModifyHuntingControlEventController(
             return listOf()
         }
         return allWardens.filter { warden ->
-            val period = LocalDatePeriod(warden.startDate, warden.endDate)
+            val period = LocalDatePeriod(warden.startDate.toPeriodDate(), warden.endDate.toPeriodDate())
             date.isWithinPeriod(period)
         }
     }

@@ -8,10 +8,12 @@ import fi.riista.common.domain.huntingControl.HuntingControlRepository
 import fi.riista.common.io.CommonFileProvider
 import fi.riista.common.logging.Logger
 import fi.riista.common.logging.getLogger
+import fi.riista.common.model.LocalDateTime
+import fi.riista.common.network.*
 import fi.riista.common.network.AbstractSynchronizationContext
 import fi.riista.common.network.AbstractSynchronizationContextProvider
 import fi.riista.common.network.BackendApiProvider
-import fi.riista.common.network.SyncDataPiece
+import fi.riista.common.network.UserSynchronizationContext
 import fi.riista.common.preferences.Preferences
 import fi.riista.common.util.LocalDateTimeProvider
 
@@ -24,10 +26,6 @@ internal class HuntingControlSynchronizationContextProvider(
     syncFinishedListener: (suspend () -> Unit)?,
 ) : AbstractSynchronizationContextProvider(syncFinishedListener = syncFinishedListener) {
 
-    private data class UserSynchronizationContext(
-        val username: String,
-        val synchronizationContext: HuntingControlSynchronizationContext
-    )
     private var userSynchronizationContext: AtomicReference<UserSynchronizationContext?> = AtomicReference(null)
 
     override val synchronizationContext: HuntingControlSynchronizationContext?
@@ -50,7 +48,7 @@ internal class HuntingControlSynchronizationContextProvider(
                         userSynchronizationContext.set(it)
                     }
                 }
-                return synchronizationContext.synchronizationContext
+                return synchronizationContext.synchronizationContext as HuntingControlSynchronizationContext
             } else {
                 null
             }
