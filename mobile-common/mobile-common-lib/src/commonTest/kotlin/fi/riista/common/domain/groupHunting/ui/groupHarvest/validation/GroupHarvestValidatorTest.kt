@@ -21,8 +21,10 @@ import fi.riista.common.domain.model.GameAntlersType
 import fi.riista.common.domain.model.GameFitnessClass
 import fi.riista.common.domain.model.Gender
 import fi.riista.common.domain.model.PersonWithHunterNumber
+import fi.riista.common.domain.model.SearchableOrganization
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.model.asKnownLocation
+import fi.riista.common.helpers.TestSpeciesResolver
 import fi.riista.common.model.BackendEnum
 import fi.riista.common.model.ETRMSGeoLocation
 import fi.riista.common.model.Entity
@@ -42,16 +44,17 @@ import kotlin.test.assertEquals
  * */
 class GroupHarvestValidatorTest {
 
+    private val harvestValidator = GroupHarvestValidator(MOCK_DATE_TIME_PROVIDER, TestSpeciesResolver.INSTANCE)
+
     @Test
     fun testValidData() {
         val context = harvestContext()
 
         val displayedFields = GroupHuntingHarvestFields.getFieldsToBeDisplayed(context)
-        val errors = GroupHarvestValidator.validate(
+        val errors = harvestValidator.validate(
             context.harvest,
             createHuntingDays(),
             createPermit(),
-            MOCK_DATE_TIME_PROVIDER,
             displayedFields
         )
 
@@ -177,7 +180,7 @@ class GroupHarvestValidatorTest {
     @Test
     fun testGender_UNKNOWN() {
         assertValidationError(
-                expectedError = CommonHarvestValidator.Error.MISSING_GENDER,
+                expectedError = CommonHarvestValidator.Error.INVALID_GENDER,
                 harvest = createHarvest(createSpecimen(gender = Gender.UNKNOWN)),
                 speciesCodes = listOf(
                         SpeciesCodes.MOOSE_ID,
@@ -207,7 +210,7 @@ class GroupHarvestValidatorTest {
     @Test
     fun testAge_UNKNOWN() {
         assertValidationError(
-                expectedError = CommonHarvestValidator.Error.MISSING_AGE,
+                expectedError = CommonHarvestValidator.Error.INVALID_AGE,
                 harvest = createHarvest(createSpecimen(age = GameAge.UNKNOWN)),
                 speciesCodes = listOf(
                         SpeciesCodes.MOOSE_ID,
@@ -475,11 +478,10 @@ class GroupHarvestValidatorTest {
         val context = harvestContext(harvest)
 
         val displayedFields = GroupHuntingHarvestFields.getFieldsToBeDisplayed(context)
-        return GroupHarvestValidator.validate(
+        return harvestValidator.validate(
             harvest = context.harvest,
             huntingDays = huntingDays,
             huntingGroupPermit = permit,
-            localDateTimeProvider = MOCK_DATE_TIME_PROVIDER,
             displayedFields = displayedFields,
         )
     }
@@ -522,48 +524,51 @@ class GroupHarvestValidatorTest {
         pointOfTime: LocalDateTime = HARVEST_POINT_OF_TIME
     ): CommonHarvestData {
         return CommonHarvestData(
-                localId = null,
-                localUrl = null,
-                id = null,
-                rev = null,
-                species = species,
-                location = ETRMSGeoLocation(
-                        latitude = 6000,
-                        longitude = 8000,
-                        source = fi.riista.common.model.GeoLocationSource.MANUAL.toBackendEnum(),
-                        accuracy = null,
-                        altitude = null,
-                        altitudeAccuracy = null,
-                ).asKnownLocation(),
-                pointOfTime = pointOfTime,
-                description = null,
-                images = EntityImages.noImages(),
-                specimens = listOfNotNull(specimen).map { it.toCommonSpecimenData() },
-                amount = null,
-                actorInfo = PersonWithHunterNumber(
-                        id = 99,
-                        rev = 0,
-                        byName = "Pentti",
-                        lastName = "Mujunen",
-                        hunterNumber = "88888888",
-                ).asGroupMember(),
-                huntingDayId = GroupHuntingDayId.remote(HUNTING_DAY_ID),
-                authorInfo = null,
-                canEdit = true,
-                harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
-                harvestReportRequired = false,
-                harvestReportState = BackendEnum.create(null),
-                permitNumber = null,
-                permitType = null,
-                stateAcceptedToHarvestPermit = BackendEnum.create(null),
-                deerHuntingType = BackendEnum.create(null),
-                deerHuntingOtherTypeDescription = null,
-                mobileClientRefId = generateMobileClientRefId(),
-                harvestReportDone = false,
-                rejected = false,
-                feedingPlace = null,
-                taigaBeanGoose = null,
-                greySealHuntingMethod = BackendEnum.create(null),
+            localId = null,
+            localUrl = null,
+            id = null,
+            rev = null,
+            species = species,
+            location = ETRMSGeoLocation(
+                latitude = 6000,
+                longitude = 8000,
+                source = fi.riista.common.model.GeoLocationSource.MANUAL.toBackendEnum(),
+                accuracy = null,
+                altitude = null,
+                altitudeAccuracy = null,
+            ).asKnownLocation(),
+            pointOfTime = pointOfTime,
+            description = null,
+            images = EntityImages.noImages(),
+            specimens = listOfNotNull(specimen).map { it.toCommonSpecimenData() },
+            amount = null,
+            actorInfo = PersonWithHunterNumber(
+                id = 99,
+                rev = 0,
+                byName = "Pentti",
+                lastName = "Mujunen",
+                hunterNumber = "88888888",
+            ).asGroupMember(),
+            selectedClub = SearchableOrganization.Unknown,
+            huntingDayId = GroupHuntingDayId.remote(HUNTING_DAY_ID),
+            authorInfo = null,
+            canEdit = true,
+            modified = true,
+            deleted = false,
+            harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
+            harvestReportRequired = false,
+            harvestReportState = BackendEnum.create(null),
+            permitNumber = null,
+            permitType = null,
+            stateAcceptedToHarvestPermit = BackendEnum.create(null),
+            deerHuntingType = BackendEnum.create(null),
+            deerHuntingOtherTypeDescription = null,
+            mobileClientRefId = generateMobileClientRefId(),
+            harvestReportDone = false,
+            rejected = false,
+            feedingPlace = null,
+            taigaBeanGoose = null,
+            greySealHuntingMethod = BackendEnum.create(null),
         )
     }
 
@@ -575,8 +580,8 @@ class GroupHarvestValidatorTest {
         alone: Boolean? = false,
         weightEstimated: Double? = 100.0,
         weightMeasured: Double? = 200.0,
-        fitnessClass: BackendEnum<GameFitnessClass>? = GameFitnessClass.NORMAL.toBackendEnum(),
-        antlersType: BackendEnum<GameAntlersType>? = GameAntlersType.MIXED.toBackendEnum(),
+        fitnessClass: GameFitnessClass? = GameFitnessClass.NORMAL,
+        antlersType: GameAntlersType? = GameAntlersType.MIXED,
         antlersWidth: Int? = 150,
         antlerPointsLeft: Int? = 25,
         antlerPointsRight: Int? = 30,
@@ -586,22 +591,26 @@ class GroupHarvestValidatorTest {
         antlerShaftWidth: Int? = 20,
     ): CommonHarvestSpecimen {
         return CommonHarvestSpecimen(
-                gender = BackendEnum.create(gender),
-                age = BackendEnum.create(age),
-                antlersLost = antlersLost,
-                notEdible = notEdible,
-                alone = alone,
-                weightEstimated = weightEstimated,
-                weightMeasured = weightMeasured,
-                fitnessClass = fitnessClass,
-                antlersType = antlersType,
-                antlersWidth = antlersWidth,
-                antlerPointsLeft = antlerPointsLeft,
-                antlerPointsRight = antlerPointsRight,
-                antlersGirth = antlersGirth,
-                antlersLength = antlersLength,
-                antlersInnerWidth = antlersInnerWidth,
-                antlerShaftWidth = antlerShaftWidth,
+            id = null,
+            rev = null,
+            gender = BackendEnum.create(gender),
+            age = BackendEnum.create(age),
+            antlersLost = antlersLost,
+            notEdible = notEdible,
+            alone = alone,
+            weightEstimated = weightEstimated,
+            weightMeasured = weightMeasured,
+            fitnessClass = BackendEnum.create(fitnessClass),
+            antlersType = BackendEnum.create(antlersType),
+            antlersWidth = antlersWidth,
+            antlerPointsLeft = antlerPointsLeft,
+            antlerPointsRight = antlerPointsRight,
+            antlersGirth = antlersGirth,
+            antlersLength = antlersLength,
+            antlersInnerWidth = antlersInnerWidth,
+            antlerShaftWidth = antlerShaftWidth,
+            additionalInfo = null,
+            weight = null,
         )
     }
 

@@ -4,13 +4,13 @@ import fi.riista.common.RiistaSDK
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.model.EntityImage
 import fi.riista.common.domain.srva.model.CommonSrvaEvent
-import fi.riista.common.domain.srva.sync.SrvaSynchronizationContextProvider
+import fi.riista.common.domain.srva.sync.SrvaSynchronizationContext
 import fi.riista.common.domain.userInfo.CurrentUserContextProvider
 import fi.riista.common.domain.userInfo.LoginStatus
 import fi.riista.common.io.CommonFileProvider
 import fi.riista.common.logging.getLogger
 import fi.riista.common.network.BackendApiProvider
-import fi.riista.common.network.SyncDataPiece
+import fi.riista.common.network.sync.delegated
 import fi.riista.common.preferences.Preferences
 import fi.riista.common.util.LocalDateTimeProvider
 
@@ -41,15 +41,14 @@ class SrvaContext internal constructor(
     // internal so that it can be accessed from tests
     internal val repository = SrvaEventRepository(database)
 
-    private val syncContextProvider = SrvaSynchronizationContextProvider(
+    private val synchronizationContext = SrvaSynchronizationContext(
         backendApiProvider = backendApiProvider,
         database = database,
         preferences = preferences,
         localDateTimeProvider = localDateTimeProvider,
         commonFileProvider = commonFileProvider,
-        currentUserContextProvider = currentUserContextProvider,
-        syncFinishedListener = ::syncFinished,
-    )
+        currentUserContextProvider = currentUserContextProvider
+    ).delegated(onSyncFinished = ::syncFinished)
 
     private val _srvaEventProvider = SrvaEventFromDatabaseProvider(
         database = database,
@@ -63,7 +62,7 @@ class SrvaContext internal constructor(
     )
 
     fun initialize() {
-        RiistaSDK.registerSyncContextProvider(SyncDataPiece.SRVA_EVENTS, syncContextProvider)
+        RiistaSDK.registerSynchronizationContext(synchronizationContext)
         clearWhenUserLoggedOut()
     }
 
@@ -78,23 +77,21 @@ class SrvaContext internal constructor(
         return response
     }
 
-    fun deleteSrvaEvent(srvaEventLocalId: Long?): CommonSrvaEvent? {
-        return if (srvaEventLocalId != null && repository.markDeleted(srvaEventLocalId = srvaEventLocalId)) {
+    suspend fun deleteSrvaEvent(srvaEventLocalId: Long?): CommonSrvaEvent? {
+        val deletedSrvaEvent = repository.markDeleted(srvaEventLocalId = srvaEventLocalId)
+        if (deletedSrvaEvent != null) {
             _srvaEventProvider.forceRefreshOnNextFetch()
-
-            repository.getByLocalId(srvaEventLocalId)
-        } else {
-            null
         }
+
+        return deletedSrvaEvent
     }
 
     internal suspend fun sendSrvaEventToBackend(srvaEvent: CommonSrvaEvent): SrvaEventOperationResponse {
-        return syncContextProvider.synchronizationContext?.sendSrvaEventToBackend(srvaEvent)
-            ?: SrvaEventOperationResponse.Error("no synchronization context")
+        return synchronizationContext.childContext.sendSrvaEventToBackend(srvaEvent)
     }
 
     internal suspend fun deleteSrvaEventInBackend(srvaEvent: CommonSrvaEvent) {
-        syncContextProvider.synchronizationContext?.deleteSrvaEventInBackend(srvaEvent)
+        synchronizationContext.childContext.deleteSrvaEventInBackend(srvaEvent)
     }
 
     /**
@@ -107,7 +104,7 @@ class SrvaContext internal constructor(
         }
     }
 
-    fun getLocalSrvaImageIds(): List<String> {
+    suspend fun getLocalSrvaImageIds(): List<String> {
         currentUserContextProvider.userContext.username?.let { username ->
             return repository.getEventsWithLocalImages(username = username).map { event ->
                 event.images.localImages
@@ -117,6 +114,12 @@ class SrvaContext internal constructor(
                     .mapNotNull { image -> image.serverId }
             }.flatten()
         } ?: return listOf()
+    }
+
+    fun getByLocalId(localId: Long): CommonSrvaEvent? {
+        return currentUserContextProvider.userContext.username?.let {
+            repository.getByLocalId(localId)
+        }
     }
 
     private fun clearWhenUserLoggedOut() {

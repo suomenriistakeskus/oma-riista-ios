@@ -1,15 +1,19 @@
 package fi.riista.common.domain.harvest.ui.view
 
-import co.touchlab.stately.ensureNeverFrozen
 import fi.riista.common.domain.content.SpeciesResolver
+import fi.riista.common.domain.groupHunting.model.GroupHuntingPerson
+import fi.riista.common.domain.harvest.HarvestContext
 import fi.riista.common.domain.harvest.model.CommonHarvest
 import fi.riista.common.domain.harvest.model.CommonHarvestData
+import fi.riista.common.domain.harvest.model.CommonHarvestId
 import fi.riista.common.domain.harvest.model.toCommonHarvestData
 import fi.riista.common.domain.harvest.ui.CommonHarvestField
 import fi.riista.common.domain.harvest.ui.fields.CommonHarvestFields
-import fi.riista.common.domain.permit.PermitProvider
+import fi.riista.common.domain.permit.harvestPermit.HarvestPermitProvider
 import fi.riista.common.domain.season.HarvestSeasons
 import fi.riista.common.logging.getLogger
+import fi.riista.common.preferences.Preferences
+import fi.riista.common.resources.LanguageProvider
 import fi.riista.common.resources.StringProvider
 import fi.riista.common.ui.controller.ControllerWithLoadableModel
 import fi.riista.common.ui.controller.ViewModelLoadStatus
@@ -22,40 +26,63 @@ import kotlinx.coroutines.flow.flow
  * A controller for viewing [CommonHarvest] information
  */
 class ViewHarvestController internal constructor(
+    private val harvestId: CommonHarvestId,
+    private val harvestContext: HarvestContext,
     private val commonHarvestFields: CommonHarvestFields,
-    permitProvider: PermitProvider,
+    harvestPermitProvider: HarvestPermitProvider,
     stringProvider: StringProvider,
+    languageProvider: LanguageProvider,
 ) : ControllerWithLoadableModel<ViewHarvestViewModel>() {
 
     // main constructor to be used from outside
     constructor(
+        harvestId: CommonHarvestId,
+        harvestContext: HarvestContext,
         harvestSeasons: HarvestSeasons,
         speciesResolver: SpeciesResolver,
-        permitProvider: PermitProvider,
+        harvestPermitProvider: HarvestPermitProvider,
+        preferences: Preferences,
         stringProvider: StringProvider,
+        languageProvider: LanguageProvider,
     ): this(
+        harvestId = harvestId,
+        harvestContext = harvestContext,
         commonHarvestFields = CommonHarvestFields(
             harvestSeasons = harvestSeasons,
             speciesResolver = speciesResolver,
+            preferences = preferences,
         ),
-        permitProvider = permitProvider,
+        harvestPermitProvider = harvestPermitProvider,
         stringProvider = stringProvider,
+        languageProvider = languageProvider,
     )
 
-    private val dataFieldProducer = ViewHarvestFieldProducer(permitProvider, stringProvider)
+    private val dataFieldProducer = ViewHarvestFieldProducer(harvestPermitProvider, stringProvider, languageProvider)
 
-    var harvest: CommonHarvest? = null
+    suspend fun deleteHarvest(updateToBackend: Boolean): Boolean {
+        val harvestId = getLoadedViewModelOrNull()?.harvest?.localId ?: kotlin.run {
+            logger.w { "No harvest found, cannot delete" }
+            return false
+        }
 
-    init {
-        // should be accessed from UI thread only
-        ensureNeverFrozen()
+        val deletedHarvest = harvestContext.deleteHarvest(harvestId)
+        return if (deletedHarvest != null) {
+            if (updateToBackend) {
+                harvestContext.deleteHarvestInBackend(deletedHarvest)
+            }
+            true
+        } else {
+            false
+        }
     }
 
     override fun createLoadViewModelFlow(refresh: Boolean):
             Flow<ViewModelLoadStatus<ViewHarvestViewModel>> = flow {
         emit(ViewModelLoadStatus.Loading)
 
-        val harvestData = harvest?.toCommonHarvestData()
+        harvestContext.harvestProvider.fetch(refresh = refresh)
+
+        val harvestData = harvestContext.harvestProvider.getByLocalId(harvestId)?.toCommonHarvestData()
         if (harvestData != null) {
             emit(ViewModelLoadStatus.Loaded(
                 viewModel = createViewModel(
@@ -82,6 +109,7 @@ class ViewHarvestController internal constructor(
         val fieldsToBeDisplayed = commonHarvestFields.getFieldsToBeDisplayed(
             harvest = harvest,
             mode = CommonHarvestFields.Context.Mode.VIEW,
+            ownHarvest = harvest.actorInfo == GroupHuntingPerson.Unknown
         )
 
         return fieldsToBeDisplayed.mapNotNull { fieldSpecification ->

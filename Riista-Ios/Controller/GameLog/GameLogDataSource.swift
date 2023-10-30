@@ -2,7 +2,7 @@ import Foundation
 import RiistaCommon
 
 protocol GameLogDataSourceListener: EntityDataSourceListener {
-    func onHarvestClicked(harvest: DiaryEntry)
+    func onHarvestClicked(harvest: CommonHarvest)
     func onObservationClicked(observation: CommonObservation)
     func onSrvaClicked(srva: CommonSrvaEvent)
 }

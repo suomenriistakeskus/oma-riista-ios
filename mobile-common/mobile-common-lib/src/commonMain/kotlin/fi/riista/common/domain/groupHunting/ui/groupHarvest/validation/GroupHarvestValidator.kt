@@ -1,9 +1,11 @@
 package fi.riista.common.domain.groupHunting.ui.groupHarvest.validation
 
+import fi.riista.common.domain.content.SpeciesResolver
 import fi.riista.common.domain.groupHunting.model.GroupHuntingDay
 import fi.riista.common.domain.groupHunting.model.HuntingGroupPermit
 import fi.riista.common.domain.groupHunting.model.isWithinPermit
 import fi.riista.common.domain.harvest.model.CommonHarvestData
+import fi.riista.common.domain.harvest.model.HarvestReportingType
 import fi.riista.common.domain.harvest.ui.CommonHarvestField
 import fi.riista.common.domain.harvest.validation.CommonHarvestValidator
 import fi.riista.common.ui.dataField.FieldSpecification
@@ -11,18 +13,22 @@ import fi.riista.common.util.LocalDateTimeProvider
 import fi.riista.common.util.containsAny
 
 
-object GroupHarvestValidator {
+class GroupHarvestValidator(
+    localDateTimeProvider: LocalDateTimeProvider,
+    speciesResolver: SpeciesResolver,
+) {
+    private val commonHarvestValidator = CommonHarvestValidator(localDateTimeProvider, speciesResolver)
+
     internal fun validate(
         harvest: CommonHarvestData,
         huntingDays: List<GroupHuntingDay>,
         huntingGroupPermit: HuntingGroupPermit,
-        localDateTimeProvider: LocalDateTimeProvider,
         displayedFields: List<FieldSpecification<CommonHarvestField>>,
     ): List<CommonHarvestValidator.Error> {
-        val commonErrors = CommonHarvestValidator.validate(
+        val commonErrors = commonHarvestValidator.validate(
             harvest = harvest,
             permit = null, // no common permit, handle separately
-            localDateTimeProvider = localDateTimeProvider,
+            harvestReportingType = HarvestReportingType.SEASON,
             displayedFields = displayedFields
         )
 

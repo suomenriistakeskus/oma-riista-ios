@@ -20,6 +20,7 @@
 "MenuEventSearch" = "Tapahtumahaku";
 "MenuReadMagazine" = "Lue viimeisin Metsästäjä-lehti";
 "MenuOpenSeasons" = "Metsästysajat";
+"MenuAbout" = "Tietoja";
 "MenuMore" = "Lisää";
 
 "LoginTabTitle" = "Kirjaudu";
@@ -72,7 +73,9 @@
 "MyDetailsTitleShootingTests" = "Ampumakoesuoritukset";
 "MyDetailsNoShootingTestAttempts" = "Ei voimassaolevia sähköisesti kirjattuja ampumakoesuorituksia";
 "MyDetailsTitleHuntingLicense" = "Metsästyskortti";
-"MyDetailsInsurancePolicyText" = "Tässä kortissa mainitulla metsästäjällä on metsästäjävakuutus, joka on voimassa kaikissa Pohjoismaissa, Sveitsissä ja EU-maissa.";
+"MyDetailsInsurancePolicyText" = "Tässä kortissa mainitulla metsästäjällä on metsästäjävakuutus, joka on voimassa Pohjoismaissa, EU-maissa, Sveitsissä ja Iso-Britanniassa enintään 60 vuorokautta kestävillä metsästysmatkoilla.";
+"MyDetailsInsuranceInstructionsLinkTitle" = "Vakuutuksen ohjeet";
+"MyDetailsInsuranceInstructionsLinkUrl" = "https://riista.fi/metsastys/palvelut-metsastajalle/vakuutukset/metsastajavakuutus/";
 "MyDetailsPayment" = "Riistan\U00ADhoito\U00ADmaksu";
 "MyDetailsExamDate" = "Tutkinnon suorituspäivä";
 "MyDetailsMembership" = "RHY jäsenyys";
@@ -82,13 +85,6 @@
 "MyDetailsHuntingBan" = "Metsästyskielto";
 "MyDetailsAssignmentsTitle" = "Tehtävät";
 "MyDetailsClubMembershipsTitle" = "Seurajäsenyydet";
-"MyDetailsMhPermitsTitle" = "Metsähallituksen luvat";
-"MyDetailsMhPermitTitle" = "Lupa";
-"MyDetailsMhCardTitle" = "Metsähallitus";
-"MyDetailsMhPermitArea" = "Alue";
-"MyDetailsMhPermitName" = "Lupatyyppi";
-"MyDetailsMhPermitPeriod" = "Aika";
-"MyDetailsMhPermitHarvestFeedback" = "Lähetä saalispalaute";
 "MyDetailsTrainingsTitle" = "Koulutusmerkinnät";
 "MyDetailsNoTrainings" = "Ei koulutuksia";
 "MyDetailsTrainingDate" = "Suorituspäivä";
@@ -101,9 +97,18 @@
 "JhtTrainingOccupationTypeRhynEdustajaRiistavahinkojenMaastokatselmuksessa" = "RHY:n edustaja riistavahinkojen maastokatselmuksessa";
 "OccupationTrainingOccupationTypePetoyhdyshenkilo" = "Petoyhdyshenkilö";
 "AlertTitle" = "Huomio";
-"MyDetailsMhFeedbackAlertMessage" = "Olet siirtymässä Oma riista -palvelusta Metsähallituksen saalispalautejärjestelmään.\n\nMikäli saalispalautteen antamisessa ilmenee ongelmia tai haluat lisätietoa asiasta, ota yhteys Metsähallituksen Erälupien asiakaspalveluun, p. 020 69 2424 (arkisin klo 9-16) tai sähköpostilla osoitteeseen eraluvat@metsa.fi.";
 "Duration" = "Voimassaoloaika";
 "DurationIndefinite" = "Toistaiseksi";
+
+"MetsahallitusPermitsTitle" = "Metsähallituksen luvat";
+"MetsahallitusPermitsNoPermits" = "Ei lupia";
+"MetsahallitusPermitTitle" = "Lupa";
+"MetsahallitusPermitCardTitle" = "Metsähallitus";
+"MetsahallitusPermitArea" = "Alue";
+"MetsahallitusPermitName" = "Lupatyyppi";
+"MetsahallitusPermitPeriod" = "Aika";
+"MetsahallitusPermitHarvestFeedback" = "Lähetä saalispalaute";
+"MetsahallitusPermitFeedbackAlertMessage" = "Olet siirtymässä Oma riista -palvelusta Metsähallituksen saalispalautejärjestelmään.\n\nMikäli saalispalautteen antamisessa ilmenee ongelmia tai haluat lisätietoa asiasta, ota yhteys Metsähallituksen Erälupien asiakaspalveluun, p. 020 69 2424 (arkisin klo 9-16) tai sähköpostilla osoitteeseen eraluvat@metsa.fi.";
 
 "HuntingClubMembershipInvitations" = "Seurakutsut";
 "HuntingClubMembershipAcceptInvitation" = "Hyväksy kutsu";
@@ -132,6 +137,7 @@
 "MapSettingStateLands" = "Valtionmaat";
 "MapSettingRhyBorders" = "RHY-rajat";
 "MapSettingGameTriangles" = "Riistakolmiot";
+"MapSettingLeadShotBan" = "Lyijyhaulikieltoalueet";
 "MapSettingOfflineMaps" = "Offline-kartat";
 "MapSettingLabelBackgroundMaps" = "Taustakartta";
 "MapSettingLabelMapLayers" = "Karttatasot";
@@ -280,6 +286,7 @@
 "ObservationDetailsMooseCalfWithinDeerHunting" = "Yksinäinen vasa";
 "ObservationDetailsMooseUnknownWithinDeerHunting" = "Tuntemattomia";
 "ObservationDetailsDescription" = "Muistiinpano";
+"ErrorObservationSpecimenAmountAtLeastTwo" = "Yksilöitä täyty olla vähintään kaksi";
 
 "ObservationDetailsCategory" = "Havainnon asiayhteys";
 "ObservationCategoryNormal" = "Tavallinen";
@@ -350,12 +357,12 @@
 "PhoneShort" = "Puh.";
 "ContactLicenseIssuesTitle" = "Metsästyskorttiasiat";
 
-"DeleteUserAccount" = "Poista käyttäjätunnus";
-"DeleteUserAccountMessage" = "Haluan poistaa vapaaehtoiset riistatietoni, käyttäjätilini sekä henkilötietoni Oma\U00A0riista\U00A0-palvelusta.\n\nYmmärrän, että tietojani ei voida palauttaa poistamisen\U00A0jälkeen.";
-"DeleteUserAccountQuestion" = "Oletko varma, että haluat poistaa käyttäjätunnuksesi?";
+"DeleteUserAccount" = "Poista käyttäjätili";
+"DeleteUserAccountMessage" = "Haluan poistaa vapaaehtoiset riistatietoni, käyttäjätilini sekä henkilötietoni Oma\U00A0riista\U00A0-palvelusta. Ymmärrän, että tietojani ei voida palauttaa poistamisen\U00A0jälkeen.\n\nOma riista -tilin poistaminen ei poista tietojanne metsästäjärekisteristä. Teidän tulee olla kirjallisesti yhteydessä metsästäjärekisteriin, mikäli haluatte tietonne poistettavan myös metsästäjärekisteristä. Tietojen poistaminen metsästäjärekisteristä tarkoittaa metsästysharrastuksen\U00A0päättämistä.";
+"DeleteUserAccountQuestion" = "Oma riista -tilin käyttäjätunnuksen/sähköpostiosoitteen vaihtaminen ei edellytä käyttäjätilin poistamista vaan se onnistuu uudelleenrekisteröitymällä palveluun. Tällöin myös kaikki palveluun syöttämäsi tiedot säilyvät entisellään.\n\nOletko varma, että haluat poistaa käyttäjätilisi?";
 "DeleteUserAccountRequestSentTitleShort" = "Pyyntö lähetetty";
 "DeleteUserAccountRequestSentTitle" = "Käyttäjätilin poistopyyntö on lähetetty";
-"DeleteUserAccountRequestSentMessageAtTime" = "Käyttäjätilin poistopyynnöstä on lähetetty automaattinen sähköpostiviesti Oma riista -palvelun ylläpitoon %@ sekä kopio viestistä on välitetty myös omissa tiedoissasi määriteltyyn sähköpostiosoitteeseen. Tyypillisesti käyttäjätili poistetaan ylläpidon toimesta kahden viikon\U00A0kuluessa.\n\nOle hyvä ja ota yhteyttä asiakaspalveluun oma@riista.fi, mikäli pyysit käyttäjätilin poistoa\U00A0erheellisesti.";
+"DeleteUserAccountRequestSentMessageAtTime" = "Käyttäjätilin poistopyynnöstä on lähetetty automaattinen sähköpostiviesti Oma riista -palvelun ylläpitoon %@ sekä kopio viestistä on välitetty myös omissa tiedoissasi määriteltyyn sähköpostiosoitteeseen. Tyypillisesti käyttäjätili poistetaan ylläpidon toimesta kahden viikon\U00A0kuluessa.\n\nOle hyvä ja ota yhteyttä asiakaspalveluun oma@riista.fi, mikäli pyysit käyttäjätilin poistoa\U00A0erheellisesti.\n\nOma riista -tilin poistaminen ei poista tietojanne metsästäjärekisteristä. Teidän tulee olla kirjallisesti yhteydessä metsästäjärekisteriin, mikäli haluatte tietonne poistettavan myös metsästäjärekisteristä. Tietojen poistaminen metsästäjärekisteristä tarkoittaa metsästysharrastuksen\U00A0päättämistä.";
 "DeleteUserAccountContinueUsing" = "Jatka palvelun käyttöä";
 
 "Synchronization" = "Synkronointi";
@@ -363,6 +370,7 @@
 "Automatic" = "Automaattinen";
 "Version" = "Versio %@";
 "Language" = "Kieli";
+"MapSettings" = "Kartan asetukset";
 
 "MapTypeSelect" = "Karttatyyppi";
 "MapTypeTopographic" = "Maasto";
@@ -429,6 +437,7 @@
 "UpdateAvailableTitle" = "Päivitys saatavilla";
 "UpdateAvailableMessage" = "Lataa uusi Oma riista versio App Storesta.";
 "UpdateAction" = "Päivitä";
+"UpdateAllAction" = "Päivitä kaikki";
 
 "ButtonClearTitle" = "Tyhjennä";
 "NetworkOperationFailed" = "Toiminto epäonnistui";
@@ -571,7 +580,7 @@
 
 "GroupMemberSelectionSelectHunter" = "Valitse ampuja";
 "GroupMemberSelectionSelectObserver" = "Valitse havaitsija";
-"GroupMemberSelectionSearchByName" = "Hae nimellä";
+"GroupMemberSelectionSearchByName" = "Suodata listaa nimellä";
 "GroupMemberSelectionNameHint" = "Nimi";
 
 "GroupHuntingContinueToApprove" = "Siirry hyväksymään";
@@ -640,6 +649,28 @@
 "HarvestAdditionalInformationInstructions" = "Lisätiedot, esim. sikiöt, loiset, sairaudet, petojen raatelujäljet, hirvikärpäset, kolarivammat, värimuunnokset, kiimatiedot";
 "HarvestAdditionalInformationInstructionsWhiteTailedDeer" = "Lisätiedot, esim. sikiöt, loiset, sairaudet, petojen raatelujäljet, hirvikärpäset, kolarivammat, värimuunnokset, kiimatiedot, menetelmäpoikkeus 4 tai 5, lumen syvyys cm";
 
+"HarvestLabelOwnHarvest" = "Oma saalis";
+"HarvestLabelHuntingClub" = "Seura";
+"HarvestLabelHuntingClubOfficialCode" = "Seuran asiakasnumero";
+
+"HuntingClubSelectionSelectClub" = "Valitse seura";
+"HuntingClubSelectionSearchByName" = "Hae nimellä tai asiakasnumerolla";
+"HuntingClubSelectionSearchByNameHint" = "Nimi tai asiakasnumero";
+"HuntingClubSelectionNoClubSelection" = "Ei valintaa";
+"HuntingClubSelectionOtherClub" = "Muu";
+
+"HuntingClubSearchEnterClubOfficialCode" = "Anna 7-numeroinen seuran asiakasnumero";
+"HuntingClubSearchInvalidOfficialCode" = "Seuran asiakasnumero on virheellinen";
+"HuntingClubSearchSearchingByOfficialCode" = "Haetaan seuran tietoja..";
+"HuntingClubSearchSearchFailed" = "Asiakasnumerolla ei löydetty seuraa.";
+
+"HarvestSettings" = "Saaliin kirjauksen asetukset";
+"HarvestSettingsAddHarvestForOtherHunter" = "Saaliin kirjaus toiselle";
+"HarvestSettingsAddHarvestForOtherHunterExplanation" = "\U25CF Kirjaa saaliita toisille metsästäjille";
+"HarvestSettingsEnableClubSelection" = "Saaliin kirjaus seuralle";
+"HarvestSettingsEnableClubSelectionExplanation" = "\U25CF Valitse seura, jolle saalis kirjataan";
+"FilterShowingEntriesForOthers" = "Näytetään toisille kirjatut merkinnät";
+
 "FitnessClassExcellent" = "Erinomainen";
 "FitnessClassNormal" = "Normaali";
 "FitnessClassThin" = "Laiha";
@@ -662,6 +693,8 @@
 "GroupHuntingObservationFieldAuthor" = "Ilmoittaja";
 
 "ObservationTypeNako" = "Näkö";
+"ObservationTypePoikue" = "Poikue";
+"ObservationTypePari" = "Pari";
 "ObservationTypeJalki" = "Jälki";
 "ObservationTypeUloste" = "Uloste";
 "ObservationTypeAani" = "Ääni";
@@ -684,7 +717,7 @@
 "ObservationTypeLuolasto" = "Luolasto";
 "ObservationTypePesimaluoto" = "Pesimäluoto";
 "ObservationTypeLepailyluoto" = "Lepäilyluoto";
-"ObservationTypePesimasuo" = "Pesimäsuo";
+"ObservationTypePesimasuo" = "Sulkimispaikka";
 "ObservationTypeMuutonAikainenLepailyalue" = "Muuton aikainen lepäilyalue";
 "ObservationTypeRiistankulkupaikka" = "Riistankulkupaikka";
 "ObservationTypePoikueymparisto" = "Poikueympäristö";
@@ -699,6 +732,12 @@
 "ObservationTypeRuokailupajukkoTaiKoivikko" = "Ruokailupajukko tai -koivikko";
 "ObservationTypeMuu" = "Muu";
 
+"SunriseAndSunsetTitle" = "Auringon nousu- ja laskuajat";
+"SunDaySelectionLabel" = "Päivämäärä";
+"SunSunriseLabel" = "Auringonnousu";
+"SunSunsetLabel" = "Auringonlasku";
+"SunInstructions" = "Valitse sijainti nähdäksesi auringon\nnousu- ja laskuajat.";
+"SunDisclaimer" = "Auringon nousu- ja laskuajat on saatu laske\U00ADmalla kartta\U00ADosoittimen sijainnin perus\U00ADteella. Auringon nousu on se kellon\U00ADlyömä, jolloin auringon ylä\U00ADreuna tulee esille horisontin takaa. Vastaa\U00ADvasti laskuaika on silloin, kun ylä\U00ADreuna häviää paikka\U00ADkunnan hori\U00ADsontin taakse. Auringon nousu- ja lasku\U00ADajat vaihtelevat eri paikka\U00ADkunnilla riippuen paikan sijainnista leveys- ja pituus\U00ADpiireillä ja riippuen vuoden\U00ADajasta. Suomen viralliset auringon nousu- ja lasku\U00ADajat määritetään Helsingin yliopiston julkaisemassa almanakassa.";
 
 /* Hunting control */
 
@@ -729,11 +768,11 @@
 "HuntingControlChooseInspectors" = "Valitse valvojat";
 "HuntingControlChooseCooperation" = "Valitse yhteistyö";
 
-"HuntingControlInspectorSelectionSearchByName" = "Hae nimellä";
-"HuntingControlInspectorSelectionNameHint" = "Nimi";
+"HuntingControlErrorNoInspectorsForSelectedDate" = "Valitulle päivämäärälle ei ole valvojia";
+"HuntingControlErrorNoSelfAsInspector" = "Et voi poistaa itseäsi valvojista";
 
 "HuntingControlAttachments" = "Liitteet";
-"HuntingControlInspectorSelectionSearchByName" = "Hae nimellä";
+"HuntingControlInspectorSelectionSearchByName" = "Suodata listaa nimellä";
 "HuntingControlInspectorSelectionNameHint" = "Nimi";
 "HuntingControlErrorNoInspectorsForSelectedDate" = "Valitulle päivämäärälle ei ole valvojia";
 "HuntingControlEventSaveFailedGeneric" = "Valvontatapahtuman tallentaminen epäonnistui";

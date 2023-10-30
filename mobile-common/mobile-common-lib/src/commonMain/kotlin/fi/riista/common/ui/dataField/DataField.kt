@@ -16,7 +16,6 @@ import fi.riista.common.model.LocalTime
 import fi.riista.common.model.StringId
 import fi.riista.common.model.StringWithId
 import fi.riista.common.resources.RR
-import fi.riista.common.ui.dataField.LabelField.LabelFieldSettings.IndicatorColor
 import io.matthewnelson.component.base64.decodeBase64ToArray
 import kotlinx.serialization.Serializable
 
@@ -167,16 +166,16 @@ data class LabelField<DataId : DataFieldId>(
         VERIFIED,
     }
 
+    enum class TextAlignment {
+        LEFT,
+        CENTER,
+        JUSTIFIED,
+    }
+
     interface LabelFieldSettings : Settings {
         val allCaps: Boolean
         val captionIcon: Icon?
-
-        enum class IndicatorColor {
-            GREEN,
-            YELLOW,
-            RED,
-            INVISIBLE
-        }
+        val textAlignment: TextAlignment // applicable for info
 
         val indicatorColor: IndicatorColor
         val highlightBackground: Boolean
@@ -185,6 +184,8 @@ data class LabelField<DataId : DataFieldId>(
     internal data class DefaultLabelFieldSettings(
         override var allCaps: Boolean = false,
         override var captionIcon: Icon? = null,
+        override var textAlignment: TextAlignment = TextAlignment.LEFT,
+
         override var indicatorColor: IndicatorColor = IndicatorColor.INVISIBLE,
         override var highlightBackground: Boolean = false,
         override var paddingTop: Padding = Padding.MEDIUM,
@@ -201,6 +202,7 @@ data class LabelField<DataId : DataFieldId>(
             type = type,
             settings = DefaultLabelFieldSettings().configuredBy(configureSettings)
     )
+
 }
 
 data class AttachmentField<DataId : DataFieldId>(
@@ -311,16 +313,19 @@ data class BooleanField<DataId : DataFieldId>(
 
     enum class Appearance {
         YES_NO_BUTTONS,
-        CHECKBOX
+        CHECKBOX,
+        SWITCH,
     }
 
     interface BooleanFieldSettings : EditableSettings {
         val label: String?
+        val text: String? // Currently only supported when appearance == SWITCH
         val appearance: Appearance
     }
 
     internal data class DefaultBooleanFieldSettings(
         override var label: String? = null,
+        override var text: String? = null,
         override var appearance: Appearance = Appearance.YES_NO_BUTTONS,
         override var readOnly: Boolean = true,
         override var paddingTop: Padding = Padding.MEDIUM,

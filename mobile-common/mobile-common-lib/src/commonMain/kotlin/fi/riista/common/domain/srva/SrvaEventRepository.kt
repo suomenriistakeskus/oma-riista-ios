@@ -1,5 +1,6 @@
 package fi.riista.common.domain.srva
 
+import fi.riista.common.database.DatabaseWriteContext
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.database.model.toDbEntityImageString
 import fi.riista.common.database.model.toEntityImages
@@ -11,19 +12,38 @@ import fi.riista.common.domain.srva.model.CommonSrvaEventApprover
 import fi.riista.common.domain.srva.model.CommonSrvaEventAuthor
 import fi.riista.common.domain.srva.model.CommonSrvaMethod
 import fi.riista.common.domain.srva.model.CommonSrvaSpecimen
+import fi.riista.common.domain.srva.model.keepNonEmpty
 import fi.riista.common.logging.getLogger
 import fi.riista.common.model.ETRMSGeoLocation
+import fi.riista.common.model.LocalDate
 import fi.riista.common.model.LocalDateTime
+import fi.riista.common.model.LocalTime
 import fi.riista.common.model.toBackendEnum
+import fi.riista.common.model.toStringISO8601WithTime
 import fi.riista.common.util.deserializeFromJson
 import fi.riista.common.util.serializeToJson
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+
+data class SrvaEventFilter(
+    val year: Int?,
+    val species: List<Species>?,
+    val requireImages: Boolean,
+)
 
 internal class SrvaEventRepository(database: RiistaDatabase) {
     private val srvaEventQueries = database.dbSrvaEventQueries
 
-    fun upsertSrvaEvent(username: String, srvaEvent: CommonSrvaEvent): CommonSrvaEvent {
-        return srvaEventQueries.transactionWithResult {
+    /**
+     * If an event is new it is inserted to the database. If it is existing then it is updated.
+     * If it was inserted then the returned event will contain the assigned localId.
+     * Any local images that are marked as deleted are removed.
+     */
+    suspend fun upsertSrvaEvent(
+        username: String,
+        srvaEvent: CommonSrvaEvent,
+    ): CommonSrvaEvent = withContext(DatabaseWriteContext) {
+        return@withContext srvaEventQueries.transactionWithResult {
             if (srvaEvent.localId != null) {
                 updateSrvaEvent(username = username, srvaEvent = srvaEvent)
             } else {
@@ -75,6 +95,7 @@ internal class SrvaEventRepository(database: RiistaDatabase) {
             approver = updatingEvent.approver,
             species = updatingEvent.species,
             otherSpeciesDescription = updatingEvent.otherSpeciesDescription,
+            totalSpecimenAmount = updatingEvent.totalSpecimenAmount,
             specimens = updatingEvent.specimens,
             eventCategory = updatingEvent.eventCategory,
             deportationOrderNumber = updatingEvent.deportationOrderNumber,
@@ -137,6 +158,7 @@ internal class SrvaEventRepository(database: RiistaDatabase) {
             approver_last_name = srvaEvent.approver?.lastName,
             game_species_code = srvaEvent.species.knownSpeciesCodeOrNull(),
             other_species_description = srvaEvent.otherSpeciesDescription,
+            total_specimen_amount = srvaEvent.totalSpecimenAmount,
             specimens = srvaEvent.specimens.toDbSpecimensString(),
             event_category = srvaEvent.eventCategory.rawBackendEnumValue,
             deportation_order_number = srvaEvent.deportationOrderNumber,
@@ -162,10 +184,7 @@ internal class SrvaEventRepository(database: RiistaDatabase) {
             local_id = localId,
         )
 
-        return srvaEventQueries
-            .selectByLocalId(local_id = localId)
-            .executeAsOne()
-            .toCommonSrvaEvent()
+        return srvaEvent.copy(images = srvaEvent.images.withDeletedImagesRemoved())
     }
 
     private fun insertSrvaEvent(username: String, srvaEvent: CommonSrvaEvent): CommonSrvaEvent {
@@ -189,6 +208,7 @@ internal class SrvaEventRepository(database: RiistaDatabase) {
             approver_last_name = srvaEvent.approver?.lastName,
             game_species_code = srvaEvent.species.knownSpeciesCodeOrNull(),
             other_species_description = srvaEvent.otherSpeciesDescription,
+            total_specimen_amount = srvaEvent.totalSpecimenAmount,
             specimens = srvaEvent.specimens.toDbSpecimensString(),
             event_category = srvaEvent.eventCategory.rawBackendEnumValue,
             deportation_order_number = srvaEvent.deportationOrderNumber,
@@ -214,10 +234,7 @@ internal class SrvaEventRepository(database: RiistaDatabase) {
         )
         val insertedEventId = srvaEventQueries.lastInsertRowId().executeAsOne()
 
-        return srvaEventQueries
-            .selectByLocalId(local_id = insertedEventId)
-            .executeAsOne()
-            .toCommonSrvaEvent()
+        return srvaEvent.copy(localId = insertedEventId, images = srvaEvent.images.withDeletedImagesRemoved())
     }
 
     fun getByLocalId(localId: Long): CommonSrvaEvent {
@@ -227,16 +244,9 @@ internal class SrvaEventRepository(database: RiistaDatabase) {
     }
 
     fun getByRemoteId(username: String, remoteId: Long): CommonSrvaEvent? {
-        return srvaEventQueries.transactionWithResult {
-            if (!srvaEventQueries.eventExists(username = username, remote_id = remoteId).executeAsOne()) {
-                return@transactionWithResult null
-            }
-
-            srvaEventQueries.selectByRemoteId(username = username, remote_id = remoteId)
-                .executeAsOne()
-                .toCommonSrvaEvent()
-        }
-
+        return srvaEventQueries.selectByRemoteId(username = username, remote_id = remoteId)
+            .executeAsOneOrNull()
+            ?.toCommonSrvaEvent()
     }
 
     fun listEvents(username: String): List<CommonSrvaEvent> {
@@ -251,36 +261,44 @@ internal class SrvaEventRepository(database: RiistaDatabase) {
             .map { dbEvent -> dbEvent.toCommonSrvaEvent() }
     }
 
-    fun markDeleted(srvaEventLocalId: Long?): Boolean {
+    suspend fun markDeleted(srvaEventLocalId: Long?): CommonSrvaEvent? {
         return if (srvaEventLocalId != null) {
-            srvaEventQueries.transaction {
-                srvaEventQueries.markDeleted(srvaEventLocalId)
+            withContext(DatabaseWriteContext) {
+                srvaEventQueries.transactionWithResult {
+                    srvaEventQueries.markDeleted(srvaEventLocalId)
+
+                    srvaEventQueries.selectByLocalId(local_id = srvaEventLocalId)
+                        .executeAsOneOrNull()
+                        ?.toCommonSrvaEvent()
+                }
             }
-            true
         } else {
-            false
+            null
         }
     }
 
-    fun hardDelete(srvaEvent: CommonSrvaEvent) {
+    suspend fun hardDelete(srvaEvent: CommonSrvaEvent) {
         if (srvaEvent.localId != null) {
-            srvaEventQueries.hardDelete(srvaEvent.localId)
+            withContext(DatabaseWriteContext) {
+                srvaEventQueries.hardDelete(srvaEvent.localId)
+            }
         }
     }
 
-    fun hardDeleteByRemoteId(username: String, remoteId: Long) {
+    suspend fun hardDeleteByRemoteId(username: String, remoteId: Long) = withContext(DatabaseWriteContext) {
         srvaEventQueries.hardDeleteByRemoteId(username, remoteId)
     }
 
     fun getDeletedEvents(username: String): List<CommonSrvaEvent> {
-        return srvaEventQueries
-            .getDeletedEvents(username = username)
+        return srvaEventQueries.getDeletedEvents(username = username)
             .executeAsList()
             .map { dbEvent -> dbEvent.toCommonSrvaEvent() }
     }
 
-    fun getEventsWithLocalImages(username: String): List<CommonSrvaEvent> {
-        return srvaEventQueries.transactionWithResult {
+    suspend fun getEventsWithLocalImages(
+        username: String,
+    ): List<CommonSrvaEvent> = withContext(DatabaseWriteContext) {
+        return@withContext srvaEventQueries.transactionWithResult {
             // Get first local_ids and then get corresponding events, as it is not possible to get a list of DbSrvaEvent
             // when query contains "local_images IS NOT NULL", because SqlDelight is too clever in that case.
             val localIds = srvaEventQueries
@@ -313,6 +331,25 @@ internal class SrvaEventRepository(database: RiistaDatabase) {
         return event.images.remoteImageIds.serializeToJson()
     }
 
+    fun filter(username: String, filter: SrvaEventFilter): List<CommonSrvaEvent> {
+        val startDate = filter.year?.toYearStart()
+        val endDate = filter.year?.toYearEnd()
+        val filterSpeciesAndOtherSpecies = (filter.species?.contains(Species.Other) ?: false && (filter.species?.size ?: 0) > 1)
+        val filterOtherSpecies = !filterSpeciesAndOtherSpecies && (filter.species?.contains(Species.Other) ?: false)
+        val filterSpecies = !filterSpeciesAndOtherSpecies && (!filter.species?.filter { it != Species.Other }.isNullOrEmpty())
+        val species = filter.species?.mapNotNull { it.knownSpeciesCodeOrNull() } ?: emptyList()
+        return srvaEventQueries.filter(
+            username = username,
+            startDateTime = startDate?.toStringISO8601WithTime(LocalTime.minLocalTime),
+            endDateTime = endDate?.toStringISO8601WithTime(LocalTime.maxLocalTime),
+            filterSpecies = filterSpecies,
+            filterOtherSpecies = filterOtherSpecies,
+            filterSpeciesAndOtherSpecies = filterSpeciesAndOtherSpecies,
+            species = species,
+            requireImages = filter.requireImages,
+        ).executeAsList().map { it.toCommonSrvaEvent() }
+    }
+
     companion object {
         private val logger by getLogger(SrvaEventRepository::class)
     }
@@ -334,10 +371,10 @@ private fun CommonSrvaSpecimen.toDbSpecimen() = DbSpecimen(
     age = age.rawBackendEnumValue,
 )
 
-private fun List<CommonSrvaSpecimen>.toDbSpecimensString(): String? {
-    return this.map { it.toDbSpecimen() }
+private fun List<CommonSrvaSpecimen>.toDbSpecimensString() =
+    this.keepNonEmpty()
+        .map { it.toDbSpecimen() }
         .serializeToJson()
-}
 
 private fun String.toCommonSpecimens(): List<CommonSrvaSpecimen>? {
     return this.deserializeFromJson<List<DbSpecimen>>()?.map { it.toCommonSrvaSpecimen() }
@@ -369,6 +406,8 @@ private fun String.toCommonSrvaMethods(): List<CommonSrvaMethod>? {
 }
 
 internal fun DbSrvaEvent.toCommonSrvaEvent(): CommonSrvaEvent {
+    val specimensOrEmptyList = specimens?.toCommonSpecimens() ?: listOf()
+
     return CommonSrvaEvent(
         localId = local_id,
         localUrl = null,
@@ -397,7 +436,11 @@ internal fun DbSrvaEvent.toCommonSrvaEvent(): CommonSrvaEvent {
             else -> Species.Known(speciesCode = game_species_code)
         },
         otherSpeciesDescription = other_species_description,
-        specimens = specimens?.toCommonSpecimens() ?: listOf(),
+        // in first database versions there was no column for total_specimen_amount. It is therefore
+        // likely that there are events without amount information. In that case all specimens were
+        // saved and thus we can here fallback to the size of the specimens list
+        totalSpecimenAmount = total_specimen_amount ?: specimensOrEmptyList.size,
+        specimens = specimensOrEmptyList,
         eventCategory = event_category.toBackendEnum(),
         deportationOrderNumber = deportation_order_number,
         eventType = event_type.toBackendEnum(),
@@ -439,3 +482,6 @@ private fun createApprover(firstName: String?, lastName: String?): CommonSrvaEve
     }
     return null
 }
+
+private fun Int.toYearStart() = LocalDate(this, 1, 1)
+private fun Int.toYearEnd() = LocalDate(this, 12, 31)

@@ -18,7 +18,11 @@ class CreateHarvestViewController :
     private lazy var _controller: CreateHarvestController = {
         let controller = CreateHarvestController(
             harvestSeasons: RiistaSDK.shared.harvestSeasons,
-            permitProvider: appPermitProvider,
+            harvestContext: RiistaSDK.shared.harvestContext,
+            harvestPermitProvider: appHarvestPermitProvider,
+            selectableHuntingClubs: RiistaSDK.shared.huntingClubsSelectableForEntriesFactory.create(),
+            languageProvider: CurrentLanguageProvider(),
+            preferences: RiistaSDK.shared.preferences,
             speciesResolver: SpeciesInformationResolver(),
             stringProvider: LocalizedStringProvider()
         )
@@ -65,45 +69,17 @@ class CreateHarvestViewController :
         locationManager.removeListener(self)
     }
 
-    override func onSaveClicked() {
-        guard let harvest = controller.getValidatedHarvest() else {
-            return
-        }
-
-        tableView.showLoading()
-        saveButton.isEnabled = false
-
-        let harvestEntry = harvest.toDiaryEntry(context: moContext)
-        harvestEntry.sent = false
-        harvestEntry.pendingOperation = NSNumber(value: DiaryEntryOperationInsert)
-
-        saveAndSynchronizeEditedHarvest(harvest: harvestEntry) { [weak self] success in
-            guard let self = self else {
-                return
-            }
-
-            self.saveButton.isEnabled = true
-            self.tableView.hideLoading { [weak self] in
-                guard let self = self else {
-                    return
-                }
-
-                if (!success) {
-                    let errorDialog = AlertDialogBuilder.createError(message: "NetworkOperationFailed".localized())
-                    self.present(errorDialog, animated: true)
-                    return
-                }
-
-                NotificationCenter.default.post(Notification(name: .LogEntrySaved))
-                NotificationCenter.default.post(Notification(name: .LogEntryTypeSelected,
-                                                             object: NSNumber(value: RiistaEntryTypeHarvest.rawValue)))
-
-                if let modifyListener: ModifyHarvestCompletionListener = self.navigationController?.findViewController() {
-                    modifyListener.updateUserInterfaceAfterHarvestSaved()
-                } else {
-                    self.navigationController?.popViewController(animated: true)
-                }
-            }
+    override func navigateToNextViewAfterSaving(harvest: CommonHarvest) {
+        if let harvestId = harvest.localId?.int64Value {
+            let viewHarvestViewController = ViewHarvestViewController(harvestId: harvestId)
+            navigationController?.replaceViewController(
+                viewControllerToPop: self,
+                childViewControllers: [viewHarvestViewController],
+                animated: true
+            )
+        } else {
+            // just pop the navigation controller as we're unable to display harvest
+            navigationController?.popViewController(animated: true)
         }
     }
 

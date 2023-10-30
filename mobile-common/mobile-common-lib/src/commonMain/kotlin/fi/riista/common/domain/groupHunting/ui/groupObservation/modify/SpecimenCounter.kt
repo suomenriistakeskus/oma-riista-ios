@@ -6,23 +6,20 @@ import fi.riista.common.domain.model.Gender
 
 internal object SpecimenCounter {
     fun adultMaleAmount(specimens: List<CommonHarvestSpecimen>): Int {
-        return specimens
-            .filter { s -> s.age?.value == GameAge.ADULT }
-            .filter { s -> s.gender?.value == Gender.MALE }
-            .count()
+        return specimens.count { specimen ->
+            specimen.age.value == GameAge.ADULT && specimen.gender.value == Gender.MALE
+        }
     }
 
     fun adultFemaleAmount(specimens: List<CommonHarvestSpecimen>): Int {
-        return specimens
-            .filter { s -> s.age?.value == GameAge.ADULT }
-            .filter { s -> s.gender?.value == Gender.FEMALE }
-            .count()
+        return specimens.count { specimen ->
+            specimen.age.value == GameAge.ADULT && specimen.gender.value == Gender.FEMALE
+        }
     }
 
     fun aloneCalfAmount(specimens: List<CommonHarvestSpecimen>): Int {
-        return specimens
-            .filter { s -> s.age?.value == GameAge.YOUNG }
-            .filter { s -> s.alone == true }
-            .count()
+        return specimens.count { specimen ->
+            specimen.age.value == GameAge.YOUNG && specimen.alone == true
+        }
     }
 }

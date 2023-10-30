@@ -49,11 +49,7 @@ class AuthenticationSendLinkToEmailView: UIStackView, UITextFieldDelegate {
             field.usePadding(8)
 
             field.keyboardType = .emailAddress
-            if #available(iOS 11.0, *) {
-                field.textContentType = .username
-            } else {
-                field.textContentType = .emailAddress
-            }
+            field.textContentType = .username
             field.autocorrectionType = .no
             field.autocapitalizationType = .none
             field.clearButtonMode = .whileEditing

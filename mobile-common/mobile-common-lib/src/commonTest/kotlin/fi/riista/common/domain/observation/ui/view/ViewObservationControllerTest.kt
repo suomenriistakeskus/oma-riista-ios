@@ -50,6 +50,7 @@ import fi.riista.common.ui.dataField.SpeciesField
 import fi.riista.common.ui.dataField.SpecimenField
 import fi.riista.common.ui.dataField.StringField
 import fi.riista.common.util.MockDateTimeProvider
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -268,6 +269,39 @@ class ViewObservationControllerTest {
             fieldId = CommonObservationField.SPECIMENS
         ) { field ->
             assertEquals(Species.Known(OBSERVATION_SPECIES_CODE), field.specimenData.species)
+            assertEquals(1, field.specimenData.specimens.size)
+        }
+    }
+
+    @Test
+    fun testTotalSpecimenAmountDoesNotNeedToMatchActualSpecimenCount() = runBlockingTest {
+        val observation = createObservation().copy(
+            totalSpecimenAmount = 2,
+        )
+
+        assertEquals(2, observation.totalSpecimenAmount, "observation")
+        assertEquals(1, observation.specimens?.size, "observation")
+
+        val controller = getController(
+            observation =  observation,
+            metadata = createMetadata(
+                dynamicObservationFieldRequirement = CommonObservationField.SPECIMEN_AMOUNT to ObservationFieldRequirement.VOLUNTARY,
+            )
+        )
+
+        controller.loadViewModel()
+
+        val viewModel = controller.getLoadedViewModel()
+        assertEquals(2, viewModel.observation.totalSpecimenAmount, "vm observation")
+        assertEquals(1, viewModel.observation.specimens?.size, "vm observation")
+
+        assertFieldExists<SpecimenField<CommonObservationField>>(
+            controller = controller,
+            expectedIndex = 6,
+            fieldId = CommonObservationField.SPECIMENS
+        ) { field ->
+            assertEquals(Species.Known(OBSERVATION_SPECIES_CODE), field.specimenData.species)
+            assertEquals(2, field.specimenData.specimenAmount)
             assertEquals(1, field.specimenData.specimens.size)
         }
     }
@@ -734,7 +768,6 @@ class ViewObservationControllerTest {
 
         val currentUserContextProvider: CurrentUserContextProvider = CurrentUserContextProviderFactory.createMocked(
             preferences = MockPreferences(),
-            localDateTimeProvider = MockDateTimeProvider()
         )
 
         val metadataProvider = MockMetadataProvider(
@@ -757,7 +790,9 @@ class ViewObservationControllerTest {
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
 
         val mockUserContextProvider = CurrentUserContextProviderFactory.createMocked()
-        mockUserContextProvider.userLoggedIn(MOCK_USER_INFO)
+        runBlocking {
+            mockUserContextProvider.userLoggedIn(MOCK_USER_INFO)
+        }
 
         return ObservationContext(
             backendApiProvider = object : BackendApiProvider {
@@ -790,6 +825,7 @@ class ViewObservationControllerTest {
 
         private val MOCK_USER_INFO = UserInfoDTO(
             username = "user",
+            personId = 123L,
             firstName = "user_first",
             lastName = "user_last",
             birthDate = null,
@@ -805,9 +841,6 @@ class ViewObservationControllerTest {
             huntingCardValidNow = true,
             qrCode = null,
             timestamp = "2022-01-01",
-            gameDiaryYears = emptySet(),
-            harvestYears = emptySet(),
-            observationYears = emptySet(),
             shootingTests = emptyList(),
             occupations = emptyList(),
             enableSrva = true,

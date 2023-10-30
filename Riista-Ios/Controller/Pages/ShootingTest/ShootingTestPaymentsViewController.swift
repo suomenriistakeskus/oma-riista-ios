@@ -1,5 +1,8 @@
 import UIKit
+import MaterialComponents.MaterialButtons
 import MaterialComponents.MaterialDialogs
+import RiistaCommon
+
 
 protocol ParticipantPaymentCellDelegate {
     func didPressComplete(_ tag: Int)
@@ -20,8 +23,8 @@ class ParticipantPaymentsCell: UITableViewCell {
     @IBOutlet weak var totalAmountLabel: UILabel!
     @IBOutlet weak var paidAmountLabel: UILabel!
     @IBOutlet weak var remainingAmountLabel: UILabel!
-    @IBOutlet weak var doneButton: UIButton!
-    @IBOutlet weak var editButton: UIButton!
+    @IBOutlet weak var doneButton: MDCButton!
+    @IBOutlet weak var editButton: MDCButton!
 
     var cellDelegate: ParticipantPaymentCellDelegate?
 
@@ -34,11 +37,11 @@ class ParticipantPaymentsCell: UITableViewCell {
     }
 }
 
-class ShootingTestPaymentsViewController: UIViewController, UITableViewDataSource, ParticipantPaymentCellDelegate {
+class ShootingTestPaymentsViewController: BaseViewController, UITableViewDataSource, ParticipantPaymentCellDelegate {
     @IBOutlet weak var sumOfPaymentsLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
 
-    var items = Array<ShootingTestParticipantSummary>()
+    private var participants = [CommonShootingTestParticipant]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,42 +73,25 @@ class ShootingTestPaymentsViewController: UIViewController, UITableViewDataSourc
 
     func refreshData() {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
-        tabBarVc.fetchEvent() { (result:Any?, error:Error?) in
+        tabBarVc.fetchEvent() { [weak self] shootingTestEvent, _ in
+            guard let self = self else { return }
+
             self.navigationItem.rightBarButtonItem?.isEnabled = true
-
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let event = try JSONDecoder().decode(ShootingTestCalendarEvent.self, from: json)
-
-                    self.sumOfPaymentsLabel.text = String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTotalPaidAmount"),
-                                                          ShootingTestUtil.currencyFormatter().string(from: event.totalPaidAmount! as NSDecimalNumber)!)
-                }
-                catch {
-                    print("Failed to parse <ShootingTestCalendarEvent> item")
-                }
-            }
-            else {
-                print("fetchEvent failed: " + (error?.localizedDescription)!)
-            }
+            self.sumOfPaymentsLabel.text = String(format: "ShootingTestTotalPaidAmount".localized(),
+                                                  shootingTestEvent?.formattedTotalPaidAmount ?? "")
         }
-        tabBarVc.fetchParticipants() { (result:Array?, error:Error?) in
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let participants = try JSONDecoder().decode([ShootingTestParticipantSummary].self, from: json)
+        tabBarVc.shootingTestManager.listParticipantsForEvent { participants, error in
+            if let participants = participants {
+                self.participants = participants.sorted(by: { lhs, rhs in
+                    let lhsNoAttempts = lhs.attempts.isEmpty == true && rhs.attempts.isEmpty == false
+                    let lhsNotCompleted = !lhs.completed && rhs.completed
+                    let lhsRegisteredEarlier = (lhs.registrationTime ?? "") < (rhs.registrationTime ?? "")
 
-                    self.items.removeAll()
-                    self.items.insert(contentsOf: participants, at: 0)
-                    self.items.sort(by: <)
-                    self.tableView.reloadData()
-                }
-                catch {
-                    print("Failed to parse <ShootingTestParticipantSummary> item")
-                }
-            }
-            else {
-                print("Failed to fetch participants")
+                    return lhsNoAttempts || lhsNotCompleted || lhsRegisteredEarlier
+                })
+                self.tableView.reloadData()
+            } else {
+                print("listParticipantsForEvent failed: \(error?.localizedDescription ?? String(describing: error))")
             }
         }
     }
@@ -117,7 +103,7 @@ class ShootingTestPaymentsViewController: UIViewController, UITableViewDataSourc
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return participants.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -128,43 +114,61 @@ class ShootingTestPaymentsViewController: UIViewController, UITableViewDataSourc
         cell.cellDelegate = self
         cell.tag = indexPath.row
 
-        let item = items[indexPath.row]
+        let participant = participants[indexPath.row]
 
-        cell.titleLabel.text = String(format: "%@ %@", item.lastName!, item.firstName!)
-        cell.stateView.isHidden = item.completed!
+        if let hunterNumber = participant.hunterNumber {
+            cell.titleLabel.text = "\(participant.formattedFullNameLastFirst), \(hunterNumber)"
+        } else {
+            cell.titleLabel.text = participant.formattedFullNameLastFirst
+        }
+        cell.stateView.isHidden = participant.completed
         cell.stateView.layer.cornerRadius = 3
         cell.stateView.clipsToBounds = true
-        cell.stateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestStateOngoing")
+        cell.stateView.backgroundColor = UIColor.applicationColor(Destructive)
+        cell.stateLabel.text = "ShootingTestStateOngoing".localized()
 
-        cell.totalTitleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentTotal")
-        cell.paidTitleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentPaid")
-        cell.remainingTitleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentRemaining")
-        cell.totalAmountLabel.text = String(format: "%ld €", item.totalDueAmount!)
-        cell.paidAmountLabel.text = String(format: "%ld €", item.paidAmount!)
-        cell.remainingAmountLabel.text = String(format: "%ld €", item.remainingAmount!)
+        cell.totalTitleLabel.text = "ShootingTestPaymentTotal".localized()
+        cell.paidTitleLabel.text = "ShootingTestPaymentPaid".localized()
+        cell.remainingTitleLabel.text = "ShootingTestPaymentRemaining".localized()
+        cell.totalAmountLabel.text = participant.formattedTotalDueAmount
+        cell.paidAmountLabel.text = participant.formattedPaidAmount
+        cell.remainingAmountLabel.text = participant.formattedRemainingAmount
 
-        cell.bearView.refreshAttemptStateView(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeBearShort"),
-                                              attempts: item.attemptSummaryFor(type: ShootingTestAttemptDetailed.ClassConstants.TYPE_BEAR),
-                                              intended: false)
-        cell.mooseView.refreshAttemptStateView(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeMooseShort"),
-                                               attempts: item.attemptSummaryFor(type: ShootingTestAttemptDetailed.ClassConstants.TYPE_MOOSE),
-                                               intended: false)
-        cell.deerView.refreshAttemptStateView(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeRoeDeerShort"),
-                                              attempts: item.attemptSummaryFor(type: ShootingTestAttemptDetailed.ClassConstants.TYPE_ROE_DEER),
-                                              intended: false)
-        cell.bowView.refreshAttemptStateView(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeBowShort"),
-                                             attempts: item.attemptSummaryFor(type: ShootingTestAttemptDetailed.ClassConstants.TYPE_BOW),
-                                             intended: false)
+        cell.bearView.refreshAttemptStateView(
+            title: "ShootingTestTypeBearShort".localized(),
+            attempt: participant.attemptSummaryFor(type: .bear),
+            intended: false
+        )
+        cell.mooseView.refreshAttemptStateView(
+            title: "ShootingTestTypeMooseShort".localized(),
+            attempt: participant.attemptSummaryFor(type: .moose),
+            intended: false
+        )
+        cell.deerView.refreshAttemptStateView(
+            title: "ShootingTestTypeRoeDeerShort".localized(),
+            attempt: participant.attemptSummaryFor(type: .roeDeer),
+            intended: false
+        )
+        cell.bowView.refreshAttemptStateView(
+            title: "ShootingTestTypeBowShort".localized(),
+            attempt: participant.attemptSummaryFor(type: .bow),
+            intended: false
+        )
 
-        cell.stateView.isHidden = item.completed!
-        cell.doneButton.isEnabled = !item.completed!
+        cell.stateView.isHidden = participant.completed
+        cell.doneButton.isEnabled = !participant.completed
+
+        cell.doneButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        cell.doneButton.setImage(checkMarkImageTemplate, for: .normal)
+        if (participant.completed) {
+            cell.doneButton.setImageTintColor(UIColor.applicationColor(GreyDark), for: .disabled)
+        } else {
+            cell.doneButton.setImageTintColor(.white, for: .normal)
+        }
 
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
-        cell.editButton.isEnabled = (tabBarVc.calendarEvent?.isOngoing())!
-
-        item.completed! ? Styles.styleButton(cell.doneButton) : Styles.styleNegativeButton(cell.doneButton)
-
-        Styles.styleNegativeButton(cell.editButton)
+        cell.editButton.isEnabled = tabBarVc.shootingTestEvent?.ongoing ?? false
+        cell.editButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
 
         return cell
     }
@@ -172,29 +176,57 @@ class ShootingTestPaymentsViewController: UIViewController, UITableViewDataSourc
     // MARK - ParticipantPaymentCellDelegate
 
     func didPressComplete(_ tag: Int) {
-        let item = items[tag]
+        guard let participant = participants.getOrNil(index: tag) else {
+            print("no participant for index \(tag), not completing")
+            return
+        }
 
-        let alert = MDCAlertController(title: nil,
-                                       message: String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentCompleteConfirm"), item.lastName!, item.firstName!, item.hunterNumber!))
-        alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "OK"), handler: { action in
-            ShootingTestManager.completeAllPayments(participantId: item.id!, rev: item.rev!) { (result:Any?, error:Error?) in
-                if (error == nil) {
-                    self.refreshData()
-                }
-                else {
-                    print("completeAllPayments failed: " + (error?.localizedDescription)!)
-                }
-            }
-        }))
-        alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "No"), handler: nil))
+        let alert = MDCAlertController(
+            title: nil,
+            message: String(format: "ShootingTestPaymentCompleteConfirm".localized(),
+                            participant.lastName ?? "",
+                            participant.firstName ?? "",
+                            participant.hunterNumber ?? "")
+        )
+        alert.addAction(MDCAlertAction(title: "OK".localized()) { _ in
+            self.completeAllPayments(participant: participant)
+        })
+        alert.addAction(MDCAlertAction(title: "No".localized(), handler: nil))
         self.present(alert, animated: true, completion: nil)
     }
 
+    private func completeAllPayments(participant: CommonShootingTestParticipant) {
+        guard let tabBarVc = self.tabBarController as? ShootingTestTabBarViewController else {
+            print("no tab bar controller (i.e. no shooting test manager), not completing payments")
+            return
+        }
+
+        tabBarVc.shootingTestManager.completeAllPayments(
+            participantId: participant.id,
+            participantRev: participant.rev
+        ) { [weak self] success, error in
+            guard let self = self else { return }
+
+            if (success) {
+                self.refreshData()
+            } else {
+                print("completeAllPayments failed: \(error?.localizedDescription ?? String(describing: error))")
+            }
+        }
+    }
+
     func didPressEdit(_ tag: Int) {
-        let item = items[tag]
+        guard let shootingTestManagaer = (self.tabBarController as? ShootingTestTabBarViewController)?.shootingTestManager,
+              let participant = participants.getOrNil(index: tag) else {
+            print("no shooting test manager / participant, cannot edit payments")
+            return
+        }
 
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "editPaymentViewController") as! ShootingTestEditPaymentViewController
-        vc.participantId = item.id
+        vc.participantId = participant.id
+        vc.shootingTestManager = shootingTestManagaer
         self.navigationController?.pushViewController(vc, animated: true)
     }
 }
+
+fileprivate let checkMarkImageTemplate = UIImage(named: "ic_pass_white.png")?.withRenderingMode(.alwaysTemplate)

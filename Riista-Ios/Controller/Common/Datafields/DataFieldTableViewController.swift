@@ -274,6 +274,7 @@ extension DataFieldTableViewController where FieldId: DataFieldId {
             MultiLineStringFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: stringEventDispatcher),
             YesNoBooleanFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: booleanEventDispatcher),
             CheckboxBooleanFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: booleanEventDispatcher),
+            ToggleSwitchBooleanFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: booleanEventDispatcher),
             IntFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: intEventDispatcher),
             DoubleFieldCell<FieldId>.Factory<FieldId>(eventDispatcher: doubleEventDispatcher),
             LocationFieldCell<FieldId>.Factory<FieldId>(

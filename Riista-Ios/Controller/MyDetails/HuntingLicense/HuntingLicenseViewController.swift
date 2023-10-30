@@ -1,7 +1,7 @@
 import Foundation
 import RiistaCommon
 
-class HuntingLicenseViewController: UIViewController {
+class HuntingLicenseViewController: BaseViewController {
 
     private lazy var contentView: HuntingLicenseContentView = HuntingLicenseContentView()
 
@@ -37,20 +37,31 @@ class HuntingLicenseViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
-        if #available(iOS 11.0, *) {
-            // the layoutMargins we're setting may be less than system minimum layout margins..
-            viewRespectsSystemMinimumLayoutMargins = false
-        }
+        // the layoutMargins we're setting may be less than system minimum layout margins..
+        viewRespectsSystemMinimumLayoutMargins = false
 
         scrollView.addSubview(contentView)
         contentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.snp.makeConstraints { make in
             make.leading.trailing.equalTo(scrollView.layoutMarginsGuide)
             make.top.bottom.equalToSuperview().inset(12)
+        }
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        contentView.insuranceInstructionsButton.onClicked = {
+            self.openInsuranceInstructions()
+        }
+    }
+
+    private func openInsuranceInstructions() {
+        if let url = URL(string: "MyDetailsInsuranceInstructionsLinkUrl".localized()) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
 }

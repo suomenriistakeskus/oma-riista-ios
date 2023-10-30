@@ -3,7 +3,7 @@ import MaterialComponents
 import RiistaCommon
 
 
-@objc class DeleteUserAccountViewController: UIViewController {
+@objc class DeleteUserAccountViewController: BaseViewController {
 
     private var loadIndicatorViewController: LoadIndicatorViewController?
 
@@ -30,8 +30,8 @@ import RiistaCommon
         view.addSubview(warningView)
         warningView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 
@@ -55,15 +55,17 @@ import RiistaCommon
     private func requestAccountDeletion() {
         loadIndicatorViewController = LoadIndicatorViewController().showIn(parentViewController: self)
 
-        RiistaSDK.shared.unregisterAccount { [self] unregisterRequestedDateTime, _ in
-            self.loadIndicatorViewController?.hide()
+        RiistaSDK.shared.unregisterAccount(
+            completionHandler: handleOnMainThread { [self] unregisterRequestedDateTime, _ in
+                self.loadIndicatorViewController?.hide()
 
-            if let unregisterRequestedDateTime = unregisterRequestedDateTime?.toFoundationDate() {
-                self.onAccountDeletionRequested(requestDateTime: unregisterRequestedDateTime)
-            } else {
-                self.onAccountDeleteRequestFailed()
+                if let unregisterRequestedDateTime = unregisterRequestedDateTime?.toFoundationDate() {
+                    self.onAccountDeletionRequested(requestDateTime: unregisterRequestedDateTime)
+                } else {
+                    self.onAccountDeleteRequestFailed()
+                }
             }
-        }
+        )
     }
 
     private func onAccountDeletionRequested(requestDateTime: Foundation.Date) {

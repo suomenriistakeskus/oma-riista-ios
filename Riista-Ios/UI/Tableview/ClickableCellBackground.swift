@@ -1,6 +1,6 @@
 import Foundation
 
-class ClickableCellBackground: UIButton {
+class ClickableCellBackground: ButtonWithRoundedCorners {
 
     /**
      * What to do when clicked?

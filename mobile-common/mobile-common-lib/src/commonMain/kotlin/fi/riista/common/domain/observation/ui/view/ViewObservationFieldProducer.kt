@@ -33,7 +33,7 @@ internal class ViewObservationFieldProducer(
     fun createField(
         fieldSpecification: FieldSpecification<CommonObservationField>,
         observation: CommonObservationData,
-    ) : DataField<CommonObservationField> {
+    ) : DataField<CommonObservationField>? {
         return when (fieldSpecification.fieldId) {
             CommonObservationField.LOCATION ->
                 LocationField(fieldSpecification.fieldId, observation.location) {
@@ -247,7 +247,7 @@ internal class ViewObservationFieldProducer(
                         fieldSpecification = fieldSpecification,
                         label = RR.string.observation_label_description
                     )
-
+            CommonObservationField.ERROR_SPECIMEN_AMOUNT_AT_LEAST_TWO -> null
         }
     }
 

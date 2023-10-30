@@ -102,8 +102,8 @@ class ChipFieldCell<FieldId : DataFieldId>:
         // simulator and thus perform the re-layout again after a while. Yes, it's a hackish
         // approach but should alleviate some UI glitches
         relayoutAfterBinding()
-        Async.main {
-            self.relayoutAfterBinding()
+        Async.main(after: 0.3) { [weak self] in
+            self?.relayoutAfterBinding()
         }
     }
 
@@ -122,7 +122,10 @@ class ChipFieldCell<FieldId : DataFieldId>:
         chipCollectionView.layoutIfNeeded()
 
         // ask tableview to re-layout this cell. Otherwise cell will have incorrect height occasionally
-        setCellNeedsLayout(animateChanges: false)
+        // - animations should only occur if cell has already been visible beforehand
+        //   i.e. the content was updated
+        // - without animations the updates are NOT applied
+        setCellNeedsLayout(animateChanges: bindingState == .updated)
     }
 
     override func layoutSubviews() {
@@ -132,7 +135,10 @@ class ChipFieldCell<FieldId : DataFieldId>:
         if (abs(cachedCollectionViewContentHeight - contentHeight) > 0.1) {
             chipCollectionViewHeightConstraint?.update(offset: contentHeight)
             cachedCollectionViewContentHeight = contentHeight
-            setCellNeedsLayout(animateChanges: false)
+
+            // apply animations when content has been updated. Without animations the height is not updated
+            // (don't ask why, seems to be tableview quirk)
+            setCellNeedsLayout(animateChanges: bindingState == .updated)
         }
     }
 

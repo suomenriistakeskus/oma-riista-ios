@@ -44,10 +44,13 @@ internal class HarvestSpecimenFieldProducer(
             createSpecimenFieldSpecification(specimenFieldType, harvest, harvestReportingType)
         }
 
+        val specimenAmount = harvest.amount ?: harvest.specimens.size
+
         return SpecimenField(
             id = fieldSpecification.fieldId,
             specimenData = SpecimenFieldDataContainer.createForHarvest(
                 species = harvest.species,
+                specimenAmount = specimenAmount,
                 specimens = harvest.specimens,
                 fieldSpecifications = specimenFieldSpecifications,
             ),

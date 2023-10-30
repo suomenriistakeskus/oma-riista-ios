@@ -3,14 +3,14 @@ package fi.riista.common.domain.harvest.ui.modify
 import fi.riista.common.domain.constants.SpeciesCode
 import fi.riista.common.domain.groupHunting.model.GroupHuntingDayId
 import fi.riista.common.domain.model.*
-import fi.riista.common.domain.permit.model.CommonPermit
+import fi.riista.common.domain.permit.harvestPermit.CommonHarvestPermit
 import fi.riista.common.domain.specimens.ui.SpecimenFieldDataContainer
 import fi.riista.common.model.*
 
 sealed class ModifyHarvestIntent {
     class LaunchPermitSelection(val restrictToCurrentPermitNumber: Boolean): ModifyHarvestIntent()
     object ClearSelectedPermit: ModifyHarvestIntent()
-    class SelectPermit(val permit: CommonPermit, val speciesCode: SpeciesCode?): ModifyHarvestIntent()
+    class SelectPermit(val permit: CommonHarvestPermit, val speciesCode: SpeciesCode?): ModifyHarvestIntent()
     class ChangeSpecimenAmount(val specimenAmount: Int?): ModifyHarvestIntent()
     class ChangeSpecies(val species: Species): ModifyHarvestIntent()
     class SetEntityImage(val image: EntityImage): ModifyHarvestIntent()
@@ -46,6 +46,9 @@ sealed class ModifyHarvestIntent {
     class ChangeAntlersLength(val newAntlersLength: Int?): ModifyHarvestIntent()
     class ChangeAntlersInnerWidth(val newAntlersInnerWidth: Int?): ModifyHarvestIntent()
     class ChangeAlone(val newAlone: Boolean): ModifyHarvestIntent()
+    class ChangeIsOwnHarvest(val isOwnHarvest: Boolean): ModifyHarvestIntent()
     class ChangeActor(val newActor: StringWithId): ModifyHarvestIntent()
     class ChangeActorHunterNumber(val hunterNumber: Int?): ModifyHarvestIntent()
+    class ChangeSelectedClub(val newSelectedClub: StringWithId): ModifyHarvestIntent()
+    class ChangeSelectedClubOfficialCode(val officialCode: Int?): ModifyHarvestIntent()
 }

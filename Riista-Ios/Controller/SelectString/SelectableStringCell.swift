@@ -8,6 +8,8 @@ protocol SelectableStringCellListener: AnyObject {
 }
 
 class SelectableStringCell: UITableViewCell {
+    private static var logger = AppLogger(for: SelectableStringCell.self, printTimeStamps: false)
+
     static let reuseIdentifier = "SelectableStringCell"
 
     /**
@@ -15,7 +17,7 @@ class SelectableStringCell: UITableViewCell {
      */
     weak var listener: SelectableStringCellListener? = nil
 
-    private weak var boundSelectableString: SelectableStringWithId?
+    private var boundSelectableString: SelectableStringWithId?
 
     private let viewBackground = OverlayView()
 
@@ -62,6 +64,7 @@ class SelectableStringCell: UITableViewCell {
         let clickableBackground = ClickableCellBackground().apply { background in
             background.onClicked = { [weak self] in
                 guard let selectableString = self?.boundSelectableString else {
+                    Self.logger.w { "No bound selectable string, cannot select!" }
                     return
                 }
 

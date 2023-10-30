@@ -39,12 +39,17 @@ class KeyboardHandler: NSObject, UIGestureRecognizerDelegate {
 
         // adjust content inset for the given scrollview
         case adjustContentInset(scrollView: UIScrollView)
+
+        // content should not be moved
+        case none
     }
 
     /**
      * The actual content mover that is able to push content upwards.
+     *
+     * If null, content won't be moved
      */
-    private let contentMover: ContentMover
+    private let contentMover: ContentMover?
 
     /**
      * A one-time listener for keyboard hiding
@@ -113,7 +118,7 @@ class KeyboardHandler: NSObject, UIGestureRecognizerDelegate {
 
         keyboardVisible = true
 
-        guard let userInfo = notification.userInfo else {
+        guard let userInfo = notification.userInfo, let contentMover = self.contentMover else {
             return
         }
 
@@ -130,7 +135,7 @@ class KeyboardHandler: NSObject, UIGestureRecognizerDelegate {
     @objc func onKeyboardWillHide(_ notification: Notification) {
         keyboardVisible = false
 
-        guard let userInfo = notification.userInfo else {
+        guard let userInfo = notification.userInfo, let contentMover = self.contentMover else {
             return
         }
 
@@ -243,12 +248,14 @@ fileprivate class ContentInsetContentMover: ContentMover {
 }
 
 fileprivate extension KeyboardHandler.ContentMovement {
-    func createContentMover(view: UIView) -> ContentMover {
+    func createContentMover(view: UIView) -> ContentMover? {
         switch self {
         case .usingSnapKitConstraint(let constraint):
             return SnapkitConstraintContentMover(constraint: constraint, view: view)
         case .adjustContentInset(let scrollView):
             return ContentInsetContentMover(scrollView: scrollView)
+        case .none:
+            return nil
         }
     }
 }

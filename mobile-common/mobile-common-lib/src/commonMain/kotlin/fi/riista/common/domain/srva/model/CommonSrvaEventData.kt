@@ -84,6 +84,7 @@ internal fun CommonSrvaEventData.toSrvaEvent(): CommonSrvaEvent? {
         approver = approver,
         species = species,
         otherSpeciesDescription = otherSpeciesDescription,
+        totalSpecimenAmount = specimenAmount ?: specimens.size,
         specimens = specimens.map { it.toSrvaSpecimen() },
         eventCategory = eventCategory,
         deportationOrderNumber = deportationOrderNumber,

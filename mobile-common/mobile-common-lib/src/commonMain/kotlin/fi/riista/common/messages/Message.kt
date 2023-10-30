@@ -1,6 +1,5 @@
 package fi.riista.common.messages
 
-import fi.riista.common.dto.LocalizedStringDTO
 import fi.riista.common.model.Language
 import fi.riista.common.model.LocalizedString
 import kotlinx.serialization.Serializable

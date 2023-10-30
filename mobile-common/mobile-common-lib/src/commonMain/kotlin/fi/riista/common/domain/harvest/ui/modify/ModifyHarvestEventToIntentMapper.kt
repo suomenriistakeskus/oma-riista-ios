@@ -71,14 +71,15 @@ internal class ModifyHarvestEventToIntentMapper(
             throw RuntimeException("Wrong number of values for field $fieldId (newValue: $newValue)")
         }
 
-        val newEnumValue = newValue[0]
+        val stringWithId = newValue[0]
 
         val intent = when (fieldId) {
-            CommonHarvestField.GREY_SEAL_HUNTING_METHOD -> ModifyHarvestIntent.ChangeGreySealHuntingMethod(newEnumValue.toBackendEnum())
-            CommonHarvestField.DEER_HUNTING_TYPE -> ModifyHarvestIntent.ChangeDeerHuntingType(newEnumValue.toBackendEnum())
-            CommonHarvestField.ANTLERS_TYPE -> ModifyHarvestIntent.ChangeAntlersType(newEnumValue.toBackendEnum())
-            CommonHarvestField.FITNESS_CLASS -> ModifyHarvestIntent.ChangeFitnessClass(newEnumValue.toBackendEnum())
-            CommonHarvestField.ACTOR -> ModifyHarvestIntent.ChangeActor(newEnumValue)
+            CommonHarvestField.GREY_SEAL_HUNTING_METHOD -> ModifyHarvestIntent.ChangeGreySealHuntingMethod(stringWithId.toBackendEnum())
+            CommonHarvestField.DEER_HUNTING_TYPE -> ModifyHarvestIntent.ChangeDeerHuntingType(stringWithId.toBackendEnum())
+            CommonHarvestField.ANTLERS_TYPE -> ModifyHarvestIntent.ChangeAntlersType(stringWithId.toBackendEnum())
+            CommonHarvestField.FITNESS_CLASS -> ModifyHarvestIntent.ChangeFitnessClass(stringWithId.toBackendEnum())
+            CommonHarvestField.ACTOR -> ModifyHarvestIntent.ChangeActor(stringWithId)
+            CommonHarvestField.SELECTED_CLUB -> ModifyHarvestIntent.ChangeSelectedClub(stringWithId)
             else -> throw createUnexpectedEventException(fieldId, "StringWithId", newValue)
         }
 
@@ -142,6 +143,7 @@ internal class ModifyHarvestEventToIntentMapper(
             CommonHarvestField.NOT_EDIBLE -> ModifyHarvestIntent.ChangeNotEdible(value)
             CommonHarvestField.ALONE -> ModifyHarvestIntent.ChangeAlone(value)
             CommonHarvestField.ANTLERS_LOST -> ModifyHarvestIntent.ChangeAntlersLost(value)
+            CommonHarvestField.OWN_HARVEST -> ModifyHarvestIntent.ChangeIsOwnHarvest(value)
             else -> throw createUnexpectedEventException(fieldId, "Boolean", value)
         }
 
@@ -163,6 +165,7 @@ internal class ModifyHarvestEventToIntentMapper(
         val intent = when (fieldId) {
             CommonHarvestField.SPECIMEN_AMOUNT -> ModifyHarvestIntent.ChangeSpecimenAmount(value)
             CommonHarvestField.ACTOR_HUNTER_NUMBER -> ModifyHarvestIntent.ChangeActorHunterNumber(value)
+            CommonHarvestField.SELECTED_CLUB_OFFICIAL_CODE -> ModifyHarvestIntent.ChangeSelectedClubOfficialCode(value)
             CommonHarvestField.ANTLERS_WIDTH -> ModifyHarvestIntent.ChangeAntlersWidth(value)
             CommonHarvestField.ANTLER_POINTS_LEFT -> ModifyHarvestIntent.ChangeAntlerPointsLeft(value)
             CommonHarvestField.ANTLER_POINTS_RIGHT -> ModifyHarvestIntent.ChangeAntlerPointsRight(value)

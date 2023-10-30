@@ -1,7 +1,7 @@
 import Foundation
 import RiistaCommon
 
-class MyDetailsViewController: UIViewController, ListClubMembershipsViewControllerListener {
+class MyDetailsViewController: BaseViewController, ListClubMembershipsViewControllerListener {
 
     private lazy var contentView: MyDetailsContentView = {
         let contentView = MyDetailsContentView()
@@ -31,6 +31,8 @@ class MyDetailsViewController: UIViewController, ListClubMembershipsViewControll
     private lazy var huntingClubsController: HuntingClubController =
         HuntingClubController(
             huntingClubsContext: RiistaSDK.shared.currentUserContext.huntingClubsContext,
+            usernameProvider: RiistaSDK.shared.currentUserContext,
+            huntingClubOccupationsProvider: RiistaSDK.shared.huntingClubOccupations,
             languageProvider: CurrentLanguageProvider(),
             stringProvider: LocalizedStringProvider()
         )
@@ -44,7 +46,9 @@ class MyDetailsViewController: UIViewController, ListClubMembershipsViewControll
         if let userInfo = RiistaSettings.userInfo() {
             contentView.updateValues(user: userInfo)
             contentView.occupationsButton.isHidden = userInfo.occupations.isEmpty
-            contentView.mhPermitsButton.isEnabled = MhPermitSync.anyPermitsExist()
+            contentView.mhPermitsButton.isEnabled = RiistaSDK.shared.metsahallitusPermits.hasPermits(
+                username_: userInfo.username
+            )
         }
 
         title = "MyDetails".localized()
@@ -54,10 +58,13 @@ class MyDetailsViewController: UIViewController, ListClubMembershipsViewControll
 
     private func loadPendingClubInvitations() {
         if (shouldReloadClubInvitations || !tryIndicatePendingClubInvitations()) {
-            huntingClubsController.loadViewModel(refresh: shouldReloadClubInvitations) { [weak self] _, _ in
-                self?.shouldReloadClubInvitations = false
-                self?.tryIndicatePendingClubInvitations()
-            }
+            huntingClubsController.loadViewModel(
+                refresh: shouldReloadClubInvitations,
+                completionHandler: handleOnMainThread { [weak self] _ in
+                    self?.shouldReloadClubInvitations = false
+                    self?.tryIndicatePendingClubInvitations()
+                }
+            )
         }
     }
 
@@ -87,12 +94,11 @@ class MyDetailsViewController: UIViewController, ListClubMembershipsViewControll
 
     private func navigateToShootingTests() {
         let viewController: ShootingTestsViewController = instantiateViewController(identifier: "ShootingTestsController")
-        viewController.user = RiistaSettings.userInfo()
         navigationController?.pushViewController(viewController, animated: true)
     }
 
     private func navigateToMhPermits() {
-        let viewController: MhPermitListViewController = instantiateViewController(identifier: "MhPermitListController")
+        let viewController = ListMetsahallitusPermitsViewController()
         navigationController?.pushViewController(viewController, animated: true)
     }
 
@@ -131,14 +137,12 @@ class MyDetailsViewController: UIViewController, ListClubMembershipsViewControll
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
-        if #available(iOS 11.0, *) {
-            // the layoutMargins we're setting may be less than system minimum layout margins..
-            viewRespectsSystemMinimumLayoutMargins = false
-        }
+        // the layoutMargins we're setting may be less than system minimum layout margins..
+        viewRespectsSystemMinimumLayoutMargins = false
 
         scrollView.addSubview(contentView)
         contentView.translatesAutoresizingMaskIntoConstraints = false

@@ -8,20 +8,11 @@ typealias SpeciesCode = Int32
 enum ItemId: Hashable {
     case remote(id: BackendId)
     case commonLocal(commonLocalId: KotlinLong)
-    case local(objectId: NSManagedObjectID)
     case pointOfInterest(poiGroupId: Int64, poiLocationId: Int64)
 
     var remoteId: BackendId? {
         if case .remote(let remoteId) = self {
             return remoteId
-        }
-
-        return nil
-    }
-
-    var localId: NSManagedObjectID? {
-        if case .local(let objectId) = self {
-            return objectId
         }
 
         return nil

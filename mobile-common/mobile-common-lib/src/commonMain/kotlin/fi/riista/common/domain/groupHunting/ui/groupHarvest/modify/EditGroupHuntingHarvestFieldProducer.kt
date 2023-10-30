@@ -25,8 +25,10 @@ internal class EditGroupHuntingHarvestFieldProducer(
 ) {
     private val commonHarvestFieldProducer = ModifyHarvestFieldProducer(
         canChangeSpecies = false,
-        permitProvider = null,
+        harvestPermitProvider = null,
+        huntingClubsSelectableForHarvests = null,
         stringProvider = stringProvider,
+        languageProvider = null,
         currentDateTimeProvider = currentDateTimeProvider
     )
 
@@ -46,6 +48,8 @@ internal class EditGroupHuntingHarvestFieldProducer(
                     harvest = harvest,
                     // always season reporting when handling group hunting harvests
                     harvestReportingType = HarvestReportingType.SEASON,
+                    shooters = emptyList(), // not used in group hunting
+                    ownHarvest = false, // not used in group hunting
                 )
         }
     }

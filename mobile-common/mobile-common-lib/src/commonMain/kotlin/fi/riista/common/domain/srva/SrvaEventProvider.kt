@@ -1,6 +1,5 @@
 package fi.riista.common.domain.srva
 
-import co.touchlab.stately.collections.IsoMutableList
 import co.touchlab.stately.concurrency.AtomicBoolean
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.model.isEmpty
@@ -26,7 +25,7 @@ internal class SrvaEventFromDatabaseProvider(
     private val repository = SrvaEventRepository(database)
     private val forceRefresh = AtomicBoolean(false)
 
-    private var _srvaEvents = IsoMutableList<CommonSrvaEvent>()
+    private var _srvaEvents = mutableListOf<CommonSrvaEvent>()
     override val srvaEvents: List<CommonSrvaEvent>?
         get() {
             return if (_srvaEvents.isEmpty() && !loadStatus.value.loaded) {

@@ -1,5 +1,5 @@
 import UIKit
-import OAStackView
+import RiistaCommon
 
 class CalendarEventCell: UITableViewCell {
     @IBOutlet weak var typeLabel: UILabel!
@@ -8,13 +8,16 @@ class CalendarEventCell: UITableViewCell {
     @IBOutlet weak var datetimeLabel: UILabel!
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var officialsLabel: UILabel!
-    @IBOutlet weak var officialsView: OAStackView!
+    @IBOutlet weak var officialsView: UIStackView!
 }
 
-class ShootingTestCalendarEventsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ShootingTestCalendarEventsViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var tableView: UITableView!
 
-    var items = Array<ShootingTestCalendarEvent>()
+    private lazy var logger = AppLogger(for: self, printTimeStamps: false)
+    private static let stringProvider = LocalizedStringProvider()
+
+    private var items = [CommonShootingTestCalendarEvent]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,34 +42,21 @@ class ShootingTestCalendarEventsViewController: UIViewController, UITableViewDat
     }
 
     func fetchEvents() {
-        ShootingTestManager.fetchShootingTestEvents() {
-            (result:Array<Any>?, error:Error?) in
-            if (error == nil) {
-                let parsed = self.parseEvents(input: result)
+        RiistaSDK.shared.shootingTestContext.fetchShootingTestCalendarEvents(
+            completionHandler: handleOnMainThread { [weak self] result, _ in
+                guard let self = self else { return }
 
-                self.items.removeAll();
-                self.items.insert(contentsOf: parsed, at: 0)
+                if let successResult = result as? OperationResultWithDataSuccess,
+                   let shootingTestEvents = successResult.data as? [CommonShootingTestCalendarEvent] {
+                    self.logger.v { "Fetched shooting test events!" }
 
-                self.tableView.reloadData()
+                    self.items = shootingTestEvents
+                    self.tableView.reloadData()
+                } else {
+                    self.logger.w { "Failed to fetch shooting test events" }
+                }
             }
-            else {
-                print("fetchShootingTestEvents failed: " + (error?.localizedDescription)!)
-            }
-        }
-    }
-
-    func parseEvents(input: Array<Any>?) -> Array<ShootingTestCalendarEvent> {
-        var result = Array<ShootingTestCalendarEvent>()
-
-        do {
-            let json = try JSONSerialization.data(withJSONObject: input!)
-            let decodedEvents = try JSONDecoder().decode([ShootingTestCalendarEvent].self, from: json)
-            result.append(contentsOf: decodedEvents)
-        } catch {
-            print("Failed to parse <ShootingTestCalendarEvent> items")
-        }
-
-        return result;
+        )
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -84,37 +74,31 @@ class ShootingTestCalendarEventsViewController: UIViewController, UITableViewDat
 
         let item = items[indexPath.row]
 
-        cell.typeLabel.text = ShootingTestCalendarEvent.localizedTypeText(type: item.calendarEventType!)
+        cell.typeLabel.text = item.calendarEventType?.value?.localizedName ??
+            item.calendarEventType?.rawBackendEnumValue ?? ""
+
         cell.titleLabel.text = item.name ?? ""
-        cell.datetimeLabel.text = String(format: "%@ %@ %@",
-                                         ShootingTestUtil.serverDateStringToDisplayDate(serverDate: item.date!),
-                                         item.beginTime!,
-                                         item.endTime == nil ? "" : String(format: "- %@", item.endTime!))
+
+        cell.datetimeLabel.text = item.formattedDateAndTime
         cell.addressLabel.text = String(format: "%@\n%@\n%@",
-                                        item.venue?.name == nil ? "" : (item.venue?.name)!,
+                                        item.venue?.name ?? "",
                                         item.venue?.address?.streetAddress ?? "",
                                         item.venue?.address?.city ?? "")
 
-        var stateText = ""
-        if (item.isClosed()) {
-            stateText = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestStateClosed")
-        } else if (item.isOngoing()) {
-            stateText = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestStateOngoing")
-        } else {
-            stateText = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestStateWaiting")
-        }
-        cell.stateLabel.text = stateText
+        cell.stateLabel.text = item.state.localized(stringProvider: Self.stringProvider)
 
         cell.officialsView.axis = .vertical
-        cell.officialsView.distribution = OAStackViewDistribution.equalSpacing
-        cell.officialsView.alignment = OAStackViewAlignment.leading
+        cell.officialsView.distribution = .equalSpacing
+        cell.officialsView.alignment = .leading
         cell.officialsView.spacing = 5
 
-        cell.officialsLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestOfficialsTitle")
+        cell.officialsLabel.text = "ShootingTestOfficialsTitle".localized()
         cell.officialsView.arrangedSubviews.forEach({ $0.removeFromSuperview() })
-        for official : ShootingTestOfficial in item.officials! {
+        item.officials?.forEach { official in
             let label = UILabel().configure(for: .label)
-            label.text = String(format: "%@ %@", official.firstName!, official.lastName!)
+            label.text = String(format: "%@ %@",
+                                official.firstName ?? "",
+                                official.lastName ?? "")
             cell.officialsView.addArrangedSubview(label)
         }
 
@@ -125,10 +109,15 @@ class ShootingTestCalendarEventsViewController: UIViewController, UITableViewDat
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = items[indexPath.row]
+        guard let calendarEventId = item.calendarEventId?.int64Value else { return }
 
         let sb = UIStoryboard.init(name: "ShootingTest", bundle: nil)
         let destination = sb.instantiateInitialViewController() as! ShootingTestTabBarViewController
-        destination.setSelectedEvent(calendarEventId: item.calendarEventId!, eventId: item.shootingTestEventId)
+
+        destination.shootingTestManager.setSelectedEvent(
+            calendarEventId: calendarEventId,
+            shootingTestEventId: item.shootingTestEventId?.int64Value
+        )
 
         let segue = UIStoryboardSegue.init(identifier: "", source: self, destination: destination, performHandler: {
             self.navigationController?.pushViewController(destination, animated: true)

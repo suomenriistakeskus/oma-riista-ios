@@ -5,13 +5,13 @@ import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.model.EntityImage
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.observation.model.CommonObservation
-import fi.riista.common.domain.observation.sync.ObservationSynchronizationContextProvider
+import fi.riista.common.domain.observation.sync.ObservationSynchronizationContext
 import fi.riista.common.domain.userInfo.CurrentUserContextProvider
 import fi.riista.common.domain.userInfo.LoginStatus
 import fi.riista.common.io.CommonFileProvider
 import fi.riista.common.logging.getLogger
 import fi.riista.common.network.BackendApiProvider
-import fi.riista.common.network.SyncDataPiece
+import fi.riista.common.network.sync.delegated
 import fi.riista.common.preferences.Preferences
 import fi.riista.common.util.LocalDateTimeProvider
 
@@ -42,15 +42,14 @@ class ObservationContext internal constructor(
     // internal so that it can be accessed from tests
     internal val repository = ObservationRepository(database)
 
-    private val syncContextProvider = ObservationSynchronizationContextProvider(
+    private val synchronizationContext = ObservationSynchronizationContext(
         backendApiProvider = backendApiProvider,
         database = database,
         preferences = preferences,
         localDateTimeProvider = localDateTimeProvider,
         commonFileProvider = commonFileProvider,
-        currentUserContextProvider = currentUserContextProvider,
-        syncFinishedListener = ::syncFinished,
-    )
+        currentUserContextProvider = currentUserContextProvider
+    ).delegated(onSyncFinished = ::syncFinished)
 
     private val _observationProvider = ObservationFromDatabaseProvider(
         database = database,
@@ -64,7 +63,7 @@ class ObservationContext internal constructor(
     )
 
     fun initialize() {
-        RiistaSDK.registerSyncContextProvider(SyncDataPiece.OBSERVATIONS, syncContextProvider)
+        RiistaSDK.registerSynchronizationContext(synchronizationContext)
         clearWhenUserLoggedOut()
     }
 
@@ -79,23 +78,21 @@ class ObservationContext internal constructor(
         return response
     }
 
-    fun deleteObservation(observationLocalId: Long?): CommonObservation? {
-        return if (observationLocalId != null && repository.markDeleted(observationLocalId)) {
+    suspend fun deleteObservation(observationLocalId: Long?): CommonObservation? {
+        val deletedObservation = repository.markDeleted(observationLocalId = observationLocalId)
+        if (deletedObservation != null) {
             _observationProvider.forceRefreshOnNextFetch()
-
-            repository.getByLocalId(observationLocalId)
-        } else {
-            null
         }
+
+        return deletedObservation
     }
 
     internal suspend fun sendObservationToBackend(observation: CommonObservation): ObservationOperationResponse {
-        return syncContextProvider.synchronizationContext?.sendObservationToBackend(observation)
-            ?: ObservationOperationResponse.Error("no synchronization context")
+        return synchronizationContext.childContext.sendObservationToBackend(observation)
     }
 
     internal suspend fun deleteObservationInBackend(observation: CommonObservation) {
-        syncContextProvider.synchronizationContext?.deleteObservationInBackend(observation)
+        synchronizationContext.childContext.deleteObservationInBackend(observation)
     }
 
     /**
@@ -108,7 +105,7 @@ class ObservationContext internal constructor(
         }
     }
 
-    fun getLocalObservationImageIds(): List<String> {
+    suspend fun getLocalObservationImageIds(): List<String> {
         currentUserContextProvider.userContext.username?.let { username ->
             return repository.getObservationsWithLocalImages(username = username).map { event ->
                 event.images.localImages
@@ -124,6 +121,12 @@ class ObservationContext internal constructor(
         currentUserContextProvider.userContext.username?.let { username ->
             return repository.getLatestObservationSpecies(username = username, size = size)
         } ?: return emptyList()
+    }
+
+    fun getByLocalId(localId: Long): CommonObservation? {
+        return currentUserContextProvider.userContext.username?.let {
+            repository.getByLocalId(localId)
+        }
     }
 
     private fun clearWhenUserLoggedOut() {

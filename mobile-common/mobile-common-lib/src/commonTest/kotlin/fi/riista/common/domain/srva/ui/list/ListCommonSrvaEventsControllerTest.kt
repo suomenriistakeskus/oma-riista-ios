@@ -2,6 +2,7 @@
 
 package fi.riista.common.domain.srva.ui.list
 
+import fi.riista.common.RiistaSDK
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.constants.Constants
 import fi.riista.common.domain.constants.SpeciesCodes
@@ -25,6 +26,7 @@ import fi.riista.common.domain.srva.model.toCommonSrvaMethod
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
 import fi.riista.common.dto.LocalizedStringDTO
 import fi.riista.common.helpers.createDatabaseDriverFactory
+import fi.riista.common.helpers.initializeMocked
 import fi.riista.common.helpers.runBlockingTest
 import fi.riista.common.io.CommonFileProviderMock
 import fi.riista.common.metadata.MetadataProvider
@@ -40,6 +42,7 @@ import fi.riista.common.network.BackendApiProvider
 import fi.riista.common.preferences.MockPreferences
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.util.MockDateTimeProvider
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -65,7 +68,6 @@ class ListCommonSrvaEventsControllerTest {
         assertTrue(controller.viewModelLoadStatus.value is ViewModelLoadStatus.Loaded)
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(0, allSrvaEvents.size)
             assertEquals(0, srvaEventYears.size)
             assertEquals(MockMetadataProvider.INSTANCE.srvaMetadata.species + Species.Other, srvaSpecies)
             assertNull(filterYear)
@@ -85,11 +87,9 @@ class ListCommonSrvaEventsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allSrvaEvents.size)
             assertEquals(5, filteredSrvaEvents.size)
             assertEquals(listOf(2022, 2021, 2020), srvaEventYears)
 
-            assertEquals(filteredSrvaEvents, allSrvaEvents)
             // todo: the order of srva events should be guaranteed
             assertNotNull(filteredSrvaEvents.find { it.remoteId == 1L }, "remoteId == 1")
             assertNotNull(filteredSrvaEvents.find { it.remoteId == 2L }, "remoteId == 2")
@@ -101,6 +101,26 @@ class ListCommonSrvaEventsControllerTest {
             //assertEquals(3, filteredSrvaEvents[2].remoteId)
             assertFalse(filteringEnabled)
 
+        }
+    }
+
+    @Test
+    fun testListingDeletedEvents() = runBlockingTest {
+        val srvaContext = getSrvaContext()
+        val controller = getController(srvaContext = srvaContext)
+
+        srvaContext.saveSrvaEvent(
+            getSrvaEvent(
+                remoteId = 1,
+                species = Species.Known(speciesCode = SpeciesCodes.MOOSE_ID),
+                huntingYear = 2021,
+            ).copy(deleted = true)
+        )
+
+        controller.loadViewModel()
+
+        with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
+            assertEquals(0, filteredSrvaEvents.size)
         }
     }
 
@@ -131,7 +151,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(2, allSrvaEvents.size)
             assertEquals(1, filteredSrvaEvents.size)
             // todo: we should consider whether all srva event years are returned if filtering only events that have images
             assertEquals(listOf(2022, 2021), srvaEventYears)
@@ -152,14 +171,12 @@ class ListCommonSrvaEventsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel 1")) {
-            assertEquals(5, allSrvaEvents.size, "all before")
             assertEquals(5, filteredSrvaEvents.size, "filtered before")
             assertFalse(filteringEnabled)
         }
 
         controller.setYearFilter(year = 2022)
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allSrvaEvents.size, "all after")
             assertEquals(2, filteredSrvaEvents.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), srvaEventYears)
 
@@ -182,7 +199,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allSrvaEvents.size, "all after")
             assertEquals(2, filteredSrvaEvents.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), srvaEventYears)
 
@@ -204,7 +220,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel 1")) {
-            assertEquals(5, allSrvaEvents.size, "all before")
             assertEquals(5, filteredSrvaEvents.size, "filtered before")
             assertFalse(filteringEnabled)
         }
@@ -216,7 +231,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.setSpeciesFilter(species = speciesFilter)
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allSrvaEvents.size, "all after")
             assertEquals(3, filteredSrvaEvents.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), srvaEventYears)
 
@@ -244,7 +258,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allSrvaEvents.size, "all after")
             assertEquals(3, filteredSrvaEvents.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), srvaEventYears)
 
@@ -267,7 +280,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel 1")) {
-            assertEquals(5, allSrvaEvents.size, "all before")
             assertEquals(5, filteredSrvaEvents.size, "filtered before")
             assertFalse(filteringEnabled)
         }
@@ -276,7 +288,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.setSpeciesFilter(species = speciesFilter)
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allSrvaEvents.size, "all after")
             assertEquals(5, filteredSrvaEvents.size, "filtered after")
             assertFalse(filteringEnabled)
         }
@@ -292,7 +303,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel 1")) {
-            assertEquals(5, allSrvaEvents.size, "all before")
             assertEquals(5, filteredSrvaEvents.size, "filtered before")
             assertFalse(filteringEnabled)
         }
@@ -301,7 +311,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.setFilters(year = 2022, species = speciesFilter)
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allSrvaEvents.size, "all after")
             assertEquals(1, filteredSrvaEvents.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), srvaEventYears)
 
@@ -326,7 +335,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.setSpeciesFilter(species = speciesFilter)
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allSrvaEvents.size, "all after")
             assertEquals(1, filteredSrvaEvents.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), srvaEventYears)
 
@@ -348,7 +356,6 @@ class ListCommonSrvaEventsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(6, allSrvaEvents.size, "all after")
             assertEquals(2, filteredSrvaEvents.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), srvaEventYears)
 
@@ -448,6 +455,7 @@ class ListCommonSrvaEventsControllerTest {
             ),
             species = species,
             otherSpeciesDescription = null,
+            totalSpecimenAmount = 1,
             specimens = listOf(
                 CommonSrvaSpecimen(
                     gender = Gender.MALE.toBackendEnum(),
@@ -507,17 +515,30 @@ class ListCommonSrvaEventsControllerTest {
     private fun getSrvaContext(): SrvaContext {
         val dbDriverFactory = createDatabaseDriverFactory()
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
-
+        val mockBackendAPI = BackendAPIMock()
         val mockUserContextProvider = CurrentUserContextProviderFactory.createMocked()
-        mockUserContextProvider.userLoggedIn(mockUserInfoDTO)
+        val mockDateTimeProvider = MockDateTimeProvider()
+        val mockCommonFileProvider = CommonFileProviderMock()
+
+        RiistaSDK.initializeMocked(
+            databaseDriverFactory = dbDriverFactory,
+            mockBackendAPI = mockBackendAPI,
+            mockCurrentUserContextProvider = mockUserContextProvider,
+            mockLocalDateTimeProvider = mockDateTimeProvider,
+            mockFileProvider = mockCommonFileProvider,
+        )
+
+        runBlocking {
+            mockUserContextProvider.userLoggedIn(mockUserInfoDTO)
+        }
 
         return SrvaContext(
             backendApiProvider = object : BackendApiProvider {
-                override val backendAPI: BackendAPI = BackendAPIMock()
+                override val backendAPI: BackendAPI = mockBackendAPI
             },
             preferences = MockPreferences(),
-            localDateTimeProvider = MockDateTimeProvider(),
-            commonFileProvider = CommonFileProviderMock(),
+            localDateTimeProvider = mockDateTimeProvider,
+            commonFileProvider = mockCommonFileProvider,
             database = database,
             currentUserContextProvider = mockUserContextProvider,
         )
@@ -525,6 +546,7 @@ class ListCommonSrvaEventsControllerTest {
 
     private val mockUserInfoDTO = UserInfoDTO(
         username = "user",
+        personId = 123L,
         firstName = "user_first",
         lastName = "user_last",
         birthDate = null,
@@ -540,9 +562,6 @@ class ListCommonSrvaEventsControllerTest {
         huntingCardValidNow = true,
         qrCode = null,
         timestamp = "2022-01-01",
-        gameDiaryYears = emptySet(),
-        harvestYears = emptySet(),
-        observationYears = emptySet(),
         shootingTests = emptyList(),
         occupations = emptyList(),
         enableSrva = true,

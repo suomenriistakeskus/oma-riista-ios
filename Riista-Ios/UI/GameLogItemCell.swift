@@ -35,6 +35,8 @@ class GameLogItemCell: UITableViewCell {
         return timeFormatter
     }()
 
+    static let localizationProvider: LocalizedStringProvider = LocalizedStringProvider()
+
     /*
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -57,28 +59,34 @@ class GameLogItemCell: UITableViewCell {
         itemImage.image = nil
     }
 
-    func setupFromHarvest(harvest: DiaryEntry, isFirst: Bool, isLast: Bool) {
+    func setupFromHarvest(harvest: CommonHarvest, isFirst: Bool, isLast: Bool) {
         clearCurrentlyDisplayedData()
 
-        loadImage(entry: harvest)
+        loadImage(
+            entityImage: harvest.images.primaryImage,
+            speciesCode: harvest.species.knownSpeciesCodeOrNull()?.intValue
+        )
 
-        let species = RiistaGameDatabase.sharedInstance()?.species(byId: harvest.gameSpeciesCode as! Int)
+        var nameText = "-"
 
-        let speciesName = RiistaUtils.name(withPreferredLanguage: species?.name)
-        if (speciesName != nil) {
-            if (harvest.amount.intValue > 1) {
-                speciesLabel.text = "\(speciesName!) (\(harvest.amount!))"
-            }
-            else {
-                speciesLabel.text = speciesName
-            }
+        if let speciesCode = harvest.species.knownSpeciesCodeOrNull()?.intValue {
+            let species = RiistaGameDatabase.sharedInstance()?.species(byId: speciesCode)
+            nameText = RiistaUtils.name(withPreferredLanguage: species?.name)
+            itemImage?.tintColor = nil
         }
         else {
-            speciesLabel.text = "-"
+            nameText = "-"
         }
 
-        dateLabel.text = GameLogItemCell.dateFormatter.string(from: harvest.pointOfTime!)
-        timeLabel.text = GameLogItemCell.timeFormatter.string(from: harvest.pointOfTime!)
+        let specimenCount = harvest.amount
+        if (specimenCount > 1) {
+            nameText = "\(nameText) (\(specimenCount))"
+        }
+
+        speciesLabel.text = nameText
+
+        dateLabel.text = GameLogItemCell.dateFormatter.string(from: harvest.pointOfTime.toFoundationDate())
+        timeLabel.text = GameLogItemCell.timeFormatter.string(from: harvest.pointOfTime.toFoundationDate())
 
         infoLabel.text = ""
         infoLabel.isHidden = true
@@ -87,92 +95,28 @@ class GameLogItemCell: UITableViewCell {
         stateImage.tintColor = UIColor.clear
         stateView.isHidden = true
 
-        setupHarvestState(harvest: harvest, reportState: harvest.harvestReportState, permitState: harvest.stateAcceptedToHarvestPermit)
+        setupHarvestState(harvest: harvest)
 
-        uploadImage.isHidden = harvest.sent?.boolValue ?? true
+        uploadImage.isHidden = harvest.modified == false
 
         timeLineUp.isHidden = isFirst
         timeLineDown.isHidden = isLast
     }
 
-    func setupHarvestState(harvest: DiaryEntry, reportState: String?, permitState: String?) {
-        if (!setupHarvestReportState(state: reportState)) {
-            if (!setupHarvestPermitState(state: permitState)) {
-                if (harvest.harvestReportRequired != nil && harvest.harvestReportRequired.boolValue) {
-                    stateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "HarvestStateCreateReport")
-                    stateImage.tintColor = UIColor.applicationColor(RiistaApplicationColorHarvestStatusCreateReport)
 
-                    stateView.isHidden = false
-                }
-            }
+    func setupHarvestState(harvest: CommonHarvest) {
+        guard let harvestState = harvest.harvestState else {
+            return
         }
-    }
 
-    func setupHarvestReportState(state: String?) -> Bool {
-        switch state {
-        case DiaryEntryHarvestStateProposed:
-            stateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "HarvestStateProposed")
-            stateImage.tintColor = UIColor.applicationColor(RiistaApplicationColorHarvestStatusProposed)
-
-            stateView.isHidden = false
-
-            return true
-        case DiaryEntryHarvestStateSentForApproval:
-            stateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "HarvestStateSentForApproval")
-            stateImage.tintColor = UIColor.applicationColor(RiistaApplicationColorHarvestStatusSentForApproval)
-
-            stateView.isHidden = false
-
-            return true
-        case DiaryEntryHarvestStateApproved:
-            stateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "HarvestStateApproved")
-            stateImage.tintColor = UIColor.applicationColor(RiistaApplicationColorHarvestStatusApproved)
-
-            stateView.isHidden = false
-
-            return true
-        case DiaryEntryHarvestStateRejected:
-            stateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "HarvestStateRejected")
-            stateImage.tintColor = UIColor.applicationColor(RiistaApplicationColorHarvestStatusRejected)
-
-            stateView.isHidden = false
-
-            return true
-        default:
-            stateView.isHidden = true
-
-            return false;
+        stateLabel.text = harvestState.localized(stringProvider: Self.localizationProvider)
+        if let indicatorColor = harvestState.indicatorColor_.toUIColor() {
+            stateImage.tintColor = indicatorColor
+            stateImage.isHidden = false
+        } else {
+            stateImage.isHidden = true
         }
-    }
-
-    func setupHarvestPermitState(state: String?) -> Bool {
-        switch state {
-        case DiaryEntryHarvestPermitProposed:
-            stateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "HarvestPermitStateProposed")
-            stateImage.tintColor = UIColor.applicationColor(RiistaApplicationColorHarvestPermitStatusProposed)
-
-            stateView.isHidden = false
-
-            return true
-        case DiaryEntryHarvestPermitAccepted:
-            stateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "HarvestPermitStateAccepted")
-            stateImage.tintColor = UIColor.applicationColor(RiistaApplicationColorHarvestPermitStatusAccepted)
-
-            stateView.isHidden = false
-
-            return true
-        case DiaryEntryHarvestPermitRejected:
-            stateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "HarvestPermitStateRejected")
-            stateImage.tintColor = UIColor.applicationColor(RiistaApplicationColorHarvestPermitStatusRejected)
-
-            stateView.isHidden = false
-
-            return true
-        default:
-            stateView.isHidden = true
-
-            return false
-        }
+        stateView.isHidden = false
     }
 
     func setupFromObservation(observation: CommonObservation, isFirst: Bool, isLast: Bool) {
@@ -204,8 +148,8 @@ class GameLogItemCell: UITableViewCell {
         dateLabel.text = GameLogItemCell.dateFormatter.string(from: observation.pointOfTime.toFoundationDate())
         timeLabel.text = GameLogItemCell.timeFormatter.string(from: observation.pointOfTime.toFoundationDate())
 
-        if let observationType = observation.observationType.rawBackendEnumValue {
-            infoLabel.text = RiistaBridgingUtils.RiistaMappedString(forkey: observationType)
+        if (observation.observationType.rawBackendEnumValue != nil) {
+            infoLabel.text = observation.observationType.localized(stringProvider: Self.localizationProvider)
             infoLabel.isHidden = false
         } else {
             infoLabel.isHidden = true
@@ -261,8 +205,9 @@ class GameLogItemCell: UITableViewCell {
         dateLabel.text = GameLogItemCell.dateFormatter.string(from: srva.pointOfTime.toFoundationDate())
         timeLabel.text = GameLogItemCell.timeFormatter.string(from: srva.pointOfTime.toFoundationDate())
 
-        if let eventCategory = srva.eventCategory.rawBackendEnumValue {
-            infoLabel.text = RiistaBridgingUtils.RiistaMappedString(forkey: eventCategory)
+
+        if (srva.eventCategory.rawBackendEnumValue != nil) {
+            infoLabel.text = srva.eventCategory.localized(stringProvider: Self.localizationProvider)
             infoLabel.isHidden = false
         } else {
             infoLabel.isHidden = true
@@ -294,21 +239,6 @@ class GameLogItemCell: UITableViewCell {
         }
     }
 
-    func loadImage(entry: DiaryEntryBase) {
-        self.imageLoadedForId = idOf(entry: entry)
-
-        ImageUtils.loadEventImage(
-            entry, for: itemImage,
-            options: ImageLoadOptions.aspectFilled(size: itemImage.bounds.size),
-            onSuccess: { [weak self, weak entry] image in
-                self?.setDisplayedImage(image, entry: entry)
-            },
-            onFailure: { [weak self, weak entry] failureReason in
-                self?.displayImageLoadFailedIndicator(entry: entry)
-            }
-        )
-    }
-
     func loadImage(entityImage: EntityImage?, speciesCode: Int?) {
         let imageLoadId = idOf(entityImage: entityImage, speciesCode: speciesCode)
         self.imageLoadedForId = imageLoadId
@@ -327,12 +257,6 @@ class GameLogItemCell: UITableViewCell {
         )
     }
 
-    func setDisplayedImage(_ image: UIImage, entry: DiaryEntryBase?) {
-        guard let entry = entry else { return }
-
-        setDisplayedImage(image, imageLoadId: idOf(entry: entry))
-    }
-
     func setDisplayedImage(_ image: UIImage, imageLoadId: String?) {
         if (imageLoadedForId != imageLoadId) {
             // cell already recycled, ignore result
@@ -343,12 +267,6 @@ class GameLogItemCell: UITableViewCell {
         itemImage?.image = image
     }
 
-    func displayImageLoadFailedIndicator(entry: DiaryEntryBase?) {
-        guard let entry = entry else { return }
-
-        displayImageLoadFailedIndicator(imageLoadId: idOf(entry: entry))
-    }
-
     func displayImageLoadFailedIndicator(imageLoadId: String?) {
         if (imageLoadedForId != imageLoadId) {
             // cell already recycled, ignore result
@@ -357,10 +275,6 @@ class GameLogItemCell: UITableViewCell {
 
         itemImage?.contentMode = .center
         itemImage?.image = UIImage(named: "missing-image-error")
-    }
-
-    private func idOf(entry: DiaryEntryBase) -> String? {
-        return entry.objectID.uriRepresentation().absoluteString
     }
 
     private func idOf(entityImage: EntityImage?, speciesCode: Int?) -> String {

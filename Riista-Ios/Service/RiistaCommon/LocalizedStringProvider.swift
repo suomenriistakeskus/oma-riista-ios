@@ -143,6 +143,41 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
             return "HarvestFieldLoneCalf"
         case .harvestLabelAdditionalInformation:
             return "MooseAdditionalInfo"
+        case .harvestLabelOwnHarvest:
+            return "HarvestLabelOwnHarvest"
+        case .harvestLabelHuntingClub:
+            return "HarvestLabelHuntingClub"
+        case .harvestLabelHuntingClubOfficialCode:
+            return "HarvestLabelHuntingClubOfficialCode"
+
+        case .huntingClubSelectionSelectClub:
+            return "HuntingClubSelectionSelectClub"
+        case .huntingClubSelectionSearchByName:
+            return "HuntingClubSelectionSearchByName"
+        case .huntingClubSelectionSearchByNameHint:
+            return "HuntingClubSelectionSearchByNameHint"
+        case .huntingClubSelectionNoClubSelection:
+            return "HuntingClubSelectionNoClubSelection"
+        case .huntingClubSelectionOtherClub:
+            return "HuntingClubSelectionOtherClub"
+
+        case .huntingClubSearchEnterClubOfficialCode:
+            return "HuntingClubSearchEnterClubOfficialCode"
+        case .huntingClubSearchInvalidOfficialCode:
+            return "HuntingClubSearchInvalidOfficialCode"
+        case .huntingClubSearchSearchingByOfficialCode:
+            return "HuntingClubSearchSearchingByOfficialCode"
+        case .huntingClubSearchSearchFailed:
+            return "HuntingClubSearchSearchFailed"
+
+        case .harvestSettingsAddHarvestForOtherHunter:
+          return "HarvestSettingsAddHarvestForOtherHunter"
+        case .harvestSettingsAddHarvestForOtherHunterExplanation:
+          return "HarvestSettingsAddHarvestForOtherHunterExplanation"
+        case .harvestSettingsEnableClubSelection:
+          return "HarvestSettingsEnableClubSelection"
+        case .harvestSettingsEnableClubSelectionExplanation:
+          return "HarvestSettingsEnableClubSelectionExplanation"
 
         case .groupHuntingHunterId:
             return "GroupHuntingHunterId"
@@ -256,6 +291,10 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
         // Observation types
         case .observationTypeNako:
             return "ObservationTypeNako"
+        case .observationTypePoikue:
+            return "ObservationTypePoikue"
+        case .observationTypePari:
+            return "ObservationTypePari"
         case .observationTypeJalki:
             return "ObservationTypeJalki"
         case .observationTypeUloste:
@@ -465,6 +504,10 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
         case .huntingControlInspectorSelectionNameHint:
             return "HuntingControlInspectorSelectionNameHint"
 
+        case .huntingControlErrorNoSelfAsInspector:
+            return "HuntingControlErrorNoSelfAsInspector"
+        case .huntingControlErrorNoInspectorsForSelectedDate:
+            return "HuntingControlErrorNoInspectorsForSelectedDate"
 
         case .huntingControlCooperationTypePoliisi:
             return "HuntingControlCooperationTypePoliisi"
@@ -523,6 +566,14 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
             return "HuntingControlNetworkError"
         case .huntingControlRetry:
             return "HuntingControlRetry"
+        case .shootingTestStateWaitingToStart:
+            return "ShootingTestStateWaiting"
+        case .shootingTestStateOngoing:
+            return "ShootingTestStateOngoing"
+        case .shootingTestStateOngoingReadyToClose:
+            return "ShootingTestStateOngoing"
+        case .shootingTestStateClosed:
+            return "ShootingTestStateClosed"
         case .shootingTestTypeMoose:
             return "ShootingTestTypeMoose"
         case .shootingTestTypeBear:
@@ -531,6 +582,14 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
             return "ShootingTestTypeRoeDeer"
         case .shootingTestTypeBow:
             return "ShootingTestTypeBow"
+        case .shootingTestResultQualified:
+            return "ShootingTestResultQualified"
+        case .shootingTestResultUnqualified:
+            return "ShootingTestResultUnqualified"
+        case .shootingTestResultTimedOut:
+            return "ShootingTestResultTimedOut"
+        case .shootingTestResultRebated:
+            return "ShootingTestResultRebated"
 
         // Training
         case .trainingTypeLahi:
@@ -577,6 +636,8 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
             return "TassuPack"
         case .observationLabelDescription:
             return "ObservationDetailsDescription"
+        case .errorObservationSpecimenAmountAtLeastTwo:
+            return "ErrorObservationSpecimenAmountAtLeastTwo"
 
         // SRVA
         case .srvaEventLabelApprover:
@@ -742,6 +803,17 @@ class LocalizedStringProvider: RiistaCommon.StringProvider {
             return "SpecimenMarkedRing"
         case .specimenMarkingEarmark:
             return "SpecimenMarkedEar"
+
+        case .sunDaySelectionLabel:
+            return "SunDaySelectionLabel"
+        case .sunSunriseLabel:
+            return "SunSunriseLabel"
+        case .sunSunsetLabel:
+            return "SunSunsetLabel"
+        case .sunInstructions:
+            return "SunInstructions"
+        case .sunDisclaimer:
+            return "SunDisclaimer"
 
         default:
             print("MISSING LOCALIZATION for \(stringId)")

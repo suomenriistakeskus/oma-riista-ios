@@ -1,6 +1,5 @@
 package fi.riista.common.domain.observation
 
-import co.touchlab.stately.collections.IsoMutableList
 import co.touchlab.stately.concurrency.AtomicBoolean
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.model.isEmpty
@@ -26,7 +25,7 @@ internal class ObservationFromDatabaseProvider(
     private val repository = ObservationRepository(database)
     private val forceRefresh = AtomicBoolean(false)
 
-    private var _observations = IsoMutableList<CommonObservation>()
+    private var _observations = mutableListOf<CommonObservation>()
     override val observations: List<CommonObservation>?
         get() {
             return if (_observations.isEmpty() && !loadStatus.value.loaded) {

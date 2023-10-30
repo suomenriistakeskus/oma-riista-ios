@@ -49,6 +49,8 @@
     [self registerFirebaseNotifications];
     [self fetchRemoteConfiguration];
 
+    [SharedEntityFilterStateHelper registerToListenNotifications];
+
     NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
     if (notification) {
         //We are launching because the user clicked a notification. Sync announcements.
@@ -105,8 +107,8 @@
     [CrashlyticsHelper logWithMsg:@"RemoteConfiguration fetched, passing values to RiistaSDK"];
     [RiistaSDKHelper applyRemoteSettings:[RemoteConfigurationManager.sharedInstance riistaSDKSettings]];
     [RiistaSDKHelper prepareAppStartupMessage:[RemoteConfigurationManager.sharedInstance appStartupMessageJson]];
+    [RiistaSDKHelper setupMapTileVersions:[RemoteConfigurationManager.sharedInstance mapTileVersions]];
     [RiistaSDKHelper prepareGroupHuntingIntroMessage:[RemoteConfigurationManager.sharedInstance groupHuntingIntroMessageJson]];
-    [RiistaSDKHelper overrideHarvestSeasons:[RemoteConfigurationManager.sharedInstance harvestSeasonOverrides]];
 
     [self attemptReloginIfNeeded];
 }
@@ -197,9 +199,14 @@
     // disable sync precondition since migration has not yet been performed for the next managed object context
     [AppSync.shared disableSyncPrecondition:SyncPreconditionDatabaseMigrationFinished];
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:ManagedObjectContextChangedNotification object:nil];
+    // core data / managed object context is no longer accessed that often from views since
+    // harvest, observation and srva synchronization have all been moved to common lib. Manually
+    // migrate core data to common lib now in order to ensure
+    // 1. entries in CoreData have been migrated
+    // 2. completed migration enables other functionality (e.g. app sync)
+    [self migrateCoreDataToCommonLib];
 
-    [SynchronizationAnalytics sendAppStartupSynchronizationAnalytics];
+    [[NSNotificationCenter defaultCenter] postNotificationName:ManagedObjectContextChangedNotification object:nil];
 }
 
 - (void)saveContext
@@ -310,12 +317,21 @@
     return _persistentStoreCoordinator;
 }
 
+- (void)migrateCoreDataToCommonLib
+{
+    // accessing managed object context is enough to start migration
+    if (self.managedObjectContext != nil) {
+        NSLog(@"CoreData migration attempted..");
+    }
+}
+
 - (void)migrateCoreDataToCommonLib:(NSManagedObjectContext *)context
 {
     // refuse to migrate if there's no valid username. Managed object context cannot contain valid
     // data in that case and we would perform "empty" migration. The problem would rise from the fact
     // that we would mark the "migration completed" appsync precondition completed --> don't do that.
     if (self.username == nil || self.username.length == 0) {
+        NSLog(@"Refusing to migrate CoreData: no username.");
         return;
     }
 

@@ -64,6 +64,8 @@ fileprivate let tileWidth = 256
     }
 
     private func setupTileSize() {
+        // see RiitaVectorTileLayer.swift for same implementation. Keep these in sync!
+
         let screenScale = Int(UIScreen.main.scale)
 
         // the default tileSize available on the server is 256x256. There's no point in rendering

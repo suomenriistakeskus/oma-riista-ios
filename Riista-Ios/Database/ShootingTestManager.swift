@@ -1,264 +1,517 @@
 import Foundation
+import RiistaCommon
 
-class ShootingTestManager: NSObject {
-    struct ClassConstants{
-        static let BASE_API_PATH = "api/mobile/v2/"
+enum ShootingTestManagerError: Error {
+    case missingCalendarId
+    case missingShootingTestEventId
 
-        static let listShootingTestCalendarEventsPAth = BASE_API_PATH + "shootingtest/calendarevents"
-        static let getCalendarEventPath = BASE_API_PATH + "shootingtest/calendarevent/%ld"
+    case networkOperationFailed(statusCode: Int?)
+    case unspecifiedError
+}
 
-        static let startEventPath = BASE_API_PATH + "shootingtest/calendarevent/%ld/open"
-        static let closeEventPath = BASE_API_PATH + "shootingtest/event/%ld/close"
-        static let reopenEventPath = BASE_API_PATH + "shootingtest/event/%ld/reopen"
-        static let updateEventOfficialsPath = BASE_API_PATH + "shootingtest/event/%ld/officials"
+typealias OnShootingTestEventFetched = (_ shootingTestEvent: CommonShootingTestCalendarEvent?, _ error: Error?) -> Void
+typealias OnShootingTestOfficialsFetched = (_ officials: [CommonShootingTestOfficial]?, _ error: Error?) -> Void
+typealias OnShootingTestPersonFetched = (_ person: CommonShootingTestPerson?, _ error: Error?) -> Void
+typealias OnShootingTestParticipantsFetched = (_ participants: [CommonShootingTestParticipant]?, _ error: Error?) -> Void
+typealias OnShootingTestParticipantFetched = (_ participant: CommonShootingTestParticipant?, _ error: Error?) -> Void
+typealias OnShootingTestParticipantDetailedFetched = (_ participant: CommonShootingTestParticipantDetailed?, _ error: Error?) -> Void
+typealias OnShootingTestAttemptFetched = (_ attempt: CommonShootingTestAttempt?, _ error: Error?) -> Void
 
-        static let listAvailableOfficialsForEventPath = BASE_API_PATH + "shootingtest/event/%ld/qualifyingofficials/"
-        static let listAvailableOfficialsForRhyPath = BASE_API_PATH + "shootingtest/rhy/%ld/officials/"
-        static let listSelectedOfficialsForEventPath = BASE_API_PATH + "shootingtest/event/%ld/assignedofficials/"
+class ShootingTestManager {
+    private lazy var logger = AppLogger(for: self, printTimeStamps: false)
 
-        static let getParticipantDetailedPath = BASE_API_PATH + "shootingtest/participant/%ld/attempts"
-
-        static let searchWithHunterNumberPath = BASE_API_PATH + "shootingtest/event/%ld/findhunter/hunternumber"
-        static let searchWithSsnPath = BASE_API_PATH + "shootingtest/event/%ld/findperson/ssn"
-        static let addParticipantPath = BASE_API_PATH + "shootingtest/event/%ld/participant"
-
-        static let listParticipantsPath = BASE_API_PATH + "shootingtest/event/%ld/participants"
-
-        static let getAttemptPath = BASE_API_PATH + "shootingtest/attempt/%ld"
-        static let addAttemptPath = BASE_API_PATH + "shootingtest/participant/%ld/attempt"
-        static let deleteAttemptPath = BASE_API_PATH + "shootingtest/attempt/%ld"
-        static let updateAttemptPath = BASE_API_PATH + "shootingtest/attempt/%ld"
-
-        static let getParticipantSummaryPath = BASE_API_PATH + "shootingtest/participant/%ld"
-        static let completeAllPaymentsPath = BASE_API_PATH + "shootingtest/participant/%ld/payment"
-        static let updatePaymentPath = BASE_API_PATH + "shootingtest/participant/%ld/payment"
+    enum State {
+        case uninitialized
+        case calendarEvent(calendarEventId: Int64)
+        case shootingTestEvent(calendarEventId: Int64, shootingTestEventId: Int64)
     }
 
-//    typealias RiistaJsonCompletion = (NSDictionary, NSError?) -> Void
-//    typealias RiistaShootingTestEventsCompletion = (Array<Any>?, NSError?) -> Void
+    private(set) var state: State = .uninitialized
 
-    class func fetchShootingTestEvents(completion:@escaping RiistaJsonArrayCompletion) {
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.listShootingTestCalendarEvents(completion)
+
+    func setSelectedEvent(calendarEventId: Int64, shootingTestEventId: Int64?) {
+        if let shootingTestEventId = shootingTestEventId {
+            state = .shootingTestEvent(calendarEventId: calendarEventId, shootingTestEventId: shootingTestEventId)
+        } else {
+            state = .calendarEvent(calendarEventId: calendarEventId)
+        }
     }
 
-    class func getShootingTestCalendarEvent(eventId: Int, completion: @escaping RiistaJsonCompletion) {
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.getShootingTestCalendarEvent(Int(eventId), completion: completion)
+    func setShootingTestEventId(shootingTestEventId: Int64?) {
+        guard let calendarEventId = state.calendarEventId else {
+            return
+        }
+
+        setSelectedEvent(
+            calendarEventId: calendarEventId,
+            shootingTestEventId: shootingTestEventId
+        )
     }
+
+    func clearShootingTestEventId() {
+        if let calendarEventId = state.calendarEventId {
+            state = .calendarEvent(calendarEventId: calendarEventId)
+        } else {
+            state = .uninitialized
+        }
+    }
+
+    func getShootingTestCalendarEvent(_ completion: @escaping OnShootingTestEventFetched) {
+        guard let calendarEventId = state.calendarEventId else {
+            completion(nil, ShootingTestManagerError.missingCalendarId)
+            return
+        }
+
+        RiistaSDK.shared.shootingTestContext.fetchShootingTestCalendarEvent(
+            calendarEventId: calendarEventId
+        ) { result, error in
+            self.notifyDataCompletion(
+                result: result,
+                error: error
+            ) { shootingTestEvent, error in
+                if (shootingTestEvent == nil) {
+                    self.logger.w { "Failed to fetch shooting test event (calendar event = \(calendarEventId)" }
+                }
+                completion(shootingTestEvent, error)
+            }
+        }
+    }
+
 
     // MARK: Event state handling
 
-    class func startShootingTestEvent(calendarEventId: Int,
-                                      shootingTestEventId: Int?,
-                                      occupationIds: Array<Int>,
-                                      completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.startEventPath, calendarEventId)
-        var body = [String : Any?]()
-        body["calendarEventId"] = String(calendarEventId)
-        body["shootingTestEventId"] = shootingTestEventId
-        body["occupationIds"] = occupationIds
+    func startShootingTestEvent(
+        occupationIds: [Int64],
+        responsibleOfficialOccupationId: Int64?,
+        completion: @escaping OnCompletedWithStatusAndError
+    ) {
+        guard let calendarEventId = state.calendarEventId else {
+            completion(false, ShootingTestManagerError.missingCalendarId)
+            return
+        }
 
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.startEvent(url, body: body as [String : Any], completion: completion)
+        // optional, not mandatory
+        let shootingTestEventId = state.shootingTestEventId?.toKotlinLong()
+
+        RiistaSDK.shared.shootingTestContext.openShootingTestEvent(
+            calendarEventId: calendarEventId,
+            shootingTestEventId: shootingTestEventId,
+            occupationIds: occupationIds.map { $0.toKotlinLong() },
+            responsibleOccupationId: responsibleOfficialOccupationId?.toKotlinLong()
+        ) { result, error in
+            self.notifyCompletion(result: result, error: error, completion: completion)
+        }
     }
 
-    class func closeShootingTestEvent(eventId: Int, completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.closeEventPath, eventId)
+    func closeShootingTestEvent(completion: @escaping OnCompletedWithStatusAndError) {
+        guard let shootingTestEventId = state.shootingTestEventId else {
+            completion(false, ShootingTestManagerError.missingShootingTestEventId)
+            return
+        }
 
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.closeEvent(url, completion: completion)
+        RiistaSDK.shared.shootingTestContext.closeShootingTestEvent(
+            shootingTestEventId: shootingTestEventId
+        ) { result, error in
+            self.notifyCompletion(result: result, error: error, completion: completion)
+        }
     }
 
-    class func reopenShootingTestEvent(eventId: Int, completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.reopenEventPath, eventId)
+    func reopenShootingTestEvent(completion: @escaping OnCompletedWithStatusAndError) {
+        guard let shootingTestEventId = state.shootingTestEventId else {
+            completion(false, ShootingTestManagerError.missingShootingTestEventId)
+            return
+        }
 
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.reopenEvent(url, completion: completion)
+        RiistaSDK.shared.shootingTestContext.reopenShootingTestEvent(
+            shootingTestEventId: shootingTestEventId
+        ) { result, error in
+            self.notifyCompletion(result: result, error: error, completion: completion)
+        }
     }
 
-    class func updateShootingTestOfficials(calendarEventId: Int,
-                                           shootingTestEventId: Int,
-                                           occupationIds: Array<Int>,
-                                           completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.updateEventOfficialsPath, shootingTestEventId)
-        var body = [String : Any]()
-        body["calendarEventId"] = String(calendarEventId)
-        body["shootingTestEventId"] = String(shootingTestEventId)
-        body["occupationIds"] = occupationIds
+    func updateShootingTestOfficials(
+        selectedOfficials: [CommonShootingTestOfficial],
+        responsibleOfficialOccupationId: Int64?,
+        completion: @escaping OnCompletedWithStatusAndError
+    ) {
+        guard let calendarEventId = state.calendarEventId else {
+            completion(false, ShootingTestManagerError.missingCalendarId)
+            return
+        }
+        guard let shootingTestEventId = state.shootingTestEventId else {
+            completion(false, ShootingTestManagerError.missingShootingTestEventId)
+            return
+        }
 
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.updateOfficials(url, body: body, completion: completion)
+        let occupationIds = selectedOfficials.map { $0.occupationId.toKotlinLong() }
+
+        RiistaSDK.shared.shootingTestContext.updateShootingTestOfficials(
+            calendarEventId: calendarEventId,
+            shootingTestEventId: shootingTestEventId,
+            officialOccupationIds: occupationIds,
+            responsibleOccupationId: responsibleOfficialOccupationId?.toKotlinLong()
+        ) { result, error in
+            self.notifyCompletion(result: result, error: error, completion: completion)
+        }
     }
 
-    class func listAvailableOfficialsForEvent(eventId: Int, completion: @escaping RiistaJsonArrayCompletion) {
-        let url = String(format: ClassConstants.listAvailableOfficialsForEventPath, eventId)
+    func listAvailableOfficialsForEvent(completion: @escaping OnShootingTestOfficialsFetched) {
+        guard let shootingTestEventId = state.shootingTestEventId else {
+            completion(nil, ShootingTestManagerError.missingShootingTestEventId)
+            return
+        }
 
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.listAvailableOfficials(forEvent: url, completion: completion)
+        RiistaSDK.shared.shootingTestContext.fetchAvailableShootingTestOfficialsForEvent(
+            shootingTestEventId: shootingTestEventId
+        ) { result, error in
+            self.notifyDataCompletion(
+                result: result,
+                error: error
+            ) { officials, error in
+                if let officials = officials as? [CommonShootingTestOfficial] {
+                    completion(officials, error)
+                } else {
+                    completion(nil, error ?? ShootingTestManagerError.unspecifiedError)
+                }
+            }
+        }
     }
 
-    class func listAvailableOfficialsForRhy(rhyID: Int, completion: @escaping RiistaJsonArrayCompletion) {
-        let url = String(format: ClassConstants.listAvailableOfficialsForRhyPath, rhyID)
-
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.listAvailableOfficials(forRhy: url, completion: completion)
+    func listAvailableOfficialsForRhy(rhyID: Int64, completion: @escaping OnShootingTestOfficialsFetched) {
+        RiistaSDK.shared.shootingTestContext.fetchAvailableShootingTestOfficialsForRhy(
+            rhyId: rhyID
+        ) { result, error in
+            self.notifyDataCompletion(
+                result: result,
+                error: error
+            ) { officials, error in
+                if let officials = officials as? [CommonShootingTestOfficial] {
+                    completion(officials, error)
+                } else {
+                    completion(nil, error ?? ShootingTestManagerError.unspecifiedError)
+                }
+            }
+        }
     }
 
-    class func listSelectedOfficialsForEvent(eventId: Int, completion: @escaping RiistaJsonArrayCompletion) {
-        let url = String(format: ClassConstants.listSelectedOfficialsForEventPath, eventId)
+    func listSelectedOfficialsForEvent(completion: @escaping OnShootingTestOfficialsFetched) {
+        guard let shootingTestEventId = state.shootingTestEventId else {
+            completion(nil, ShootingTestManagerError.missingShootingTestEventId)
+            return
+        }
 
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.listSelectedOfficials(forEvent: url, completion: completion)
+        RiistaSDK.shared.shootingTestContext.fetchSelectedShootingTestOfficialsForEvent(
+            shootingTestEventId: shootingTestEventId
+        ) { result, error in
+            self.notifyDataCompletion(
+                result: result,
+                error: error
+            ) { officials, error in
+                if let officials = officials as? [CommonShootingTestOfficial] {
+                    completion(officials, error)
+                } else {
+                    completion(nil, error ?? ShootingTestManagerError.unspecifiedError)
+                }
+            }
+        }
     }
+
 
     // MARK: Registration
 
-    class func searchWithHuntingNumberForEvent(eventId: Int,
-                                               hunterNumber: String,
-                                               completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.searchWithHunterNumberPath, eventId)
+    func searchWithHuntingNumberForEvent(hunterNumber: String, completion: @escaping OnShootingTestPersonFetched) {
+        guard let shootingTestEventId = state.shootingTestEventId else {
+            completion(nil, ShootingTestManagerError.missingShootingTestEventId)
+            return
+        }
 
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.searchWithHuntingNumber(forEvent: url, hunterNumber: hunterNumber, completion: completion)
+        RiistaSDK.shared.shootingTestContext.searchPersonByHunterNumber(
+            shootingTestEventId: shootingTestEventId,
+            hunterNumber: hunterNumber
+        ) { result, error in
+            self.notifyDataCompletion(
+                result: result,
+                error: error
+            ) { person, error in
+                if let person = person {
+                    completion(person, error)
+                } else {
+                    completion(nil, error ?? ShootingTestManagerError.unspecifiedError)
+                }
+            }
+        }
     }
 
-    class func searchWithSsnForEvent(eventId: Int,
-                                     ssn: String,
-                                     completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.searchWithSsnPath, eventId)
+    func searchWithSsnForEvent(ssn: String, completion: @escaping OnShootingTestPersonFetched) {
+        guard let shootingTestEventId = state.shootingTestEventId else {
+            completion(nil, ShootingTestManagerError.missingShootingTestEventId)
+            return
+        }
 
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.searchWithSsn(forEvent: url, ssn: ssn, completion: completion)
+        RiistaSDK.shared.shootingTestContext.searchPersonBySsn(
+            shootingTestEventId: shootingTestEventId,
+            ssn: ssn
+        ) { result, error in
+            self.notifyDataCompletion(
+                result: result,
+                error: error
+            ) { person, error in
+                if let person = person {
+                    completion(person, nil)
+                } else {
+                    completion(nil, error ?? ShootingTestManagerError.unspecifiedError)
+                }
+            }
+        }
     }
 
-    class func addParticipantToEvent(eventId: Int,
-                                     hunterNumber: String,
-                                     bearTestIntended: Bool,
-                                     mooseTestIntended: Bool,
-                                     roeDeerTestIntended: Bool,
-                                     bowTestIntended: Bool,
-                                     completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.addParticipantPath, eventId)
+    func addParticipantToEvent(
+        hunterNumber: String,
+        bearTestIntended: Bool,
+        mooseTestIntended: Bool,
+        roeDeerTestIntended: Bool,
+        bowTestIntended: Bool,
+        completion: @escaping OnCompletedWithStatusAndError
+    ) {
+        guard let shootingTestEventId = state.shootingTestEventId else {
+            completion(false, ShootingTestManagerError.missingShootingTestEventId)
+            return
+        }
 
-        let types = ["mooseTestIntended": mooseTestIntended,
-                     "bearTestIntended": bearTestIntended,
-                     "roeDeerTestIntended": roeDeerTestIntended,
-                     "bowTestIntended": bowTestIntended]
-
-        var body = [String : Any]()
-        body["hunterNumber"] = hunterNumber
-        body["selectedTypes"] = types
-
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.addParticipant(url, body: body, completion: completion)
+        RiistaSDK.shared.shootingTestContext.addShootingTestParticipant(
+            shootingTestEventId: shootingTestEventId,
+            hunterNumber: hunterNumber,
+            mooseTestIntended: mooseTestIntended,
+            bearTestIntended: bearTestIntended,
+            roeDeerTestIntended: roeDeerTestIntended,
+            bowTestIntended: bowTestIntended
+        ) { result, error in
+            self.notifyCompletion(result: result, error: error, completion: completion)
+        }
     }
 
     // MARK: Attempts
 
-    class func getParticipantDetailed(participantId: Int, completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.getParticipantDetailedPath, participantId)
-
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.getParticipantDetailed(url, completion: completion)
+    func getParticipantDetailed(participantId: Int64, completion: @escaping OnShootingTestParticipantDetailedFetched) {
+        RiistaSDK.shared.shootingTestContext.fetchShootingTestParticipantDetailed(
+            participantId: participantId
+        ) { result, error in
+            self.notifyDataCompletion(result: result, error: error) { participant, error in
+                if let participant = participant {
+                    completion(participant, error)
+                } else {
+                    completion(nil, error ?? ShootingTestManagerError.unspecifiedError)
+                }
+            }
+        }
     }
 
-    class func getAttempt(attemptId: Int, completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.getAttemptPath, attemptId)
-
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.getAttempt(url, completion: completion)
+    func getAttempt(attemptId: Int64, completion: @escaping OnShootingTestAttemptFetched) {
+        RiistaSDK.shared.shootingTestContext.fetchShootingTestAttempt(
+            shootingTestAttemptId: attemptId
+        ) { result, error in
+            self.notifyDataCompletion(result: result, error: error) { attempt, error in
+                if let attempt = attempt {
+                    completion(attempt, error)
+                } else {
+                    completion(nil, error ?? ShootingTestManagerError.unspecifiedError)
+                }
+            }
+        }
     }
 
-    class func addAttemptForParticipant(participantId: Int,
-                                        particiopantRev: Int,
-                                        type: String, // "MOOSE" "BEAR" "ROE_DEER" "BOW"
-                                        result: String, // "QUALIFIED" "UNQUALIFIED" "TIMED_OUT" "REBATED"
-                                        hits: Int, // [0..4]
-                                        note: String?,
-                                        completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.addAttemptPath, participantId)
-        var body = [String : Any]()
-        body["participantId"] = String(participantId)
-        body["participantRev"] = String(particiopantRev)
-        body["type"] = type
-        body["result"] = result
-        body["hits"] = String(hits)
-        body["note"] = note
-
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.addAttempt(url, body: body, completion: completion)
+    func addAttemptForParticipant(
+        participantId: Int64,
+        particiopantRev: Int32,
+        shootingTestType: ShootingTestType,
+        shootingTestResult: ShootingTestResult,
+        hits: Int, // [0..4]
+        note: String?,
+        completion: @escaping OnCompletedWithStatusAndError
+    ) {
+        RiistaSDK.shared.shootingTestContext.addShootingTestAttempt(
+            participantId: participantId,
+            participantRev: particiopantRev,
+            type: shootingTestType,
+            result: shootingTestResult,
+            hits: Int32(hits),
+            note: note
+        ) { result, error in
+            self.notifyCompletion(result: result, error: error, completion: completion)
+        }
     }
 
-    class func updateAttempt(attemptId: Int,
-                             rev: Int,
-                             participantId: Int,
-                             participantRev: Int,
-                             type: String,
-                             result: String,
-                             hits: Int,
-                             note: String?,
-                             completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.updateAttemptPath, attemptId)
-        var body = [String : Any]()
-        body["rev"] = String(rev)
-        body["participantId"] = String(participantId)
-        body["participantRev"] = String(participantRev)
-        body["type"] = type
-        body["result"] = result
-        body["hits"] = String(hits)
-        body["note"] = note
-
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.updateAttempt(url, body: body, completion: completion)
+    func updateAttempt(
+        attemptId: Int64,
+        attemptRev: Int32,
+        participantId: Int64,
+        participantRev: Int32,
+        shootingTestType: ShootingTestType,
+        shootingTestResult: ShootingTestResult,
+        hits: Int,
+        note: String?,
+        completion: @escaping OnCompletedWithStatusAndError
+    ) {
+        RiistaSDK.shared.shootingTestContext.updateShootingTestAttempt(
+            id: attemptId,
+            rev: attemptRev,
+            participantId: participantId,
+            participantRev: participantRev,
+            type: shootingTestType,
+            result: shootingTestResult,
+            hits: Int32(hits),
+            note: note
+        ) { result, error in
+            self.notifyCompletion(result: result, error: error, completion: completion)
+        }
     }
 
-    class func deleteAttempt(attemptId: Int, completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.deleteAttemptPath, attemptId)
-
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.deleteAttempt(url, completion: completion)
+    func deleteAttempt(attemptId: Int64, completion: @escaping OnCompletedWithStatusAndError) {
+        RiistaSDK.shared.shootingTestContext.removeShootingTestAttempt(
+            shootingTestAttemptId: attemptId
+        ) { result, error in
+            self.notifyCompletion(result: result, error: error, completion: completion)
+        }
     }
 
     // MARK: Participants
 
-    class func listParticipantsForEvent(eventId: Int, completion: @escaping RiistaJsonArrayCompletion) {
-        let url = String(format: ClassConstants.listParticipantsPath, eventId)
+    func listParticipantsForEvent(completion: @escaping OnShootingTestParticipantsFetched) {
+        guard let shootingTestEventId = state.shootingTestEventId else {
+            completion(nil, ShootingTestManagerError.missingShootingTestEventId)
+            return
+        }
 
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.listParticipants(url, unfinishedOnly: false, completion: completion)
+        RiistaSDK.shared.shootingTestContext.fetchShootingTestParticipants(
+            shootingTestEventId: shootingTestEventId
+        ) { result, error in
+            self.notifyDataCompletion(result: result, error: error) { participants, error in
+                if let participants = participants as? [CommonShootingTestParticipant] {
+                    completion(participants, error)
+                } else {
+                    completion(nil, error ?? ShootingTestManagerError.unspecifiedError)
+                }
+            }
+        }
     }
 
     // MARK: Payments
 
-    class func getParticipantSummary(participantId: Int, completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.getParticipantSummaryPath, participantId)
-
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.getParticipantSummary(url, completion: completion)
+    func getParticipantSummary(participantId: Int64, completion: @escaping OnShootingTestParticipantFetched) {
+        RiistaSDK.shared.shootingTestContext.fetchShootingTestParticipant(
+            participantId: participantId
+        ) { result, error in
+            self.notifyDataCompletion(result: result, error: error) { participant, error in
+                if let participant = participant {
+                    completion(participant, error)
+                } else {
+                    completion(nil, error ?? ShootingTestManagerError.unspecifiedError)
+                }
+            }
+        }
     }
 
-    class func completeAllPayments(participantId: Int, rev: Int, completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.completeAllPaymentsPath, participantId)
-        var body = [String : Any]()
-        body["rev"] = String(rev)
-
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.completeAllPayments(url, body: body, completion: completion)
+    func completeAllPayments(
+        participantId: Int64,
+        participantRev: Int32,
+        completion: @escaping OnCompletedWithStatusAndError
+    ) {
+        RiistaSDK.shared.shootingTestContext.completeAllPaymentsForParticipant(
+            participantId: participantId,
+            participantRev: participantRev
+        ) { result, error in
+            self.notifyCompletion(result: result, error: error, completion: completion)
+        }
     }
 
-    class func updatePaymentStateForParticipant(participantId: Int,
-                                                rev: Int,
-                                                paidAttempts: Int,
-                                                completed: Bool,
-                                                completion: @escaping RiistaJsonCompletion) {
-        let url = String(format: ClassConstants.updatePaymentPath, participantId)
-        var body = [String : Any]()
-        body["rev"] = rev
-        body["paidAttempts"] = paidAttempts
-        body["completed"] = String(completed)
+    func updatePaymentStateForParticipant(
+        participantId: Int64,
+        participantRev: Int32,
+        paidAttempts: Int,
+        completed: Bool,
+        completion: @escaping OnCompletedWithStatusAndError
+    ) {
+        RiistaSDK.shared.shootingTestContext.updatePaymentStateForParticipant(
+            participantId: participantId,
+            participantRev: participantRev,
+            paidAttempts: Int32(paidAttempts),
+            completed: completed
+        ) { result, error in
+            self.notifyCompletion(result: result, error: error, completion: completion)
+        }
+    }
 
-        let network = RiistaNetworkManager.sharedInstance()
-        network?.updatePaymentState(url, body: body, completion: completion)
+
+    // MARK: Helpers
+
+    /**
+     * Notifies completion. Safe to be called from any result as the given completion is guaranteed to be called only from main thread.
+     */
+    private func notifyDataCompletion<DataType>(
+        result: OperationResultWithData<DataType>?,
+        error: Error?,
+        _ completion: @escaping (_ data: DataType?, _ error: Error?) -> Void
+    ) {
+        Thread.onMainThread {
+            if (error != nil) {
+                completion(nil, error)
+            }
+
+            if let result = result {
+                result.handle(
+                    onSuccess: { dataType in
+                        completion(dataType, nil)
+                    },
+                    onFailure: { statusCode in
+                        completion(nil, ShootingTestManagerError.networkOperationFailed(statusCode: statusCode?.intValue))
+                    }
+                )
+            } else {
+                completion(nil, ShootingTestManagerError.unspecifiedError)
+            }
+        }
+    }
+
+    /**
+     * Notifies completion. Safe to be called from any result as the given completion is guaranteed to be called only from main thread.
+     */
+    private func notifyCompletion(
+        result: OperationResult?,
+        error: Error?,
+        completion: @escaping OnCompletedWithStatusAndError
+    ) {
+        Thread.onMainThread {
+            if (error != nil) {
+                completion(false, error)
+            }
+
+            if result is OperationResult.Success {
+                completion(true, nil)
+            } else if let failureResult = result as? OperationResult.Failure {
+                let statusCode = failureResult.statusCode?.intValue
+                completion(false, ShootingTestManagerError.networkOperationFailed(statusCode: statusCode))
+            } else {
+                completion(false, ShootingTestManagerError.unspecifiedError)
+            }
+        }
+    }
+}
+
+
+extension ShootingTestManager.State {
+    var calendarEventId: Int64? {
+        switch self {
+        case .uninitialized:                                return nil
+        case .calendarEvent(let calendarEventId):           return calendarEventId
+        case .shootingTestEvent(let calendarEventId, _):    return calendarEventId
+        }
+    }
+
+    var shootingTestEventId: Int64? {
+        switch self {
+        case .uninitialized:                                    return nil
+        case .calendarEvent(_):                                 return nil
+        case .shootingTestEvent(_, let shootingTestEventId):    return shootingTestEventId
+        }
     }
 }

@@ -50,7 +50,7 @@ class ViewObservationViewController:
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -72,8 +72,8 @@ class ViewObservationViewController:
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 
@@ -82,8 +82,14 @@ class ViewObservationViewController:
 
         tableViewController.addDefaultCellFactories(
             navigationControllerProvider: self,
-            specimenLauncher: { [weak self] fieldId, specimenData in
-                self?.showSpecimens(specimenData: specimenData)
+            specimenLauncher: { [weak self] fieldId, specimenData, allowEdit in
+                SpecimensViewControllerLauncher.launch(
+                    parent: self,
+                    fieldId: fieldId,
+                    specimenData: specimenData,
+                    allowEdit: allowEdit,
+                    onSpecimensEditDone: nil
+                )
             },
             speciesImageClickListener: { [weak self] fieldId, entityImage in
                 self?.onSpeciesImageClicked(fieldId: fieldId, entityImage: entityImage)
@@ -104,18 +110,13 @@ class ViewObservationViewController:
     }
 
     private func updateEditAndDeleteButtonVisibilities(canEdit: Bool) {
-        editObservationNavBarButton.isHidden = !canEdit
-        deleteObservationNavBarButton.isHidden = !canEdit
+        editObservationNavBarButton.isHiddenCompat = !canEdit
+        deleteObservationNavBarButton.isHiddenCompat = !canEdit
     }
 
     private func updateEditAndDeleteButtonEnabledStatus(enabled: Bool) {
         editObservationNavBarButton.isEnabled = enabled
         deleteObservationNavBarButton.isEnabled = enabled
-    }
-
-    private func showSpecimens(specimenData: SpecimenFieldDataContainer) {
-        let specimenViewController = ViewSpecimensViewController(specimenData: specimenData)
-        self.navigationController?.pushViewController(specimenViewController, animated: true)
     }
 
     private func onSpeciesImageClicked(fieldId: CommonObservationField, entityImage: EntityImage?) {
@@ -164,11 +165,14 @@ class ViewObservationViewController:
     private func deleteObservation() {
         tableView.showLoading()
 
-        controller.deleteObservation(updateToBackend: AppSync.shared.isAutomaticSyncEnabled()) { [weak self] success, _ in
-            guard let self = self else { return }
+        controller.deleteObservation(
+            updateToBackend: AppSync.shared.isAutomaticSyncEnabled(),
+            completionHandler: handleOnMainThread { [weak self] success, _ in
+                guard let self = self else { return }
 
-            self.tableView.hideLoading()
-            self.navigationController?.popViewController(animated: true)
-        }
+                self.tableView.hideLoading()
+                self.navigationController?.popViewController(animated: true)
+            }
+        )
     }
 }

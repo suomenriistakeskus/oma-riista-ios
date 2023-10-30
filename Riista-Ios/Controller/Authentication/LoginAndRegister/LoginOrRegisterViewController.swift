@@ -9,7 +9,7 @@ protocol LoginOrRegisterViewControllerDelegate: AuthenticationChildHelpers {
     func startChangeUsername()
 }
 
-class LoginOrRegisterViewController: UIViewController, KeyboardHandlerDelegate {
+class LoginOrRegisterViewController: BaseViewController, KeyboardHandlerDelegate {
 
     weak var delegate: LoginOrRegisterViewControllerDelegate?
 
@@ -301,17 +301,18 @@ class LoginOrRegisterViewController: UIViewController, KeyboardHandlerDelegate {
 
         RiistaSDK.shared.sendStartRegistrationEmail(
             email: username,
-            language: languageProvider.getCurrentLanguage()
-        ) { [weak self] response, _ in
-            guard let self = self else { return }
+            language: languageProvider.getCurrentLanguage(),
+            completionHandler: handleOnMainThread { [weak self] response, _ in
+                guard let self = self else { return }
 
-            if (response?.isSuccess == true) {
-                self.switchToRegistrationPhase(phase: .linkSent)
-            } else {
-                self.delegate?.showErrorDialog(title: "Error".localized(),
-                                               message: "NetworkOperationFailed".localized())
+                if (response?.isSuccess == true) {
+                    self.switchToRegistrationPhase(phase: .linkSent)
+                } else {
+                    self.delegate?.showErrorDialog(title: "Error".localized(),
+                                                   message: "NetworkOperationFailed".localized())
+                }
             }
-        }
+        )
     }
 
     private func createTab(title: String, isActive: Bool, onClicked: Selector) -> UIView {

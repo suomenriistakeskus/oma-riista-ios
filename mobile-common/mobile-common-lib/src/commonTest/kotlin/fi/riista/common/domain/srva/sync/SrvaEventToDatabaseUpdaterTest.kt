@@ -34,7 +34,11 @@ class SrvaEventToDatabaseUpdaterTest {
         val eventPage = MockSrvaEventPageData.srvaPageWithOneEvent.deserializeFromJson<SrvaEventPageDTO>()?.toSrvaEventPage()
         assertNotNull(eventPage)
         runBlocking {
-            updater.update(username = username, srvaEvents = eventPage.content)
+            updater.update(
+                username = username,
+                srvaEvents = eventPage.content,
+                overwriteNonModified = false,
+            )
         }
 
         val insertedEvents = repository.listEvents(username)
@@ -82,7 +86,11 @@ class SrvaEventToDatabaseUpdaterTest {
         val updatedEventPage = MockSrvaEventPageData.srvaPageWithUpdatedEvent.deserializeFromJson<SrvaEventPageDTO>()?.toSrvaEventPage()
         assertNotNull(updatedEventPage)
         runBlocking {
-            updater.update(username = username, srvaEvents = updatedEventPage.content)
+            updater.update(
+                username = username,
+                srvaEvents = updatedEventPage.content,
+                overwriteNonModified = false,
+            )
         }
 
         val updatedEvents = repository.listEvents(username)
@@ -145,7 +153,11 @@ class SrvaEventToDatabaseUpdaterTest {
         val eventPage = MockSrvaEventPageData.srvaPageWithOneEvent.deserializeFromJson<SrvaEventPageDTO>()?.toSrvaEventPage()
         assertNotNull(eventPage)
         runBlocking {
-            updater.update(username = username, srvaEvents = eventPage.content)
+            updater.update(
+                username = username,
+                srvaEvents = eventPage.content,
+                overwriteNonModified = false,
+            )
         }
 
         val insertedEvents = repository.listEvents(username)
@@ -156,7 +168,11 @@ class SrvaEventToDatabaseUpdaterTest {
 
         // Change some event data but keep revision as it is. Now try to update the event => it shouldn't be written to DB
         event = event.copy(hoursSpent = 1)
-        updater.update(username = username, srvaEvents = listOf(event))
+        updater.update(
+            username = username,
+            srvaEvents = listOf(event),
+            overwriteNonModified = false,
+        )
 
         var updatedEvents = repository.listEvents(username)
         assertEquals(1, updatedEvents.size)
@@ -166,11 +182,63 @@ class SrvaEventToDatabaseUpdaterTest {
         val newSpecVersion = event.srvaSpecVersion + 1
         event = event.copy(srvaSpecVersion = newSpecVersion)
 
-        updater.update(username = username, srvaEvents = listOf(event))
+        updater.update(
+            username = username,
+            srvaEvents = listOf(event),
+            overwriteNonModified = false,
+        )
         updatedEvents = repository.listEvents(username)
         assertEquals(1, updatedEvents.size)
         assertEquals(1, updatedEvents[0].hoursSpent)
         assertEquals(newSpecVersion, updatedEvents[0].srvaSpecVersion)
+    }
+
+    @Test
+    fun `non-modified srva can be overwritten in database`() = runBlocking {
+        val username = "user"
+        val dbDriverFactory = createDatabaseDriverFactory()
+        val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
+        val updater = SrvaEventToDatabaseUpdater(database)
+        val repository = SrvaEventRepository(database)
+
+        assertEquals(0, repository.listEvents(username).size)
+
+        val eventPage = MockSrvaEventPageData.srvaPageWithOneEvent.deserializeFromJson<SrvaEventPageDTO>()?.toSrvaEventPage()
+        assertNotNull(eventPage)
+        runBlocking {
+            updater.update(
+                username = username,
+                srvaEvents = eventPage.content,
+                overwriteNonModified = false,
+            )
+        }
+
+        val insertedEvents = repository.listEvents(username)
+        assertEquals(1, insertedEvents.size)
+
+        var event = insertedEvents[0]
+        assertEquals(88, event.hoursSpent)
+
+        // Change some event data but keep revision as it is. Now try to update the event => it shouldn't be written to DB
+        event = event.copy(hoursSpent = 1)
+        updater.update(
+            username = username,
+            srvaEvents = listOf(event),
+            overwriteNonModified = false,
+        )
+
+        var updatedEvents = repository.listEvents(username)
+        assertEquals(1, updatedEvents.size)
+        assertEquals(88, updatedEvents[0].hoursSpent)
+
+        updater.update(
+            username = username,
+            srvaEvents = listOf(event),
+            overwriteNonModified = true,
+        )
+        updatedEvents = repository.listEvents(username)
+        assertEquals(1, updatedEvents.size)
+        assertEquals(1, updatedEvents[0].hoursSpent)
     }
 
     @Test
@@ -276,7 +344,11 @@ class SrvaEventToDatabaseUpdaterTest {
             srvaEvent = eventWithLocalImage.copy(remoteId = null),
         )
 
-        updater.update(username = username, srvaEvents = listOf(event))
+        updater.update(
+            username = username,
+            srvaEvents = listOf(event),
+            overwriteNonModified = false,
+        )
         val updatedEvents = repository.listEvents(username)
         assertEquals(1, updatedEvents.size)
         val updatedEvent = updatedEvents.first()

@@ -4,12 +4,16 @@ import RiistaCommon
 class EditHarvestViewController :
     ModifyHarvestViewController<EditHarvestController> {
 
-    var harvest: CommonHarvest
+    var harvest: EditableHarvest
 
     private lazy var _controller: EditHarvestController = {
         let controller = EditHarvestController(
             harvestSeasons: RiistaSDK.shared.harvestSeasons,
-            permitProvider: appPermitProvider,
+            harvestContext: RiistaSDK.shared.harvestContext,
+            harvestPermitProvider: appHarvestPermitProvider,
+            selectableHuntingClubs: RiistaSDK.shared.huntingClubsSelectableForEntriesFactory.create(),
+            languageProvider: CurrentLanguageProvider(),
+            preferences: RiistaSDK.shared.preferences,
             speciesResolver: SpeciesInformationResolver(),
             stringProvider: LocalizedStringProvider()
         )
@@ -24,7 +28,7 @@ class EditHarvestViewController :
         }
     }
 
-    init(harvest: CommonHarvest) {
+    init(harvest: EditableHarvest) {
         self.harvest = harvest
         super.init()
     }
@@ -34,57 +38,11 @@ class EditHarvestViewController :
     }
 
     override func onWillLoadViewModel(willRefresh: Bool) {
-        controller.editableHarvest = EditableHarvest(harvest: harvest)
+        controller.editableHarvest = harvest
     }
 
-    override func onSaveClicked() {
-        guard let harvest = controller.getValidatedHarvest() else {
-            return
-        }
-
-        guard let localUri = harvest.localUrl,
-              let uri = URL(string: localUri),
-              let objectId = moContext.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri) else {
-                  print("Unable to retrieve objectID")
-            return
-        }
-
-        guard let harvestEntry = RiistaGameDatabase.sharedInstance().diaryEntry(with: objectId, context: moContext) else {
-            print("Failed to obtain existing harvest entry for saving (id: \(objectId))")
-            return
-        }
-
-        tableView.showLoading()
-        saveButton.isEnabled = false
-
-        harvestEntry.updateWithCommonHarvest(harvest: harvest, context: moContext)
-        harvestEntry.sent = false
-        harvestEntry.pendingOperation = NSNumber(value: DiaryEntryOperationNone)
-
-        saveAndSynchronizeEditedHarvest(harvest: harvestEntry) { [weak self] success in
-            guard let self = self else {
-                return
-            }
-
-            self.saveButton.isEnabled = true
-            self.tableView.hideLoading { [weak self] in
-                guard let self = self else {
-                    return
-                }
-
-                if (!success) {
-                    let errorDialog = AlertDialogBuilder.createError(message: "NetworkOperationFailed".localized())
-                    self.present(errorDialog, animated: true)
-                    return
-                }
-
-                if let modifyListener: ModifyHarvestCompletionListener = self.navigationController?.findViewController() {
-                    modifyListener.updateUserInterfaceAfterHarvestSaved()
-                } else {
-                    self.navigationController?.popViewController(animated: true)
-                }
-            }
-        }
+    override func navigateToNextViewAfterSaving(harvest: CommonHarvest) {
+        navigationController?.popViewController(animated: true)
     }
 
     override func getViewTitle() -> String {

@@ -153,6 +153,7 @@
         [self.tableView.refreshControl endRefreshing];
 
         // Ignore all errors including common ones like no network and session expired
+        [self fetchAnnouncements];
     }];
 }
 

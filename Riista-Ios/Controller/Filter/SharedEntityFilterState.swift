@@ -1,6 +1,6 @@
 import Foundation
 import RiistaCommon
-
+import TypedNotification
 
 /*
  Documentation about filtering implementation
@@ -49,9 +49,23 @@ import RiistaCommon
     - DataSource updates UI + notifies possible listeners
 */
 
-class SharedEntityFilterStateUpdater: LogFilterChangeListener {
+class SharedEntityFilterStateUpdater: EntityFilterChangeRequestListener {
     func onFilterChangeRequested(filter: EntityFilter) {
         SharedEntityFilterState.shared.updateFilter(filter: filter)
+    }
+
+    func onShowEntriesForOtherActorsChangeRequested(showEntriesForOtherActors: Bool) {
+        let filter = SharedEntityFilterState.shared.filter
+        SharedEntityFilterState.shared.updateFilter(
+            filter: filter.changeShowEntriesForOtherActors(showEntriesForOtherActors: showEntriesForOtherActors)
+        )
+    }
+}
+
+// to be used from objective-c side
+@objc class SharedEntityFilterStateHelper: NSObject {
+    @objc class func registerToListenNotifications() {
+        SharedEntityFilterState.shared.registerToListenNotifications()
     }
 }
 
@@ -63,7 +77,8 @@ class SharedEntityFilterState {
     static let DEFAULT_FILTER: EntityFilter = HarvestFilter(
         seasonStartYear: Int(Date().toLocalDate().getHuntingYear()),
         speciesCategory: nil,
-        species: []
+        species: [],
+        showEntriesForOtherActors: false
     )
 
     private(set) static var shared: SharedEntityFilterState = {
@@ -89,12 +104,14 @@ class SharedEntityFilterState {
 
     private let filterChangeNotifier = EntityFilterChangeNotifier()
 
+    private lazy var notificationObservationBag = NotificationObservationBag()
+
     /**
      * Adds a EntityFilterChangeListener and optionally notifies it about the last shared state.
      *
      * Will keep a weak reference to listener.
      */
-    func addListener(_ listener: EntityFilterChangeListener, notify: Bool = true) {
+    func addEntityFilterChangeListener(_ listener: EntityFilterChangeListener, notify: Bool = true) {
         filterChangeNotifier.addEntityFilterChangeListener(listener)
 
         if (notify) {
@@ -102,12 +119,36 @@ class SharedEntityFilterState {
         }
     }
 
-    func removeListener(_ listener: EntityFilterChangeListener) {
+    func removeEntityFilterChangeListener(_ listener: EntityFilterChangeListener) {
         filterChangeNotifier.removeEntityFilterChangeListener(listener)
+    }
+
+    func registerToListenNotifications() {
+        NotificationCenter.default.addObserver(
+            forType: EntityModified.self,
+            object: nil,
+            queue: .main
+        ) { [weak self] entityModified in
+            guard let self = self else {
+                return
+            }
+
+            let newFilter = self.filter
+                .changeEntityType(entityType: entityModified.object.entityType.toFilterableEntityType())
+                .changeYear(year: entityModified.object.yearForFilter)
+                .ensureSpeciesDisplayed(species: entityModified.object.entitySpecies)
+                .changeShowEntriesForOtherActors(showEntriesForOtherActors: entityModified.object.entityReportedForOthers)
+
+            self.updateFilter(filter: newFilter)
+        }.stored(in: notificationObservationBag)
     }
 
     private init(initialFilter: EntityFilter) {
         filter = initialFilter
+    }
+
+    deinit {
+        notificationObservationBag.empty()
     }
 
 
@@ -116,5 +157,18 @@ class SharedEntityFilterState {
     fileprivate func updateFilter(filter: EntityFilter) {
         // updating filter will cause notifications to listeners
         self.filter = filter
+    }
+}
+
+
+fileprivate extension EntityModified.Data {
+    var yearForFilter: Int {
+        switch (entityType) {
+        case .harvest:          fallthrough
+        case .observation:      return Int(entityPointOfTime.date.getHuntingYear())
+        case .srva:             return Int(entityPointOfTime.year)
+        default:
+            fatalError("Unexpected entity type \(entityType)")
+        }
     }
 }

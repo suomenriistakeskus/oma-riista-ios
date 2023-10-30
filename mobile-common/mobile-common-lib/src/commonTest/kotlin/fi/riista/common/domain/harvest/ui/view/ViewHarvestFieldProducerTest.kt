@@ -9,9 +9,10 @@ import fi.riista.common.domain.harvest.ui.CommonHarvestField
 import fi.riista.common.domain.model.*
 import fi.riista.common.domain.specimens.ui.SpecimenFieldSpecification
 import fi.riista.common.domain.specimens.ui.SpecimenFieldType
-import fi.riista.common.helpers.TestPermitProvider
+import fi.riista.common.helpers.TestHarvestPermitProvider
 import fi.riista.common.helpers.TestStringProvider
 import fi.riista.common.model.*
+import fi.riista.common.resources.MockLanguageProvider
 import fi.riista.common.resources.RR
 import fi.riista.common.ui.dataField.*
 import kotlin.test.*
@@ -19,8 +20,9 @@ import kotlin.test.*
 class ViewHarvestFieldProducerTest {
 
     private val fieldProducer = ViewHarvestFieldProducer(
-        permitProvider = TestPermitProvider.INSTANCE,
-        stringProvider = TestStringProvider.INSTANCE
+        harvestPermitProvider = TestHarvestPermitProvider.INSTANCE,
+        stringProvider = TestStringProvider.INSTANCE,
+        languageProvider = MockLanguageProvider(),
     )
 
     @Test
@@ -478,8 +480,8 @@ class ViewHarvestFieldProducerTest {
     @Test
     fun testPermitNumber() {
         // ensures that fallback permit type is used
-        TestPermitProvider.INSTANCE.mockPermit = TestPermitProvider.INSTANCE.mockPermit.copy(permitNumber = "permitNumber")
-        assertNotEquals("123", TestPermitProvider.INSTANCE.mockPermit.permitNumber)
+        TestHarvestPermitProvider.INSTANCE.mockPermit = TestHarvestPermitProvider.INSTANCE.mockPermit.copy(permitNumber = "permitNumber")
+        assertNotEquals("123", TestHarvestPermitProvider.INSTANCE.mockPermit.permitNumber)
 
         createHarvest().copy(
             permitType = "type",
@@ -495,10 +497,10 @@ class ViewHarvestFieldProducerTest {
     @Test
     fun testPermitTypeFromPermitIsUsed() {
         // ensures that there's a permit for permitNumber
-        TestPermitProvider.INSTANCE.mockPermit = TestPermitProvider.INSTANCE.mockPermit.copy(
+        TestHarvestPermitProvider.INSTANCE.mockPermit = TestHarvestPermitProvider.INSTANCE.mockPermit.copy(
             permitNumber = "123",
         )
-        assertEquals("123", TestPermitProvider.INSTANCE.mockPermit.permitNumber)
+        assertEquals("123", TestHarvestPermitProvider.INSTANCE.mockPermit.permitNumber)
 
         createHarvest().copy(
             permitType = "type",
@@ -524,55 +526,55 @@ class ViewHarvestFieldProducerTest {
             harvestReportRequired = true
         ).assertHarvestReportField(
             expectedText = RR.string.harvest_report_required,
-            expectedColor = LabelField.LabelFieldSettings.IndicatorColor.RED
+            expectedColor = IndicatorColor.RED
         )
 
         createHarvest().copy(
             harvestReportState = HarvestReportState.SENT_FOR_APPROVAL.toBackendEnum()
         ).assertHarvestReportField(
             expectedText = RR.string.harvest_report_state_sent_for_approval,
-            expectedColor = LabelField.LabelFieldSettings.IndicatorColor.YELLOW
+            expectedColor = IndicatorColor.YELLOW
         )
 
         createHarvest().copy(
             harvestReportState = HarvestReportState.REJECTED.toBackendEnum()
         ).assertHarvestReportField(
             expectedText = RR.string.harvest_report_state_rejected,
-            expectedColor = LabelField.LabelFieldSettings.IndicatorColor.RED
+            expectedColor = IndicatorColor.RED
         )
 
         createHarvest().copy(
             harvestReportState = HarvestReportState.APPROVED.toBackendEnum()
         ).assertHarvestReportField(
             expectedText = RR.string.harvest_report_state_approved,
-            expectedColor = LabelField.LabelFieldSettings.IndicatorColor.GREEN
+            expectedColor = IndicatorColor.GREEN
         )
 
         createHarvest().copy(
             stateAcceptedToHarvestPermit = StateAcceptedToHarvestPermit.PROPOSED.toBackendEnum()
         ).assertHarvestReportField(
             expectedText = RR.string.harvest_permit_proposed,
-            expectedColor = LabelField.LabelFieldSettings.IndicatorColor.YELLOW
+            expectedColor = IndicatorColor.YELLOW
         )
 
         createHarvest().copy(
             stateAcceptedToHarvestPermit = StateAcceptedToHarvestPermit.REJECTED.toBackendEnum()
         ).assertHarvestReportField(
             expectedText = RR.string.harvest_permit_rejected,
-            expectedColor = LabelField.LabelFieldSettings.IndicatorColor.RED
+            expectedColor = IndicatorColor.RED
         )
 
         createHarvest().copy(
             stateAcceptedToHarvestPermit = StateAcceptedToHarvestPermit.ACCEPTED.toBackendEnum()
         ).assertHarvestReportField(
             expectedText = RR.string.harvest_permit_accepted,
-            expectedColor = LabelField.LabelFieldSettings.IndicatorColor.GREEN
+            expectedColor = IndicatorColor.GREEN
         )
     }
 
     private inline fun CommonHarvestData.assertHarvestReportField(
         expectedText: RR.string,
-        expectedColor: LabelField.LabelFieldSettings.IndicatorColor,
+        expectedColor: IndicatorColor,
     ) {
         assertHarvestReportField(
             expectedText = TestStringProvider.INSTANCE.getString(expectedText),
@@ -582,7 +584,7 @@ class ViewHarvestFieldProducerTest {
 
     private fun CommonHarvestData.assertHarvestReportField(
         expectedText: String,
-        expectedColor: LabelField.LabelFieldSettings.IndicatorColor,
+        expectedColor: IndicatorColor,
     ) {
         assertCreatedField<LabelField<CommonHarvestField>>(
             CommonHarvestField.HARVEST_REPORT_STATE
@@ -707,6 +709,8 @@ class ViewHarvestFieldProducerTest {
             pointOfTime = HARVEST_DATE_TIME,
             description = "description",
             canEdit = false,
+            modified = false,
+            deleted = false,
             images = EntityImages.noImages(),
             specimens = listOf(
                 CommonSpecimenData.createForTests()
@@ -715,6 +719,7 @@ class ViewHarvestFieldProducerTest {
             huntingDayId = null,
             authorInfo = null,
             actorInfo = GroupHuntingPerson.Unknown,
+            selectedClub = SearchableOrganization.Unknown,
             harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
             harvestReportRequired = false,
             harvestReportState = BackendEnum.create(null),

@@ -53,16 +53,18 @@ class EditGroupHuntingObservationViewController : ModifyGroupHuntingObservationV
         saveButton.isEnabled = false
 
         // accept is same as save for observations
-        controller.acceptObservation { [weak self] result, error in
-            guard let self = self else {
-                print("No self? Was viewcontroller dismissed while approving observation?")
-                return
-            }
+        controller.acceptObservation(
+            completionHandler: handleOnMainThread { [weak self] result, error in
+                guard let self = self else {
+                    print("No self? Was viewcontroller dismissed while approving observation?")
+                    return
+                }
 
-            self.tableView.hideLoading()
-            self.saveButton.isEnabled = true
-            self.onObservationSaveCompleted(result: result, error: error)
-        }
+                self.tableView.hideLoading()
+                self.saveButton.isEnabled = true
+                self.onObservationSaveCompleted(result: result, error: error)
+            }
+        )
     }
 
     private func onObservationSaveCompleted(result: GroupHuntingObservationOperationResponse?, error: Error?) {

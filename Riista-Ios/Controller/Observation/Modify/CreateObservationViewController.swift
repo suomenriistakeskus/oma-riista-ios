@@ -68,11 +68,14 @@ class CreateObservationViewController :
     override func navigateToNextViewAfterSaving(observation: CommonObservation) {
         if let observationId = observation.localId?.int64Value {
             let viewObservationViewController = ViewObservationViewController(observationId: observationId)
-            self.navigationController?.popViewController(animated: false)
-            self.navigationController?.pushViewController(viewObservationViewController, animated: true)
+            navigationController?.replaceViewController(
+                viewControllerToPop: self,
+                childViewControllers: [viewObservationViewController],
+                animated: true
+            )
         } else {
             // just pop the navigation controller as we're unable to display observation
-            self.navigationController?.popViewController(animated: true)
+            navigationController?.popViewController(animated: true)
         }
     }
 

@@ -4,12 +4,6 @@ import RiistaCommon
 
 fileprivate let CELL_TYPE = DataFieldCellType.labelIndicator
 
-fileprivate let INDICATOR_COLORS: [LabelFieldLabelFieldSettingsIndicatorColor : UIColor] = [
-    LabelFieldLabelFieldSettingsIndicatorColor.green : UIColor.applicationColor(ApplicationGreen)!,
-    LabelFieldLabelFieldSettingsIndicatorColor.yellow : UIColor.applicationColor(ApplicationYellow)!,
-    LabelFieldLabelFieldSettingsIndicatorColor.red : UIColor.applicationColor(ApplicationRed)!
-]
-
 /**
  * A cell for representing LabelFields with type of INDICATOR.
  */
@@ -67,7 +61,7 @@ class IndicatorLabelFieldCell<FieldId : DataFieldId>: TypedDataFieldCell<FieldId
             indicatorLabel.text = field.text
         }
 
-        if let indicatorColor = INDICATOR_COLORS[field.settings.indicatorColor] {
+        if let indicatorColor = field.settings.indicatorColor.toUIColor() {
             indicatorCircle.backgroundColor = indicatorColor
             indicatorCircle.isHidden = false
         } else {

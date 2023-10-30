@@ -119,19 +119,19 @@ class WarningView: UIView {
 
         scrollableContent.translatesAutoresizingMaskIntoConstraints = false
         scrollableContent.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
-            make.bottom.equalTo(buttonContainerView.snp.top).offset(-12)
+            make.leading.trailing.top.equalToSuperview().priority(999)
+            make.bottom.equalTo(buttonContainerView.snp.top).offset(-12).priority(999)
         }
-        scrollableContent.contentInset.top = 40
+        scrollableContent.contentInset.top = 48
         buttonContainerView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview().inset(12)
+            make.leading.trailing.bottom.equalToSuperview().inset(12).priority(999)
         }
 
         scrollableContent.addSubview(contentContainerView)
 
         contentContainerView.translatesAutoresizingMaskIntoConstraints = false
         contentContainerView.snp.makeConstraints { make in
-            make.leading.trailing.equalTo(scrollableContent.layoutMarginsGuide)
+            make.leading.trailing.equalTo(scrollableContent.layoutMarginsGuide).priority(999)
             make.top.bottom.equalToSuperview().inset(12)
         }
 

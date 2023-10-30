@@ -208,6 +208,12 @@ class ExtensionsTest {
             initialList.withNumberOfElements(5) { 5 }
         )
     }
+
+    @Test
+    fun `prefixing strings`() {
+        assertEquals("foobar", "bar".prefixed("foo"))
+        assertEquals("bar", "bar".prefixed(""))
+    }
 }
 
 private data class ComplexObject(

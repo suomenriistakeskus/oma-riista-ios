@@ -11,10 +11,6 @@ import Async
     // and to be given to RiistaSDK for parsing.
     case groupHuntingIntroMessageJson
 
-    // the harvest season overrides in respect to hard coded values. In JSON format
-    // and to be given to RiistaSDK for parsing.
-    case harvestSeasonOverrides
-
     // the settings for the Riista SDK
     case riistaSDKSettings
 
@@ -26,6 +22,9 @@ import Async
 
     // Pattern for parsing Finnish SSN
     case ssnPattern
+
+    // Map tile versions (allows invalidating certain map layers afterwards)
+    case mapTileVersions
 }
 
 
@@ -54,9 +53,6 @@ typealias RemoteConfigurationOperationCompletion = () -> Void
             case .appStartupMessageJson, .groupHuntingIntroMessageJson:
                 // no default for startup messages i.e. let them be null
                 continue
-            case .harvestSeasonOverrides:
-                // no default overrides i.e. let it be null
-                continue
             case .riistaSDKSettings:
                 // no default overrides i.e. let it be null
                 continue
@@ -69,6 +65,9 @@ typealias RemoteConfigurationOperationCompletion = () -> Void
             case .ssnPattern:
                 defaultValue = "^\\d{6}[A+-]\\d{3}[0-9A-FHJ-NPR-Y]$" as NSString
                 break
+            case .mapTileVersions:
+                // no default overrides i.e. let it be null
+                continue
             }
 
             defaults[configurable.key()] = defaultValue
@@ -165,10 +164,6 @@ typealias RemoteConfigurationOperationCompletion = () -> Void
         return getValueFor(configurable: .groupHuntingIntroMessageJson).stringValue
     }
 
-    @objc func harvestSeasonOverrides() -> String? {
-        return getValueFor(configurable: .harvestSeasonOverrides).stringValue
-    }
-
     @objc func riistaSDKSettings() -> String? {
         return getValueFor(configurable: .riistaSDKSettings).stringValue
     }
@@ -185,6 +180,10 @@ typealias RemoteConfigurationOperationCompletion = () -> Void
         return getValueFor(configurable: .ssnPattern).stringValue!
     }
 
+    @objc func mapTileVersions() -> String? {
+        return getValueFor(configurable: .mapTileVersions).stringValue
+    }
+
     private func getValueFor(configurable: RemoteConfigurable) -> RemoteConfigValue {
         return RemoteConfig.remoteConfig().configValue(forKey: configurable.key())
     }
@@ -197,8 +196,6 @@ fileprivate extension RemoteConfigurable {
             return "app_startup_message"
         case .groupHuntingIntroMessageJson:
             return "group_hunting_intro_message"
-        case .harvestSeasonOverrides:
-            return "harvest_season_overrides"
         case .riistaSDKSettings:
             return "riista_sdk_remote_settings"
         case .experimentalModeAllowed:
@@ -207,6 +204,8 @@ fileprivate extension RemoteConfigurable {
             return "app_update_promotion_delay_days"
         case .ssnPattern:
             return "ssn_pattern"
+        case .mapTileVersions:
+            return "map_tile_versions"
         }
     }
 }

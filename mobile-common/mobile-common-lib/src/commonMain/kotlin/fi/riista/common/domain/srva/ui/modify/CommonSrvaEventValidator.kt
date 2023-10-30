@@ -78,8 +78,7 @@ internal object CommonSrvaEventValidator {
                     fieldSpecification.ifRequired {
                         val specimenAmount = srvaEvent.specimenAmount ?: 0
                         Error.INVALID_SPECIMEN_AMOUNT.takeIf {
-                            specimenAmount == 0 || srvaEvent.specimens.isEmpty()
-                                    || specimenAmount > SrvaConstants.MAX_SPECIMEN_AMOUNT
+                            specimenAmount == 0 || specimenAmount > SrvaConstants.MAX_SPECIMEN_AMOUNT
                         }
                     }
                 SrvaEventField.Type.EVENT_CATEGORY ->

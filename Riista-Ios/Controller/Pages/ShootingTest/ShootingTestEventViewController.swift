@@ -1,20 +1,23 @@
 import UIKit
-import OAStackView
+import MaterialComponents.MaterialButtons
 import MaterialComponents.MaterialDialogs
+import RiistaCommon
 
-class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
+class ShootingTestEventViewController: BaseViewController, OfficialViewDelegate {
+    private static var logger = AppLogger(for: ShootingTestEventViewController.self, printTimeStamps: false)
+
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var dateTimeLabel: UILabel!
     @IBOutlet weak var venueLabel: UILabel!
     @IBOutlet weak var sumOfPaymentsLabel: UILabel!
-    @IBOutlet weak var startButton: UIButton!
-    @IBOutlet weak var editButton: UIButton!
-    @IBOutlet weak var finishButton: UIButton!
-    @IBOutlet weak var reopenButton: UIButton!
+    @IBOutlet weak var startButton: MDCButton!
+    @IBOutlet weak var editButton: MDCButton!
+    @IBOutlet weak var finishButton: MDCButton!
+    @IBOutlet weak var reopenButton: MDCButton!
     @IBOutlet weak var officialsLabel: UILabel!
     @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet weak var selectedOfficialsView: OAStackView!
-    @IBOutlet weak var availableOfficialsView: OAStackView!
+    @IBOutlet weak var selectedOfficialsView: UIStackView!
+    @IBOutlet weak var availableOfficialsView: UIStackView!
 
     @IBOutlet weak var startButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var editButtonHeightConstraint: NSLayoutConstraint!
@@ -23,24 +26,24 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
     @IBOutlet weak var buttonAreaHeightConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var buttonView: UIView!
-    @IBOutlet weak var cancelButton: UIButton!
-    @IBOutlet weak var saveButton: UIButton!
+    @IBOutlet weak var cancelButton: MDCButton!
+    @IBOutlet weak var saveButton: MDCButton!
 
     @IBAction func startEventClick(_ sender: UIButton) {
         let occupationIds = self.selectedOfficials.map { $0.occupationId }
 
         if (occupationIds.count >= 2) {
             let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
+            tabBarVc.shootingTestManager.startShootingTestEvent(
+                occupationIds: occupationIds,
+                responsibleOfficialOccupationId: self.shootingTestResponsibleOccupationId
+            ) { [weak self] success, error in
+                guard let self = self else { return }
 
-            ShootingTestManager.startShootingTestEvent(calendarEventId: tabBarVc.calendarEventId!,
-                                                       shootingTestEventId: tabBarVc.eventId,
-                                                       occupationIds: occupationIds as! Array<Int>)
-            { (result:Any?, error:Error?) in
-                if (error == nil) {
+                if (success) {
                     self.setEditingOfficials(enabled: false)
-                }
-                else {
-                    print("startShootingTestEvent failed: " + (error?.localizedDescription)!)
+                } else {
+                    print("startShootingTestEvent failed: \(error?.localizedDescription ?? String(describing: error))")
                 }
             }
         }
@@ -53,63 +56,66 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
     @IBAction func closeEventClick(_ sender: UIButton) {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
 
-        let alert = MDCAlertController(title: nil,
-                                       message: String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ConfirmOperationPrompt")))
-        alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "OK"), handler: { action in
-            ShootingTestManager.closeShootingTestEvent(eventId: tabBarVc.eventId!)
-            { (result:Any?, error:Error?) in
-                if (error == nil) {
+        let alert = MDCAlertController(
+            title: nil,
+            message: String(format: "ConfirmOperationPrompt".localized())
+        )
+        alert.addAction(MDCAlertAction(title: "OK".localized(), handler: { action in
+            tabBarVc.shootingTestManager.closeShootingTestEvent() { [weak self] success, error in
+                guard let self = self else { return }
+
+                if (success) {
                     self.refreshEvent()
                 }
                 else {
-                    print("closeShootingTestEvent failed: " + (error?.localizedDescription)!)
+                    print("closeShootingTestEvent failed: \(error?.localizedDescription ?? String(describing: error))")
                 }
             }
         }))
-        alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "No"), handler: nil))
+        alert.addAction(MDCAlertAction(title: "No".localized(), handler: nil))
         self.present(alert, animated: true, completion: nil)
     }
 
     @IBAction func reopenEventClick(_ sender: UIButton) {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
 
-        let alert = MDCAlertController(title: nil,
-                                       message: String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ConfirmOperationPrompt")))
-        alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "OK"), handler: { action in
-            ShootingTestManager.reopenShootingTestEvent(eventId: tabBarVc.eventId!)
-            { (result:Any?, error:Error?) in
-                if (error == nil) {
+        let alert = MDCAlertController(
+            title: nil,
+            message: String(format: "ConfirmOperationPrompt".localized())
+        )
+        alert.addAction(MDCAlertAction(title: "OK".localized(), handler: { action in
+            tabBarVc.shootingTestManager.reopenShootingTestEvent() { [weak self] success, error in
+                guard let self = self else { return }
+
+                if (success) {
                     self.refreshEvent()
                 }
                 else {
-                    print("reopenShootingTestEvent failed: " + (error?.localizedDescription)!)
+                    print("reopenShootingTestEvent failed: \(error?.localizedDescription ?? String(describing: error))")
                 }
             }
         }))
-        alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "No"), handler: nil))
+        alert.addAction(MDCAlertAction(title: "No".localized(), handler: nil))
         self.present(alert, animated: true, completion: nil)
     }
 
-    @IBAction func cancelEditOfficials( sender: UIButton) {
+    @IBAction func cancelEditOfficials(sender: UIButton) {
         self.setEditingOfficials(enabled: false)
     }
 
-    @IBAction func saveEditOfficials( sender: UIButton) {
-        let occupationIds = self.selectedOfficials.map { $0.occupationId }
-
-        if (occupationIds.count >= 2) {
+    @IBAction func saveEditOfficials(sender: UIButton) {
+        if (self.selectedOfficials.count >= 2) {
             let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
 
-            ShootingTestManager.updateShootingTestOfficials(calendarEventId: tabBarVc.calendarEventId!,
-                                                            shootingTestEventId: tabBarVc.eventId!,
-                                                            occupationIds: occupationIds as! Array<Int>)
-            { (result:Any?, error:Error?) in
-                if (error == nil) {
+            tabBarVc.shootingTestManager.updateShootingTestOfficials(
+                selectedOfficials: self.selectedOfficials,
+                responsibleOfficialOccupationId: self.shootingTestResponsibleOccupationId
+            ) { success, error in
+                if (success) {
                     self.setEditingOfficials(enabled: false)
                     self.refreshEvent()
-                }
-                else {
-                    print("closeShootingTestEvent failed: " + (error?.localizedDescription)!)
+                } else {
+                    print("saveEditOfficials failed: \(error?.localizedDescription ?? String(describing: error))")
                 }
             }
         }
@@ -119,10 +125,12 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
     internal var hasSelectedOfficials = false
     internal var hasAvailableOfficials = false
 
-    internal var selectedOfficials: [ShootingTestOfficial] = Array()
-    internal var availableOfficials: [ShootingTestOfficial] = Array()
-    internal var selectedOfficialsMaster: [ShootingTestOfficial] = Array()
-    internal var availableOfficialsMaster: [ShootingTestOfficial] = Array()
+    internal var selectedOfficials: [CommonShootingTestOfficial] = Array()
+    internal var availableOfficials: [CommonShootingTestOfficial] = Array()
+    internal var shootingTestResponsibleOccupationId: Int64? = nil
+    internal var selectedOfficialsMaster: [CommonShootingTestOfficial] = Array()
+    internal var availableOfficialsMaster: [CommonShootingTestOfficial] = Array()
+    internal var shootingTestResponsibleOccupationIdMaster: Int64? = nil
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -152,87 +160,70 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
 
     func refreshEvent() {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
-        tabBarVc.fetchEvent() { (result:Any?, error:Error?) in
+        tabBarVc.fetchEvent() { shootingTestEvent, error in
             self.navigationItem.rightBarButtonItem?.isEnabled = true
 
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let event = try JSONDecoder().decode(ShootingTestCalendarEvent.self, from: json)
+            if let shootingTestEvent = shootingTestEvent {
+                if (shootingTestEvent.waitingToStart) {
+                    self.isEdit = true
+                }
+                self.refreshUI(event: shootingTestEvent)
 
-                    if (event.isWaitingToStart()) {
-                        self.isEdit = true
+                self.refreshSelectedOfficials(event: shootingTestEvent)
+                self.refreshAvailableOfficials(event: shootingTestEvent)
+
+                self.refreshScrollViewHeight()
+            } else {
+                print("fetchEvent failed: \(error?.localizedDescription ?? String(describing: error))")
+            }
+        }
+    }
+
+    func refreshSelectedOfficials(event: CommonShootingTestCalendarEvent) {
+        let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
+        tabBarVc.fetchSelectedOfficials() { [weak self] officials, error in
+            guard let self = self else { return }
+
+            if let officials = officials {
+                self.selectedOfficialsMaster = officials
+                self.hasSelectedOfficials = !officials.isEmpty
+                self.shootingTestResponsibleOccupationIdMaster = officials.firstResult { official in
+                    if (official.shootingTestResponsible) {
+                        return official.occupationId
                     }
-                    self.refreshUI(event: event)
 
-                    self.refreshSelectedOfficials(event: event)
-                    self.refreshAvailableOfficials(event: event)
+                    return nil
+                }
 
-                    self.refreshScrollViewHeight()
-                }
-                catch {
-                    print("Failed to parse <ShootingTestCalendarEvent> item")
-                }
-            }
-            else {
-                print("fetchEvent failed: " + (error?.localizedDescription)!)
+                self.selectedOfficials.removeAll()
+                self.selectedOfficials.insert(contentsOf: self.selectedOfficialsMaster, at: 0)
+                self.shootingTestResponsibleOccupationId = self.shootingTestResponsibleOccupationIdMaster
+
+                self.filterAvailableOfficials(event: event)
+            } else {
+                print("fetchSelectedOfficials failed: \(error?.localizedDescription ?? String(describing: error))")
             }
         }
     }
 
-    func refreshSelectedOfficials(event: ShootingTestCalendarEvent) {
+    func refreshAvailableOfficials(event: CommonShootingTestCalendarEvent) {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
-        tabBarVc.fetchSelectedOfficials() { (result:Array?, error:Error?) in
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let list = try JSONDecoder().decode([ShootingTestOfficial].self, from: json)
+        tabBarVc.fetchAvailableOfficials() { [weak self] officials, error in
+            guard let self = self else { return }
 
-                    self.selectedOfficialsMaster.removeAll()
-                    self.selectedOfficialsMaster.insert(contentsOf: list , at: 0)
-                    self.hasSelectedOfficials = true
+            if let officals = officials {
+                self.availableOfficialsMaster = officals
+                self.hasAvailableOfficials = !officals.isEmpty
 
-                    self.selectedOfficials.removeAll()
-                    self.selectedOfficials.insert(contentsOf: self.selectedOfficialsMaster, at: 0)
-
-                    self.filterAvailableOfficials(event: event)
-                }
-                catch {
-                    print("Failed to parse <ShootingTestOfficial> items")
-                }
-            }
-            else {
-                print("listSelectedOfficialsForEvent failed: " + (error?.localizedDescription)!)
+                self.filterAvailableOfficials(event: event)
+            } else {
+                print("fetchAvailableOfficials failed: \(error?.localizedDescription ?? String(describing: error))")
             }
         }
     }
 
-    func refreshAvailableOfficials(event: ShootingTestCalendarEvent) {
-        let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
-        tabBarVc.fetchAvailableOfficials() { (result:Any?, error:Error?) in
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let list = try JSONDecoder().decode([ShootingTestOfficial].self, from: json)
-
-                    self.availableOfficialsMaster.removeAll()
-                    self.availableOfficialsMaster.insert(contentsOf: list , at: 0)
-                    self.hasAvailableOfficials = true
-
-                    self.filterAvailableOfficials(event: event)
-                }
-                catch {
-                    print("Failed to parse <ShootingTestOfficial> items")
-                }
-            }
-            else {
-                print("listSelectedOfficialsForEvent failed: " + (error?.localizedDescription)!)
-            }
-        }
-    }
-
-    private func filterAvailableOfficials(event: ShootingTestCalendarEvent) {
-        if (self.hasAvailableOfficials && (self.hasSelectedOfficials || event.isWaitingToStart())) {
+    private func filterAvailableOfficials(event: CommonShootingTestCalendarEvent) {
+        if (self.hasAvailableOfficials && (self.hasSelectedOfficials || event.waitingToStart)) {
             self.availableOfficials.removeAll()
 
             for item in self.availableOfficialsMaster {
@@ -242,7 +233,7 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
             }
 
             refreshSelectedOfficials(officials: self.selectedOfficials)
-            refreshAvailableOfficials(officials: self.availableOfficials, visible: event.isWaitingToStart() || self.isEdit)
+            refreshAvailableOfficials(officials: self.availableOfficials, visible: event.waitingToStart || self.isEdit)
             self.refreshScrollViewHeight()
         }
     }
@@ -255,58 +246,62 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
             action: #selector(onRefreshClicked)
         )
 
-        Styles.styleButton(self.startButton)
-        Styles.styleNegativeButton(self.editButton)
-        Styles.styleNegativeButton(self.finishButton)
-        Styles.styleButton(self.reopenButton)
+        self.startButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.editButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.finishButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.reopenButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
 
-        self.startButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestEventStart"), for: .normal)
-        self.editButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestEventEdit"), for: .normal)
-        self.finishButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestEventFinish"), for: .normal)
-        self.reopenButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestEventReopen"), for: .normal)
+        self.startButton.isUppercaseTitle = false
+        self.editButton.isUppercaseTitle = false
+        self.finishButton.isUppercaseTitle = false
+        self.reopenButton.isUppercaseTitle = false
 
-        self.officialsLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestOfficialsTitle")
+        self.startButton.setTitle("ShootingTestEventStart".localized(), for: .normal)
+        self.editButton.setTitle("ShootingTestEventEdit".localized(), for: .normal)
+        self.finishButton.setTitle("ShootingTestEventFinish".localized(), for: .normal)
+        self.reopenButton.setTitle("ShootingTestEventReopen".localized(), for: .normal)
 
-        Styles.styleButton(self.saveButton)
-        Styles.styleNegativeButton(self.cancelButton)
+        self.officialsLabel.text = "ShootingTestOfficialsTitle".localized()
 
-        self.cancelButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Cancel"), for: .normal)
-        self.saveButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Save"), for: .normal)
+        self.saveButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.cancelButton.applyOutlinedTheme(withScheme: AppTheme.shared.secondaryButtonScheme())
+
+        self.cancelButton.setTitle("Cancel".localized(), for: .normal)
+        self.saveButton.setTitle("Save".localized(), for: .normal)
     }
 
-    func refreshUI(event: ShootingTestCalendarEvent) {
-        self.titleLabel.text = String(format: "%@%@ ", ShootingTestCalendarEvent.localizedTypeText(type: event.calendarEventType!), event.name != nil ? "\n" + event.name! : "")
-        self.dateTimeLabel.text = String(format: "%@ %@ %@",
-                                         ShootingTestUtil.serverDateStringToDisplayDate(serverDate: event.date!),
-                                         event.beginTime!,
-                                         event.endTime == nil ? "" : String(format: "- %@", event.endTime!))
+    func refreshUI(event: CommonShootingTestCalendarEvent) {
+        self.titleLabel.text = String(format: "%@%@ ",
+                                      event.calendarEventType?.value?.localizedName ?? event.calendarEventType?.rawBackendEnumValue ?? "",
+                                      event.name != nil ? "\n" + event.name! : "")
+        self.dateTimeLabel.text = event.formattedDateAndTime
         self.venueLabel.text = String(format: "%@\n%@\n%@",
                                       event.venue?.name == nil ? "" : (event.venue?.name)!,
                                       event.venue?.address?.streetAddress ?? "",
                                       event.venue?.address?.city ?? "")
-        self.sumOfPaymentsLabel.text = String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTotalPaidAmount"),
-                                              ShootingTestUtil.currencyFormatter().string(from: event.totalPaidAmount! as NSDecimalNumber)!)
+        self.sumOfPaymentsLabel.text = String(format: "ShootingTestTotalPaidAmount".localized(),
+                                              event.formattedTotalPaidAmount)
         self.refreshButtonVisibility(event: event)
     }
 
-    func refreshButtonVisibility(event: ShootingTestCalendarEvent) {
-        self.startButton.isHidden = !event.isWaitingToStart()
-        self.startButtonHeightConstraint.constant = event.isWaitingToStart() ? 50.0 : 0.0
+    func refreshButtonVisibility(event: CommonShootingTestCalendarEvent) {
+        self.startButton.isHidden = !event.waitingToStart
+        self.startButtonHeightConstraint.constant = event.waitingToStart ? AppConstants.UI.ButtonHeightSmall : 0.0
         self.startButton.setNeedsLayout()
 
-        self.editButton.isHidden = !event.isOngoing() && self.isEdit
-        self.editButtonHeightConstraint.constant = event.isOngoing() && !self.isEdit ? 50.0 : 0.0
+        self.editButton.isHidden = !event.ongoing && self.isEdit
+        self.editButtonHeightConstraint.constant = event.ongoing && !self.isEdit ? AppConstants.UI.ButtonHeightSmall : 0.0
         self.editButton.setNeedsLayout()
 
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
         let hasEditPermission = (tabBarVc.isUserCoordinator || tabBarVc.isUserSelectedAsOfficial)
-        let canCloseEvent = event.isReadyToClose() && !self.isEdit && hasEditPermission
+        let canCloseEvent = event.readyToClose && !self.isEdit && hasEditPermission
         self.finishButton.isHidden = !canCloseEvent
-        self.finishButtonHeightConstraint.constant = canCloseEvent ? 50.0 : 0.0
+        self.finishButtonHeightConstraint.constant = canCloseEvent ? AppConstants.UI.ButtonHeightSmall : 0.0
         self.finishButton.setNeedsLayout()
 
-        self.reopenButton.isHidden = !event.isClosed()
-        self.reopenButtonHeightConstraint.constant = event.isClosed() ? 50.0 : 0.0
+        self.reopenButton.isHidden = !event.closed
+        self.reopenButtonHeightConstraint.constant = event.closed ? AppConstants.UI.ButtonHeightSmall : 0.0
         self.reopenButton.setNeedsLayout()
 
         self.refreshButtonsEnabled()
@@ -323,30 +318,30 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
     func setEditingOfficials(enabled: Bool) {
         self.isEdit = enabled
         self.buttonView.isHidden = !enabled
-        self.buttonAreaHeightConstraint.constant = enabled ? 60.0 : 0
+        self.buttonAreaHeightConstraint.constant = enabled ? AppConstants.UI.DefaultButtonHeight : 0
 
         self.availableOfficialsView.isHidden = !enabled
 
         refreshEvent()
     }
 
-    func refreshAvailableOfficials(officials: [ShootingTestOfficial], visible: Bool) {
+    func refreshAvailableOfficials(officials: [CommonShootingTestOfficial], visible: Bool) {
         self.availableOfficialsView.isHidden = !visible
         self.availableOfficialsView.axis = .vertical
-        self.availableOfficialsView.distribution = OAStackViewDistribution.equalSpacing
-        self.availableOfficialsView.alignment = OAStackViewAlignment.fill
-        self.availableOfficialsView.spacing = 2
+        self.availableOfficialsView.distribution = .equalSpacing
+        self.availableOfficialsView.alignment = .fill
+        self.availableOfficialsView.spacing = 8
 
         self.availableOfficialsView.arrangedSubviews.forEach({ $0.removeFromSuperview() })
-        for official : ShootingTestOfficial in officials {
-            let view = ShootingTestOfficialView()
+
+        officials.forEach { official in
+            let view = ShootingTestOfficialView().bind(
+                official: official,
+                isEditing: self.isEdit,
+                isSelected: false,
+                isResponsible: false
+            )
             view.delegate = self
-            view.isSelected = false
-            view.button.tag = official.occupationId!
-            view.nameLabel.text = String(format: "%@ %@", official.firstName!, official.lastName!)
-            Styles.styleButton(view.button)
-            view.button.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestOfficialAdd"), for: .normal)
-            view.button.isHidden = !self.isEdit
             self.availableOfficialsView.addArrangedSubview(view)
         }
 
@@ -354,22 +349,21 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
         self.availableOfficialsView.setNeedsLayout()
     }
 
-    func refreshSelectedOfficials(officials: [ShootingTestOfficial]) {
+    func refreshSelectedOfficials(officials: [CommonShootingTestOfficial]) {
         self.selectedOfficialsView.axis = .vertical
-        self.selectedOfficialsView.distribution = OAStackViewDistribution.equalSpacing
-        self.selectedOfficialsView.alignment = OAStackViewAlignment.fill
-        self.selectedOfficialsView.spacing = 2
+        self.selectedOfficialsView.distribution = .equalSpacing
+        self.selectedOfficialsView.alignment = .fill
+        self.selectedOfficialsView.spacing = 8
 
         self.selectedOfficialsView.arrangedSubviews.forEach({ $0.removeFromSuperview() })
-        for official : ShootingTestOfficial in officials {
-            let view = ShootingTestOfficialView()
+        officials.forEach { official in
+            let view = ShootingTestOfficialView().bind(
+                official: official,
+                isEditing: self.isEdit,
+                isSelected: true,
+                isResponsible: official.occupationId == self.shootingTestResponsibleOccupationId
+            )
             view.delegate = self
-            view.isSelected = true
-            view.button.tag = official.occupationId!
-            view.nameLabel.text = String(format: "%@ %@", official.firstName!, official.lastName!)
-            Styles.styleNegativeButton(view.button)
-            view.button.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestOfficialRemove"), for: .normal)
-            view.button.isHidden = !self.isEdit
             self.selectedOfficialsView.addArrangedSubview(view)
         }
 
@@ -390,29 +384,46 @@ class ShootingTestEventViewController: UIViewController, OfficialViewDelegate {
         scrollView.layoutIfNeeded()
     }
 
+
     // MARK - OfficialViewDelegate
 
-    func didPressButton(_ isAddAction: Bool, tag: Int) {
-        if (isAddAction) {
-            let item = self.availableOfficials.first(where: {x in x.occupationId == tag})
-            self.selectedOfficials.append(item!)
+    func onMakeOfficialResponsible(officialOccupationId: Int64) {
+        self.shootingTestResponsibleOccupationId = officialOccupationId
 
-            let index = self.availableOfficials.firstIndex(where: {x in x.occupationId == tag})
-            self.availableOfficials.remove(at: index!)
-        }
-        else {
-            let item = self.selectedOfficials.first(where: {x in x.occupationId == tag})
-            self.availableOfficials.append(item!)
+        refreshSelectedOfficials(officials: self.selectedOfficials)
+    }
 
-            let index = self.selectedOfficials.firstIndex(where: {x in x.occupationId == tag})
-            self.selectedOfficials.remove(at: index!)
+    func onAddOfficial(officialOccupationId: Int64) {
+        guard let officialIndex = availableOfficials.firstIndex(where: { $0.occupationId == officialOccupationId }),
+              let official = availableOfficials.getOrNil(index: officialIndex) else {
+            Self.logger.w { "No available official (or official index) found with occupation id \(officialOccupationId)" }
+            return
         }
+
+        selectedOfficials.append(official)
+        availableOfficials.remove(at: officialIndex)
 
         self.refreshSelectedOfficials(officials: self.selectedOfficials)
         self.refreshAvailableOfficials(officials: self.availableOfficials, visible: true)
 
         self.refreshButtonsEnabled()
+        self.view.layoutIfNeeded()
+    }
 
+    func onRemoveOfficial(officialOccupationId: Int64) {
+        guard let officialIndex = selectedOfficials.firstIndex(where: { $0.occupationId == officialOccupationId }),
+              let official = selectedOfficials.getOrNil(index: officialIndex) else {
+            Self.logger.w { "No selected official (or official index) found with occupation id \(officialOccupationId)" }
+            return
+        }
+
+        availableOfficials.append(official)
+        selectedOfficials.remove(at: officialIndex)
+
+        self.refreshSelectedOfficials(officials: self.selectedOfficials)
+        self.refreshAvailableOfficials(officials: self.availableOfficials, visible: true)
+
+        self.refreshButtonsEnabled()
         self.view.layoutIfNeeded()
     }
 }

@@ -137,12 +137,8 @@ class ImageEditUtil: NSObject, UIImagePickerControllerDelegate & UINavigationCon
         if (authStatus == .notDetermined) {
             PhotoPermissions.requestAuthorization(completion)
         } else {
-            if (Thread.isMainThread) {
+            Thread.onMainThread {
                 completion(authStatus)
-            } else {
-                Async.main {
-                    completion(authStatus)
-                }
             }
         }
     }

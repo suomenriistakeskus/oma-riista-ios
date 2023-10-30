@@ -66,6 +66,25 @@ object RR {
         harvest_label_additional_information,
         harvest_label_additional_information_instructions,
         harvest_label_additional_information_instructions_white_tailed_deer,
+        harvest_label_own_harvest,
+        harvest_label_hunting_club,
+        harvest_label_hunting_club_official_code,
+
+        hunting_club_selection_select_club,
+        hunting_club_selection_search_by_name,
+        hunting_club_selection_search_by_name_hint,
+        hunting_club_selection_no_club_selection,
+        hunting_club_selection_other_club,
+
+        hunting_club_search_enter_club_official_code,
+        hunting_club_search_invalid_official_code,
+        hunting_club_search_searching_by_official_code,
+        hunting_club_search_search_failed,
+
+        harvest_settings_add_harvest_for_other_hunter,
+        harvest_settings_add_harvest_for_other_hunter_explanation,
+        harvest_settings_enable_club_selection,
+        harvest_settings_enable_club_selection_explanation,
 
         observation_label_observation_category,
         observation_label_within_moose_hunting,
@@ -208,6 +227,8 @@ object RR {
 
         // Observation type
         observation_type_nako,
+        observation_type_poikue,
+        observation_type_pari,
         observation_type_jalki,
         observation_type_uloste,
         observation_type_aani,
@@ -245,6 +266,8 @@ object RR {
         observation_type_ruokailupajukko_tai_koivikko,
         observation_type_muu,
 
+        error_observation_specimen_amount_at_least_two,
+
         // Hunting club membership
         hunting_club_membership_invitations,
         hunting_club_memberships,
@@ -276,6 +299,7 @@ object RR {
         hunting_control_inspector_selection_search_by_name,
         hunting_control_inspector_selection_name_hint,
         hunting_control_error_no_inspectors_for_selected_date,
+        hunting_control_error_no_self_as_inspector,
         hunting_control_attachments,
         hunting_control_add_attachment,
 
@@ -309,11 +333,25 @@ object RR {
         hunting_control_network_error,
         hunting_control_retry,
 
+        // shooting test
+        shooting_test_state_waiting_to_start,
+        shooting_test_state_ongoing,
+        // probably same as shooting_test_state_ongoing but having separate value
+        // allows differentiating in the UI if necessary
+        shooting_test_state_ongoing_ready_to_close,
+        shooting_test_state_closed,
+
         // shooting test type
         shooting_test_type_moose,
         shooting_test_type_bear,
         shooting_test_type_roe_deer,
         shooting_test_type_bow,
+
+        // shooting test result
+        shooting_test_result_qualified,
+        shooting_test_result_unqualified,
+        shooting_test_result_timed_out,
+        shooting_test_result_rebated,
 
         // srva
         srva_event_label_other_species_description,
@@ -408,6 +446,13 @@ object RR {
         jht_training_occupation_type_ampumakokeen_vastaanottaja,
         jht_training_occupation_type_rhyn_edustaja_riistavahinkojen_maastokatselmuksessa,
         occupation_training_occupation_type_petoyhdyshenkilo,
+
+        // sunset and sunrise
+        sun_day_selection_label,
+        sun_sunrise_label,
+        sun_sunset_label,
+        sun_instructions,
+        sun_disclaimer,
         ;
     }
 

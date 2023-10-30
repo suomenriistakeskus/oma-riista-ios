@@ -2,7 +2,7 @@ import Foundation
 import RiistaCommon
 
 class CommonImageManager {
-    private lazy var logger: AppLogger = AppLogger(for: self)
+    private lazy var logger: AppLogger = AppLogger(for: self, printTimeStamps: false)
 
     private let maxSavedImageSize: CGSize
 
@@ -92,7 +92,9 @@ class CommonImageManager {
             return
         }
 
-        images.foreachAsync(onAllCompleted: onCompleted) { image, onImageMoved in
+        images.foreachAsync(
+            onAllCompleted: handleOnMainThread(onCompleted)
+        ) { image, onImageMoved in
             moveTemporaryImageToLocalImages(image: image, onImageMoved)
         }
     }
@@ -110,7 +112,6 @@ class CommonImageManager {
             targetDirectory: .localImages,
             fileUuid: imageFileUuid
         ) { fileSaveResult in
-
             if (fileSaveResult is FileSaveResult.Saved) {
                 self.logger.v { "Moved image \(imageFileUuid) to .localImages." }
             } else {
@@ -119,7 +120,7 @@ class CommonImageManager {
                 self.logger.d { "Failed to move image \(imageFileUuid) to .localImages. Was it in .temporaryFiles?" }
             }
 
-            onCompleted()
+            Thread.onMainThread(onCompleted)
         }
     }
 

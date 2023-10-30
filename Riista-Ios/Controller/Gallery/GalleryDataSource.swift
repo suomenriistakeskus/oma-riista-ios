@@ -95,7 +95,7 @@ fileprivate class GalleryCollectionViewController: NSObject, UICollectionViewDat
             switch filteredEntityType {
             case .harvest:
                 if let harvest = galleryDataSource.getHarvest(specifiedBy: .index(indexPath.row)) {
-                    cell.setupFrom(diaryEntry: harvest, parent: parentViewController)
+                    cell.setupFrom(harvest: harvest, parent: parentViewController)
                 }
             case .observation:
                 if let observation = galleryDataSource.getObservation(specifiedBy: .index(indexPath.row)) {

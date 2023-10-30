@@ -1033,6 +1033,7 @@ class EditSrvaEventControllerTest {
             ),
             species = Species.Known(speciesCode = SpeciesCodes.MOOSE_ID),
             otherSpeciesDescription = null,
+            totalSpecimenAmount = 1,
             specimens = listOf(
                 CommonSrvaSpecimen(
                     gender = Gender.MALE.toBackendEnum(),

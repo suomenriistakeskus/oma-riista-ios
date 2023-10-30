@@ -1,6 +1,7 @@
 package fi.riista.common.domain.groupHunting.ui.groupHarvest.modify
 
 import fi.riista.common.domain.constants.Constants
+import fi.riista.common.domain.content.SpeciesResolver
 import fi.riista.common.domain.groupHunting.GroupHuntingClubGroupContext
 import fi.riista.common.domain.groupHunting.GroupHuntingContext
 import fi.riista.common.domain.groupHunting.GroupHuntingDayForDeerResponse
@@ -30,14 +31,16 @@ class EditGroupHarvestController(
     groupHuntingContext: GroupHuntingContext,
     private val harvestTarget: IdentifiesGroupHuntingHarvest,
     localDateTimeProvider: LocalDateTimeProvider,
+    speciesResolver: SpeciesResolver,
     stringProvider: StringProvider,
-) : ModifyGroupHarvestController(groupHuntingContext, localDateTimeProvider, stringProvider) {
+) : ModifyGroupHarvestController(groupHuntingContext, localDateTimeProvider, speciesResolver, stringProvider) {
 
     constructor(
         groupHuntingContext: GroupHuntingContext,
         harvestTarget: IdentifiesGroupHuntingHarvest,
+        speciesResolver: SpeciesResolver,
         stringProvider: StringProvider,
-    ): this(groupHuntingContext, harvestTarget, SystemDateTimeProvider(), stringProvider)
+    ): this(groupHuntingContext, harvestTarget, SystemDateTimeProvider(), speciesResolver, stringProvider)
 
     suspend fun acceptHarvest(): GroupHuntingHarvestOperationResponse {
         return performHarvestOperation { groupContext, harvest ->

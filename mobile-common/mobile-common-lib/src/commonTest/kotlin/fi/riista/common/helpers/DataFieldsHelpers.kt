@@ -115,3 +115,17 @@ internal inline fun <FieldId: DataFieldId, reified FieldType> DataFields<FieldId
         fail("Field $id type was ${field::class} instead of ${FieldType::class}")
     }
 }
+
+internal inline fun <FieldId: DataFieldId, reified FieldType> DataFields<FieldId>.findField(
+    id: FieldId,
+): FieldType where FieldType : DataField<FieldId> {
+    val foundIndex = indexOfFirst { it.id == id }
+    val field = get(foundIndex)
+
+    @Suppress("UNCHECKED_CAST")
+    return try {
+        field as FieldType
+    } catch (e: Throwable) {
+        fail("Field $id type was ${field::class} instead of ${FieldType::class}")
+    }
+}

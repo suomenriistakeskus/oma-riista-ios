@@ -57,7 +57,7 @@ fun CommonSrvaEvent.toSrvaEventCreateDTO(): SrvaEventCreateDTO? {
         eventType = eventType,
         eventTypeDetail = eventTypeDetail.rawBackendEnumValue,
         otherEventTypeDetailDescription = otherEventTypeDetailDescription,
-        totalSpecimenAmount = specimens.size,
+        totalSpecimenAmount = totalSpecimenAmount,
         otherMethodDescription = otherMethodDescription,
         otherTypeDescription = otherEventTypeDescription,
         methods = methods.map { it.toSrvaMethodDTO() },

@@ -35,6 +35,9 @@ data class LocalDatePeriod(
         beginDate = PeriodDate.DefinedDate(beginDate),
         endDate = PeriodDate.DefinedDate(endDate),
     )
+
+    // empty companion object so that it can be extended
+    companion object
 }
 
 fun LocalDate.isWithinPeriods(periods: List<LocalDatePeriod>): Boolean {

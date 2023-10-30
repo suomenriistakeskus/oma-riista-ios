@@ -125,14 +125,14 @@ class ViewPointOfInterestViewController:
         view.addSubview(pointsOfInterestView)
         view.addSubview(buttonArea)
         pointsOfInterestView.snp.makeConstraints { make in
-            make.top.equalTo(topLayoutGuide.snp.bottom)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(buttonArea.snp.top)
         }
 
         buttonArea.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 

@@ -25,7 +25,7 @@ class ModifyGroupHuntingObservationViewController<Controller: ModifyGroupObserva
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -94,8 +94,8 @@ class ModifyGroupHuntingObservationViewController<Controller: ModifyGroupObserva
         view.addSubview(container)
         container.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         container.addArrangedSubview(tableView)

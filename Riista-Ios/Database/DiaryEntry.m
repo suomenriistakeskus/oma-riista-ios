@@ -16,6 +16,7 @@ NSString *const DiaryEntryHarvestPermitRejected = @"REJECTED";
 
 @implementation DiaryEntry
 
+@dynamic commonHarvestId;
 @dynamic amount;
 @dynamic deerHuntingType;
 @dynamic deerHuntingTypeDescription;

@@ -23,6 +23,7 @@ CREATE TABLE DbSrvaEvent (
 
     game_species_code INTEGER AS Int,
     other_species_description TEXT,
+    total_specimen_amount INTEGER AS Int,
     specimens TEXT,
 
     event_category TEXT,
@@ -54,6 +55,8 @@ CREATE TABLE DbSrvaEvent (
 
 CREATE UNIQUE INDEX srva_event_remote_id_unique ON DbSrvaEvent(username, remote_id);
 
+CREATE INDEX srva_event_point_of_time ON DbSrvaEvent(username, point_of_time);
+
 selectByLocalId:
 SELECT * FROM DbSrvaEvent WHERE local_id = ?;
 
@@ -72,17 +75,17 @@ SELECT * FROM DbSrvaEvent WHERE username = ? AND mobile_client_ref_id = ?;
 insert:
 INSERT INTO DbSrvaEvent (username,remote_id,rev,mobile_client_ref_id,spec_version,state,rhy_id,can_edit,modified,deleted,
     point_of_time,author_id,author_rev,author_by_name,author_last_name,approver_first_name,approver_last_name,
-    game_species_code,other_species_description,specimens,event_category,deportation_order_number,event_type,
+    game_species_code,other_species_description,total_specimen_amount,specimens,event_category,deportation_order_number,event_type,
     other_event_type_description,event_type_detail,other_event_type_detail_description,event_result,event_result_detail,
     methods,other_method_description,person_count,hours_spent,description,local_images, remote_images,
     location_latitude,location_longitude,location_source,location_accuracy,location_altitude,location_altitudeAccuracy)
-VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?, ?, ?);
+VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?, ?, ?);
 
 updateByLocalId:
 UPDATE DbSrvaEvent SET
     remote_id=?,rev=?,mobile_client_ref_id=?,spec_version=?,state=?,rhy_id=?,can_edit=?,modified=?,deleted=?,
     point_of_time=?,author_id=?,author_rev=?,author_by_name=?,author_last_name=?,approver_first_name=?,approver_last_name=?,
-    game_species_code=?,other_species_description=?,specimens=?,event_category=?,deportation_order_number=?,event_type=?,
+    game_species_code=?,other_species_description=?,total_specimen_amount=?,specimens=?,event_category=?,deportation_order_number=?,event_type=?,
     other_event_type_description=?,event_type_detail=?,other_event_type_detail_description=?,event_result=?,event_result_detail=?,
     methods=?,other_method_description=?,person_count=?,hours_spent=?,description=?,local_images=?,remote_images=?,
     location_latitude=?,location_longitude=?,location_source=?,location_accuracy=?,location_altitude=?,location_altitudeAccuracy=?
@@ -114,3 +117,15 @@ SELECT * FROM DbSrvaEvent WHERE local_id IN ? ORDER BY point_of_time DESC;
 
 getEventDateTimes:
 SELECT point_of_time FROM DbSrvaEvent WHERE username = ? AND deleted = 0;
+
+filter:
+SELECT * FROM DbSrvaEvent WHERE
+    username = :username
+    AND deleted = 0
+    AND CASE WHEN :startDateTime IS NOT NULL THEN point_of_time >= :startDateTime ELSE 1 END
+    AND CASE WHEN :endDateTime IS NOT NULL THEN point_of_time <= :endDateTime ELSE 1 END
+    AND CASE WHEN :filterSpecies THEN game_species_code IN :species ELSE 1 END
+    AND CASE WHEN :filterOtherSpecies THEN game_species_code IS NULL ELSE 1 END
+    AND CASE WHEN :filterSpeciesAndOtherSpecies THEN game_species_code IN :species OR game_species_code IS NULL ELSE 1 END
+    AND CASE WHEN :requireImages THEN local_images IS NOT NULL OR remote_images IS NOT NULL ELSE 1 END
+    ORDER BY point_of_time DESC;

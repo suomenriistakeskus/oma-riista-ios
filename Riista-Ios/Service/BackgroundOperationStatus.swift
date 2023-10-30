@@ -9,7 +9,7 @@ import Foundation
 class BackgroundOperationStatus {
     static let shared = BackgroundOperationStatus()
 
-    private lazy var logger = AppLogger(for: self)
+    private lazy var logger = AppLogger(for: self, printTimeStamps: false)
 
     enum Operation {
         case initialRelogin         // initial relogin attempt after starting the app

@@ -46,21 +46,26 @@ import RiistaCommon
         }
 
         RiistaSDK.shared.currentUserContext.groupHuntingContext.clubContextsProvider.loadStatus.bindAndNotify { [weak self] loadStatus in
-            guard let self = self else { return }
+            Thread.onMainThread {
+                guard let self = self else { return }
 
-            switch (loadStatus) {
-            case is RiistaCommon.LoadStatus.LoadError, is RiistaCommon.LoadStatus.Loaded:
-                self.groupHuntingAvailable = RiistaSDK.shared.currentUserContext.groupHuntingContext.groupHuntingAvailable
-                break
-            default:
-                break
+                switch (loadStatus) {
+                case is RiistaCommon.LoadStatus.LoadError, is RiistaCommon.LoadStatus.Loaded:
+                    self.groupHuntingAvailable = RiistaSDK.shared.currentUserContext.groupHuntingContext.groupHuntingAvailable
+                    break
+                default:
+                    break
+                }
             }
         }
 
-        RiistaSDK().currentUserContext.groupHuntingContext.checkAvailabilityAndFetchClubs(refresh: false) { (_, error) in
-            print("Completed checking group hunting availability")
-            completionHandler?()
-        }
+        RiistaSDK.shared.currentUserContext.groupHuntingContext.checkAvailabilityAndFetchClubs(
+            refresh: false,
+            completionHandler: handleOnMainThread { _ in
+                print("Completed checking group hunting availability")
+                completionHandler?()
+            }
+        )
     }
 
     @objc func checkHuntingControlAvailability(refresh: Bool, completionHandler: (() -> Void)? = nil) {
@@ -69,21 +74,20 @@ import RiistaCommon
             return
         }
 
-        RiistaSDK.shared.currentUserContext.huntingControlContext.huntingControlRhyProvider.loadStatus.bindAndNotify { [weak self] loadStatus in
-            guard let self = self else { return }
+        RiistaSDK.shared.huntingControlContext.huntingControlAvailable.bindAndNotify { [weak self] available in
+            Thread.onMainThread {
+                guard let self = self else { return }
+                guard let available = available?.boolValue else { return }
 
-            switch (loadStatus) {
-            case is RiistaCommon.LoadStatus.LoadError, is RiistaCommon.LoadStatus.Loaded:
-                self.huntingControlAvailable = RiistaSDK.shared.currentUserContext.huntingControlContext.huntingControlAvailable
-                break
-            default:
-                break
+                self.huntingControlAvailable = available
             }
         }
 
-        RiistaSDK().currentUserContext.huntingControlContext.checkAvailability(refresh: refresh) { (_, error) in
-            print("Completed checking hunting control availability")
-            completionHandler?()
-        }
+        RiistaSDK.shared.huntingControlContext.checkAvailability(
+            completionHandler: handleOnMainThread { _ in
+                print("Completed checking hunting control availability")
+                completionHandler?()
+            }
+        )
     }
 }

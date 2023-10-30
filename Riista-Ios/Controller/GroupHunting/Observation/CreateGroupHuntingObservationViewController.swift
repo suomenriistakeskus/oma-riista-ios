@@ -55,15 +55,17 @@ class CreateGroupHuntingObservationViewController : ModifyGroupHuntingObservatio
         super.viewWillAppear(animated)
 
         controller.observationLocationCanBeMovedAutomatically.bindAndNotify { [weak self] canBeMoved in
-            guard let self = self, let canBeMoved = canBeMoved?.boolValue else {
-                return
-            }
+            Thread.onMainThread {
+                guard let self = self, let canBeMoved = canBeMoved?.boolValue else {
+                    return
+                }
 
-            if (canBeMoved) {
-                self.locationManager.addListener(self)
-                self.locationManager.start()
-            } else {
-                self.locationManager.removeListener(self, stopIfLastListener: true)
+                if (canBeMoved) {
+                    self.locationManager.addListener(self)
+                    self.locationManager.start()
+                } else {
+                    self.locationManager.removeListener(self, stopIfLastListener: true)
+                }
             }
         }.disposeBy(disposeBag: disposeBag)
     }
@@ -79,11 +81,13 @@ class CreateGroupHuntingObservationViewController : ModifyGroupHuntingObservatio
         tableView.showLoading()
         saveButton.isEnabled = false
 
-        controller.createObservation { [weak self] result, error in
-            self?.tableView.hideLoading()
-            self?.saveButton.isEnabled = true
-            self?.onCreateObservationCompleted(result: result, error: error)
-        }
+        controller.createObservation(
+            completionHandler: handleOnMainThread { [weak self] result, error in
+                self?.tableView.hideLoading()
+                self?.saveButton.isEnabled = true
+                self?.onCreateObservationCompleted(result: result, error: error)
+            }
+        )
     }
 
     private func onCreateObservationCompleted(result: GroupHuntingObservationOperationResponse?, error: Error?) {

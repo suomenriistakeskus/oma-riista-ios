@@ -1,11 +1,13 @@
 import Foundation
 import Reachability
 import Alamofire
+import RiistaCommon
+import Async
 
 @objc class AppSync: NSObject {
     @objc static let shared: AppSync = AppSync()
 
-    private lazy var logger: AppLogger = AppLogger(for: self)
+    private lazy var logger: AppLogger = AppLogger(for: self, printTimeStamps: false)
 
     @objc enum SyncPrecondition: Int, CaseIterable {
         /**
@@ -55,29 +57,63 @@ import Alamofire
     private let reachability: Reachability
 
 
-    private lazy var automaticSync: PeriodicTask = {
-        PeriodicTask(name: "AutomaticSync", intervalSeconds: 5*60.0) { [weak self] onCompleted in
+    private lazy var periodicSync: PeriodicTask = {
+        PeriodicTask(name: "PeriodicSync", intervalSeconds: 5*60.0) { [weak self] onCompleted in
             guard let self = self else {
                 onCompleted()
                 return
             }
 
-            self.synchronize(usingMode: .automatic, onCompleted: onCompleted)
+            let preconditionsMet = self.areSyncPreconditionsMet(
+                requiredSyncPreconditions: SyncPrecondition.requiredForPeriodicSync,
+                logTag: "periodic sync"
+            )
+
+            if (preconditionsMet) {
+                let synchronizationLevel = self.determineSynchronizationLevelForPeriodicSync()
+
+                self.logger.v { "Synchronization level = \(synchronizationLevel) for periodic sync."}
+
+                self.synchronize(
+                    usingLevel: synchronizationLevel,
+                    markAsPendingIfAlreadySynchronizing: false,
+                    forceContentReload: false,
+                    onCompleted: onCompleted
+                )
+            } else {
+                self.logger.w { "Preconditions not met for periodic sync. Completing current synchronization."}
+                onCompleted()
+            }
         }
     }()
 
     /**
-     * Is the app currently synchronizing?
+     * Is the app currently synchronizing user content?
      */
-    @objc private(set) var synchronizing: Bool = false {
-        didSet {
-            if (synchronizing != oldValue) {
-                BackgroundOperationStatus.shared.updateOperationStatus(.synchronization, inProgress: synchronizing)
+    @objc private var synchronizingUserContent: Bool {
+        return currentSynchronization?.synchronizationLevel == .userContent
+    }
 
-                updateManualSynchronizationPossible()
-            }
+    /**
+     * The current synchronization
+     */
+    private var currentSynchronization: Synchronization? {
+        didSet {
+            updateSyncIndication()
+            updateManualSynchronizationPossible()
         }
     }
+
+    /**
+     * Information for the next / pending synchronization.
+     */
+    private lazy var pendingSynchronization: PendingSynchronization = {
+        PendingSynchronization { [weak self] in
+            self?.updateManualSynchronizationPossible()
+            self?.updateSyncIndication()
+        }
+    }()
+
 
     /**
      * Is the manual synchronization possible?
@@ -137,7 +173,7 @@ import Alamofire
             logger.v { "Sync precondition \(precondition) was already enabled" }
         }
 
-        queueAutomaticSyncIfPreconditionsMet(synchronizeNow: precondition.triggersImmediateAutomaticSyncWhenEnabled)
+        queuePeriodicSyncIfPreconditionsMet(synchronizeNow: precondition.triggersImmediatePeriodicSyncWhenEnabled)
     }
 
     @objc func disableSyncPrecondition(_ precondition: SyncPrecondition) {
@@ -146,8 +182,8 @@ import Alamofire
 
             updateManualSynchronizationPossible()
 
-            if (precondition.requiredForAutomaticSync) {
-                automaticSync.stop()
+            if (precondition.isRequiredForPeriodicSync) {
+                periodicSync.stop()
             }
         } else {
             logger.v { "Sync precondition \(precondition) was already disabled" }
@@ -176,66 +212,150 @@ import Alamofire
 
     // MARK: Synchronization
 
-    @objc func synchronize(usingMode synchronizationMode: SynchronizationMode) {
-        synchronize(usingMode: synchronizationMode, onCompleted: nil)
+    @objc func synchronizeManually(forceContentReload: Bool) {
+        if (areSyncPreconditionsMet(for: .manual)) {
+            synchronize(
+                usingLevel: .userContent,
+                markAsPendingIfAlreadySynchronizing: true,
+                forceContentReload: forceContentReload,
+                onCompleted: nil
+            )
+        }
     }
 
-    @objc func synchronize(usingMode synchronizationMode: SynchronizationMode, onCompleted: OnCompleted?) {
-        if (!areSyncPreconditionsMet(for: synchronizationMode)) {
-            logger.d { "Sync preconditions not met for \(synchronizationMode), refusing to start sync" }
+
+    @objc func synchronize(
+        usingLevel synchronizationLevel: SynchronizationLevel,
+        markAsPendingIfAlreadySynchronizing: Bool,
+        forceContentReload: Bool,
+        onCompleted: OnCompleted?
+    ) {
+        if (forceContentReload) {
+            pendingSynchronization.addFlag(.forceContentReload)
+        }
+
+        if (currentSynchronization != nil) {
+            if (markAsPendingIfAlreadySynchronizing && synchronizationLevel == .userContent) {
+                logger.v { "Already synchronizing, marking pending .userContent sync" }
+                pendingSynchronization.addFlags([.forceUserContentSync, .syncImmediatelyAfterCurrentSync])
+            } else {
+                logger.v { "Already synchronizing, not starting sync again" }
+            }
             onCompleted?()
             return
         }
 
-        if (synchronizing) {
-            logger.v { "Already synchronizing, not starting sync again" }
+        logger.v { "Starting synchronization" }
+
+        let synchronization = Synchronization(
+            synchronizationLevel: synchronizationLevel,
+            synchronizationConfig: SynchronizationConfig(
+                forceContentReload: pendingSynchronization.contains(.forceContentReload)
+            )
+        )
+
+        // clear pending flags now that we've created a synchronization based on them
+        pendingSynchronization.clear()
+
+        currentSynchronization = synchronization
+
+        synchronization.synchronize { [self] _ in
+            if (pendingSynchronization.contains(.syncImmediatelyAfterCurrentSync)) {
+                scheduleImmediateSync(
+                    synchronizeUserContent: pendingSynchronization.contains(.forceUserContentSync),
+                    forceContentReload: pendingSynchronization.contains(.forceContentReload)
+                )
+            }
+
+            self.currentSynchronization = nil
             onCompleted?()
-            return
+        }
+    }
+
+    private func scheduleImmediateSync(
+        synchronizeUserContent: Bool,
+        forceContentReload: Bool
+    ) {
+        Async.main(after: 0.1) { [self] in
+            self.synchronize(
+                usingLevel: synchronizeUserContent ? .userContent : .metadata,
+                markAsPendingIfAlreadySynchronizing: false,
+                forceContentReload: forceContentReload,
+                onCompleted: nil
+            )
+        }
+    }
+
+    private func determineSynchronizationLevelForPeriodicSync() -> SynchronizationLevel {
+        let syncMode = SynchronizationMode.currentValue
+
+        if (syncMode == .automatic && areSyncPreconditionsMet(for: syncMode)) {
+            return .userContent
+        }
+        if (pendingSynchronization.flags.contains(.forceUserContentSync)) {
+            return .userContent
         }
 
-        synchronizing = true
-        logger.v { "Starting synchronization using \(synchronizationMode)" }
-
-        RiistaGameDatabase.sharedInstance().synchronizeDiaryEntries { [weak self] in
-            self?.logger.v { "Synchronization completed" }
-
-            self?.synchronizing = false
-            onCompleted?()
-        }
+        return .metadata
     }
 
 
     // MARK: Checking sync preconditions
 
-    private func queueAutomaticSyncIfPreconditionsMet(synchronizeNow: Bool) {
-        if (areSyncPreconditionsMet(for: .automatic)) {
-            automaticSync.start(launchFirstTaskNow: synchronizeNow)
+    private func queuePeriodicSyncIfPreconditionsMet(synchronizeNow: Bool) {
+        let preconditionsMet = areSyncPreconditionsMet(
+            requiredSyncPreconditions: SyncPrecondition.requiredForPeriodicSync,
+            logTag: "periodic sync"
+        )
+
+        if (preconditionsMet) {
+            periodicSync.start(launchFirstTaskNow: synchronizeNow)
         }
     }
 
     private func areSyncPreconditionsMet(for synchronizationMode: SynchronizationMode) -> Bool {
-        let requiredSyncPreconditions = getSyncPreconditionsForSyncMode(synchronizationMode: synchronizationMode)
-
-        return requiredSyncPreconditions.isSubset(of: enabledSyncPreconditions)
+        return areSyncPreconditionsMet(
+            requiredSyncPreconditions: SyncPrecondition.requiredFor(synchronizationMode: synchronizationMode),
+            logTag: "\(synchronizationMode)"
+        )
     }
 
-    private func getSyncPreconditionsForSyncMode(synchronizationMode: SynchronizationMode) -> Set<SyncPrecondition> {
-        var requiredSyncPreconditions = Set<SyncPrecondition>()
+    private func areSyncPreconditionsMet(requiredSyncPreconditions: Set<SyncPrecondition>, logTag: String) -> Bool {
+        let preconditionsMet = requiredSyncPreconditions.isSubset(of: enabledSyncPreconditions)
 
-        SyncPrecondition.allCases.forEach { precondition in
-            if (precondition.isRequiredFor(synchronizationMode: synchronizationMode)) {
-                requiredSyncPreconditions.insert(precondition)
-            }
+        if (preconditionsMet) {
+            logger.v { "Sync preconditions met for \(logTag)" }
+        } else {
+            logger.v { "Sync preconditions NOT met for \(logTag)" }
         }
 
-        return requiredSyncPreconditions
+        return preconditionsMet
     }
+
 
 
     // MARK: Manual sync possibility
 
     private func updateManualSynchronizationPossible() {
-        manualSynchronizationPossible = !synchronizing && areSyncPreconditionsMet(for: .manual)
+        let pendingImmediateUserContentSync = pendingSynchronization.containsAll(
+            [.forceUserContentSync, .syncImmediatelyAfterCurrentSync]
+        )
+
+        manualSynchronizationPossible = !synchronizingUserContent && areSyncPreconditionsMet(for: .manual) &&
+            !pendingImmediateUserContentSync
+    }
+
+
+    // MARK: Sync indication
+
+    private func updateSyncIndication() {
+        let pendingImmediateUserContentSync = pendingSynchronization.containsAll(
+            [.forceUserContentSync, .syncImmediatelyAfterCurrentSync]
+        )
+        BackgroundOperationStatus.shared.updateOperationStatus(
+            .synchronization,
+            inProgress: synchronizingUserContent || pendingImmediateUserContentSync
+        )
     }
 
 
@@ -303,56 +423,86 @@ extension AppSync.SyncPrecondition: CustomDebugStringConvertible {
 
 
 fileprivate extension AppSync.SyncPrecondition {
-    func isRequiredFor(synchronizationMode: SynchronizationMode) -> Bool {
+
+    var isRequiredForPeriodicSync: Bool {
+        return Self.requiredForPeriodicSync.contains(self)
+    }
+
+
+    static func requiredFor(synchronizationMode: SynchronizationMode) -> Set<AppSync.SyncPrecondition> {
         switch synchronizationMode {
         case .manual:           return requiredForManualSync
         case .automatic:        return requiredForAutomaticSync
         }
     }
 
-    var requiredForAutomaticSync: Bool {
-        // explicitly add all cases as that ensures that this place gets updated
-        // if a new case is added
-        switch self {
-        case .automaticSyncEnabled:                     return true
-        case .userIsNotModifyingSynchronizableEntry:    return true
-        case .networkReachable:                         return true
-        case .credentialsVerified:                      return true
-        case .appIsActive:                              return true
-        case .databaseMigrationFinished:                return true
-        case .furtherAppUsageAllowed:                   return true
+    static var requiredForPeriodicSync: Set<AppSync.SyncPrecondition> = {
+        let requiredSyncPreconditions = AppSync.SyncPrecondition.allCases.filter { precondition in
+            switch precondition {
+            case .automaticSyncEnabled:                     return false
+            case .userIsNotModifyingSynchronizableEntry:    return true
+            case .networkReachable:                         return true
+            case .appIsActive:                              return true
+            case .credentialsVerified:                      return true
+            case .databaseMigrationFinished:                return true
+            case .furtherAppUsageAllowed:                   return true
+            }
         }
-    }
 
-    var requiredForManualSync: Bool {
-        switch self {
-        case .automaticSyncEnabled:                     return false
-        case .userIsNotModifyingSynchronizableEntry:    return false
-        case .networkReachable:
-            // don't require network for _attempting_ manual sync
-            return false
-        case .appIsActive:                              return true
-        case .credentialsVerified:                      return true
-        case .databaseMigrationFinished:                return true
-        case .furtherAppUsageAllowed:                   return true
+        return Set(requiredSyncPreconditions)
+    }()
+
+    static var requiredForAutomaticSync: Set<AppSync.SyncPrecondition> = {
+        let requiredSyncPreconditions = AppSync.SyncPrecondition.allCases.filter { precondition in
+            switch precondition {
+            case .automaticSyncEnabled:                     return true
+            case .userIsNotModifyingSynchronizableEntry:    return true
+            case .networkReachable:                         return true
+            case .credentialsVerified:                      return true
+            case .appIsActive:                              return true
+            case .databaseMigrationFinished:                return true
+            case.furtherAppUsageAllowed:                    return true
+            }
         }
-    }
+
+        return Set(requiredSyncPreconditions)
+    }()
+
+    static var requiredForManualSync: Set<AppSync.SyncPrecondition> = {
+        let requiredSyncPreconditions = AppSync.SyncPrecondition.allCases.filter { precondition in
+            switch precondition {
+            case .automaticSyncEnabled:                     return false
+            case .userIsNotModifyingSynchronizableEntry:    return false
+            case .networkReachable:
+                // don't require network for _attempting_ manual sync
+                return false
+            case .appIsActive:                              return true
+            case .credentialsVerified:                      return true
+            case .databaseMigrationFinished:                return true
+            case .furtherAppUsageAllowed:                   return true
+            }
+        }
+
+        return Set(requiredSyncPreconditions)
+    }()
 
     /**
-     * Should the automatic sync be performed immediately when precondition is enabled (assuming other conditions are met)?
+     * Should the periodic sync be performed immediately when precondition is enabled (assuming other conditions are met)?
      *
-     * Allows having sync preconditions that prevent scheduled automatic sync.
+     * Allows having sync preconditions that prevent scheduled periodic sync.
      */
-    var triggersImmediateAutomaticSyncWhenEnabled: Bool {
+    var triggersImmediatePeriodicSyncWhenEnabled: Bool {
         switch self {
-        case .automaticSyncEnabled:                     return true
         case .userIsNotModifyingSynchronizableEntry:    return false // require explicit call to start sync
+
+        // enabling automatic _user content_ sync should trigger immediate sync in order
+        // to give user an impression that app reacted to user request
+        case .automaticSyncEnabled:                     return true
         case .networkReachable:                         return true
         case .appIsActive:                              return true
         case .credentialsVerified:                      return true
         case .databaseMigrationFinished:                return true
         case .furtherAppUsageAllowed:                   return true
         }
-
     }
 }

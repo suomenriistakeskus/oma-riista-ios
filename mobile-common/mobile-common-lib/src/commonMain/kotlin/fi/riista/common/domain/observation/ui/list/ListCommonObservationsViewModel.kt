@@ -7,9 +7,7 @@ import fi.riista.common.model.groupByYearMonth
 import fi.riista.common.model.yearMonth
 
 data class ListCommonObservationsViewModel(
-    internal val allObservations: List<CommonObservation>,
     val observationHuntingYears: List<Int>,
-    val observationSpecies: List<Species>,
 
     val filterHuntingYear: Int?,
     val filterSpecies: List<Species>?,
@@ -26,4 +24,6 @@ data class ListCommonObservationsViewModel(
     val filteredObservationsByHuntingYearMonth: List<EntitiesByYearMonth<CommonObservation>> by lazy {
         filteredObservations.groupByYearMonth { it.pointOfTime.yearMonth() }
     }
+
+    fun getByLocalId(localId: Long) = filteredObservations.firstOrNull { it.localId == localId }
 }

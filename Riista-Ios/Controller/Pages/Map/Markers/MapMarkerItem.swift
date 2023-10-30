@@ -4,14 +4,11 @@ import RiistaCommon
 
 // the type of id of the item
 enum MapMarkerItemId: Equatable {
-    case objectId(_ objectId: NSManagedObjectID)
     case commonLocalId(_ localId: KotlinLong) // a local id of the item in RiistCommon
     case pointOfInterest(_ poi: PointOfInterest)
 
     static func == (lhs: MapMarkerItemId, rhs: MapMarkerItemId) -> Bool {
         switch (lhs, rhs) {
-        case (let objectId(l_objectId), let objectId(r_objectId)):
-            return l_objectId == r_objectId
         case (let commonLocalId(l_commonLocalId), let commonLocalId(r_commonLocalId)):
             return l_commonLocalId == r_commonLocalId
         case (let pointOfInterest(l_poi), let pointOfInterest(r_poi)):
@@ -31,8 +28,12 @@ class MapMarkerItem: MarkerItem<MapMarkerType> {
         super.init(type: type, position: position)
     }
 
-    convenience init(objectId: NSManagedObjectID, type: MapMarkerType, position: CLLocationCoordinate2D) {
-        self.init(itemId: .objectId(objectId), type: type, position: position)
+    convenience init(localId: KotlinLong, type: MapMarkerType, position: ETRMSGeoLocation) {
+        self.init(
+            itemId: .commonLocalId(localId),
+            type: type,
+            position: position.toCoordinate()
+        )
     }
 
     convenience init(pointOfInterest: PointOfInterest) {

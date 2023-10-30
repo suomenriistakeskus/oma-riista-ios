@@ -6,7 +6,7 @@ protocol ChangeUsernameViewControllerDelegate: AnyObject {
     func startRegistration()
 }
 
-class ChangeUsernameViewController: UIViewController {
+class ChangeUsernameViewController: BaseViewController {
 
     weak var delegate: ChangeUsernameViewControllerDelegate?
 

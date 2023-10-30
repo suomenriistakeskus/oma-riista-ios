@@ -7,7 +7,7 @@ import Foundation
     }()
 
     private enum Migration: CaseIterable {
-        case srva, observation
+        case srva, observation, harvest
     }
 
     private var completedMigrations: Set<Migration> = Set()
@@ -22,6 +22,10 @@ import Foundation
 
         MigrateObservationEntriesToRiistaCommon().migrate(from: from) {
             self.notifyOnCompletedIfFullyMigrated(completedMigration: .observation, onCompleted: onCompleted)
+        }
+
+        MigrateDiaryEntriesToRiistaCommon().migrate(from: from) {
+            self.notifyOnCompletedIfFullyMigrated(completedMigration: .harvest, onCompleted: onCompleted)
         }
     }
 

@@ -34,12 +34,16 @@ class PointOfInterestDataSource: TypedFilterableEntityDataSource<PointOfInterest
         super.init(filteredEntityType: .pointOfInterest)
     }
 
-    override func onFilterChanged(newFilter: EntityFilter, oldFilter: EntityFilter?) -> Bool {
+    override func onApplyFilter(
+        newFilter: EntityFilter,
+        oldFilter: EntityFilter?,
+        onFilterApplied: @escaping OnFilterApplied
+    ) {
         guard let _ = newFilter as? PointOfInterestFilter else {
             fatalError("Only supporting PointOfInterestFilter for PointOfInterestDataSource")
         }
 
-        return false
+        onFilterApplied(false)
     }
 
     override func fetchEntities() {
@@ -66,6 +70,11 @@ class PointOfInterestDataSource: TypedFilterableEntityDataSource<PointOfInterest
     override func getPossibleSeasonsOrYears(_ onCompleted: @escaping ([Int]?) -> Void) {
         // no seasons / years
         onCompleted(nil)
+    }
+
+    override func getCurrentSeasonOrYear() -> Int? {
+        // no seasons / years
+        return nil
     }
 
     override func getSeasonStats() -> SeasonStats? {

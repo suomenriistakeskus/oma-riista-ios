@@ -9,7 +9,7 @@ import RiistaCommon
  * Assumes that the ViewController is instantiated programmatically (creates a dummy view in loadView()).
  */
 class BaseControllerWithViewModel<ViewModelType, Controller : ControllerWithLoadableModel<ViewModelType>>
-        : UIViewController, ListensViewModelStatusChanges {
+        : BaseViewController, ListensViewModelStatusChanges {
 
     var controller: Controller {
         get {
@@ -38,6 +38,11 @@ class BaseControllerWithViewModel<ViewModelType, Controller : ControllerWithLoad
     }
 
     private(set) var refreshIndicator: LoadIndicatorViewController?
+
+    /**
+     * Should the above mentioned `refreshIndicator` be used for indicating `loading` state.
+     */
+    var indicateLoadingStateUsingRefreshIndicator: Bool = true
 
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -68,7 +73,7 @@ class BaseControllerWithViewModel<ViewModelType, Controller : ControllerWithLoad
     }
 
     func onWillLoadViewModel(willRefresh: Bool) {
-        if (willRefresh) {
+        if (willRefresh && indicateLoadingStateUsingRefreshIndicator) {
             refreshIndicator = LoadIndicatorViewController().showIn(parentViewController: self)
         }
     }

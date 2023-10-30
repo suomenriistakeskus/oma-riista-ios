@@ -1,6 +1,5 @@
 package fi.riista.common.ui.dataField
 
-import fi.riista.common.domain.groupHunting.ui.GroupObservationField
 import kotlinx.serialization.Serializable
 
 @Serializable

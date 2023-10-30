@@ -23,41 +23,62 @@ class GroupHuntingHarvestDataTest {
     @Test
     fun testHarvestDataHasSameValuesAsHarvest() {
         val harvest = GroupHuntingHarvest(
-                id = 1,
-                rev = 2,
-                gameSpeciesCode = SpeciesCodes.MOOSE_ID,
-                geoLocation = ETRMSGeoLocation(
-                        30, 20, BackendEnum.create(GeoLocationSource.GPS_DEVICE),
-                        40.0, 50.0, 60.0
-                ),
-                pointOfTime = LocalDateTime(2021, 6, 7, 16, 49, 37),
-                description = "description",
-                canEdit = true,
-                imageIds = listOf("image_1"),
-                specimens = listOf(
-                    CommonHarvestSpecimen(id = 7)
-                ),
-                amount = 1,
-                huntingDayId = GroupHuntingDayId.remote(2),
-                authorInfo = PersonWithHunterNumber(
-                        1, 0,
-                        "Pentti0", "Mujunen", "12345678"
-                ),
-                actorInfo = PersonWithHunterNumber(
-                        2, 1,
-                        "Pertti", "Möjönen", "23456789"
-                ),
-                harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
-                harvestReportRequired = true,
-                harvestReportState = BackendEnum.create(HarvestReportState.APPROVED),
-                permitNumber = "1234",
-                permitType = "permit",
-                stateAcceptedToHarvestPermit = BackendEnum.create(StateAcceptedToHarvestPermit.ACCEPTED),
-                deerHuntingType = BackendEnum.create(DeerHuntingType.OTHER),
-                deerHuntingOtherTypeDescription = "ritsalla ammuttu",
-                mobileClientRefId = 99,
-                harvestReportDone = true,
-                rejected = true,
+            id = 1,
+            rev = 2,
+            gameSpeciesCode = SpeciesCodes.MOOSE_ID,
+            geoLocation = ETRMSGeoLocation(
+                30, 20, BackendEnum.create(GeoLocationSource.GPS_DEVICE),
+                40.0, 50.0, 60.0
+            ),
+            pointOfTime = LocalDateTime(2021, 6, 7, 16, 49, 37),
+            description = "description",
+            canEdit = true,
+            imageIds = listOf("image_1"),
+            specimens = listOf(
+                CommonHarvestSpecimen(
+                    id = 7,
+                    rev = null,
+                    gender = BackendEnum.create(null),
+                    age = BackendEnum.create(null),
+                    antlersLost = null,
+                    notEdible = null,
+                    alone = null,
+                    weightEstimated = null,
+                    weightMeasured = null,
+                    fitnessClass = BackendEnum.create(null),
+                    antlersType = BackendEnum.create(null),
+                    antlersWidth = null,
+                    antlerPointsLeft = null,
+                    antlerPointsRight = null,
+                    antlersGirth = null,
+                    antlersLength = null,
+                    antlersInnerWidth = null,
+                    antlerShaftWidth = null,
+                    additionalInfo = null,
+                    weight = null,
+                )
+            ),
+            amount = 1,
+            huntingDayId = GroupHuntingDayId.remote(2),
+            authorInfo = PersonWithHunterNumber(
+                1, 0,
+                "Pentti0", "Mujunen", "12345678"
+            ),
+            actorInfo = PersonWithHunterNumber(
+                2, 1,
+                "Pertti", "Möjönen", "23456789"
+            ),
+            harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
+            harvestReportRequired = true,
+            harvestReportState = BackendEnum.create(HarvestReportState.APPROVED),
+            permitNumber = "1234",
+            permitType = "permit",
+            stateAcceptedToHarvestPermit = BackendEnum.create(StateAcceptedToHarvestPermit.ACCEPTED),
+            deerHuntingType = BackendEnum.create(DeerHuntingType.OTHER),
+            deerHuntingOtherTypeDescription = "ritsalla ammuttu",
+            mobileClientRefId = 99,
+            harvestReportDone = true,
+            rejected = true,
         )
 
         val data = harvest.toCommonHarvestData(groupMembers = listOf())
@@ -91,46 +112,49 @@ class GroupHuntingHarvestDataTest {
     @Test
     fun testHarvestHasSameValuesAsHarvestData() {
         val data = CommonHarvestData(
-                localId = null,
-                localUrl = null,
-                id = 1,
-                rev = 2,
-                species = Species.Known(SpeciesCodes.MOOSE_ID),
-                location = ETRMSGeoLocation(
-                        30, 20, BackendEnum.create(GeoLocationSource.GPS_DEVICE),
-                        40.0, 50.0, 60.0
-                ).asKnownLocation(),
-                pointOfTime = LocalDateTime(2021, 6, 7, 16, 49, 37),
-                description = "description",
-                canEdit = true,
-                images = EntityImages(listOf("image_1"), listOf()),
-                specimens = listOf(
-                    CommonSpecimenData.createForTests(remoteId = 7)
-                ),
-                amount = 1,
-                huntingDayId = GroupHuntingDayId.remote(2),
-                authorInfo = PersonWithHunterNumber(
-                        1, 0,
-                        "Pentti0", "Mujunen", "12345678"
-                ),
-                actorInfo = PersonWithHunterNumber(
-                        2, 1,
-                        "Pertti", "Möjönen", "23456789"
-                ).asGroupMember(),
-                harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
-                harvestReportRequired = true,
-                harvestReportState = BackendEnum.create(HarvestReportState.APPROVED),
-                permitNumber = "1234",
-                permitType = "permit",
-                stateAcceptedToHarvestPermit = BackendEnum.create(StateAcceptedToHarvestPermit.ACCEPTED),
-                deerHuntingType = BackendEnum.create(DeerHuntingType.OTHER),
-                deerHuntingOtherTypeDescription = "ritsalla ammuttu",
-                mobileClientRefId = 99,
-                harvestReportDone = true,
-                rejected = false,
-                feedingPlace = null,
-                taigaBeanGoose = null,
-                greySealHuntingMethod = BackendEnum.create(null),
+            localId = null,
+            localUrl = null,
+            id = 1,
+            rev = 2,
+            species = Species.Known(SpeciesCodes.MOOSE_ID),
+            location = ETRMSGeoLocation(
+                30, 20, BackendEnum.create(GeoLocationSource.GPS_DEVICE),
+                40.0, 50.0, 60.0
+            ).asKnownLocation(),
+            pointOfTime = LocalDateTime(2021, 6, 7, 16, 49, 37),
+            description = "description",
+            canEdit = true,
+            modified = true,
+            deleted = false,
+            images = EntityImages(listOf("image_1"), listOf()),
+            specimens = listOf(
+                CommonSpecimenData.createForTests(remoteId = 7)
+            ),
+            amount = 1,
+            huntingDayId = GroupHuntingDayId.remote(2),
+            authorInfo = PersonWithHunterNumber(
+                1, 0,
+                "Pentti0", "Mujunen", "12345678"
+            ),
+            actorInfo = PersonWithHunterNumber(
+                2, 1,
+                "Pertti", "Möjönen", "23456789"
+            ).asGroupMember(),
+            selectedClub = SearchableOrganization.Unknown,
+            harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
+            harvestReportRequired = true,
+            harvestReportState = BackendEnum.create(HarvestReportState.APPROVED),
+            permitNumber = "1234",
+            permitType = "permit",
+            stateAcceptedToHarvestPermit = BackendEnum.create(StateAcceptedToHarvestPermit.ACCEPTED),
+            deerHuntingType = BackendEnum.create(DeerHuntingType.OTHER),
+            deerHuntingOtherTypeDescription = "ritsalla ammuttu",
+            mobileClientRefId = 99,
+            harvestReportDone = true,
+            rejected = false,
+            feedingPlace = null,
+            taigaBeanGoose = null,
+            greySealHuntingMethod = BackendEnum.create(null),
         )
 
         val harvest = data.toGroupHuntingHarvest()!!
@@ -164,46 +188,49 @@ class GroupHuntingHarvestDataTest {
     @Test
     fun testInvalidDataWontProduceHarvest() {
         val originalData = CommonHarvestData(
-                localId = null,
-                localUrl = null,
-                id = 1,
-                rev = 2,
-                species = Species.Known(SpeciesCodes.MOOSE_ID),
-                location = ETRMSGeoLocation(
-                        30, 20, BackendEnum.create(GeoLocationSource.GPS_DEVICE),
-                        40.0, 50.0, 60.0
-                ).asKnownLocation(),
-                pointOfTime = LocalDateTime(2021, 6, 7, 16, 49, 37),
-                description = "description",
-                canEdit = true,
-                images = EntityImages(listOf("image_1"), listOf()),
-                specimens = listOf(
-                    CommonSpecimenData.createForTests(remoteId = 7)
-                ),
-                amount = 1,
-                huntingDayId = GroupHuntingDayId.remote(2),
-                authorInfo = PersonWithHunterNumber(
-                        1, 0,
-                        "Pentti0", "Mujunen", "12345678"
-                ),
-                actorInfo = PersonWithHunterNumber(
-                        2, 1,
-                        "Pertti", "Möjönen", "23456789"
-                ).asGroupMember(),
-                harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
-                harvestReportRequired = true,
-                harvestReportState = BackendEnum.create(HarvestReportState.APPROVED),
-                permitNumber = "1234",
-                permitType = "permit",
-                stateAcceptedToHarvestPermit = BackendEnum.create(StateAcceptedToHarvestPermit.ACCEPTED),
-                deerHuntingType = BackendEnum.create(DeerHuntingType.OTHER),
-                deerHuntingOtherTypeDescription = "ritsalla ammuttu",
-                mobileClientRefId = 99,
-                harvestReportDone = true,
-                rejected = false,
-                feedingPlace = null,
-                taigaBeanGoose = null,
-                greySealHuntingMethod = BackendEnum.create(null),
+            localId = null,
+            localUrl = null,
+            id = 1,
+            rev = 2,
+            species = Species.Known(SpeciesCodes.MOOSE_ID),
+            location = ETRMSGeoLocation(
+                30, 20, BackendEnum.create(GeoLocationSource.GPS_DEVICE),
+                40.0, 50.0, 60.0
+            ).asKnownLocation(),
+            pointOfTime = LocalDateTime(2021, 6, 7, 16, 49, 37),
+            description = "description",
+            canEdit = true,
+            modified = true,
+            deleted = false,
+            images = EntityImages(listOf("image_1"), listOf()),
+            specimens = listOf(
+                CommonSpecimenData.createForTests(remoteId = 7)
+            ),
+            amount = 1,
+            huntingDayId = GroupHuntingDayId.remote(2),
+            authorInfo = PersonWithHunterNumber(
+                1, 0,
+                "Pentti0", "Mujunen", "12345678"
+            ),
+            actorInfo = PersonWithHunterNumber(
+                2, 1,
+                "Pertti", "Möjönen", "23456789"
+            ).asGroupMember(),
+            selectedClub = SearchableOrganization.Unknown,
+            harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
+            harvestReportRequired = true,
+            harvestReportState = BackendEnum.create(HarvestReportState.APPROVED),
+            permitNumber = "1234",
+            permitType = "permit",
+            stateAcceptedToHarvestPermit = BackendEnum.create(StateAcceptedToHarvestPermit.ACCEPTED),
+            deerHuntingType = BackendEnum.create(DeerHuntingType.OTHER),
+            deerHuntingOtherTypeDescription = "ritsalla ammuttu",
+            mobileClientRefId = 99,
+            harvestReportDone = true,
+            rejected = false,
+            feedingPlace = null,
+            taigaBeanGoose = null,
+            greySealHuntingMethod = BackendEnum.create(null),
         )
 
         // should produce valid harvest

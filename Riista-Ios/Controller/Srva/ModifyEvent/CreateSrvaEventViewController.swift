@@ -46,11 +46,14 @@ class CreateSrvaEventViewController :
     override func navigateToNextViewAfterSaving(srvaEvent: CommonSrvaEvent) {
         if let srvaEventId = srvaEvent.localId?.int64Value {
             let viewSrvaEventController = ViewSrvaEventViewController(srvaEventId: srvaEventId)
-            self.navigationController?.popViewController(animated: false)
-            self.navigationController?.pushViewController(viewSrvaEventController, animated: true)
+            navigationController?.replaceViewController(
+                viewControllerToPop: self,
+                childViewControllers: [viewSrvaEventController],
+                animated: true
+            )
         } else {
             // just pop the navigation controller as we're unable to display srva
-            self.navigationController?.popViewController(animated: true)
+            navigationController?.popViewController(animated: true)
         }
     }
 

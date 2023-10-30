@@ -70,7 +70,7 @@ class GroupHuntingLandingPageViewController
             target: self,
             action: #selector(onGroupHuntingIntroButtonClicked)
         )
-        button.isHidden = true
+        button.isHiddenCompat = true
         return button
     }()
 
@@ -83,15 +83,15 @@ class GroupHuntingLandingPageViewController
         tableView.snp.makeConstraints { make in
             // let tableview take all space. The cells need to therefore respect preferred layoutmargins
             make.leading.trailing.equalTo(view)
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         tableView.layoutMargins = AppConstants.UI.DefaultHorizontalEdgeInsets
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -135,9 +135,9 @@ class GroupHuntingLandingPageViewController
 
     private func updateGroupHuntingInfoButtonVisibility() {
         if (getGroupHuntingIntroMessage() != nil) {
-            groupHuntingInfoButton.isHidden = false
+            groupHuntingInfoButton.isHiddenCompat = false
         } else {
-            groupHuntingInfoButton.isHidden = true
+            groupHuntingInfoButton.isHiddenCompat = true
         }
     }
 
@@ -266,9 +266,12 @@ class GroupHuntingLandingPageViewController
         )
         updateProposedEntriesCount(viewModel: viewModel)
 
-        controller.fetchHuntingGroupDataIfNeeded(refresh: shouldRefreshGroupDataNextTime) { [weak self] _, _ in
-            self?.shouldRefreshGroupDataNextTime = false
-        }
+        controller.fetchHuntingGroupDataIfNeeded(
+            refresh: shouldRefreshGroupDataNextTime,
+            completionHandler: handleOnMainThread { [weak self] _ in
+                self?.shouldRefreshGroupDataNextTime = false
+            }
+        )
     }
 
     override func onViewModelLoadFailed() {

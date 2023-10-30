@@ -33,7 +33,7 @@ class ModifyObservationViewController<Controller: ModifyObservationController>:
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -101,8 +101,8 @@ class ModifyObservationViewController<Controller: ModifyObservationController>:
         view.addSubview(container)
         container.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         container.addArrangedSubview(tableView)
@@ -125,8 +125,14 @@ class ModifyObservationViewController<Controller: ModifyObservationController>:
             stringEventDispatcher: controller.eventDispatchers.stringEventDispatcher,
             intEventDispatcher: controller.eventDispatchers.intEventDispatcher,
             localDateTimeEventDispacter: controller.eventDispatchers.localDateTimeEventDispatcher,
-            specimenLauncher: { [weak self] fieldId, specimenData in
-                self?.showSpecimen(fieldId: fieldId, specimenData: specimenData)
+            specimenLauncher: { [weak self] fieldId, specimenData, allowEdit in
+                SpecimensViewControllerLauncher.launch(
+                    parent: self,
+                    fieldId: fieldId,
+                    specimenData: specimenData,
+                    allowEdit: allowEdit,
+                    onSpecimensEditDone: self?.onSpecimensEditDone
+                )
             },
             speciesEventDispatcher: controller.eventDispatchers.speciesEventDispatcher,
             speciesImageClickListener: { [weak self] fieldId, entityImage in
@@ -163,12 +169,6 @@ class ModifyObservationViewController<Controller: ModifyObservationController>:
 
     override func onViewModelLoadFailed() {
         super.onViewModelLoadFailed()
-    }
-
-    private func showSpecimen(fieldId: DataFieldId, specimenData: SpecimenFieldDataContainer) {
-        let specimenViewController = EditSpecimensViewController(fieldId: fieldId, specimenData: specimenData)
-        specimenViewController.onSpecimensEditDone = onSpecimensEditDone
-        self.navigationController?.pushViewController(specimenViewController, animated: true)
     }
 
     private func onSpeciesImageClicked(fieldId: CommonObservationField, entityImage: EntityImage?) {
@@ -214,33 +214,43 @@ class ModifyObservationViewController<Controller: ModifyObservationController>:
         tableView.showLoading()
         saveButton.isEnabled = false
 
-        controller.saveObservation(updateToBackend: AppSync.shared.isAutomaticSyncEnabled()) { [weak self] response, error in
-            guard let self = self else { return }
+        controller.saveObservation(
+            updateToBackend: AppSync.shared.isAutomaticSyncEnabled(),
+            completionHandler: handleOnMainThread { [weak self] response, error in
+                guard let self = self else { return }
 
-            self.tableView.hideLoading()
-            self.saveButton.isEnabled = true
+                self.tableView.hideLoading()
+                self.saveButton.isEnabled = true
 
-            // notify possible parent about saved observation
-            self.listener?.onObservationUpdated()
+                // notify possible parent about saved observation
+                self.listener?.onObservationUpdated()
 
-            let databaseSaveResponse = response?.databaseSaveResponse
-            let networkSaveResponse = response?.networkSaveResponse
+                let databaseSaveResponse = response?.databaseSaveResponse
+                let networkSaveResponse = response?.networkSaveResponse
 
-            if let networkFailure = networkSaveResponse as? ObservationOperationResponse.NetworkFailure,
-               networkFailure.statusCode == 409 {
-                let errorDialog = AlertDialogBuilder.createError(message: "OutdatedDiaryEntry".localized())
-                self.present(errorDialog, animated: true)
-            } else if let successResponse = databaseSaveResponse as? ObservationOperationResponse.Success {
-                self.handleSuccessfullySavedObservation(observation: successResponse.observation)
-            } else {
-                let errorDialog = AlertDialogBuilder.createError(message: "DiaryEditFailed".localized())
-                self.present(errorDialog, animated: true)
+                if let networkFailure = networkSaveResponse as? ObservationOperationResponse.NetworkFailure,
+                   networkFailure.statusCode == 409 {
+                    let errorDialog = AlertDialogBuilder.createError(message: "OutdatedDiaryEntry".localized())
+                    self.present(errorDialog, animated: true)
+                } else if let successResponse = databaseSaveResponse as? ObservationOperationResponse.Success {
+                    self.handleSuccessfullySavedObservation(observation: successResponse.observation)
+                } else {
+                    let errorDialog = AlertDialogBuilder.createError(message: "DiaryEditFailed".localized())
+                    self.present(errorDialog, animated: true)
+                }
             }
-        }
+        )
     }
 
     private func handleSuccessfullySavedObservation(observation: CommonObservation) {
-        NotificationCenter.default.post(Notification(name: .ObservationModified))
+        NotificationCenter.default.post(EntityModified(
+            object: EntityModified.Data(
+                entityType: .observation,
+                entityPointOfTime: observation.pointOfTime,
+                entitySpecies: observation.species,
+                entityReportedForOthers: false // currently not possible
+            )
+        ))
 
         saveImagesUnderLocalImages(observation: observation) { [weak self] in
             self?.navigateToNextViewAfterSaving(observation: observation)

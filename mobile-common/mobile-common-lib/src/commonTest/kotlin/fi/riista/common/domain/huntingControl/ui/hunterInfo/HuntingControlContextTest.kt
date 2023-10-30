@@ -1,28 +1,24 @@
 package fi.riista.common.domain.huntingControl.ui.hunterInfo
 
 import fi.riista.common.RiistaSDK
-import fi.riista.common.RiistaSdkConfiguration
 import fi.riista.common.database.DatabaseDriverFactory
 import fi.riista.common.domain.dto.MockUserInfo
 import fi.riista.common.domain.huntingControl.HuntingControlContext
 import fi.riista.common.domain.huntingControl.ui.HuntingControlHunterInfoResponse
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
-import fi.riista.common.helpers.MockMainScopeProvider
-import fi.riista.common.helpers.TestCrashlyticsLogger
 import fi.riista.common.helpers.createDatabaseDriverFactory
+import fi.riista.common.helpers.initializeMocked
 import fi.riista.common.helpers.runBlockingTest
-import fi.riista.common.io.CommonFileProviderMock
 import fi.riista.common.model.LocalDate
 import fi.riista.common.network.BackendAPI
 import fi.riista.common.network.BackendAPIMock
-import fi.riista.common.util.MockDateTimeProvider
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class HuntingControlContextTest {
-    private val serverAddress = "https://oma.riista.fi"
 
     @Test
     fun testFetchHunterInfo() = runBlockingTest {
@@ -45,19 +41,16 @@ class HuntingControlContextTest {
         backendApi: BackendAPI = BackendAPIMock(),
     ): HuntingControlContext {
         val userContextProvider = CurrentUserContextProviderFactory.createMocked()
-        userContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
+        runBlocking {
+            userContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
+        }
 
-        val configuration = RiistaSdkConfiguration("1", "2", serverAddress, TestCrashlyticsLogger)
         RiistaSDK.initializeMocked(
-            sdkConfiguration = configuration,
             databaseDriverFactory = databaseDriverFactory,
             mockBackendAPI = backendApi,
             mockCurrentUserContextProvider = userContextProvider,
-            mockLocalDateTimeProvider = MockDateTimeProvider(),
-            mockMainScopeProvider = MockMainScopeProvider(),
-            mockFileProvider = CommonFileProviderMock(),
         )
 
-        return userContextProvider.userContext.huntingControlContext
+        return RiistaSDK.huntingControlContext
     }
 }

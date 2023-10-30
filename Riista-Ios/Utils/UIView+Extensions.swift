@@ -167,9 +167,6 @@ extension UIView {
         }
     }
 
-    /**
-     * Disclaimer: on iOS10, ensure that bounds are valid as otherwise corners won't be rounded.
-     */
     func roundAllCorners(cornerRadius: CGFloat) {
         roundCorners(
             corners: CACornerMask.allCorners(),
@@ -177,28 +174,10 @@ extension UIView {
         )
     }
 
-    /**
-     * Disclaimer: on iOS10, ensure that bounds are valid as otherwise corners won't be rounded.
-     */
     func roundCorners(corners: CACornerMask, cornerRadius: CGFloat) {
         clipsToBounds = true
-        if #available(iOS 11.0, *) {
-            layer.cornerRadius = cornerRadius
-            layer.maskedCorners = corners
-        } else {
-            // check bounds so that we don't accidentally hide the view
-            if (bounds.width < 1 || bounds.height < 1) {
-                print("NOT ROUNDING CORNERS, no size information available!")
-                return
-            }
-            let maskLayer = CAShapeLayer()
-            maskLayer.path = UIBezierPath(
-                roundedRect: bounds,
-                byRoundingCorners: corners.toUIRectCorner(),
-                cornerRadii: CGSize(width: cornerRadius, height: cornerRadius)
-            ).cgPath
-            layer.mask = maskLayer
-        }
+        layer.cornerRadius = cornerRadius
+        layer.maskedCorners = corners
     }
 
     /**

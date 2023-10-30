@@ -7,6 +7,18 @@ import RiistaCommon
  * A helper for sending log events and non-fatal errors to Crashlytics.
  */
 @objc class CrashlyticsHelper: NSObject {
+    private static var breadcrumbsLogger = AppLogger(context: "Breadcrumbs", printTimeStamps: false)
+    private static var helperLogger = AppLogger(for: CrashlyticsHelper.self, printTimeStamps: false)
+
+    /**
+     * Logs the breadcrumbs i.e. what has happened right before an error has occurred.
+     *
+     * Simple logging here. Use Crashlytics directly if formatting is required.
+     */
+    @objc class func breadcrumb(breadcrumb: String) {
+        breadcrumbsLogger.v { breadcrumb }
+        Crashlytics.crashlytics().log(breadcrumb)
+    }
 
     /**
      * Logs the context i.e. what has happened right before an error has occurred.
@@ -15,9 +27,9 @@ import RiistaCommon
      */
     @objc class func log(msg: String?) {
         if let msg = msg {
-            let outputMsg = "\(msg) (main = \(Thread.isMainThread ? "true" : "false"))"
-            print(outputMsg)
-            Crashlytics.crashlytics().log(outputMsg)
+            helperLogger.v { msg }
+
+            Crashlytics.crashlytics().log(msg)
         }
     }
 

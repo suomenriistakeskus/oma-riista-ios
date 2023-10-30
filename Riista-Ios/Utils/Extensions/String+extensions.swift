@@ -1,6 +1,10 @@
 import Foundation
 
 extension String {
+    func prefixed(with prefix: String) -> String {
+        "\(prefix)\(self)"
+    }
+
     func toAttributedString(_ attributes: [NSAttributedString.Key : Any]? = nil) -> NSAttributedString {
         NSAttributedString(string: self, attributes: attributes)
     }

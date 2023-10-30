@@ -4,10 +4,11 @@ import fi.riista.common.domain.dto.UserInfoDTO
 import fi.riista.common.network.NetworkClient
 import fi.riista.common.network.calls.NetworkRequest
 import fi.riista.common.network.calls.NetworkResponse
-import io.ktor.client.features.*
-import io.ktor.client.request.*
-import io.ktor.client.request.forms.*
-import io.ktor.http.*
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.accept
+import io.ktor.client.request.forms.submitForm
+import io.ktor.http.ContentType
+import io.ktor.http.Parameters
 
 internal class Login(
     private val username: String,

@@ -1,19 +1,19 @@
 package fi.riista.common.domain.huntingControl.ui.hunterInfo
 
 import fi.riista.common.RiistaSDK
-import fi.riista.common.RiistaSdkConfiguration
 import fi.riista.common.database.DatabaseDriverFactory
 import fi.riista.common.domain.dto.MockUserInfo
 import fi.riista.common.domain.huntingControl.HuntingControlContext
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
-import fi.riista.common.helpers.*
+import fi.riista.common.helpers.TestStringProvider
 import fi.riista.common.helpers.createDatabaseDriverFactory
 import fi.riista.common.helpers.getButtonField
 import fi.riista.common.helpers.getCustomField
 import fi.riista.common.helpers.getIntField
 import fi.riista.common.helpers.getLabelField
 import fi.riista.common.helpers.getStringField
-import fi.riista.common.io.CommonFileProviderMock
+import fi.riista.common.helpers.initializeMocked
+import fi.riista.common.helpers.runBlockingTest
 import fi.riista.common.model.Language
 import fi.riista.common.network.BackendAPI
 import fi.riista.common.network.BackendAPIMock
@@ -22,8 +22,8 @@ import fi.riista.common.resources.StringProvider
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.ui.dataField.LabelField
 import fi.riista.common.ui.dataField.Padding
-import fi.riista.common.util.MockDateTimeProvider
 import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -32,7 +32,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class HunterInfoControllerTest {
-    private val serverAddress = "https://oma.riista.fi"
 
     @Test
     fun testDataInitiallyNotLoaded() {
@@ -191,20 +190,17 @@ class HunterInfoControllerTest {
         backendApi: BackendAPI = BackendAPIMock(),
     ): HuntingControlContext {
         val userContextProvider = CurrentUserContextProviderFactory.createMocked()
-        userContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
+        runBlocking {
+            userContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
+        }
 
-        val configuration = RiistaSdkConfiguration("1", "2", serverAddress, TestCrashlyticsLogger)
         RiistaSDK.initializeMocked(
-            sdkConfiguration = configuration,
             databaseDriverFactory = databaseDriverFactory,
             mockBackendAPI = backendApi,
             mockCurrentUserContextProvider = userContextProvider,
-            mockLocalDateTimeProvider = MockDateTimeProvider(),
-            mockMainScopeProvider = MockMainScopeProvider(),
-            mockFileProvider = CommonFileProviderMock(),
         )
 
-        return userContextProvider.userContext.huntingControlContext
+        return RiistaSDK.huntingControlContext
     }
 
     private fun getLanguageProvider(): LanguageProvider {

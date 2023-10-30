@@ -1,11 +1,16 @@
 package fi.riista.common.domain.harvest.ui.view
 
 import fi.riista.common.domain.harvest.model.CommonHarvestData
-import fi.riista.common.domain.harvest.model.HarvestState
+import fi.riista.common.domain.harvest.model.indicatorColor
 import fi.riista.common.domain.harvest.ui.CommonHarvestField
 import fi.riista.common.domain.harvest.ui.common.HarvestSpecimenFieldProducer
+import fi.riista.common.domain.model.GameAge
+import fi.riista.common.domain.model.Gender
 import fi.riista.common.domain.model.PermitNumber
-import fi.riista.common.domain.permit.PermitProvider
+import fi.riista.common.domain.permit.harvestPermit.HarvestPermitProvider
+import fi.riista.common.logging.getLogger
+import fi.riista.common.model.localizedWithFallbacks
+import fi.riista.common.resources.LanguageProvider
 import fi.riista.common.resources.RR
 import fi.riista.common.resources.StringProvider
 import fi.riista.common.resources.localized
@@ -15,7 +20,6 @@ import fi.riista.common.ui.dataField.DateAndTimeField
 import fi.riista.common.ui.dataField.FieldSpecification
 import fi.riista.common.ui.dataField.GenderField
 import fi.riista.common.ui.dataField.LabelField
-import fi.riista.common.ui.dataField.LabelField.LabelFieldSettings.IndicatorColor
 import fi.riista.common.ui.dataField.LocationField
 import fi.riista.common.ui.dataField.Padding
 import fi.riista.common.ui.dataField.SpeciesField
@@ -25,8 +29,9 @@ import fi.riista.common.ui.helpers.formatWeight
 import fi.riista.common.util.toStringOrMissingIndicator
 
 internal class ViewHarvestFieldProducer(
-    private val permitProvider: PermitProvider?,
+    private val harvestPermitProvider: HarvestPermitProvider?,
     private val stringProvider: StringProvider,
+    private val languageProvider: LanguageProvider?,
 ) {
     private val specimenFieldProducer = HarvestSpecimenFieldProducer(
         stringProvider = stringProvider
@@ -88,6 +93,18 @@ internal class ViewHarvestFieldProducer(
                     ) {
                         paddingTop = Padding.MEDIUM
                     }
+            CommonHarvestField.SELECTED_CLUB -> {
+                if (languageProvider == null) {
+                    logger.e { "No language provider, cannot produce field for ${fieldSpecification.fieldId}" }
+                    return null
+                }
+
+                harvest.selectedClub.organization?.name?.localizedWithFallbacks(languageProvider)
+                    .createValueField(
+                        fieldSpecification = fieldSpecification,
+                        label = RR.string.harvest_label_hunting_club,
+                    )
+            }
             CommonHarvestField.AUTHOR ->
                 harvest.authorInfo
                     ?.let { "${it.byName} ${it.lastName}" }
@@ -105,6 +122,7 @@ internal class ViewHarvestFieldProducer(
                     .let { gender ->
                         GenderField(fieldSpecification.fieldId, gender) {
                             readOnly = true
+                            showUnknown = harvest.unknownGenderAllowed && gender == Gender.UNKNOWN
                         }
                     }
             CommonHarvestField.AGE ->
@@ -114,6 +132,7 @@ internal class ViewHarvestFieldProducer(
                     .let { age ->
                         AgeField(fieldSpecification.fieldId, age) {
                             readOnly = true
+                            showUnknown = harvest.unknownAgeAllowed && age == GameAge.UNKNOWN
                             paddingBottom = Padding.MEDIUM_LARGE
                         }
                     }
@@ -300,22 +319,12 @@ internal class ViewHarvestFieldProducer(
             )
             CommonHarvestField.HARVEST_REPORT_STATE ->
                 harvest.harvestState?.let { harvestState ->
-                    val indicatorColor = when (harvestState) {
-                        HarvestState.REPORT_SENT_FOR_APPROVAL,
-                        HarvestState.PERMIT_PROPOSED -> IndicatorColor.YELLOW
-                        HarvestState.REPORT_APPROVED,
-                        HarvestState.PERMIT_ACCEPTED -> IndicatorColor.GREEN
-                        HarvestState.REPORT_REQUIRED,
-                        HarvestState.REPORT_REJECTED,
-                        HarvestState.PERMIT_REJECTED -> IndicatorColor.RED
-                    }
-
                     LabelField(
                         id = fieldSpecification.fieldId,
                         text = stringProvider.getString(harvestState.resourcesStringId),
                         type = LabelField.Type.INDICATOR
                     ) {
-                        this.indicatorColor = indicatorColor
+                        this.indicatorColor = harvestState.indicatorColor
                         paddingTop = Padding.SMALL
                     }
                 }
@@ -357,8 +366,11 @@ internal class ViewHarvestFieldProducer(
                         fieldSpecification = fieldSpecification,
                         label = RR.string.harvest_label_description
                     )
+            CommonHarvestField.OWN_HARVEST,
             CommonHarvestField.ACTOR_HUNTER_NUMBER,
             CommonHarvestField.ACTOR_HUNTER_NUMBER_INFO_OR_ERROR,
+            CommonHarvestField.SELECTED_CLUB_OFFICIAL_CODE,
+            CommonHarvestField.SELECTED_CLUB_OFFICIAL_CODE_INFO_OR_ERROR,
             CommonHarvestField.ANTLER_INSTRUCTIONS,
             CommonHarvestField.ADDITIONAL_INFORMATION_INSTRUCTIONS,
             CommonHarvestField.HUNTING_DAY_AND_TIME,
@@ -381,7 +393,7 @@ internal class ViewHarvestFieldProducer(
     ): StringField<CommonHarvestField> {
         return permitNumber
             ?.let { permitNumber ->
-                val permitType = permitProvider?.getPermit(permitNumber)?.permitType
+                val permitType = harvestPermitProvider?.getPermit(permitNumber)?.permitType
                     ?: fallbackPermitType
 
                 // prefix with permit type if exists, otherwise display just the number
@@ -413,5 +425,9 @@ internal class ViewHarvestFieldProducer(
                 this.configure()
             }
         }
+    }
+
+    companion object {
+        private val logger by getLogger(ViewHarvestFieldProducer::class)
     }
 }

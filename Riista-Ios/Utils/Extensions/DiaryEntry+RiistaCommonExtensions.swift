@@ -11,6 +11,8 @@ extension DiaryEntry {
                 return nil
         }
 
+        let specimens = parseCommonSpecimens()
+
         return CommonHarvest(
             localId: nil,
             localUrl: objectId.uriRepresentation().absoluteString,
@@ -21,9 +23,11 @@ extension DiaryEntry {
             pointOfTime: dateTime,
             description: diarydescription,
             canEdit: canEdit?.boolValue ?? false,
+            modified: sent?.boolValue == false && pendingOperation?.intValue != DiaryEntryOperationDelete,
+            deleted: pendingOperation?.intValue == DiaryEntryOperationDelete,
             images: parseEntityImages(),
-            specimens: parseCommonSpecimens(),
-            amount: amount?.toKotlinInt(),
+            specimens: specimens,
+            amount: amount?.int32Value ?? Int32(specimens.count),
             harvestSpecVersion: harvestSpecVersion?.int32Value ?? RiistaCommon.Constants.shared.HARVEST_SPEC_VERSION,
             harvestReportRequired: harvestReportRequired?.boolValue ?? false,
             harvestReportState: RiistaCommon.HarvestReportState.Companion.shared.toBackendEnumCompat(value: harvestReportState),
@@ -37,45 +41,12 @@ extension DiaryEntry {
             rejected: harvestReportState == DiaryEntryHarvestStateRejected,
             feedingPlace: feedingPlace?.boolValue.toKotlinBoolean(),
             taigaBeanGoose: taigaBeanGoose?.boolValue.toKotlinBoolean(),
-            greySealHuntingMethod: RiistaCommon.GreySealHuntingMethod.Companion.shared.toBackendEnumCompat(value: huntingMethod)
+            greySealHuntingMethod: RiistaCommon.GreySealHuntingMethod.Companion.shared.toBackendEnumCompat(value: huntingMethod),
+            actorInfo: GroupHuntingPerson.Unknown(),
+            selectedClub: nil
         )
     }
 
-    @discardableResult
-    func updateWithCommonHarvest(harvest: CommonHarvest, context: NSManagedObjectContext) -> DiaryEntry  {
-        self.type = DiaryEntryTypeHarvest
-        self.remoteId = harvest.id
-        self.rev = harvest.rev
-        self.gameSpeciesCode = harvest.species.toGameSpeciesCode()
-        self.coordinates = harvest.geoLocation.toGeoCoordinate(context: context, existingCoordinates: self.coordinates)
-        self.pointOfTime = harvest.pointOfTime.toFoundationDate()
-        self.year = harvest.pointOfTime.year.toNSNumber()
-        self.month = harvest.pointOfTime.monthNumber.toNSNumber()
-        self.diarydescription = harvest.description_ ?? ""
-        self.canEdit = harvest.canEdit.toNSNumber()
-        self.diaryImages = (harvest.images.toDiaryImages(context: context, existingImages: self.diaryImages) as! Set<AnyHashable>)
-        self.specimens = harvest.specimens.toHarvestSpecimens(context: context)
-        self.amount = harvest.amount ?? 1
-        self.harvestSpecVersion = harvest.harvestSpecVersion.toNSNumber()
-        self.harvestReportRequired = harvest.harvestReportRequired.toNSNumber()
-        self.harvestReportState = harvest.harvestReportState.rawBackendEnumValue
-        self.permitNumber = harvest.permitNumber
-        self.stateAcceptedToHarvestPermit = harvest.stateAcceptedToHarvestPermit.rawBackendEnumValue
-        self.deerHuntingType = harvest.deerHuntingType.rawBackendEnumValue
-        self.deerHuntingTypeDescription = harvest.deerHuntingOtherTypeDescription
-        self.mobileClientRefId = harvest.mobileClientRefId
-        self.harvestReportDone = harvest.harvestReportDone.toNSNumber()
-        self.feedingPlace = harvest.feedingPlace
-        self.taigaBeanGoose = harvest.taigaBeanGoose
-        self.huntingMethod = harvest.greySealHuntingMethod.rawBackendEnumValue
-
-        // ignore following for now
-//        self.pendingOperation = ...
-//        self.remote = ...
-//        self.sent = ...
-
-        return self
-    }
 
     private func parseCommonSpecimens() -> [CommonHarvestSpecimen] {
         guard let specimens = specimens else {
@@ -156,63 +127,6 @@ extension RiistaSpecimen {
             alone: alone?.boolValue.toKotlinBoolean(),
             additionalInfo: additionalInfo
         )
-    }
-
-    @discardableResult
-    func updateWithCommonSpecimen(specimen: CommonHarvestSpecimen) -> RiistaSpecimen {
-        self.remoteId = specimen.id
-        self.rev = specimen.rev
-        self.gender = specimen.gender?.rawBackendEnumValue
-        self.age = specimen.age?.rawBackendEnumValue
-        self.weight = specimen.weight
-        self.weightEstimated = specimen.weightEstimated
-        self.weightMeasured = specimen.weightMeasured
-        self.fitnessClass = specimen.fitnessClass?.rawBackendEnumValue
-        self.antlersLost = specimen.antlersLost
-        self.antlersType = specimen.antlersType?.rawBackendEnumValue
-        self.antlersWidth = specimen.antlersWidth
-        self.antlerPointsLeft = specimen.antlerPointsLeft
-        self.antlerPointsRight = specimen.antlerPointsRight
-        self.antlersGirth = specimen.antlersGirth
-        self.antlersLength = specimen.antlersLength
-        self.antlersInnerWidth = specimen.antlersInnerWidth
-        self.antlersShaftWidth = specimen.antlerShaftWidth
-        self.notEdible = specimen.notEdible
-        self.alone = specimen.alone
-        self.additionalInfo = specimen.additionalInfo
-
-        return self
-    }
-}
-
-extension Array where Element == CommonHarvestSpecimen {
-    func toHarvestSpecimens(context: NSManagedObjectContext) -> NSOrderedSet {
-        let harvestSpecimens = NSMutableOrderedSet()
-
-        self.forEach { specimen in
-            harvestSpecimens.add(specimen.toHarvestSpecimen(context: context))
-        }
-
-        return harvestSpecimens
-    }
-}
-
-extension CommonHarvest {
-    func toDiaryEntry(context: NSManagedObjectContext) -> DiaryEntry {
-        let entity = NSEntityDescription.entity(forEntityName: "DiaryEntry", in: context)!
-        let harvestEntry = DiaryEntry(entity: entity, insertInto: context)
-        harvestEntry.type = DiaryEntryTypeHarvest
-
-        return harvestEntry.updateWithCommonHarvest(harvest: self, context: context)
-    }
-}
-
-extension CommonHarvestSpecimen {
-    func toHarvestSpecimen(context: NSManagedObjectContext) -> RiistaSpecimen {
-        let entity = NSEntityDescription.entity(forEntityName: "Specimen", in: context)!
-        let harvestSpecimen = RiistaSpecimen(entity: entity, insertInto: context)
-
-        return harvestSpecimen.updateWithCommonSpecimen(specimen: self)
     }
 }
 

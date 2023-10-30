@@ -2,12 +2,16 @@ package fi.riista.common.domain.huntingControl.sync
 
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.constants.Constants
+import fi.riista.common.domain.dto.MockUserInfo
 import fi.riista.common.helpers.createDatabaseDriverFactory
 import fi.riista.common.domain.huntingControl.HuntingControlRepository
 import fi.riista.common.domain.huntingControl.model.*
 import fi.riista.common.domain.huntingControl.sync.model.GameWarden
 import fi.riista.common.domain.huntingControl.sync.model.LoadHuntingControlEvent
 import fi.riista.common.domain.model.*
+import fi.riista.common.domain.userInfo.CurrentUserContextProvider
+import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
+import fi.riista.common.helpers.runBlockingTest
 import fi.riista.common.model.*
 import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
@@ -19,10 +23,13 @@ class HuntingControlRhyToDatabaseUpdaterTest {
 
     @Test
     fun testDataInsertedToEmptyDatabase() {
-        val username = "user"
+        val username = MockUserInfo.PenttiUsername
+        runBlocking {
+            currentUserContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
+        }
         val dbDriverFactory = createDatabaseDriverFactory()
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
-        val updater = huntingControlRhyToDatabaseUpdater(database, username)
+        val updater = huntingControlRhyToDatabaseUpdater(database)
         val repository = HuntingControlRepository(database)
 
         assertEquals(0, repository.getRhys(username).size)
@@ -60,7 +67,9 @@ class HuntingControlRhyToDatabaseUpdaterTest {
         )
         assertEquals(expectedGameWardens, gameWardens.toSet())
 
-        val events = repository.getHuntingControlEvents(username, rhy.id)
+        val events = runBlocking {
+            repository.getHuntingControlEvents(username, rhy.id)
+        }
         assertEquals(1, events.size)
         val event = events[0]
         assertEquals(Constants.HUNTING_CONTROL_EVENT_SPEC_VERSION, event.specVersion)
@@ -95,10 +104,13 @@ class HuntingControlRhyToDatabaseUpdaterTest {
 
     @Test
     fun testUpdateWithNoRhysRemovesDataFromDatabase() {
-        val username = "user"
+        val username = MockUserInfo.PenttiUsername
+        runBlocking {
+            currentUserContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
+        }
         val dbDriverFactory = createDatabaseDriverFactory()
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
-        val updater = huntingControlRhyToDatabaseUpdater(database, username)
+        val updater = huntingControlRhyToDatabaseUpdater(database)
         val repository = HuntingControlRepository(database)
 
         val rhyEvents = SyncTestData.getRhyEvents()
@@ -115,7 +127,9 @@ class HuntingControlRhyToDatabaseUpdaterTest {
 
         val rhysAfterEmptyInsert = repository.getRhys(username)
         assertEquals(0, rhysAfterEmptyInsert.size)
-        val events = repository.getHuntingControlEvents(username, rhyId)
+        val events = runBlocking {
+            repository.getHuntingControlEvents(username, rhyId)
+        }
         assertEquals(0, events.size)
         val gameWardens = repository.getGameWardens(username, rhyId)
         assertEquals(0, gameWardens.size)
@@ -123,10 +137,13 @@ class HuntingControlRhyToDatabaseUpdaterTest {
 
     @Test
     fun testGameWardensAreUpdated() {
-        val username = "user"
+        val username = MockUserInfo.PenttiUsername
+        runBlocking {
+            currentUserContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
+        }
         val dbDriverFactory = createDatabaseDriverFactory()
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
-        val updater = huntingControlRhyToDatabaseUpdater(database, username)
+        val updater = huntingControlRhyToDatabaseUpdater(database)
         val repository = HuntingControlRepository(database)
 
         val rhyEvents = SyncTestData.getRhyEvents()
@@ -194,11 +211,12 @@ class HuntingControlRhyToDatabaseUpdaterTest {
     }
 
     @Test
-    fun testGameWardensNameChanged() {
-        val username = "user"
+    fun testGameWardensNameChanged() = runBlockingTest {
+        val username = MockUserInfo.PenttiUsername
+        currentUserContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
         val dbDriverFactory = createDatabaseDriverFactory()
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
-        val updater = huntingControlRhyToDatabaseUpdater(database, username)
+        val updater = huntingControlRhyToDatabaseUpdater(database)
         val repository = HuntingControlRepository(database)
 
         val rhyAndGameWardens = SyncTestData.getRhyEvents().copy(events = listOf())
@@ -245,11 +263,12 @@ class HuntingControlRhyToDatabaseUpdaterTest {
     }
 
     @Test
-    fun testGameWardenIsRemovedFromModifiedEvent() {
-        val username = "user"
+    fun testGameWardenIsRemovedFromModifiedEvent() = runBlockingTest {
+        val username = MockUserInfo.PenttiUsername
+        currentUserContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
         val dbDriverFactory = createDatabaseDriverFactory()
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
-        val updater = huntingControlRhyToDatabaseUpdater(database, username)
+        val updater = huntingControlRhyToDatabaseUpdater(database)
         val repository = HuntingControlRepository(database)
 
         val rhyAndGameWardens = SyncTestData.getRhyEvents().copy(events = listOf())
@@ -290,10 +309,13 @@ class HuntingControlRhyToDatabaseUpdaterTest {
 
     @Test
     fun testEventIsUpdated() {
-        val username = "user"
+        val username = MockUserInfo.PenttiUsername
+        runBlocking {
+            currentUserContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
+        }
         val dbDriverFactory = createDatabaseDriverFactory()
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
-        val updater = huntingControlRhyToDatabaseUpdater(database, username)
+        val updater = huntingControlRhyToDatabaseUpdater(database)
         val repository = HuntingControlRepository(database)
 
         val rhyEvents = SyncTestData.getRhyEvents()
@@ -347,7 +369,9 @@ class HuntingControlRhyToDatabaseUpdaterTest {
             updater.update(listOf(rhyEventsWithUpdatedEvent))
         }
 
-        val events = repository.getHuntingControlEvents(username, rhyEvents.rhy.id)
+        val events = runBlocking {
+            repository.getHuntingControlEvents(username, rhyEvents.rhy.id)
+        }
         assertEquals(1, events.size)
         val event = events[0]
         assertEquals(Constants.HUNTING_CONTROL_EVENT_SPEC_VERSION, event.specVersion)
@@ -382,10 +406,13 @@ class HuntingControlRhyToDatabaseUpdaterTest {
 
     @Test
     fun testUpdateWithAddedEvent() {
-        val username = "user"
+        val username = MockUserInfo.PenttiUsername
+        runBlocking {
+            currentUserContextProvider.userLoggedIn(MockUserInfo.parse(MockUserInfo.Pentti))
+        }
         val dbDriverFactory = createDatabaseDriverFactory()
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
-        val updater = huntingControlRhyToDatabaseUpdater(database, username)
+        val updater = huntingControlRhyToDatabaseUpdater(database)
         val repository = HuntingControlRepository(database)
 
         val rhyEvents = SyncTestData.getRhyEvents()
@@ -438,7 +465,9 @@ class HuntingControlRhyToDatabaseUpdaterTest {
             updater.update(listOf(rhyEventsWithAddedEvent))
         }
 
-        val events = repository.getHuntingControlEvents(username, rhyEvents.rhy.id)
+        val events = runBlocking {
+            repository.getHuntingControlEvents(username, rhyEvents.rhy.id)
+        }
         assertEquals(2, events.size)
 
         val event = events.first { event -> event.remoteId == 456L }
@@ -475,11 +504,10 @@ class HuntingControlRhyToDatabaseUpdaterTest {
 
     private fun huntingControlRhyToDatabaseUpdater(
         database: RiistaDatabase,
-        username: String = "user",
     ): HuntingControlRhyToDatabaseUpdater {
         return HuntingControlRhyToDatabaseUpdater(
             database = database,
-            username = username,
+            currentUserContextProvider = currentUserContextProvider,
         )
     }
 
@@ -522,4 +550,6 @@ class HuntingControlRhyToDatabaseUpdaterTest {
             attachments = listOf(),
         )
     }
+
+    private val currentUserContextProvider: CurrentUserContextProvider = CurrentUserContextProviderFactory.createMocked()
 }

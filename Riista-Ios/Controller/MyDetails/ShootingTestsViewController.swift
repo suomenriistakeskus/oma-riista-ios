@@ -1,12 +1,13 @@
 import Foundation
 import SnapKit
+import RiistaCommon
 
-class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ShootingTestsViewController: BaseViewController, UITableViewDelegate, UITableViewDataSource {
+    private lazy var logger = AppLogger(for: self, printTimeStamps: false)
 
     @IBOutlet weak var tableView: UITableView!
 
-    @objc var user: UserInfo?
-    var items: Array<ShootingTest>?
+    private var shootingTests = [RiistaCommon.ShootingTest]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,13 +25,26 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
 
         title = "MyDetailsTitleShootingTests".localized()
 
-        items = user?.shootingTests as? Array<ShootingTest>
+        refreshUserShootingTests()
+    }
+
+    private func refreshUserShootingTests() {
+        if let userInformation = RiistaSDK.shared.currentUserContext.userInformation {
+            self.shootingTests = userInformation.shootingTests
+        } else {
+            logger.v { "No user info, nothing to show?" }
+            self.shootingTests.removeAll()
+        }
+
         updateNoContentIndicator()
         tableView.reloadData()
     }
 
     private func addUserNameAndHunterNumber() {
-        guard let user = user else { return }
+        guard let userInformation = RiistaSDK.shared.currentUserContext.userInformation else {
+            logger.w { "No user info, cannot display user name and hunter number" }
+            return
+        }
 
         let stackViewContainer = UIView()
         tableView.tableHeaderView = stackViewContainer
@@ -49,13 +63,13 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
         let label = UILabel().configure(for: .label)
         stackView.addArrangedSubview(label)
         label.lineBreakMode = .byTruncatingTail
-        label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestsNameAndHunterNumber")
+        label.text = "ShootingTestsNameAndHunterNumber".localized()
 
         let nameAndNumber = UILabel().configure(for: .inputValue, numberOfLines: 0)
         stackView.addArrangedSubview(nameAndNumber)
         nameAndNumber.lineBreakMode = .byWordWrapping
         nameAndNumber.textColor = .black
-        nameAndNumber.text = "\(user.firstName ?? "") \(user.lastName ?? ""), \(user.hunterNumber ?? "-")"
+        nameAndNumber.text = "\(userInformation.firstName) \(userInformation.lastName), \(userInformation.hunterNumber ?? "-")"
         nameAndNumber.snp.makeConstraints { make in
             make.left.right.equalToSuperview()
         }
@@ -65,8 +79,7 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
     }
 
     func updateNoContentIndicator() {
-        let itemCount = items?.count ?? 0
-        if (itemCount > 0) {
+        if (shootingTests.count > 0) {
             addUserNameAndHunterNumber()
             return
         }
@@ -74,7 +87,7 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
         tableView.tableHeaderView = nil
 
         let label = UILabel().configure(for: .label)
-        label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "MyDetailsNoShootingTestAttempts")
+        label.text = "MyDetailsNoShootingTestAttempts".localized()
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
         label.textAlignment = .center
@@ -93,14 +106,17 @@ class ShootingTestsViewController: UIViewController, UITableViewDelegate, UITabl
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items?.count ?? 0
+        return shootingTests.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: ShootingTestCell = tableView.dequeueReusableCell(withIdentifier: "userShootingTestCell") as! ShootingTestCell
 
-        let shootingTestItem = items![indexPath.row]
-        cell.setup(item: shootingTestItem)
+        if let shootingTest = shootingTests.getOrNil(index: indexPath.row) {
+            cell.setup(shootingTest: shootingTest)
+        } else {
+            cell.clearValues()
+        }
 
         return cell
     }

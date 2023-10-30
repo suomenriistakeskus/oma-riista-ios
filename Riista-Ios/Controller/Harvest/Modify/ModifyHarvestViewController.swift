@@ -2,6 +2,10 @@ import Foundation
 import RiistaCommon
 import CoreData
 
+protocol ModifyHarvestViewControllerListener: AnyObject {
+    func onHarvestUpdated()
+}
+
 class ModifyHarvestViewController<Controller: ModifyHarvestController>:
     BaseControllerWithViewModel<ModifyHarvestViewModel, Controller>,
     ProvidesNavigationController,
@@ -13,23 +17,21 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
     private let tableViewController = DataFieldTableViewController<CommonHarvestField>()
     private var keyboardHandler: KeyboardHandler?
 
-    private lazy var appDelegate: RiistaAppDelegate = {
-        return UIApplication.shared.delegate as! RiistaAppDelegate
+    internal lazy var appHarvestPermitProvider: AppHarvestPermitProvider = {
+        AppHarvestPermitProvider()
     }()
 
-    internal lazy var appPermitProvider: AppPermitProvider = {
-        AppPermitProvider()
-    }()
+    // prevent appsync while modifying
+    private lazy var appsyncPreventer = PreventAppSyncWhileModifyingSynchronizableEntry(viewController: self)
 
-    internal lazy var moContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
-        context.parent = appDelegate.managedObjectContext
-        return context
-    }()
+    private lazy var imageEditUtil: ImageEditUtil = ImageEditUtil(parentController: self)
+    private lazy var commonImageManager: CommonImageManager = CommonImageManager()
 
-    private lazy var imageEditUtil: ImageEditUtil = {
-        ImageEditUtil(parentController: self)
-    }()
+    /**
+     * Listener to be notified when srva event is updated.
+     */
+    weak var listener: ModifyHarvestViewControllerListener?
+
 
     private(set) lazy var tableView: TableView = {
         let tableView = TableView()
@@ -37,7 +39,7 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -88,6 +90,15 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
         return btn
     }()
 
+    private lazy var harvestSettingsNavBarButton: UIBarButtonItem = {
+        UIBarButtonItem(
+            image: UIImage(named: "settings_white"),
+            style: .plain,
+            target: self,
+            action: #selector(onHarvestSettingsClicked)
+       )
+    }()
+
     @objc init() {
         super.init(nibName: nil, bundle: nil)
     }
@@ -105,8 +116,8 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
         view.addSubview(container)
         container.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         container.addArrangedSubview(tableView)
@@ -134,8 +145,14 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
             genderEventDispatcher: controller.eventDispatchers.genderEventDispatcher,
             ageEventDispatcher: controller.eventDispatchers.ageEventDispatcher,
             actionEventDispatcher: controller.eventDispatchers.linkActionEventDispatcher,
-            specimenLauncher: { [weak self] fieldId, specimenData in
-                self?.showSpecimen(fieldId: fieldId, specimenData: specimenData)
+            specimenLauncher: { [weak self] fieldId, specimenData, allowEdit in
+                SpecimensViewControllerLauncher.launch(
+                    parent: self,
+                    fieldId: fieldId,
+                    specimenData: specimenData,
+                    allowEdit: allowEdit,
+                    onSpecimensEditDone: self?.onSpecimensEditDone
+                )
             },
             speciesEventDispatcher: controller.eventDispatchers.speciesEventDispatcher,
             speciesImageClickListener: { [weak self] fieldId, entityImage in
@@ -145,17 +162,20 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
         )
 
         title = getViewTitle()
+        navigationItem.rightBarButtonItems = [harvestSettingsNavBarButton]
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        appsyncPreventer.onViewWillAppear()
         keyboardHandler?.listenKeyboardEvents()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         keyboardHandler?.hideKeyboard()
         keyboardHandler?.stopListenKeyboardEvents()
+        appsyncPreventer.onViewWillDisappear()
 
         super.viewWillDisappear(animated)
     }
@@ -172,12 +192,6 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
         super.onViewModelLoadFailed()
     }
 
-    private func showSpecimen(fieldId: DataFieldId, specimenData: SpecimenFieldDataContainer) {
-        let specimenViewController = EditSpecimensViewController(fieldId: fieldId, specimenData: specimenData)
-        specimenViewController.onSpecimensEditDone = onSpecimensEditDone
-        self.navigationController?.pushViewController(specimenViewController, animated: true)
-    }
-
     private func onSpeciesImageClicked(fieldId: CommonHarvestField, entityImage: EntityImage?) {
         imageEditUtil.checkPhotoPermissions { [weak self] in
             guard let self = self else { return }
@@ -185,13 +199,15 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
         }
     }
 
+
+    // MARK: Handling images
+
     func imagePicked(image: IdentifiableImage) {
-        let entityImage = EntityImage(
-            serverId: UUID().uuidString, // generate one
-            localIdentifier: image.imageIdentifier.localIdentifier,
-            localUrl: image.imageIdentifier.imageUrl?.absoluteString,
-            status: .local
-        )
+        guard let entityImage = commonImageManager.saveImageToTemporaryImages(identifiableImage: image) else {
+            print("Failed to obtain entity image")
+            return
+        }
+
         controller.eventDispatchers.imageEventDispatcher.setEntityImage(image: entityImage)
     }
 
@@ -204,31 +220,66 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
             self, reason: reason, imageLoadRequest: loadRequest, allowAnotherPhotoSelection: true)
     }
 
-    func onSaveClicked() {
-        fatalError("You should subclass this class and override onSaveClicked()")
+    func saveImagesUnderLocalImages(harvest: CommonHarvest, _ onCompleted: @escaping OnCompleted) {
+        let imagesToKeep = harvest.images.localImages.filter { entityImage in
+            entityImage.status == .local
+        }
+
+        commonImageManager.moveTemporaryImagesToLocalImages(images: imagesToKeep, onCompleted: onCompleted)
     }
 
-    func saveAndSynchronizeEditedHarvest(
-        harvest: DiaryEntry,
-        completion: @escaping OnCompletedWithStatus
-    ) {
-        moContext.refresh(harvest, mergeChanges: true)
-        if (harvest.isDeleted) {
-            print("Harvest was deleted, refusing to save it")
-            completion(false)
-            return
-        }
 
-        RiistaGameDatabase.sharedInstance().editLocalEvent(harvest)
+    // MARK: Save & cancel
 
-        if (SynchronizationMode.currentValue == .automatic) {
-            RiistaGameDatabase.sharedInstance().synchronizeDiaryEntry(harvest) { wasSuccess in
-                print("harvest synchronized successfully == \(wasSuccess)")
-                completion(wasSuccess)
+    func onSaveClicked() {
+        tableView.showLoading()
+        saveButton.isEnabled = false
+
+        controller.saveHarvest(
+            updateToBackend: AppSync.shared.isAutomaticSyncEnabled(),
+            completionHandler: handleOnMainThread { [weak self] response, error in
+                guard let self = self else { return }
+
+                self.tableView.hideLoading()
+                self.saveButton.isEnabled = true
+
+                // notify possible parent about saved harvest
+                self.listener?.onHarvestUpdated()
+
+                let databaseSaveResponse = response?.databaseSaveResponse
+                let networkSaveResponse = response?.networkSaveResponse
+
+                if let networkFailure = networkSaveResponse as? HarvestOperationResponse.NetworkFailure,
+                   networkFailure.statusCode == 409 {
+                    let errorDialog = AlertDialogBuilder.createError(message: "OutdatedDiaryEntry".localized())
+                    self.present(errorDialog, animated: true)
+                } else if let successResponse = databaseSaveResponse as? HarvestOperationResponse.Success {
+                    self.handleSuccessfullySavedHarvest(harvest: successResponse.harvest)
+                } else {
+                    let errorDialog = AlertDialogBuilder.createError(message: "DiaryEditFailed".localized())
+                    self.present(errorDialog, animated: true)
+                }
             }
-        } else {
-            completion(true)
+        )
+    }
+
+    private func handleSuccessfullySavedHarvest(harvest: CommonHarvest) {
+        NotificationCenter.default.post(EntityModified(
+            object: EntityModified.Data(
+                entityType: .harvest,
+                entityPointOfTime: harvest.pointOfTime,
+                entitySpecies: harvest.species,
+                entityReportedForOthers: !(harvest.actorInfo is GroupHuntingPerson.Unknown)
+            )
+        ))
+
+        saveImagesUnderLocalImages(harvest: harvest) { [weak self] in
+            self?.navigateToNextViewAfterSaving(harvest: harvest)
         }
+    }
+
+    func navigateToNextViewAfterSaving(harvest: CommonHarvest) {
+        fatalError("You should subclass this class and override navigateToNextViewAfterSaving(harvest:)")
     }
 
     func onCancelClicked() {
@@ -249,6 +300,18 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
             value: specimenData
         )
     }
+
+
+    // MARK: nav bar
+
+    @objc private func onHarvestSettingsClicked() {
+        // changing settings may affect how data is displayed -> refresh when returning
+        controllerHolder.shouldRefreshViewModel = true
+
+        let viewController = HarvestSettingsViewController()
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+
 
     // MARK: ModifyHarvestActionHandler + action handling
 
@@ -282,7 +345,7 @@ class ModifyHarvestViewController<Controller: ModifyHarvestController>:
             return
         }
 
-        guard let permit = appPermitProvider.getPermit(permitNumber: permitNumber) else {
+        guard let permit = appHarvestPermitProvider.getPermit(permitNumber: permitNumber) else {
             print("Couldn't find permit for permit number \(permitNumber), cannot notify controller")
             return
         }

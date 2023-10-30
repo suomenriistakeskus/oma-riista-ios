@@ -26,7 +26,9 @@ import MaterialComponents.MaterialProgressView
                 backgroundOperationIndicator.fadeIn()
             } else {
                 backgroundOperationIndicator.fadeOut() { [weak self] in
-                    self?.backgroundOperationIndicator.stopAnimating()
+                    if (self?.backgroundOperationStatus == false) {
+                        self?.backgroundOperationIndicator.stopAnimating()
+                    }
                 }
             }
         }
@@ -122,11 +124,9 @@ import MaterialComponents.MaterialProgressView
         titleTextAttributes[.font] = UIFont.appFont(for: .navigationBar)
         self.navigationBar.titleTextAttributes = titleTextAttributes
 
-        if #available(iOS 11.0, *) {
-            var largeTitleTextAttributes = self.navigationBar.largeTitleTextAttributes ?? [:]
-            largeTitleTextAttributes[.font] = UIFont.appFont(for: .navigationBar)
-            self.navigationBar.largeTitleTextAttributes = largeTitleTextAttributes
-        }
+        var largeTitleTextAttributes = self.navigationBar.largeTitleTextAttributes ?? [:]
+        largeTitleTextAttributes[.font] = UIFont.appFont(for: .navigationBar)
+        self.navigationBar.largeTitleTextAttributes = largeTitleTextAttributes
 
         self.delegate = self
     }

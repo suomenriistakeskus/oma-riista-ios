@@ -1,5 +1,6 @@
 import Foundation
 import GoogleMaps
+import RiistaCommon
 
 typealias MapLayerId = Int
 
@@ -101,7 +102,7 @@ class RiistaMapView: GMSMapView {
     func addMapLayer(layerId: MapLayerId, areaType: AppConstants.AreaType, zIndex: Int) {
         removeMapLayer(layerId: layerId)
 
-        let layer = RiistaVectorTileLayer()
+        let layer = RiistaVectorTileLayer(mapTileVersions: RiistaSDK.shared.mapTileVersions)!
         layer.setAreaType(areaType.rawValue)
         layer.zIndex = Int32(zIndex)
         layer.map = self

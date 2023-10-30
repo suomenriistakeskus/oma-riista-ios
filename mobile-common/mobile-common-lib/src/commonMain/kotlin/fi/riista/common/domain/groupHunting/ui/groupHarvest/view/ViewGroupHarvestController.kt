@@ -1,7 +1,6 @@
 package fi.riista.common.domain.groupHunting.ui.groupHarvest.view
 
 
-import co.touchlab.stately.ensureNeverFrozen
 import fi.riista.common.domain.groupHunting.GroupHuntingContext
 import fi.riista.common.domain.groupHunting.GroupHuntingHarvestOperationResponse
 import fi.riista.common.domain.groupHunting.HuntingClubGroupDataPiece
@@ -22,7 +21,6 @@ import fi.riista.common.ui.controller.ControllerWithLoadableModel
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.ui.dataField.DataField
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 
 
@@ -38,14 +36,10 @@ class ViewGroupHarvestController(
 
     private val dataFieldProducer: ViewHarvestFieldProducer by lazy {
         ViewHarvestFieldProducer(
-            permitProvider = null,
+            harvestPermitProvider = null,
             stringProvider = stringProvider,
+            languageProvider = null
         )
-    }
-
-    init {
-        // should be accessed from UI thread only
-        ensureNeverFrozen()
     }
 
     /**

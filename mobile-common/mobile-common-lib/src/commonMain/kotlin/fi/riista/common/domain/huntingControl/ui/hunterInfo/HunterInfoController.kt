@@ -1,6 +1,5 @@
 package fi.riista.common.domain.huntingControl.ui.hunterInfo
 
-import co.touchlab.stately.ensureNeverFrozen
 import fi.riista.common.domain.huntingControl.HuntingControlContext
 import fi.riista.common.domain.huntingControl.model.HuntingControlHunterInfo
 import fi.riista.common.domain.huntingControl.ui.HuntingControlHunterInfoResponse
@@ -36,11 +35,6 @@ class HunterInfoController(
         languageProvider = languageProvider,
         stringProvider = stringProvider,
     )
-
-    init {
-        // should be accessed from UI thread only
-        ensureNeverFrozen()
-    }
 
     override fun createLoadViewModelFlow(refresh: Boolean): Flow<ViewModelLoadStatus<HunterInfoViewModel>> = flow {
 

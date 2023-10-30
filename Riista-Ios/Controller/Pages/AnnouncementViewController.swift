@@ -1,6 +1,6 @@
 import Foundation
 
-@objcMembers class AnnouncementViewController: UIViewController
+@objcMembers class AnnouncementViewController: BaseViewController
 {
     @IBOutlet weak var titleLabel: UILabel?
     @IBOutlet weak var timeLabel: UILabel?

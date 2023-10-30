@@ -21,6 +21,19 @@ class HuntingLicenseContentView: TwoColumnStackView {
         return label
     }()
 
+    private(set) lazy var insuranceInstructionsButton: MaterialButton = {
+        let btn = MaterialButton()
+        btn.applyTextTheme(withScheme: AppTheme.shared.textButtonScheme())
+        btn.setTitle("MyDetailsInsuranceInstructionsLinkTitle".localized(), for: .normal)
+        btn.setTitleFont(UIFont.appFont(for: .button), for: .normal)
+        btn.isUppercaseTitle = false
+
+        btn.snp.makeConstraints { make in
+            make.height.equalTo(AppConstants.UI.ButtonHeightSmall).priority(999)
+        }
+        return btn
+    }()
+
     private lazy var qrCodeContainer: UIView = {
         let container = UIView()
         container.addSubview(qrCodeImageView)
@@ -42,7 +55,7 @@ class HuntingLicenseContentView: TwoColumnStackView {
     }()
 
     private lazy var userDetailsViews: [UIView] = [
-        hunterNumberRow, feePaidRow, rhyMembershipRow, insuranceLabel, qrCodeContainer
+        hunterNumberRow, feePaidRow, rhyMembershipRow, insuranceLabel, insuranceInstructionsButton, qrCodeContainer
     ]
 
     private lazy var huntingBanRow: TitleAndValueRow = createUserDetailsLabel(labelKey: "MyDetailsHuntingBan")
@@ -102,21 +115,21 @@ class HuntingLicenseContentView: TwoColumnStackView {
                 else {
                     rhyMembershipRow.valueLabel.text = nil
                 }
-
-                // QR code should in theory be always present if hunting license is valid
-                // but in practise it may be missing
-                if let qrCode = user.qrCode, !qrCode.isEmpty {
-                    qrCodeContainer.isHidden = false
-                    qrCodeImageView.image = createQrImageFromText(
-                        qrString: qrCode,
-                        targetSizePoints: calculateTargetQrCodeSizeInPoints()
-                    )
-                } else {
-                    qrCodeContainer.isHidden = true
-                    qrCodeImageView.image = nil
-                }
             } else {
                 rhyMembershipRow.valueLabel.text = ""
+            }
+
+            // QR code should in theory be always present if hunting license is valid
+            // but in practise it may be missing
+            if let qrCode = user.qrCode, !qrCode.isEmpty {
+                qrCodeContainer.isHidden = false
+                qrCodeImageView.image = createQrImageFromText(
+                    qrString: qrCode,
+                    targetSizePoints: calculateTargetQrCodeSizeInPoints()
+                )
+            } else {
+                qrCodeContainer.isHidden = true
+                qrCodeImageView.image = nil
             }
         } else {
             huntingBanRow.isHidden = true
@@ -167,6 +180,7 @@ class HuntingLicenseContentView: TwoColumnStackView {
         addRow(row: feePaidRow)
         addRow(row: rhyMembershipRow)
         addArrangedSubview(insuranceLabel)
+        addArrangedSubview(insuranceInstructionsButton)
         addArrangedSubview(qrCodeContainer)
 
         addRow(row: huntingBanRow)

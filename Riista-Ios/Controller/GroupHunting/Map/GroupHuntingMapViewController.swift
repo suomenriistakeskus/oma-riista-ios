@@ -167,7 +167,7 @@ class GroupHuntingMapViewController: BaseMapViewController,
     override func configureSubviewConstraints() {
         filterArea.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
 
         super.configureSubviewConstraints()

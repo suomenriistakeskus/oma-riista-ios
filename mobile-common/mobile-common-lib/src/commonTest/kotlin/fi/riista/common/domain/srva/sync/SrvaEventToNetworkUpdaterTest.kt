@@ -4,6 +4,8 @@ import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.constants.Constants
 import fi.riista.common.domain.constants.SpeciesCodes
 import fi.riista.common.domain.model.EntityImages
+import fi.riista.common.domain.model.GameAge
+import fi.riista.common.domain.model.Gender
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.srva.SrvaEventRepository
 import fi.riista.common.domain.srva.model.*
@@ -176,10 +178,11 @@ class SrvaEventToNetworkUpdaterTest {
             ),
             species = Species.Known(speciesCode = SpeciesCodes.MOOSE_ID),
             otherSpeciesDescription = null,
+            totalSpecimenAmount = 1,
             specimens = listOf(
                 CommonSrvaSpecimen(
-                    gender = fi.riista.common.domain.model.Gender.MALE.toBackendEnum(),
-                    age = fi.riista.common.domain.model.GameAge.ADULT.toBackendEnum(),
+                    gender = Gender.MALE.toBackendEnum(),
+                    age = GameAge.ADULT.toBackendEnum(),
                 )
             ),
             eventCategory = SrvaEventCategoryType.DEPORTATION.toBackendEnum(),

@@ -6,7 +6,7 @@ import fi.riista.common.domain.srva.model.CommonSrvaEvent
 import fi.riista.common.logging.getLogger
 
 interface SrvaEventUpdater {
-    suspend fun update(username: String, srvaEvents: List<CommonSrvaEvent>)
+    suspend fun update(username: String, srvaEvents: List<CommonSrvaEvent>, overwriteNonModified: Boolean)
 }
 
 internal class SrvaEventToDatabaseUpdater(
@@ -14,9 +14,14 @@ internal class SrvaEventToDatabaseUpdater(
 ) : SrvaEventUpdater {
     private val repository = SrvaEventRepository(database)
 
-    override suspend fun update(username: String, srvaEvents: List<CommonSrvaEvent>) {
+    override suspend fun update(username: String, srvaEvents: List<CommonSrvaEvent>, overwriteNonModified: Boolean) {
         srvaEvents.forEach { event ->
-            if (shouldWriteToDatabase(username = username, event = event)) {
+            val shouldUpsert = shouldWriteToDatabase(
+                username = username,
+                event = event,
+                overwriteNonModified = overwriteNonModified
+            )
+            if (shouldUpsert) {
                 try {
                     repository.upsertSrvaEvent(username = username, srvaEvent = event)
                 } catch (e: Exception) {
@@ -26,17 +31,38 @@ internal class SrvaEventToDatabaseUpdater(
         }
     }
 
-    private fun shouldWriteToDatabase(username: String, event: CommonSrvaEvent): Boolean {
+    private fun shouldWriteToDatabase(
+        username: String,
+        event: CommonSrvaEvent,
+        overwriteNonModified: Boolean,
+    ): Boolean {
         if (event.remoteId != null) {
             val oldEvent = repository.getByRemoteId(username, event.remoteId)
             if (oldEvent != null) {
-                return isUpdateNeeded(oldEvent = oldEvent, newEvent = event)
+                return isUpdateNeeded(
+                    oldEvent = oldEvent,
+                    newEvent = event,
+                    overwriteNonModified = overwriteNonModified
+                )
             }
         }
         return true
     }
 
-    private fun isUpdateNeeded(oldEvent: CommonSrvaEvent, newEvent: CommonSrvaEvent): Boolean {
+    /**
+     * Checks whether [oldEvent] should be replaced with [newEvent].
+     *
+     * Will determine the resolution based on spec version, srva revisions, modified flag and also
+     * [overwriteNonModified] flag.
+     */
+    private fun isUpdateNeeded(
+        oldEvent: CommonSrvaEvent,
+        newEvent: CommonSrvaEvent,
+        overwriteNonModified: Boolean,
+    ): Boolean {
+        if (overwriteNonModified && !oldEvent.modified) {
+            return true
+        }
         if (newEvent.srvaSpecVersion > oldEvent.srvaSpecVersion && !oldEvent.modified) {
             return true
         }

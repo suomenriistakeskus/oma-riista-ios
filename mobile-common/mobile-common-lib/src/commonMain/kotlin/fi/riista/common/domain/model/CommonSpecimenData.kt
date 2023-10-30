@@ -72,7 +72,15 @@ internal data class CommonSpecimenData(
         additionalInfo = null,
     )
 
+    fun isEmpty(): Boolean {
+        return this == EMPTY_SPECIMEN
+    }
+
     companion object {
         // add so that this can be extended
     }
 }
+
+private val EMPTY_SPECIMEN = CommonSpecimenData()
+
+internal fun Iterable<CommonSpecimenData>.keepNonEmpty() = filter { !it.isEmpty() }

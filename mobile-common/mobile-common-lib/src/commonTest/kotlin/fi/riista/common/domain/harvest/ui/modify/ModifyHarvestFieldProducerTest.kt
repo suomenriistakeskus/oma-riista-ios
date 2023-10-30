@@ -8,6 +8,7 @@ import fi.riista.common.domain.harvest.model.CommonHarvestData
 import fi.riista.common.domain.harvest.model.HarvestReportingType
 import fi.riista.common.domain.harvest.ui.CommonHarvestField
 import fi.riista.common.domain.harvest.ui.fields.HarvestSpecimenFieldRequirementResolver
+import fi.riista.common.domain.huntingclub.selectableForEntries.MockHuntingClubsSelectableForEntries
 import fi.riista.common.domain.model.CommonSpecimenData
 import fi.riista.common.domain.model.DeerHuntingType
 import fi.riista.common.domain.model.EntityImages
@@ -16,18 +17,23 @@ import fi.riista.common.domain.model.GameAntlersType
 import fi.riista.common.domain.model.GameFitnessClass
 import fi.riista.common.domain.model.Gender
 import fi.riista.common.domain.model.GreySealHuntingMethod
+import fi.riista.common.domain.model.PersonWithHunterNumber
+import fi.riista.common.domain.model.SearchableOrganization
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.model.asKnownLocation
 import fi.riista.common.domain.model.createForTests
 import fi.riista.common.domain.specimens.ui.SpecimenFieldSpecification
 import fi.riista.common.domain.specimens.ui.SpecimenFieldType
-import fi.riista.common.helpers.TestPermitProvider
+import fi.riista.common.domain.userInfo.MockUsernameProvider
+import fi.riista.common.helpers.TestHarvestPermitProvider
 import fi.riista.common.helpers.TestStringProvider
 import fi.riista.common.model.BackendEnum
 import fi.riista.common.model.ETRMSGeoLocation
 import fi.riista.common.model.GeoLocationSource
 import fi.riista.common.model.LocalDateTime
+import fi.riista.common.model.StringWithId
 import fi.riista.common.model.toBackendEnum
+import fi.riista.common.resources.MockLanguageProvider
 import fi.riista.common.resources.RR
 import fi.riista.common.ui.dataField.AgeField
 import fi.riista.common.ui.dataField.BooleanField
@@ -59,8 +65,10 @@ class ModifyHarvestFieldProducerTest {
 
     private val fieldProducer = ModifyHarvestFieldProducer(
         canChangeSpecies = true,
-        permitProvider = TestPermitProvider.INSTANCE,
+        harvestPermitProvider = TestHarvestPermitProvider.INSTANCE,
+        huntingClubsSelectableForHarvests = MockHuntingClubsSelectableForEntries(),
         stringProvider = TestStringProvider.INSTANCE,
+        languageProvider = MockLanguageProvider(),
         currentDateTimeProvider = MockDateTimeProvider(
             now = HARVEST_DATE_TIME
         )
@@ -532,8 +540,8 @@ class ModifyHarvestFieldProducerTest {
     @Test
     fun testPermitNumber() {
         // ensures that fallback permit type is used
-        TestPermitProvider.INSTANCE.mockPermit = TestPermitProvider.INSTANCE.mockPermit.copy(permitNumber = "permitNumber")
-        assertNotEquals("123", TestPermitProvider.INSTANCE.mockPermit.permitNumber)
+        TestHarvestPermitProvider.INSTANCE.mockPermit = TestHarvestPermitProvider.INSTANCE.mockPermit.copy(permitNumber = "permitNumber")
+        assertNotEquals("123", TestHarvestPermitProvider.INSTANCE.mockPermit.permitNumber)
 
         createHarvest().copy(
             permitType = "type",
@@ -549,10 +557,10 @@ class ModifyHarvestFieldProducerTest {
     @Test
     fun testPermitTypeFromPermitIsUsed() {
         // ensures that there's a permit for permitNumber
-        TestPermitProvider.INSTANCE.mockPermit = TestPermitProvider.INSTANCE.mockPermit.copy(
+        TestHarvestPermitProvider.INSTANCE.mockPermit = TestHarvestPermitProvider.INSTANCE.mockPermit.copy(
             permitNumber = "123",
         )
-        assertEquals("123", TestPermitProvider.INSTANCE.mockPermit.permitNumber)
+        assertEquals("123", TestHarvestPermitProvider.INSTANCE.mockPermit.permitNumber)
 
         createHarvest().copy(
             permitType = "type",
@@ -602,13 +610,77 @@ class ModifyHarvestFieldProducerTest {
     }
 
     @Test
+    fun testOwnHarvest() {
+        createHarvest().assertCreatedField<BooleanField<CommonHarvestField>>(
+            CommonHarvestField.OWN_HARVEST
+        ) {
+            assertEquals(true, value)
+            assertEquals("own_harvest", settings.label)
+        }
+    }
+
+    @Test
+    fun testActor() {
+        createHarvest().copy(
+            actorInfo = GroupHuntingPerson.Guest(PersonWithHunterNumber(
+                id = 666,
+                rev = 1,
+                byName = "Matti",
+                lastName = "Meikäläinen",
+                hunterNumber = "22222222"
+            )),
+        ).assertCreatedField<StringListField<CommonHarvestField>>(
+            CommonHarvestField.ACTOR
+        ) {
+            assertEquals(
+                setOf(
+                    StringWithId(
+                        id = GroupHuntingPerson.SearchingByHunterNumber.ID,
+                        string = "other_hunter"
+                    ), StringWithId(id = 666, string = "Matti Meikäläinen")
+                ), values.toSet()
+            )
+            assertEquals("actor", settings.label)
+        }
+    }
+
+    @Test
+    fun testActorHunterNumber() {
+        createHarvest().copy(
+            actorInfo = GroupHuntingPerson.Guest(PersonWithHunterNumber(
+                id = 666,
+                rev = 1,
+                byName = "Matti",
+                lastName = "Meikäläinen",
+                hunterNumber = "22222222"
+            )),
+        ).assertCreatedField<IntField<CommonHarvestField>>(
+            CommonHarvestField.ACTOR_HUNTER_NUMBER
+        ) {
+            assertEquals(22222222, value)
+            assertEquals("hunter_id", settings.label)
+        }
+    }
+
+    @Test
+    fun testActorHunterNumberInfoOrError() {
+        createHarvest().copy(
+            actorInfo = GroupHuntingPerson.SearchingByHunterNumber(
+                hunterNumber = "83928476",
+                status = GroupHuntingPerson.SearchingByHunterNumber.Status.INVALID_HUNTER_NUMBER
+            ),
+        ).assertCreatedField<LabelField<CommonHarvestField>>(
+            CommonHarvestField.ACTOR_HUNTER_NUMBER_INFO_OR_ERROR
+        ) {
+            assertEquals("invalid_hunter_id", text)
+        }
+    }
+
+    @Test
     fun testNotSupportedFields() {
         val harvest = createHarvest()
 
         listOf(
-            CommonHarvestField.ACTOR,
-            CommonHarvestField.ACTOR_HUNTER_NUMBER,
-            CommonHarvestField.ACTOR_HUNTER_NUMBER_INFO_OR_ERROR,
             CommonHarvestField.AUTHOR,
             CommonHarvestField.HARVEST_REPORT_STATE,
         ).forEach { field ->
@@ -616,7 +688,9 @@ class ModifyHarvestFieldProducerTest {
                 val producedField = fieldProducer.createField(
                     fieldSpecification = field.noRequirement(),
                     harvest = harvest,
-                    harvestReportingType = harvestReportingType
+                    harvestReportingType = harvestReportingType,
+                    shooters = emptyList(),
+                    ownHarvest = true,
                 )
 
                 assertNull(producedField, "field $field")
@@ -658,7 +732,9 @@ class ModifyHarvestFieldProducerTest {
         val producedField = fieldProducer.createField(
             fieldSpecification = fieldSpecification,
             harvest = this,
-            harvestReportingType = harvestReportingType
+            harvestReportingType = harvestReportingType,
+            shooters = emptyList(),
+            ownHarvest = true,
         )
 
         assertNotNull(producedField, "Field: $fieldSpecification")
@@ -684,6 +760,8 @@ class ModifyHarvestFieldProducerTest {
             pointOfTime = HARVEST_DATE_TIME,
             description = "description",
             canEdit = false,
+            modified = false,
+            deleted = false,
             images = EntityImages.noImages(),
             specimens = listOf(
                 CommonSpecimenData.createForTests()
@@ -691,6 +769,7 @@ class ModifyHarvestFieldProducerTest {
             amount = 1,
             huntingDayId = null,
             authorInfo = null,
+            selectedClub = SearchableOrganization.Unknown,
             actorInfo = GroupHuntingPerson.Unknown,
             harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
             harvestReportRequired = false,

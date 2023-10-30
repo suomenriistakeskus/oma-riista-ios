@@ -11,7 +11,7 @@ class MyDetailsContentView: TwoColumnStackView {
 
     private(set) lazy var huntingCardButton: CardButton = createButton(labelKey: "MyDetailsTitleHuntingLicense")
     private(set) lazy var shootingTestsButton: CardButton = createButton(labelKey: "MyDetailsTitleShootingTests")
-    private(set) lazy var mhPermitsButton: CardButton = createButton(labelKey: "MyDetailsMhPermitsTitle")
+    private(set) lazy var mhPermitsButton: CardButton = createButton(labelKey: "MetsahallitusPermitsTitle")
     private(set) lazy var occupationsButton: CardButton = createButton(labelKey: "MyDetailsAssignmentsTitle")
     private(set) lazy var clubMembershipsButton: CardButton = createButton(labelKey: "MyDetailsClubMembershipsTitle")
     private(set) lazy var trainingsButton: CardButton = createButton(labelKey: "MyDetailsTrainingsTitle")

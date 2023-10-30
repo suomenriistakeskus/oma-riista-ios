@@ -4,7 +4,7 @@ import RiistaCommon
 
 fileprivate let CELL_TYPE = DataFieldCellType.specimen
 
-typealias SpecimenLauncher<FieldId> = (_ fieldId: FieldId, _ specimenData: SpecimenFieldDataContainer) -> Void
+typealias SpecimenLauncher<FieldId> = (_ fieldId: FieldId, _ specimenData: SpecimenFieldDataContainer, _ allowEdit: Bool) -> Void
 
 class SpecimenFieldCell<FieldId : DataFieldId>: TypedDataFieldCell<FieldId, SpecimenField<FieldId>> {
 
@@ -40,7 +40,7 @@ class SpecimenFieldCell<FieldId : DataFieldId>: TypedDataFieldCell<FieldId, Spec
             return
         }
 
-        specimenLauncher?(field.id_, field.specimenData)
+        specimenLauncher?(field.id_, field.specimenData, !field.settings.readOnly)
     }
 
     class Factory<FieldId : DataFieldId>: DataFieldCellFactory<FieldId> {

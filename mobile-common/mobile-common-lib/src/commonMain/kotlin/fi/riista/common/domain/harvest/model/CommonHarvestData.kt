@@ -1,5 +1,7 @@
 package fi.riista.common.domain.harvest.model
 
+import fi.riista.common.domain.constants.SpeciesCode
+import fi.riista.common.domain.constants.SpeciesCodes
 import fi.riista.common.domain.groupHunting.model.AcceptStatus
 import fi.riista.common.domain.groupHunting.model.GroupHuntingDayId
 import fi.riista.common.domain.groupHunting.model.GroupHuntingPerson
@@ -10,6 +12,7 @@ import fi.riista.common.domain.model.EntityImages
 import fi.riista.common.domain.model.GreySealHuntingMethod
 import fi.riista.common.domain.model.HarvestReportState
 import fi.riista.common.domain.model.PersonWithHunterNumber
+import fi.riista.common.domain.model.SearchableOrganization
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.model.StateAcceptedToHarvestPermit
 import fi.riista.common.model.BackendEnum
@@ -30,12 +33,16 @@ internal data class CommonHarvestData(
     val pointOfTime: LocalDateTime,
     val description: String?,
     val canEdit: Boolean,
+    val modified: Boolean,
+    val deleted: Boolean,
     val images: EntityImages,
     val specimens: List<CommonSpecimenData>,
     val amount: Int?,
     val huntingDayId: GroupHuntingDayId?,
     val authorInfo: PersonWithHunterNumber?,
     val actorInfo: GroupHuntingPerson,
+    // club for which this harvest has been recorded / logged
+    val selectedClub: SearchableOrganization,
     val harvestSpecVersion: Int,
     val harvestReportRequired: Boolean,
     val harvestReportState: BackendEnum<HarvestReportState>,
@@ -71,5 +78,18 @@ internal data class CommonHarvestData(
             harvestReportRequired = harvestReportRequired,
         )
     }
+
+    val unknownGenderAllowed: Boolean
+        get() {
+            return species.knownSpeciesCodeOrNull() == SpeciesCodes.GREY_SEAL_ID &&
+                    greySealHuntingMethod.value == GreySealHuntingMethod.SHOT_BUT_LOST
+        }
+
+    val unknownAgeAllowed: Boolean
+        get() {
+            return species.knownSpeciesCodeOrNull() == SpeciesCodes.GREY_SEAL_ID &&
+                    greySealHuntingMethod.value == GreySealHuntingMethod.SHOT_BUT_LOST
+        }
+
 }
 

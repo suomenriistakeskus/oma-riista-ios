@@ -43,7 +43,7 @@ class DeletedSrvaEventsUpdaterTest {
             username = username,
             srvaEvent = event.copy(remoteId = (event.remoteId ?: 0) + 1, mobileClientRefId = null),
         )
-        assertTrue(repository.markDeleted(srvaEventLocalId = insertedEvent1.localId))
+        assertNotNull(repository.markDeleted(srvaEventLocalId = insertedEvent1.localId))
 
         // Check that correct event was deleted from backend
         updater.updateToBackend(username)
@@ -77,7 +77,7 @@ class DeletedSrvaEventsUpdaterTest {
             username = username,
             srvaEvent = event,
         )
-        assertTrue(repository.markDeleted(srvaEventLocalId = insertedEvent.localId))
+        assertNotNull(repository.markDeleted(srvaEventLocalId = insertedEvent.localId))
         updater.updateToBackend(username)
         assertEquals(1, backendAPI.totalCallCount())
         assertEquals(1, backendAPI.callCount(BackendAPI::deleteSrvaEvent.name))

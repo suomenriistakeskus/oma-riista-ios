@@ -48,7 +48,7 @@ class ViewGroupHuntingDayViewController:
                                      style: .plain,
                                      target: self,
                                      action: #selector(onEditHuntingDayClicked))
-        button.isHidden = true
+        button.isHiddenCompat = true
         return button
     }()
 
@@ -57,7 +57,7 @@ class ViewGroupHuntingDayViewController:
                                      style: .plain,
                                      target: self,
                                      action: #selector(onCreateHuntingDayClicked))
-        button.isHidden = true
+        button.isHiddenCompat = true
         return button
     }()
 
@@ -80,15 +80,15 @@ class ViewGroupHuntingDayViewController:
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         tableView.layoutMargins = AppConstants.UI.DefaultHorizontalEdgeInsets
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -169,8 +169,8 @@ class ViewGroupHuntingDayViewController:
         dataFieldSource.updateFields(huntingDayViewModel: viewModel)
         tableViewController.setDataFields(dataFields: dataFieldSource.huntingDayFields)
 
-        editHuntingDayButton.isHidden = !viewModel.canEditHuntingDay
-        createHuntingDayButton.isHidden = !viewModel.canCreateHuntingDay
+        editHuntingDayButton.isHiddenCompat = !viewModel.canEditHuntingDay
+        createHuntingDayButton.isHiddenCompat = !viewModel.canCreateHuntingDay
     }
 
     func onHarvestClicked(harvestId: Int64, acceptStatus: AcceptStatus) {

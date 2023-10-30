@@ -14,11 +14,13 @@ import fi.riista.common.domain.model.GameAge
 import fi.riista.common.domain.model.GameAntlersType
 import fi.riista.common.domain.model.GameFitnessClass
 import fi.riista.common.domain.model.Gender
+import fi.riista.common.domain.model.GreySealHuntingMethod
+import fi.riista.common.domain.model.SearchableOrganization
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.model.asKnownLocation
-import fi.riista.common.domain.permit.model.CommonPermit
-import fi.riista.common.domain.permit.model.CommonPermitSpeciesAmount
-import fi.riista.common.domain.season.HarvestSeasons
+import fi.riista.common.domain.permit.harvestPermit.CommonHarvestPermit
+import fi.riista.common.domain.permit.harvestPermit.CommonHarvestPermitSpeciesAmount
+import fi.riista.common.domain.season.TestHarvestSeasons
 import fi.riista.common.helpers.TestSpeciesResolver
 import fi.riista.common.model.BackendEnum
 import fi.riista.common.model.ETRMSGeoLocation
@@ -28,17 +30,22 @@ import fi.riista.common.model.LocalDatePeriod
 import fi.riista.common.model.LocalDateTime
 import fi.riista.common.model.changeTime
 import fi.riista.common.model.toBackendEnum
+import fi.riista.common.preferences.MockPreferences
 import fi.riista.common.util.MockDateTimeProvider
 import fi.riista.common.util.generateMobileClientRefId
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class CommonHarvestValidatorTest {
 
     private val harvestFields = CommonHarvestFields(
-        harvestSeasons = HarvestSeasons(),
-        speciesResolver = TestSpeciesResolver.INSTANCE
+        harvestSeasons = TestHarvestSeasons.createMockHarvestSeasons(),
+        speciesResolver = TestSpeciesResolver.INSTANCE,
+        preferences = MockPreferences(),
     )
+
+    private val harvestValidator = CommonHarvestValidator(MOCK_DATE_TIME_PROVIDER, TestSpeciesResolver.INSTANCE)
 
     @Test
     fun testValidData() {
@@ -48,11 +55,11 @@ class CommonHarvestValidatorTest {
         )
 
         val displayedFields = harvestFields.getFieldsToBeDisplayed(context)
-        val errors = CommonHarvestValidator.validate(
-            context.harvest,
-            createPermit(),
-            MOCK_DATE_TIME_PROVIDER,
-            displayedFields,
+        val errors = harvestValidator.validate(
+            harvest = context.harvest,
+            permit = createPermit(),
+            harvestReportingType = context.harvestReportingType,
+            displayedFields = displayedFields,
         )
 
         assertEquals(0, errors.size)
@@ -60,8 +67,12 @@ class CommonHarvestValidatorTest {
 
     @Test
     fun testNoSpecimens() {
-        assertValidationError(
-            expectedError = CommonHarvestValidator.Error.MISSING_SPECIMENS,
+        assertValidationErrors(
+            expectedErrors = listOf(
+                CommonHarvestValidator.Error.MISSING_SPECIMENS,
+                CommonHarvestValidator.Error.MISSING_AGE,
+                CommonHarvestValidator.Error.MISSING_GENDER,
+            ),
             harvest = createHarvest(specimen = null),
             speciesCodes = listOf(
                 SpeciesCodes.MOOSE_ID,
@@ -70,6 +81,15 @@ class CommonHarvestValidatorTest {
                 SpeciesCodes.WHITE_TAILED_DEER_ID,
                 SpeciesCodes.WILD_FOREST_DEER_ID,
             )
+        )
+    }
+
+    @Test
+    fun testNoMissingSpecimens() {
+        assertNoValidationErrors(
+            harvest = createHarvest(specimen = null),
+            harvestReportingType = HarvestReportingType.BASIC,
+            speciesCodes = listOf(53004) // villiintynyt kissa, it has only voluntary fields
         )
     }
 
@@ -155,7 +175,7 @@ class CommonHarvestValidatorTest {
     @Test
     fun testGender_UNKNOWN() {
         assertValidationError(
-            expectedError = CommonHarvestValidator.Error.MISSING_GENDER,
+            expectedError = CommonHarvestValidator.Error.INVALID_GENDER,
             harvest = createHarvest(createSpecimen(gender = Gender.UNKNOWN)),
             speciesCodes = listOf(
                 SpeciesCodes.MOOSE_ID,
@@ -165,6 +185,29 @@ class CommonHarvestValidatorTest {
                 SpeciesCodes.WILD_FOREST_DEER_ID,
             )
         )
+    }
+
+    @Test
+    fun `UNKNOWN gender for grey seal`() {
+        assertNoValidationErrors(
+            harvest = createHarvest(createSpecimen(gender = Gender.UNKNOWN)).copy(
+                greySealHuntingMethod = GreySealHuntingMethod.SHOT_BUT_LOST.toBackendEnum()
+            ),
+            speciesCodes = listOf(SpeciesCodes.GREY_SEAL_ID)
+        )
+
+        listOf(GreySealHuntingMethod.SHOT, GreySealHuntingMethod.CAPTURED_ALIVE).forEach { huntingMethod ->
+            assertValidationError(
+                expectedError = CommonHarvestValidator.Error.INVALID_GENDER,
+                harvest = createHarvest(
+                    specimen = createSpecimen(
+                        gender = Gender.UNKNOWN,
+                        weight = 23.0,
+                    )
+                ).copy(greySealHuntingMethod = huntingMethod.toBackendEnum()),
+                speciesCodes = listOf(SpeciesCodes.GREY_SEAL_ID)
+            )
+        }
     }
 
     @Test
@@ -185,7 +228,7 @@ class CommonHarvestValidatorTest {
     @Test
     fun testAge_UNKNOWN() {
         assertValidationError(
-            expectedError = CommonHarvestValidator.Error.MISSING_AGE,
+            expectedError = CommonHarvestValidator.Error.INVALID_AGE,
             harvest = createHarvest(createSpecimen(age = GameAge.UNKNOWN)),
             speciesCodes = listOf(
                 SpeciesCodes.MOOSE_ID,
@@ -195,6 +238,29 @@ class CommonHarvestValidatorTest {
                 SpeciesCodes.WILD_FOREST_DEER_ID,
             )
         )
+    }
+
+    @Test
+    fun `UNKNOWN age for grey seal`() {
+        assertNoValidationErrors(
+            harvest = createHarvest(createSpecimen(age = GameAge.UNKNOWN)).copy(
+                greySealHuntingMethod = GreySealHuntingMethod.SHOT_BUT_LOST.toBackendEnum()
+            ),
+            speciesCodes = listOf(SpeciesCodes.GREY_SEAL_ID)
+        )
+
+        listOf(GreySealHuntingMethod.SHOT, GreySealHuntingMethod.CAPTURED_ALIVE).forEach { huntingMethod ->
+            assertValidationError(
+                expectedError = CommonHarvestValidator.Error.INVALID_AGE,
+                harvest = createHarvest(
+                    specimen = createSpecimen(
+                        age = GameAge.UNKNOWN,
+                        weight = 23.0,
+                    )
+                ).copy(greySealHuntingMethod = huntingMethod.toBackendEnum()),
+                speciesCodes = listOf(SpeciesCodes.GREY_SEAL_ID)
+            )
+        }
     }
 
     @Test
@@ -396,7 +462,18 @@ class CommonHarvestValidatorTest {
         harvest: CommonHarvestData = createHarvest(),
         speciesCodes: List<SpeciesCode>,
         harvestReportingType: HarvestReportingType = HarvestReportingType.SEASON,
-        permit: CommonPermit? = null,
+        permit: CommonHarvestPermit? = null,
+    ) = assertValidationErrors(
+        expectedErrors = listOf(expectedError),
+        harvest, speciesCodes, harvestReportingType, permit
+    )
+
+    private fun assertValidationErrors(
+        expectedErrors: List<CommonHarvestValidator.Error>,
+        harvest: CommonHarvestData = createHarvest(),
+        speciesCodes: List<SpeciesCode>,
+        harvestReportingType: HarvestReportingType = HarvestReportingType.SEASON,
+        permit: CommonHarvestPermit? = null,
     ) {
         speciesCodes.forEach { speciesCode ->
             val errors = getValidationErrors(
@@ -405,8 +482,11 @@ class CommonHarvestValidatorTest {
                 permit = permit
             )
 
-            assertEquals(1, errors.size, "species: $speciesCode, errors: $errors")
-            assertEquals(expectedError, errors[0], "species: $speciesCode")
+
+            assertEquals(expectedErrors.size, errors.size, "species: $speciesCode, errors: $errors")
+            errors.forEach { error ->
+                assertTrue(expectedErrors.contains(error), "species: $speciesCode, error: $error")
+            }
         }
     }
 
@@ -414,7 +494,7 @@ class CommonHarvestValidatorTest {
         harvest: CommonHarvestData = createHarvest(),
         speciesCodes: List<SpeciesCode>,
         harvestReportingType: HarvestReportingType = HarvestReportingType.SEASON,
-        permit: CommonPermit? = null,
+        permit: CommonHarvestPermit? = null,
     ) {
         speciesCodes.forEach { speciesCode ->
             val errors = getValidationErrors(
@@ -430,33 +510,33 @@ class CommonHarvestValidatorTest {
     private fun getValidationErrors(
         harvest: CommonHarvestData,
         harvestReportingType: HarvestReportingType = HarvestReportingType.SEASON,
-        permit: CommonPermit? = null,
+        permit: CommonHarvestPermit? = null,
     ): List<CommonHarvestValidator.Error> {
         val context = harvestContext(harvest, harvestReportingType)
 
         val displayedFields = harvestFields.getFieldsToBeDisplayed(context)
-        return CommonHarvestValidator.validate(
-            context.harvest,
-            permit,
-            MOCK_DATE_TIME_PROVIDER,
-            displayedFields
+        return harvestValidator.validate(
+            harvest = context.harvest,
+            permit = permit,
+            harvestReportingType = harvestReportingType,
+            displayedFields = displayedFields,
         )
     }
 
     private fun harvestContext(
         harvest: CommonHarvestData,
         harvestReportingType: HarvestReportingType,
-    ) = CommonHarvestFields.Context(harvest, harvestReportingType, CommonHarvestFields.Context.Mode.EDIT)
+    ) = CommonHarvestFields.Context(harvest, harvestReportingType, true, CommonHarvestFields.Context.Mode.EDIT)
 
     private fun createPermit(
         speciesCodes: List<SpeciesCode> = listOf(HARVEST_SPECIES.knownSpeciesCodeOrNull()!!),
         date: LocalDate = HARVEST_POINT_OF_TIME.date,
-    ): CommonPermit {
-        return CommonPermit(
+    ): CommonHarvestPermit {
+        return CommonHarvestPermit(
             permitNumber = "Permit",
             permitType = "PermitType",
             speciesAmounts = speciesCodes.map { speciesCode ->
-                CommonPermitSpeciesAmount(
+                CommonHarvestPermitSpeciesAmount(
                     speciesCode = speciesCode,
                     validityPeriods = listOf(
                         LocalDatePeriod(
@@ -500,9 +580,12 @@ class CommonHarvestValidatorTest {
             specimens = listOfNotNull(specimen).map { it.toCommonSpecimenData() },
             amount = null,
             actorInfo = GroupHuntingPerson.Unknown,
+            selectedClub = SearchableOrganization.Unknown,
             huntingDayId = null,
             authorInfo = null,
             canEdit = true,
+            modified = true,
+            deleted = false,
             harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
             harvestReportRequired = false,
             harvestReportState = BackendEnum.create(null),
@@ -526,10 +609,11 @@ class CommonHarvestValidatorTest {
         antlersLost: Boolean? = false,
         notEdible: Boolean? = false,
         alone: Boolean? = false,
+        weight: Double? = null,
         weightEstimated: Double? = 100.0,
         weightMeasured: Double? = 200.0,
-        fitnessClass: BackendEnum<GameFitnessClass>? = GameFitnessClass.NORMAL.toBackendEnum(),
-        antlersType: BackendEnum<GameAntlersType>? = GameAntlersType.MIXED.toBackendEnum(),
+        fitnessClass: GameFitnessClass? = GameFitnessClass.NORMAL,
+        antlersType: GameAntlersType? = GameAntlersType.MIXED,
         antlersWidth: Int? = 150,
         antlerPointsLeft: Int? = 25,
         antlerPointsRight: Int? = 30,
@@ -539,15 +623,18 @@ class CommonHarvestValidatorTest {
         antlerShaftWidth: Int? = 20,
     ): CommonHarvestSpecimen {
         return CommonHarvestSpecimen(
+            id = null,
+            rev = null,
             gender = BackendEnum.create(gender),
             age = BackendEnum.create(age),
             antlersLost = antlersLost,
             notEdible = notEdible,
             alone = alone,
+            weight = weight,
             weightEstimated = weightEstimated,
             weightMeasured = weightMeasured,
-            fitnessClass = fitnessClass,
-            antlersType = antlersType,
+            fitnessClass = BackendEnum.create(fitnessClass),
+            antlersType = BackendEnum.create(antlersType),
             antlersWidth = antlersWidth,
             antlerPointsLeft = antlerPointsLeft,
             antlerPointsRight = antlerPointsRight,
@@ -555,6 +642,7 @@ class CommonHarvestValidatorTest {
             antlersLength = antlersLength,
             antlersInnerWidth = antlersInnerWidth,
             antlerShaftWidth = antlerShaftWidth,
+            additionalInfo = null,
         )
     }
 

@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import Async
 import SnapKit
 import RiistaCommon
 import MaterialComponents
@@ -17,6 +18,8 @@ class ListClubMembershipsViewController:
     private lazy var _controller: RiistaCommon.HuntingClubController = {
         RiistaCommon.HuntingClubController(
             huntingClubsContext: RiistaSDK.shared.currentUserContext.huntingClubsContext,
+            usernameProvider: RiistaSDK.shared.currentUserContext,
+            huntingClubOccupationsProvider: RiistaSDK.shared.huntingClubOccupations,
             languageProvider: CurrentLanguageProvider(),
             stringProvider: LocalizedStringProvider()
         )
@@ -41,12 +44,32 @@ class ListClubMembershipsViewController:
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.tableView = tableView
 
         return tableView
+    }()
+
+    private lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(
+            self,
+            action: #selector(onRefreshRequested),
+            for: .valueChanged
+        )
+
+        return refreshControl
+    }()
+
+    private lazy var refreshNavBarButton: UIBarButtonItem = {
+        UIBarButtonItem(
+            image: UIImage(named: "refresh_white"),
+            style: .plain,
+            target: self,
+            action: #selector(onRefreshClicked)
+        )
     }()
 
     private lazy var noContentLabel: UILabel = {
@@ -72,14 +95,16 @@ class ListClubMembershipsViewController:
     override func loadView() {
         super.loadView()
 
+        indicateLoadingStateUsingRefreshIndicator = false
+
         let container = UIStackView()
         container.axis = .vertical
         container.alignment = .fill
         view.addSubview(container)
         container.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         let tableViewContainer = UIView()
@@ -93,32 +118,37 @@ class ListClubMembershipsViewController:
             make.centerY.equalToSuperview()
         }
         container.addArrangedSubview(tableViewContainer)
+
+        tableView.refreshControl = refreshControl
     }
 
     public override func viewDidLoad() {
         super.viewDidLoad()
         title = "MyDetailsClubMembershipsTitle".localized()
+        navigationItem.rightBarButtonItems = [refreshNavBarButton]
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        navigationItem.rightBarButtonItems = createNavigationBarItems()
-    }
-
-    private func createNavigationBarItems() -> [UIBarButtonItem] {
-        [
-            UIBarButtonItem(
-                image: UIImage(named: "refresh_white"),
-                style: .plain,
-                target: self,
-                action: #selector(onRefreshClicked)
-            )
-        ]
+    override func viewWillDisappear(_ animated: Bool) {
+        hideRefreshIndicator()
+        super.viewWillDisappear(animated)
     }
 
     @objc func onRefreshClicked() {
-        controllerHolder.loadViewModel(refresh: true)
+        // starting refreshing programmatically will cause refresh control to emit corresponding event
+        // -> onRefreshRequested will be called
+        refreshControl.beginRefreshingProgrammatically()
+    }
+
+    @objc func onRefreshRequested() {
+        refreshNavBarButton.isEnabled = false
+
+        // typically refresh is very fast i.e. it completes within few hundred milliseconds. If that is the case
+        // the load indicator only flashes which makes the UI look broken. Delay the start of the load operation
+        // so that it would appear that loading actually takes bit more time. It's also more convincing that way i.e.
+        // "app is actually doing something right now"
+        Async.main(after: 0.5) { [weak self] in
+            self?.controllerHolder.loadViewModel(refresh: true)
+        }
     }
 
     override func onViewModelLoaded(viewModel: ListHuntingClubsViewModel) {
@@ -130,6 +160,16 @@ class ListClubMembershipsViewController:
         } else {
             showNoContentText(text: "HuntingClubNoMemberships".localized())
         }
+    }
+
+    override func onLoadViewModelCompleted() {
+        super.onLoadViewModelCompleted()
+        hideRefreshIndicator()
+    }
+
+    private func hideRefreshIndicator() {
+        refreshControl.endRefreshing()
+        refreshNavBarButton.isEnabled = true
     }
 
     private func showNoContentText(text: String?) {
@@ -144,25 +184,24 @@ class ListClubMembershipsViewController:
         tableView.isScrollEnabled = true
     }
 
-    override func onViewModelLoadFailed() {
-        super.onViewModelLoadFailed()
-    }
-
     func onAcceptInvitationRequested(invitation: HuntingClubViewModel.Invitation) {
         tableView.showLoading()
 
-        controller.acceptInvitation(invitationId: invitation.invitationId) { [weak self] response, _ in
-            guard let self = self else { return }
+        controller.acceptInvitation(
+            invitationId: invitation.invitationId,
+            completionHandler: handleOnMainThread { [weak self] response, _ in
+                guard let self = self else { return }
 
-            self.tableView.hideLoading()
-            if (response is HuntingClubMemberInvitationOperationResponse.Success) {
-                // data refreshed internally
-                self.listener?.onClubInvitationAcceptedOrRejected()
-                self.controllerHolder.loadViewModel(refresh: false)
-            } else {
-                self.showNetworErrorDialog()
+                self.tableView.hideLoading()
+                if (response is HuntingClubMemberInvitationOperationResponse.Success) {
+                    // data refreshed internally
+                    self.listener?.onClubInvitationAcceptedOrRejected()
+                    self.controllerHolder.loadViewModel(refresh: false)
+                } else {
+                    self.showNetworErrorDialog()
+                }
             }
-        }
+        )
     }
 
     func onRejectInvitationRequested(invitation: HuntingClubViewModel.Invitation) {
@@ -181,18 +220,21 @@ class ListClubMembershipsViewController:
     private func rejectInvitation(invitation: HuntingClubViewModel.Invitation) {
         tableView.showLoading()
 
-        controller.rejectInvitation(invitationId: invitation.invitationId) { [weak self] response, _ in
-            guard let self = self else { return }
+        controller.rejectInvitation(
+            invitationId: invitation.invitationId,
+            completionHandler: handleOnMainThread { [weak self] response, _ in
+                guard let self = self else { return }
 
-            self.tableView.hideLoading()
-            if (response is HuntingClubMemberInvitationOperationResponse.Success) {
-                // data refreshed internally
-                self.listener?.onClubInvitationAcceptedOrRejected()
-                self.controllerHolder.loadViewModel(refresh: false)
-            } else {
-                self.showNetworErrorDialog()
+                self.tableView.hideLoading()
+                if (response is HuntingClubMemberInvitationOperationResponse.Success) {
+                    // data refreshed internally
+                    self.listener?.onClubInvitationAcceptedOrRejected()
+                    self.controllerHolder.loadViewModel(refresh: false)
+                } else {
+                    self.showNetworErrorDialog()
+                }
             }
-        }
+        )
     }
 
     private func showNetworErrorDialog() {

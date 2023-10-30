@@ -1,6 +1,5 @@
 package fi.riista.common.domain.srva.ui.view
 
-import co.touchlab.stately.ensureNeverFrozen
 import fi.riista.common.domain.srva.SrvaContext
 import fi.riista.common.domain.srva.model.CommonSrvaEvent
 import fi.riista.common.domain.srva.model.CommonSrvaEventData
@@ -30,10 +29,6 @@ class ViewSrvaEventController(
     private val srvaEventFields = SrvaEventFields(metadataProvider = metadataProvider)
     private val dataFieldProducer = ViewSrvaEventFieldProducer(stringProvider = stringProvider)
 
-    init {
-        // should be accessed from UI thread only
-        ensureNeverFrozen()
-    }
 
     override fun createLoadViewModelFlow(refresh: Boolean):
             Flow<ViewModelLoadStatus<ViewSrvaEventViewModel>> = flow {

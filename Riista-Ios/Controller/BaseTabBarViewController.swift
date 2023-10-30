@@ -31,7 +31,7 @@ import FirebaseMessaging
 
     // MARK: - Updating navigation item
 
-    func updateNavigationBarForCurrentlySelectedViewController() {
+    @objc func updateNavigationBarForCurrentlySelectedViewController() {
         if let viewController = self.selectedViewController {
             updateNavigationBar(for: viewController)
         }

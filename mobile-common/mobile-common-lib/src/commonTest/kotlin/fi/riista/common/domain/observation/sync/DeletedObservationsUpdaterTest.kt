@@ -43,7 +43,7 @@ class DeletedObservationsUpdaterTest {
             username = username,
             observation = observation.copy(remoteId = (observation.remoteId ?: 0) + 1, mobileClientRefId = null),
         )
-        assertTrue(repository.markDeleted(observationLocalId = insertedObservation1.localId))
+        assertNotNull(repository.markDeleted(observationLocalId = insertedObservation1.localId))
 
         // Check that correct observation was deleted from backend
         updater.updateToBackend(username)
@@ -77,7 +77,7 @@ class DeletedObservationsUpdaterTest {
             username = username,
             observation = observation,
         )
-        assertTrue(repository.markDeleted(observationLocalId = insertedObservation.localId))
+        assertNotNull(repository.markDeleted(observationLocalId = insertedObservation.localId))
         updater.updateToBackend(username)
         assertEquals(1, backendAPI.totalCallCount())
         assertEquals(1, backendAPI.callCount(BackendAPI::deleteObservation.name))

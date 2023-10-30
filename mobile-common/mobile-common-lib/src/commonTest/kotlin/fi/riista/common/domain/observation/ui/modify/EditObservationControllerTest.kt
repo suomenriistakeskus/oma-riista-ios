@@ -1,5 +1,6 @@
 package fi.riista.common.domain.observation.ui.modify
 
+import fi.riista.common.RiistaSDK
 import fi.riista.common.domain.constants.Constants
 import fi.riista.common.domain.constants.SpeciesCode
 import fi.riista.common.domain.constants.SpeciesCodes
@@ -25,6 +26,7 @@ import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
 import fi.riista.common.helpers.TestStringProvider
 import fi.riista.common.helpers.getField
 import fi.riista.common.helpers.getLoadedViewModel
+import fi.riista.common.helpers.initializeMocked
 import fi.riista.common.helpers.runBlockingTest
 import fi.riista.common.io.CommonFileProviderMock
 import fi.riista.common.metadata.MockMetadataProvider
@@ -32,6 +34,7 @@ import fi.riista.common.model.BackendEnum
 import fi.riista.common.model.ETRMSGeoLocation
 import fi.riista.common.model.GeoLocationSource
 import fi.riista.common.model.LocalDateTime
+import fi.riista.common.model.StringWithId
 import fi.riista.common.model.TrueOrFalse
 import fi.riista.common.model.toBackendEnum
 import fi.riista.common.network.BackendAPI
@@ -52,6 +55,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class EditObservationControllerTest {
 
@@ -533,6 +537,41 @@ class EditObservationControllerTest {
         )
     }
 
+    @Test
+    fun testPairHasTwoSpecimens() = runBlockingTest {
+        val controller = getController(
+            speciesCode = SpeciesCodes.BEAN_GOOSE_ID,
+            metadata = MockMetadataProvider.INSTANCE.observationMetadata,
+        )
+        controller.loadViewModel()
+
+        controller.eventDispatchers.stringWithIdEventDispatcher.dispatchStringWithIdChanged(
+            CommonObservationField.OBSERVATION_TYPE,
+            listOf(StringWithId("pari", ObservationType.PARI.ordinal.toLong())),
+        )
+
+        with (controller.getLoadedViewModel()) {
+            assertEquals(2, observation.totalSpecimenAmount)
+            assertEquals(2, observation.specimens?.size)
+            val specimen1 = assertNotNull(observation.specimens?.get(0))
+            val specimen2 = assertNotNull(observation.specimens?.get(1))
+            assertEquals(Gender.MALE, specimen1.gender?.value)
+            assertEquals(GameAge.ADULT, specimen1.age?.value)
+            assertEquals(Gender.FEMALE, specimen2.gender?.value)
+            assertEquals(GameAge.ADULT, specimen2.age?.value)
+
+            assertEquals(7, fields.size)
+
+            val amountField: IntField<CommonObservationField> = fields.getField(4, CommonObservationField.SPECIMEN_AMOUNT)
+            assertEquals(2, amountField.value)
+            assertTrue(amountField.settings.readOnly)
+
+            val specimensField: SpecimenField<CommonObservationField> = fields.getField(5, CommonObservationField.SPECIMENS)
+            assertEquals(2, specimensField.specimenData.specimenAmount)
+            assertTrue(specimensField.settings.readOnly)
+        }
+    }
+
     private fun String?.assertEquals(expected: RR.string) {
         assertEquals(stringProvider.getString(expected), this)
     }
@@ -639,9 +678,10 @@ class EditObservationControllerTest {
         observation: CommonObservation = createObservation(speciesCode = speciesCode),
         metadata: ObservationMetadata = createMetadata(speciesCode = speciesCode)
     ): EditObservationController {
+        initializeRiistaSDK()
+
         val currentUserContextProvider: CurrentUserContextProvider = CurrentUserContextProviderFactory.createMocked(
             preferences = MockPreferences(),
-            localDateTimeProvider = MockDateTimeProvider()
         )
 
         val metadataProvider = MockMetadataProvider(
@@ -684,4 +724,7 @@ class EditObservationControllerTest {
         private val OBSERVATION_DATE_TIME = LocalDateTime(2022, 5, 1, 18, 0, 0)
     }
 
+    private fun initializeRiistaSDK() {
+        RiistaSDK.initializeMocked()
+    }
 }

@@ -9,10 +9,14 @@
 /* Begin PBXBuildFile section */
 		0400A09A28C28E19007CE773 /* CreateObservationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0400A09928C28E19007CE773 /* CreateObservationViewController.swift */; };
 		0400A09C28C76643007CE773 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0400A09B28C76643007CE773 /* Notifications.swift */; };
+		040152FE2A02668F00990FB0 /* CommonShootingTestParticipant+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040152FD2A02668F00990FB0 /* CommonShootingTestParticipant+Extensions.swift */; };
+		040153002A0377BE00990FB0 /* CommonShootingTestParticipantDetailed+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040152FF2A0377BE00990FB0 /* CommonShootingTestParticipantDetailed+Extensions.swift */; };
+		040F33FE2991115500A426A3 /* MigrateDiaryEntriesToRiistaCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040F33FD2991115500A426A3 /* MigrateDiaryEntriesToRiistaCommon.swift */; };
+		0419701D2A31B683009159F6 /* UIRefreshControl+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0419701C2A31B683009159F6 /* UIRefreshControl+extensions.swift */; };
 		041FAE1D290BD8C800FBBB6E /* ViewHarvestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041FAE1C290BD8C800FBBB6E /* ViewHarvestViewController.swift */; };
 		041FAE1F290BDD2100FBBB6E /* DiaryEntry+RiistaCommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041FAE1E290BDD2100FBBB6E /* DiaryEntry+RiistaCommonExtensions.swift */; };
 		041FAE21290C075100FBBB6E /* IndicatorLabelFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041FAE20290C075100FBBB6E /* IndicatorLabelFieldCell.swift */; };
-		041FAE232910193F00FBBB6E /* AppPermitProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041FAE222910193F00FBBB6E /* AppPermitProvider.swift */; };
+		041FAE232910193F00FBBB6E /* AppHarvestPermitProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041FAE222910193F00FBBB6E /* AppHarvestPermitProvider.swift */; };
 		041FAE2529101A8F00FBBB6E /* Permit+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041FAE2429101A8F00FBBB6E /* Permit+Extensions.swift */; };
 		041FAE28291125C100FBBB6E /* ModifyHarvestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041FAE27291125C100FBBB6E /* ModifyHarvestViewController.swift */; };
 		041FAE2A2911267D00FBBB6E /* EditHarvestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041FAE292911267D00FBBB6E /* EditHarvestViewController.swift */; };
@@ -26,11 +30,17 @@
 		04208FEC27F5941A0008B32A /* UIButton+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04208FEB27F5941A0008B32A /* UIButton+extensions.swift */; };
 		0420A60E2941CE8900D61E29 /* CommonImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0420A60D2941CE8900D61E29 /* CommonImageManager.swift */; };
 		0420A611294351C700D61E29 /* BackgroundOperationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0420A610294351C700D61E29 /* BackgroundOperationStatus.swift */; };
+		0425484A2A976635008D5F7E /* SunriseAndSunsetTimesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042548492A976635008D5F7E /* SunriseAndSunsetTimesViewController.swift */; };
+		042B70CE2A71160D00C1928E /* AppSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042B70CD2A71160D00C1928E /* AppSettingsViewController.swift */; };
+		042B70D22A71470100C1928E /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042B70D12A71470100C1928E /* AppSettingsView.swift */; };
+		042B70D62A7260D600C1928E /* LocalizableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042B70D52A7260D600C1928E /* LocalizableView.swift */; };
+		042B70D82A779CEE00C1928E /* KeyboardToolBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042B70D72A779CEE00C1928E /* KeyboardToolBar.swift */; };
 		042C754427FC468100C18BFF /* MultiLineStringFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042C754327FC468100C18BFF /* MultiLineStringFieldCell.swift */; };
 		042F9CB4281AB2AF001457C6 /* FileDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042F9CB3281AB2AE001457C6 /* FileDownloader.swift */; };
 		044035B0280ED9990079C4BE /* Url+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 044035AF280ED9990079C4BE /* Url+extensions.swift */; };
 		04413A952816D8A100D9FBEF /* ImageViewWithRoundedCorners.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04413A942816D8A100D9FBEF /* ImageViewWithRoundedCorners.swift */; };
 		04413A982817DADF00D9FBEF /* FileOpenHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04413A972817DADF00D9FBEF /* FileOpenHelper.swift */; };
+		044CB6112A03CBD80003C6B7 /* Dictionary+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 044CB6102A03CBD80003C6B7 /* Dictionary+Extensions.swift */; };
 		04527F43292F9A0700E49D79 /* EntityDataSourceListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04527F42292F9A0700E49D79 /* EntityDataSourceListener.swift */; };
 		04527F452932AA4700E49D79 /* EntityFilterChangeListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04527F442932AA4700E49D79 /* EntityFilterChangeListener.swift */; };
 		04527F482934A05300E49D79 /* EntityFilterChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04527F472934A05300E49D79 /* EntityFilterChange.swift */; };
@@ -38,6 +48,7 @@
 		04527F4D293757F400E49D79 /* AppSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04527F4C293757F400E49D79 /* AppSync.swift */; };
 		04527F4F2937689400E49D79 /* SynchronizationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04527F4E2937689400E49D79 /* SynchronizationMode.swift */; };
 		04527F512937894D00E49D79 /* PeriodicTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04527F502937894D00E49D79 /* PeriodicTask.swift */; };
+		045BF47F2A0D822F00EF5F99 /* MigrateUserInformationToRiistaCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045BF47E2A0D822F00EF5F99 /* MigrateUserInformationToRiistaCommon.swift */; };
 		0465F09A294AFCDE00F341AD /* PreventAppSyncWhileModifyingSynchronizableEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0465F099294AFCDE00F341AD /* PreventAppSyncWhileModifyingSynchronizableEntry.swift */; };
 		0465F09C295DB4A600F341AD /* HideableUIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0465F09B295DB4A600F341AD /* HideableUIBarButtonItem.swift */; };
 		04712E4E2983A6DD0002CC1E /* MyGameQuickButtonsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04712E4D2983A6DD0002CC1E /* MyGameQuickButtonsHelper.swift */; };
@@ -48,9 +59,18 @@
 		0472D04E28042B9600D436DB /* TextFieldAndLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0472D04D28042B9600D436DB /* TextFieldAndLabel.swift */; };
 		0472D0502805B50B00D436DB /* ButtonFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0472D04F2805B50B00D436DB /* ButtonFieldCell.swift */; };
 		0472D0522805FBCC00D436DB /* AttachmentFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0472D0512805FBCC00D436DB /* AttachmentFieldCell.swift */; };
+		048128132A41CE2F0053C3DF /* HarvestSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048128122A41CE2E0053C3DF /* HarvestSettingsViewController.swift */; };
+		048128152A41D4E50053C3DF /* ToggleSwitchBooleanFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048128142A41D4E50053C3DF /* ToggleSwitchBooleanFieldCell.swift */; };
 		0483D288292652FF00738E4F /* ManagedObjectContextDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0483D287292652FF00738E4F /* ManagedObjectContextDataSource.swift */; };
 		0483D28A2926550A00738E4F /* HarvestDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0483D2892926550A00738E4F /* HarvestDataSource.swift */; };
 		0483D28F29266CFF00738E4F /* GameLogDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0483D28E29266CFF00738E4F /* GameLogDataSource.swift */; };
+		048D45BC2A2F492700C59DEB /* ViewMetsahallitusPermitsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048D45BB2A2F492700C59DEB /* ViewMetsahallitusPermitsViewController.swift */; };
+		0493CDC92A7A8FD40041A650 /* EntityModified.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0493CDC82A7A8FD40041A650 /* EntityModified.swift */; };
+		0493CDCD2A7BC4200041A650 /* EntityFilterChangeRequestListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0493CDCC2A7BC4200041A650 /* EntityFilterChangeRequestListener.swift */; };
+		049949422A2DF94100EA78FB /* ListMetsahallitusPermitsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049949412A2DF94100EA78FB /* ListMetsahallitusPermitsViewController.swift */; };
+		049949452A2DFDFF00EA78FB /* MetsahallitusPermitsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049949442A2DFDFF00EA78FB /* MetsahallitusPermitsTableViewController.swift */; };
+		049949472A2DFE2800EA78FB /* MetsahallitusPermitCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049949462A2DFE2800EA78FB /* MetsahallitusPermitCell.swift */; };
+		049949492A2DFEC000EA78FB /* MetsahallitusPermitActionListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049949482A2DFEC000EA78FB /* MetsahallitusPermitActionListener.swift */; };
 		04A4A49428191D9300F1CF15 /* Collection+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A4A49328191D9300F1CF15 /* Collection+extensions.swift */; };
 		04A4A496281938B900F1CF15 /* HuntingControlAttachmentOpenHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A4A495281938B900F1CF15 /* HuntingControlAttachmentOpenHelper.swift */; };
 		04A4A498281954D200F1CF15 /* SelectAttachmentSourceDialogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A4A497281954D200F1CF15 /* SelectAttachmentSourceDialogController.swift */; };
@@ -63,9 +83,14 @@
 		04AD539F292E430F007C924D /* MapDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AD539E292E430F007C924D /* MapDataSource.swift */; };
 		04AD53A1292E45CD007C924D /* PointOfInterestDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AD53A0292E45CD007C924D /* PointOfInterestDataSource.swift */; };
 		04AD53A3292E478A007C924D /* ControllerHolderWithCallbacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AD53A2292E478A007C924D /* ControllerHolderWithCallbacks.swift */; };
+		04B42F542A83A60500C23EDC /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B42F532A83A60500C23EDC /* BaseViewController.swift */; };
 		04B56E332937A182008100C6 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B56E322937A182008100C6 /* AppLogger.swift */; };
+		04B7B12C29F92F9F00B57DCE /* DropdownHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B7B12B29F92F9F00B57DCE /* DropdownHelper.swift */; };
+		04B7B13029FA744700B57DCE /* CalendarEventType+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B7B12F29FA744700B57DCE /* CalendarEventType+Extensions.swift */; };
 		04B8877A27F32FEC00DA7784 /* ChipFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B8877927F32FEC00DA7784 /* ChipFieldCell.swift */; };
 		04C041D128E5E1DE006218E5 /* AppUpdateNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C041D028E5E1DE006218E5 /* AppUpdateNotifier.swift */; };
+		04C7081F2A44510500444D68 /* ShowEntriesForOtherActorsFilterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C7081E2A44510500444D68 /* ShowEntriesForOtherActorsFilterHelper.swift */; };
+		04CB960429FA97A600463573 /* CommonShootingTestCalendarEvent+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04CB960329FA97A600463573 /* CommonShootingTestCalendarEvent+Extensions.swift */; };
 		04CC777228B39AE8000B7FC4 /* ViewObservationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04CC777128B39AE8000B7FC4 /* ViewObservationViewController.swift */; };
 		04CC777428B3A94A000B7FC4 /* ObservationEntry+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04CC777328B3A949000B7FC4 /* ObservationEntry+Extensions.swift */; };
 		04CC777628B8E3AA000B7FC4 /* ModifyObservationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04CC777528B8E3AA000B7FC4 /* ModifyObservationViewController.swift */; };
@@ -78,6 +103,10 @@
 		04E12D1829C9E60000428978 /* UserAccountUnregisterRequestedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E12D1729C9E60000428978 /* UserAccountUnregisterRequestedViewController.swift */; };
 		04E7C9CD29A8C0CF003339A6 /* WarningViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7C9CC29A8C0CF003339A6 /* WarningViewController.swift */; };
 		04E7E12E2987EE0400FF1DD5 /* DeleteUserAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7E12D2987EE0400FF1DD5 /* DeleteUserAccountViewController.swift */; };
+		04EBB4D229DADED8005EED98 /* SpecimensViewControllerLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04EBB4D129DADED8005EED98 /* SpecimensViewControllerLauncher.swift */; };
+		04F4995F29F7E87300ABE80A /* Synchronization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F4995E29F7E87300ABE80A /* Synchronization.swift */; };
+		04F4996129F802BD00ABE80A /* PendingSynchronization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F4996029F802BD00ABE80A /* PendingSynchronization.swift */; };
+		04FAC1D22A1B849B00DC6B93 /* Thread+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FAC1D12A1B849B00DC6B93 /* Thread+extensions.swift */; };
 		3F4A3174815AEB0BE8965D12 /* DataFieldCellType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A323183B0431B19518C01 /* DataFieldCellType.swift */; };
 		3F4A31E2ED82CC1C5187ACE1 /* String+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A31A8E313931AFC48088C /* String+extensions.swift */; };
 		3F4A339A753E9D8E1488B684 /* DataFieldTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A3B0A2227E9D16B36C52F /* DataFieldTableViewController.swift */; };
@@ -202,7 +231,7 @@
 		65710C65254C3D95002BE90B /* MDCButton+loadstatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65710C64254C3D95002BE90B /* MDCButton+loadstatus.swift */; };
 		65710C68254C47D7002BE90B /* PropertyStoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65710C67254C47D7002BE90B /* PropertyStoring.swift */; };
 		65710C6B254C5BD6002BE90B /* LoadStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65710C6A254C5BD6002BE90B /* LoadStatus.swift */; };
-		65710C6F254CA417002BE90B /* ImageIdentifier+DiaryImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65710C6E254CA417002BE90B /* ImageIdentifier+DiaryImage.swift */; };
+		65710C6F254CA417002BE90B /* ImageIdentifier+EntityImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65710C6E254CA417002BE90B /* ImageIdentifier+EntityImage.swift */; };
 		65710C73254FD413002BE90B /* RiistaUIImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65710C72254FD413002BE90B /* RiistaUIImagePicker.swift */; };
 		65710C76254FF1DE002BE90B /* GalleryImagePickeriOS14.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65710C75254FF1DE002BE90B /* GalleryImagePickeriOS14.swift */; };
 		658685612796E14E007E9D31 /* SynchronizationAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658685602796E14E007E9D31 /* SynchronizationAnalytics.swift */; };
@@ -398,8 +427,6 @@
 		65FDBEAA26EB4D3100C1E1D0 /* RiistaMmlTileLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FDBEA926EB4D3000C1E1D0 /* RiistaMmlTileLayer.swift */; };
 		65FDBEAC26EF70FC00C1E1D0 /* TileCacheProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FDBEAB26EF70FB00C1E1D0 /* TileCacheProvider.swift */; };
 		65FDBEAE26EF71AB00C1E1D0 /* TileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FDBEAD26EF71AB00C1E1D0 /* TileCache.swift */; };
-		74010F6B22F46105008F3D33 /* MhPermitListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74010F6A22F46105008F3D33 /* MhPermitListViewController.swift */; };
-		74010F6F22F46123008F3D33 /* MhPermitDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74010F6E22F46123008F3D33 /* MhPermitDetailsViewController.swift */; };
 		74010F7522F848CB008F3D33 /* MhPermit+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74010F7322F848CB008F3D33 /* MhPermit+CoreDataProperties.swift */; };
 		74010F7822F848CB008F3D33 /* MhPermit+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74010F7422F848CB008F3D33 /* MhPermit+CoreDataClass.swift */; };
 		7404C77E2321289400A68BF5 /* OpenSans-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7404C7732321289200A68BF5 /* OpenSans-BoldItalic.ttf */; };
@@ -413,7 +440,6 @@
 		7404C7992321289400A68BF5 /* OpenSans-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7404C77C2321289300A68BF5 /* OpenSans-ExtraBold.ttf */; };
 		7404C79C2321289400A68BF5 /* OpenSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7404C77D2321289300A68BF5 /* OpenSans-Light.ttf */; };
 		7404C7A02321304D00A68BF5 /* UILabel+CustomFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 7404C79F2321304D00A68BF5 /* UILabel+CustomFont.m */; };
-		74082749204924F100F2C4C4 /* ShootingTestValueButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74082748204924F100F2C4C4 /* ShootingTestValueButton.swift */; };
 		74082751204EE9C500F2C4C4 /* ShootingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 74082750204EE9C500F2C4C4 /* ShootingTest.m */; };
 		740E6C24215122E700EB1498 /* AreaMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 740E6C23215122E700EB1498 /* AreaMap.swift */; };
 		7415682F2367383400433001 /* SeasonStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7415682E2367383400433001 /* SeasonStats.swift */; };
@@ -431,10 +457,6 @@
 		7429988F240C00D20013BACF /* MaterialVerticalButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7429988E240C00D20013BACF /* MaterialVerticalButton.swift */; };
 		742B92F8213449DB0018D96D /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742B92F7213449DB0018D96D /* AppConstants.swift */; };
 		742C116C2419441400545799 /* UIImage+AspectFill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742C116B2419441400545799 /* UIImage+AspectFill.swift */; };
-		742D39062020ADC500008279 /* ShootingTestCalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D39052020ADC500008279 /* ShootingTestCalendarEvent.swift */; };
-		742D39082020AE7200008279 /* ShootingTestVenue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D39072020AE7200008279 /* ShootingTestVenue.swift */; };
-		742D390A2020AE8800008279 /* ShootingTestVenueAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D39092020AE8800008279 /* ShootingTestVenueAddress.swift */; };
-		742D390C2020AEC200008279 /* ShootingTestOfficial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D390B2020AEC200008279 /* ShootingTestOfficial.swift */; };
 		742D390E2020B15600008279 /* ShootingTestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D390D2020B15600008279 /* ShootingTestManager.swift */; };
 		742D39112020CE3A00008279 /* ShootingTestCalendarEventsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D39102020CE3A00008279 /* ShootingTestCalendarEventsViewController.swift */; };
 		742D3913202893EE00008279 /* RiistaBridgingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D3912202893EE00008279 /* RiistaBridgingUtils.swift */; };
@@ -444,12 +466,6 @@
 		742D391B202B581200008279 /* ShootingTestQueueViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D391A202B581200008279 /* ShootingTestQueueViewController.swift */; };
 		742D391D202B582400008279 /* ShootingTestPaymentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D391C202B582400008279 /* ShootingTestPaymentsViewController.swift */; };
 		742D391F202B596900008279 /* ShootingTestTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D391E202B596900008279 /* ShootingTestTabBarViewController.swift */; };
-		742D39212031E77C00008279 /* ShootingTestParticipantSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D39202031E77C00008279 /* ShootingTestParticipantSummary.swift */; };
-		742D39232031E7D200008279 /* ShootingTestParticipantDetailed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D39222031E7D200008279 /* ShootingTestParticipantDetailed.swift */; };
-		742D39252031E85000008279 /* ShootingTestAttemptDetailed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D39242031E85000008279 /* ShootingTestAttemptDetailed.swift */; };
-		742D39272031E86100008279 /* ShootingTestAttemptSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D39262031E86100008279 /* ShootingTestAttemptSummary.swift */; };
-		742D39292031E88A00008279 /* ShootingTestSearchPersonResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D39282031E88A00008279 /* ShootingTestSearchPersonResult.swift */; };
-		742D392B2031E91600008279 /* ErrorResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D392A2031E91600008279 /* ErrorResponse.swift */; };
 		742D392D2034758700008279 /* ShootingTestAttemptStateView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 742D392C2034758700008279 /* ShootingTestAttemptStateView.xib */; };
 		742D392F203478AE00008279 /* ShootingTestAttemptStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D392E203478AE00008279 /* ShootingTestAttemptStateView.swift */; };
 		742D39312034B79800008279 /* ShootingTestUserAttemptsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742D39302034B79800008279 /* ShootingTestUserAttemptsViewController.swift */; };
@@ -467,9 +483,6 @@
 		7430A273215BA7A600628982 /* DatetimeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7430A272215BA7A600628982 /* DatetimeUtil.swift */; };
 		7430C99F203EF20F000DF8BB /* RiistaNibView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7430C99E203EF20F000DF8BB /* RiistaNibView.swift */; };
 		7430C9A1203EF2B7000DF8BB /* ShootingTestOfficialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7430C9A0203EF2B7000DF8BB /* ShootingTestOfficialView.swift */; };
-		7430C9A3203EF305000DF8BB /* ShootingTestOfficialView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7430C9A2203EF305000DF8BB /* ShootingTestOfficialView.xib */; };
-		7430C9A52042FED9000DF8BB /* SelectedShootingTestTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7430C9A42042FED9000DF8BB /* SelectedShootingTestTypes.swift */; };
-		74327FB91AE14A0A002D4B0F /* ic_delete@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74327FB81AE14A0A002D4B0F /* ic_delete@2x.png */; };
 		743478891E42252A0095C916 /* RiistaAnnouncementsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 743478881E42252A0095C916 /* RiistaAnnouncementsViewController.m */; };
 		74373B8E2151718300D70BE0 /* map_type_mml_aerial@3x.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 74373B822151718100D70BE0 /* map_type_mml_aerial@3x.jpg */; };
 		74373B912151718300D70BE0 /* map_type_mml_topographic.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 74373B832151718200D70BE0 /* map_type_mml_topographic.jpg */; };
@@ -499,7 +512,6 @@
 		745EAEC11E43638F002A361F /* AnnouncementsSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 745EAEC01E43638F002A361F /* AnnouncementsSync.m */; };
 		745FF08424863FD500EF3E5F /* UIView+ConstraintToSuperview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 745FF08324863FD500EF3E5F /* UIView+ConstraintToSuperview.swift */; };
 		7461FB090DBA324175B352AF /* Pods_Riista.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 833ED36CF16312227A692249 /* Pods_Riista.framework */; };
-		746214F3204839A800908138 /* ShootingTestValueButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 746214F2204839A800908138 /* ShootingTestValueButton.xib */; };
 		746370092487585C001C15DC /* ImageEditUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74CF4AA7247E4A2600007580 /* ImageEditUtil.swift */; };
 		74638E4A20933B22007B735F /* LineSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74638E4920933B22007B735F /* LineSeparator.swift */; };
 		746585381AE53CAD0015C4F8 /* crosshair.png in Resources */ = {isa = PBXBuildFile; fileRef = 746585371AE53CAD0015C4F8 /* crosshair.png */; };
@@ -518,10 +530,7 @@
 		747EC0341ED30A3B007A9FBE /* PhoneNumberValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 747EC0331ED30A3B007A9FBE /* PhoneNumberValidator.m */; };
 		7486022821300D7C0059C978 /* species_37142.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7486022721300D7C0059C978 /* species_37142.jpg */; };
 		7486C7DE1CC652DF00336778 /* DiaryEntryBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 7486C7DD1CC652DF00336778 /* DiaryEntryBase.m */; };
-		7486C8181CC8E19D00336778 /* ic_delete.png in Resources */ = {isa = PBXBuildFile; fileRef = 7486C8101CC8E19D00336778 /* ic_delete.png */; };
-		7486C8191CC8E19D00336778 /* ic_delete@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7486C8111CC8E19D00336778 /* ic_delete@3x.png */; };
 		748B8A8A1D2546BA000F0323 /* RiistaModelUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 748B8A891D2546BA000F0323 /* RiistaModelUtils.m */; };
-		749E15A2205AC11000A0C956 /* ic_delete_white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 749E15A1205AC10F00A0C956 /* ic_delete_white@2x.png */; };
 		74A9A2D42189C08F0078279D /* NSManagedObject+RiistaCopying.m in Sources */ = {isa = PBXBuildFile; fileRef = 74A9A2D32189C08F0078279D /* NSManagedObject+RiistaCopying.m */; };
 		74ACA2B12150EE010037A3C1 /* RiistaMapAreaListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74ACA2B02150EE010037A3C1 /* RiistaMapAreaListViewController.swift */; };
 		74B3B5961A25E4F000788661 /* RiistaLocalization.m in Sources */ = {isa = PBXBuildFile; fileRef = 74B3B5951A25E4F000788661 /* RiistaLocalization.m */; };
@@ -529,13 +538,11 @@
 		74B4D03D23F6E7D300230FE7 /* SpeciesCategoryDialogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74B4D03C23F6E7D300230FE7 /* SpeciesCategoryDialogController.swift */; };
 		74B6E7141E3F82EA00F40665 /* HarvestStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 74B6E7131E3F82EA00F40665 /* HarvestStoryboard.storyboard */; };
 		74B8BB051CB534E7002152EF /* DetailsStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 74B8BB041CB534E7002152EF /* DetailsStoryboard.storyboard */; };
-		74BF763E20446521003575D1 /* ShootingTestUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BF763D20446521003575D1 /* ShootingTestUtil.swift */; };
 		74BF764020471E51003575D1 /* ShootingTestCheckbox.xib in Resources */ = {isa = PBXBuildFile; fileRef = 74BF763F20471E51003575D1 /* ShootingTestCheckbox.xib */; };
 		74BF764220471F1E003575D1 /* ShootingTestCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BF764120471F1E003575D1 /* ShootingTestCheckbox.swift */; };
 		74C3652C1ADBF6630030E6E4 /* RiistaSpecimen.m in Sources */ = {isa = PBXBuildFile; fileRef = 74C3652B1ADBF6630030E6E4 /* RiistaSpecimen.m */; };
 		74C79AE81CECA1E300598316 /* MappedValue.strings in Resources */ = {isa = PBXBuildFile; fileRef = 74C79AE61CECA1E300598316 /* MappedValue.strings */; };
 		74C9789923337DF800375372 /* AnnouncementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C9789823337DF800375372 /* AnnouncementViewController.swift */; };
-		74CAD28E22F99638009E5076 /* MhPermitSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74CAD28D22F99638009E5076 /* MhPermitSync.swift */; };
 		74CFB92423BF38CE00C6775C /* ImageFullViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74CFB92323BF38CE00C6775C /* ImageFullViewController.swift */; };
 		74D8116923AA3D6200E9E72C /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D8116823AA3D6200E9E72C /* GalleryViewController.swift */; };
 		74D8116D23AA4E9B00E9E72C /* GalleryItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D8116C23AA4E9B00E9E72C /* GalleryItemCell.swift */; };
@@ -552,6 +559,7 @@
 		D36F3DD62480DB6700A67BF2 /* GoogleService-Info-Dev.plist in Resources */ = {isa = PBXBuildFile; fileRef = D36F3DD52480DB6600A67BF2 /* GoogleService-Info-Dev.plist */; };
 		D36F3DD92486282600A67BF2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D36F3DD82486282600A67BF2 /* LaunchScreen.storyboard */; };
 		D503AA15280FC9450048B74D /* TrainingContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D503AA14280FC9450048B74D /* TrainingContentView.swift */; };
+		D514FBC62A81245900C38DFD /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D514FBC52A81245900C38DFD /* AboutViewController.swift */; };
 		D5232D27284626E000A1B294 /* ViewSrvaEventViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5232D26284626E000A1B294 /* ViewSrvaEventViewController.swift */; };
 		D53324872844F73E00E2832A /* SelectSpeciesAndImageFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D53324862844F73E00E2832A /* SelectSpeciesAndImageFieldCell.swift */; };
 		D541FB94292F9490002375A0 /* HunterInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D541FB93292F9490002375A0 /* HunterInfoViewController.swift */; };
@@ -673,10 +681,8 @@
 		E09C1AF81958FB53001B83E4 /* species_53004.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E09C1AB41958FB53001B83E4 /* species_53004.jpg */; };
 		E09C9ECB195CE2760058A549 /* RiistaSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E09C9ECA195CE2760058A549 /* RiistaSessionManager.m */; };
 		E09CFD671957A2DE0061DFA5 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E09CFD661957A2DE0061DFA5 /* MessageUI.framework */; };
-		E09CFD6A1957B0F80061DFA5 /* RiistaSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E09CFD691957B0F70061DFA5 /* RiistaSettingsViewController.m */; };
 		E09D14B219322A3F00A7AFCE /* login_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = E09D14A519322A3F00A7AFCE /* login_bg.png */; };
 		E09D14B319322A3F00A7AFCE /* sarvi_logo.png in Resources */ = {isa = PBXBuildFile; fileRef = E09D14A619322A3F00A7AFCE /* sarvi_logo.png */; };
-		E09D14B519322A3F00A7AFCE /* Styles.m in Sources */ = {isa = PBXBuildFile; fileRef = E09D14AC19322A3F00A7AFCE /* Styles.m */; };
 		E09D14B719322A3F00A7AFCE /* UIColor+ApplicationColor.m in Sources */ = {isa = PBXBuildFile; fileRef = E09D14B119322A3F00A7AFCE /* UIColor+ApplicationColor.m */; };
 		E09D14DD19325D5100A7AFCE /* RiistaPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E09D14DC19325D5100A7AFCE /* RiistaPageViewController.m */; };
 		E0A05E2C195320120083CEF4 /* RiistaDiaryEntryUpdate.m in Sources */ = {isa = PBXBuildFile; fileRef = E0A05E2B195320120083CEF4 /* RiistaDiaryEntryUpdate.m */; };
@@ -690,8 +696,6 @@
 		E0A38B881923B34F001A4BEF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0A38B871923B34F001A4BEF /* UIKit.framework */; };
 		E0A38BB31923B4A2001A4BEF /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = E0A38BB21923B4A2001A4BEF /* Podfile */; };
 		E0A480771990E0670034E452 /* ic_action_refresh@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E0A480741990E0670034E452 /* ic_action_refresh@2x.png */; };
-		E0A480781990E0670034E452 /* ic_menu_add@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E0A480751990E0670034E452 /* ic_menu_add@2x.png */; };
-		E0A480791990E0670034E452 /* ic_menu_edit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E0A480761990E0670034E452 /* ic_menu_edit@2x.png */; };
 		E0A54D8019335F3500F03A2F /* RiistaMyGameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E0A54D7F19335F3500F03A2F /* RiistaMyGameViewController.m */; };
 		E0A54D89193363AB00F03A2F /* RiistaHeaderLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = E0A54D88193363AB00F03A2F /* RiistaHeaderLabel.m */; };
 		E0D9D01C19864B44009D0EA1 /* RiistaNetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E0D9D01B19864B44009D0EA1 /* RiistaNetworkManager.m */; };
@@ -712,11 +716,15 @@
 
 /* Begin PBXFileReference section */
 		0400A09928C28E19007CE773 /* CreateObservationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CreateObservationViewController.swift; path = "Riista-Ios/Controller/Observation/Modify/CreateObservationViewController.swift"; sourceTree = SOURCE_ROOT; };
-		0400A09B28C76643007CE773 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Notifications.swift; path = "Riista-Ios/UI/Notifications.swift"; sourceTree = SOURCE_ROOT; };
+		0400A09B28C76643007CE773 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Notifications.swift; path = "Riista-ios/UI/Notifications/Notifications.swift"; sourceTree = SOURCE_ROOT; };
+		040152FD2A02668F00990FB0 /* CommonShootingTestParticipant+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "CommonShootingTestParticipant+Extensions.swift"; path = "Riista-Ios/Utils/Extensions/CommonShootingTestParticipant+Extensions.swift"; sourceTree = SOURCE_ROOT; };
+		040152FF2A0377BE00990FB0 /* CommonShootingTestParticipantDetailed+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "CommonShootingTestParticipantDetailed+Extensions.swift"; path = "Riista-Ios/Utils/Extensions/CommonShootingTestParticipantDetailed+Extensions.swift"; sourceTree = SOURCE_ROOT; };
+		040F33FD2991115500A426A3 /* MigrateDiaryEntriesToRiistaCommon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MigrateDiaryEntriesToRiistaCommon.swift; sourceTree = "<group>"; };
+		0419701C2A31B683009159F6 /* UIRefreshControl+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIRefreshControl+extensions.swift"; path = "Riista-Ios/Utils/Extensions/UIRefreshControl+extensions.swift"; sourceTree = SOURCE_ROOT; };
 		041FAE1C290BD8C800FBBB6E /* ViewHarvestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewHarvestViewController.swift; path = "Riista-ios/Controller/Harvest/View/ViewHarvestViewController.swift"; sourceTree = SOURCE_ROOT; };
 		041FAE1E290BDD2100FBBB6E /* DiaryEntry+RiistaCommonExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "DiaryEntry+RiistaCommonExtensions.swift"; path = "Riista-Ios/Utils/Extensions/DiaryEntry+RiistaCommonExtensions.swift"; sourceTree = SOURCE_ROOT; };
 		041FAE20290C075100FBBB6E /* IndicatorLabelFieldCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IndicatorLabelFieldCell.swift; path = "Riista-Ios/Controller/Common/Datafields/Cells/IndicatorLabelFieldCell.swift"; sourceTree = SOURCE_ROOT; };
-		041FAE222910193F00FBBB6E /* AppPermitProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPermitProvider.swift; sourceTree = "<group>"; };
+		041FAE222910193F00FBBB6E /* AppHarvestPermitProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHarvestPermitProvider.swift; sourceTree = "<group>"; };
 		041FAE2429101A8F00FBBB6E /* Permit+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Permit+Extensions.swift"; path = "Riista-Ios/Utils/Extensions/Permit+Extensions.swift"; sourceTree = SOURCE_ROOT; };
 		041FAE27291125C100FBBB6E /* ModifyHarvestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ModifyHarvestViewController.swift; path = "Riista-ios/Controller/Harvest/Modify/ModifyHarvestViewController.swift"; sourceTree = SOURCE_ROOT; };
 		041FAE292911267D00FBBB6E /* EditHarvestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = EditHarvestViewController.swift; path = "Riista-ios/Controller/Harvest/Modify/EditHarvestViewController.swift"; sourceTree = SOURCE_ROOT; };
@@ -731,11 +739,17 @@
 		04208FEB27F5941A0008B32A /* UIButton+extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "UIButton+extensions.swift"; path = "Riista-Ios/Utils/Extensions/UIButton+extensions.swift"; sourceTree = SOURCE_ROOT; };
 		0420A60D2941CE8900D61E29 /* CommonImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommonImageManager.swift; path = "Riista-Ios/Utils/Photos/CommonImageManager.swift"; sourceTree = SOURCE_ROOT; };
 		0420A610294351C700D61E29 /* BackgroundOperationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundOperationStatus.swift; sourceTree = "<group>"; };
+		042548492A976635008D5F7E /* SunriseAndSunsetTimesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SunriseAndSunsetTimesViewController.swift; path = "Riista-ios/Controller/SunsetAndSunrise/SunriseAndSunsetTimesViewController.swift"; sourceTree = SOURCE_ROOT; };
+		042B70CD2A71160D00C1928E /* AppSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppSettingsViewController.swift; path = "Riista-Ios/Controller/Settings/AppSettingsViewController.swift"; sourceTree = SOURCE_ROOT; };
+		042B70D12A71470100C1928E /* AppSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppSettingsView.swift; path = "Riista-Ios/Controller/Settings/AppSettingsView.swift"; sourceTree = SOURCE_ROOT; };
+		042B70D52A7260D600C1928E /* LocalizableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LocalizableView.swift; path = "Riista-Ios/Utils/LocalizableView.swift"; sourceTree = SOURCE_ROOT; };
+		042B70D72A779CEE00C1928E /* KeyboardToolBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeyboardToolBar.swift; path = "Riista-Ios/Utils/Keyboard/KeyboardToolBar.swift"; sourceTree = SOURCE_ROOT; };
 		042C754327FC468100C18BFF /* MultiLineStringFieldCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MultiLineStringFieldCell.swift; path = "Riista-Ios/Controller/Common/Datafields/Cells/MultiLineStringFieldCell.swift"; sourceTree = SOURCE_ROOT; };
 		042F9CB3281AB2AE001457C6 /* FileDownloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FileDownloader.swift; path = "Riista-Ios/Utils/Files/FileDownloader.swift"; sourceTree = SOURCE_ROOT; };
 		044035AF280ED9990079C4BE /* Url+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Url+extensions.swift"; path = "Riista-Ios/Utils/Extensions/Url+extensions.swift"; sourceTree = SOURCE_ROOT; };
 		04413A942816D8A100D9FBEF /* ImageViewWithRoundedCorners.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ImageViewWithRoundedCorners.swift; path = "Riista-Ios/UI/RoundedCorners/ImageViewWithRoundedCorners.swift"; sourceTree = SOURCE_ROOT; };
 		04413A972817DADF00D9FBEF /* FileOpenHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileOpenHelper.swift; path = "Riista-ios/Utils/Files/FileOpenHelper.swift"; sourceTree = SOURCE_ROOT; };
+		044CB6102A03CBD80003C6B7 /* Dictionary+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Dictionary+Extensions.swift"; path = "Riista-Ios/Utils/Extensions/Dictionary+Extensions.swift"; sourceTree = SOURCE_ROOT; };
 		04527F42292F9A0700E49D79 /* EntityDataSourceListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EntityDataSourceListener.swift; path = "Riista-Ios/Controller/Filter/DataSource/EntityDataSourceListener.swift"; sourceTree = SOURCE_ROOT; };
 		04527F442932AA4700E49D79 /* EntityFilterChangeListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = EntityFilterChangeListener.swift; path = "Riista-ios/Controller/Filter/FilterChange/EntityFilterChangeListener.swift"; sourceTree = SOURCE_ROOT; };
 		04527F472934A05300E49D79 /* EntityFilterChange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = EntityFilterChange.swift; path = "Riista-Ios/Controller/Filter/FilterChange/EntityFilterChange.swift"; sourceTree = SOURCE_ROOT; };
@@ -743,6 +757,7 @@
 		04527F4C293757F400E49D79 /* AppSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSync.swift; sourceTree = "<group>"; };
 		04527F4E2937689400E49D79 /* SynchronizationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizationMode.swift; sourceTree = "<group>"; };
 		04527F502937894D00E49D79 /* PeriodicTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeriodicTask.swift; sourceTree = "<group>"; };
+		045BF47E2A0D822F00EF5F99 /* MigrateUserInformationToRiistaCommon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrateUserInformationToRiistaCommon.swift; sourceTree = "<group>"; };
 		0465F099294AFCDE00F341AD /* PreventAppSyncWhileModifyingSynchronizableEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreventAppSyncWhileModifyingSynchronizableEntry.swift; sourceTree = "<group>"; };
 		0465F09B295DB4A600F341AD /* HideableUIBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HideableUIBarButtonItem.swift; path = "Riista-Ios/UI/HideableUIBarButtonItem.swift"; sourceTree = SOURCE_ROOT; };
 		04712E4D2983A6DD0002CC1E /* MyGameQuickButtonsHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MyGameQuickButtonsHelper.swift; path = "Riista-Ios/Controller/Pages/MyGameQuickButtonsHelper.swift"; sourceTree = SOURCE_ROOT; };
@@ -753,9 +768,18 @@
 		0472D04D28042B9600D436DB /* TextFieldAndLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TextFieldAndLabel.swift; path = "Riista-Ios/UI/TextFieldAndLabel.swift"; sourceTree = SOURCE_ROOT; };
 		0472D04F2805B50B00D436DB /* ButtonFieldCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ButtonFieldCell.swift; path = "Riista-Ios/Controller/Common/Datafields/Cells/ButtonFieldCell.swift"; sourceTree = SOURCE_ROOT; };
 		0472D0512805FBCC00D436DB /* AttachmentFieldCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AttachmentFieldCell.swift; path = "Riista-Ios/Controller/Common/Datafields/Cells/AttachmentFieldCell.swift"; sourceTree = SOURCE_ROOT; };
+		048128122A41CE2E0053C3DF /* HarvestSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HarvestSettingsViewController.swift; path = "Riista-Ios/Controller/Harvest/Settings/HarvestSettingsViewController.swift"; sourceTree = SOURCE_ROOT; };
+		048128142A41D4E50053C3DF /* ToggleSwitchBooleanFieldCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ToggleSwitchBooleanFieldCell.swift; path = "Riista-Ios/Controller/Common/Datafields/Cells/ToggleSwitchBooleanFieldCell.swift"; sourceTree = SOURCE_ROOT; };
 		0483D287292652FF00738E4F /* ManagedObjectContextDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ManagedObjectContextDataSource.swift; path = "Riista-Ios/Controller/Filter/DataSource/ManagedObjectContextDataSource.swift"; sourceTree = SOURCE_ROOT; };
 		0483D2892926550A00738E4F /* HarvestDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HarvestDataSource.swift; path = "Riista-Ios/Controller/Filter/DataSource/HarvestDataSource.swift"; sourceTree = SOURCE_ROOT; };
 		0483D28E29266CFF00738E4F /* GameLogDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GameLogDataSource.swift; path = "Riista-Ios/Controller/GameLog/GameLogDataSource.swift"; sourceTree = SOURCE_ROOT; };
+		048D45BB2A2F492700C59DEB /* ViewMetsahallitusPermitsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewMetsahallitusPermitsViewController.swift; path = "Riista-Ios/Controller/Permits/Metsahallitus/ViewMetsahallitusPermitsViewController.swift"; sourceTree = SOURCE_ROOT; };
+		0493CDC82A7A8FD40041A650 /* EntityModified.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EntityModified.swift; path = "Riista-Ios/UI/Notifications/EntityModified.swift"; sourceTree = SOURCE_ROOT; };
+		0493CDCC2A7BC4200041A650 /* EntityFilterChangeRequestListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EntityFilterChangeRequestListener.swift; path = "Riista-Ios/Controller/Filter/FilterChange/EntityFilterChangeRequestListener.swift"; sourceTree = SOURCE_ROOT; };
+		049949412A2DF94100EA78FB /* ListMetsahallitusPermitsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ListMetsahallitusPermitsViewController.swift; path = "Riista-ios/Controller/Permits/Metsahallitus/ListMetsahallitusPermitsViewController.swift"; sourceTree = SOURCE_ROOT; };
+		049949442A2DFDFF00EA78FB /* MetsahallitusPermitsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MetsahallitusPermitsTableViewController.swift; path = "Riista-Ios/Controller/Permits/Metsahallitus/MetsahallitusPermitsTableViewController.swift"; sourceTree = SOURCE_ROOT; };
+		049949462A2DFE2800EA78FB /* MetsahallitusPermitCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MetsahallitusPermitCell.swift; path = "Riista-ios/Controller/Permits/Metsahallitus/MetsahallitusPermitCell.swift"; sourceTree = SOURCE_ROOT; };
+		049949482A2DFEC000EA78FB /* MetsahallitusPermitActionListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MetsahallitusPermitActionListener.swift; path = "Riista-Ios/Controller/Permits/Metsahallitus/MetsahallitusPermitActionListener.swift"; sourceTree = SOURCE_ROOT; };
 		04A4A49328191D9300F1CF15 /* Collection+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Collection+extensions.swift"; path = "Riista-Ios/Utils/Extensions/Collection+extensions.swift"; sourceTree = SOURCE_ROOT; };
 		04A4A495281938B900F1CF15 /* HuntingControlAttachmentOpenHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HuntingControlAttachmentOpenHelper.swift; path = "Riista-Ios/Controller/HuntingControl/Common/HuntingControlAttachmentOpenHelper.swift"; sourceTree = SOURCE_ROOT; };
 		04A4A497281954D200F1CF15 /* SelectAttachmentSourceDialogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SelectAttachmentSourceDialogController.swift; path = "Riista-Ios/Controller/HuntingControl/ModifyEvent/SelectAttachmentSourceDialogController.swift"; sourceTree = SOURCE_ROOT; };
@@ -768,9 +792,14 @@
 		04AD539E292E430F007C924D /* MapDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MapDataSource.swift; path = "Riista-ios/Controller/Pages/Map/MapDataSource.swift"; sourceTree = SOURCE_ROOT; };
 		04AD53A0292E45CD007C924D /* PointOfInterestDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PointOfInterestDataSource.swift; path = "Riista-Ios/Controller/Filter/DataSource/PointOfInterestDataSource.swift"; sourceTree = SOURCE_ROOT; };
 		04AD53A2292E478A007C924D /* ControllerHolderWithCallbacks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ControllerHolderWithCallbacks.swift; path = "Riista-Ios/Controller/Common/ControllerHolderWithCallbacks.swift"; sourceTree = SOURCE_ROOT; };
+		04B42F532A83A60500C23EDC /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BaseViewController.swift; path = "Riista-Ios/Controller/BaseViewController.swift"; sourceTree = SOURCE_ROOT; };
 		04B56E322937A182008100C6 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppLogger.swift; path = "Riista-Ios/Utils/Logging/AppLogger.swift"; sourceTree = SOURCE_ROOT; };
+		04B7B12B29F92F9F00B57DCE /* DropdownHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DropdownHelper.swift; path = "Riista-Ios/Utils/Dropdown/DropdownHelper.swift"; sourceTree = SOURCE_ROOT; };
+		04B7B12F29FA744700B57DCE /* CalendarEventType+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "CalendarEventType+Extensions.swift"; path = "Riista-Ios/Utils/Extensions/CalendarEventType+Extensions.swift"; sourceTree = SOURCE_ROOT; };
 		04B8877927F32FEC00DA7784 /* ChipFieldCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChipFieldCell.swift; path = "Riista-Ios/Controller/Common/Datafields/Cells/ChipFieldCell.swift"; sourceTree = SOURCE_ROOT; };
 		04C041D028E5E1DE006218E5 /* AppUpdateNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppUpdateNotifier.swift; path = "Riista-Ios/UI/UpdateDialog/AppUpdateNotifier.swift"; sourceTree = SOURCE_ROOT; };
+		04C7081E2A44510500444D68 /* ShowEntriesForOtherActorsFilterHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShowEntriesForOtherActorsFilterHelper.swift; path = "Riista-Ios/Controller/Filter/ShowEntriesForOtherActorsFilterHelper.swift"; sourceTree = SOURCE_ROOT; };
+		04CB960329FA97A600463573 /* CommonShootingTestCalendarEvent+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "CommonShootingTestCalendarEvent+Extensions.swift"; path = "Riista-Ios/Utils/Extensions/CommonShootingTestCalendarEvent+Extensions.swift"; sourceTree = SOURCE_ROOT; };
 		04CC777128B39AE8000B7FC4 /* ViewObservationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewObservationViewController.swift; path = "Riista-ios/Controller/Observation/View/ViewObservationViewController.swift"; sourceTree = SOURCE_ROOT; };
 		04CC777328B3A949000B7FC4 /* ObservationEntry+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "ObservationEntry+Extensions.swift"; path = "Riista-Ios/Utils/Extensions/ObservationEntry+Extensions.swift"; sourceTree = SOURCE_ROOT; };
 		04CC777528B8E3AA000B7FC4 /* ModifyObservationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ModifyObservationViewController.swift; path = "Riista-ios/Controller/Observation/Modify/ModifyObservationViewController.swift"; sourceTree = SOURCE_ROOT; };
@@ -783,6 +812,10 @@
 		04E12D1729C9E60000428978 /* UserAccountUnregisterRequestedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UserAccountUnregisterRequestedViewController.swift; path = "Riista-Ios/Controller/Settings/UserAccountUnregisterRequestedViewController.swift"; sourceTree = SOURCE_ROOT; };
 		04E7C9CC29A8C0CF003339A6 /* WarningViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WarningViewController.swift; path = "Riista-Ios/Controller/Dialog/WarningViewController.swift"; sourceTree = SOURCE_ROOT; };
 		04E7E12D2987EE0400FF1DD5 /* DeleteUserAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeleteUserAccountViewController.swift; path = "Riista-Ios/Controller/Settings/DeleteUserAccountViewController.swift"; sourceTree = SOURCE_ROOT; };
+		04EBB4D129DADED8005EED98 /* SpecimensViewControllerLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SpecimensViewControllerLauncher.swift; path = "Riista-Ios/Controller/Specimen/SpecimensViewControllerLauncher.swift"; sourceTree = SOURCE_ROOT; };
+		04F4995E29F7E87300ABE80A /* Synchronization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Synchronization.swift; sourceTree = "<group>"; };
+		04F4996029F802BD00ABE80A /* PendingSynchronization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PendingSynchronization.swift; sourceTree = "<group>"; };
+		04FAC1D12A1B849B00DC6B93 /* Thread+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Thread+extensions.swift"; path = "Riista-ios/Utils/Extensions/Thread+extensions.swift"; sourceTree = SOURCE_ROOT; };
 		362CFC831FFD5D572C4090AC /* Pods-Riista.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Riista.release.xcconfig"; path = "Pods/Target Support Files/Pods-Riista/Pods-Riista.release.xcconfig"; sourceTree = "<group>"; };
 		3F4A31A8E313931AFC48088C /* String+extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+extensions.swift"; sourceTree = "<group>"; };
 		3F4A323183B0431B19518C01 /* DataFieldCellType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataFieldCellType.swift; sourceTree = "<group>"; };
@@ -926,7 +959,7 @@
 		65710C64254C3D95002BE90B /* MDCButton+loadstatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "MDCButton+loadstatus.swift"; path = "Riista-Ios/Utils/MDCButton+loadstatus.swift"; sourceTree = SOURCE_ROOT; };
 		65710C67254C47D7002BE90B /* PropertyStoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PropertyStoring.swift; path = "Riista-Ios/Utils/PropertyStoring.swift"; sourceTree = SOURCE_ROOT; };
 		65710C6A254C5BD6002BE90B /* LoadStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LoadStatus.swift; path = "Riista-Ios/Utils/LoadStatus.swift"; sourceTree = SOURCE_ROOT; };
-		65710C6E254CA417002BE90B /* ImageIdentifier+DiaryImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "ImageIdentifier+DiaryImage.swift"; path = "Riista-Ios/Utils/Photos/ImageIdentifier+DiaryImage.swift"; sourceTree = SOURCE_ROOT; };
+		65710C6E254CA417002BE90B /* ImageIdentifier+EntityImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "ImageIdentifier+EntityImage.swift"; path = "Riista-Ios/Utils/Photos/ImageIdentifier+EntityImage.swift"; sourceTree = SOURCE_ROOT; };
 		65710C72254FD413002BE90B /* RiistaUIImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RiistaUIImagePicker.swift; path = "Riista-Ios/Utils/Photos/RiistaUIImagePicker.swift"; sourceTree = SOURCE_ROOT; };
 		65710C75254FF1DE002BE90B /* GalleryImagePickeriOS14.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GalleryImagePickeriOS14.swift; path = "Riista-Ios/Utils/Photos/GalleryImagePickeriOS14.swift"; sourceTree = SOURCE_ROOT; };
 		658685602796E14E007E9D31 /* SynchronizationAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizationAnalytics.swift; sourceTree = "<group>"; };
@@ -1124,8 +1157,6 @@
 		65FDBEA926EB4D3000C1E1D0 /* RiistaMmlTileLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RiistaMmlTileLayer.swift; sourceTree = "<group>"; };
 		65FDBEAB26EF70FB00C1E1D0 /* TileCacheProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TileCacheProvider.swift; path = "Riista-ios/Controller/Pages/Map/Common/Layers/TileCacheProvider.swift"; sourceTree = SOURCE_ROOT; };
 		65FDBEAD26EF71AB00C1E1D0 /* TileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TileCache.swift; path = "Riista-ios/Controller/Pages/Map/Common/Layers/TileCache.swift"; sourceTree = SOURCE_ROOT; };
-		74010F6A22F46105008F3D33 /* MhPermitListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MhPermitListViewController.swift; path = "Riista-ios/Controller/MyDetails/MhPermitListViewController.swift"; sourceTree = SOURCE_ROOT; };
-		74010F6E22F46123008F3D33 /* MhPermitDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MhPermitDetailsViewController.swift; path = "Riista-ios/Controller/MyDetails/MhPermitDetailsViewController.swift"; sourceTree = SOURCE_ROOT; };
 		74010F7222F8444E008F3D33 /* Model_v11.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model_v11.xcdatamodel; sourceTree = "<group>"; };
 		74010F7322F848CB008F3D33 /* MhPermit+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MhPermit+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		74010F7422F848CB008F3D33 /* MhPermit+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MhPermit+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -1143,7 +1174,6 @@
 		7404C79F2321304D00A68BF5 /* UILabel+CustomFont.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "UILabel+CustomFont.m"; path = "Riista-Ios/Utils/UILabel+CustomFont.m"; sourceTree = SOURCE_ROOT; };
 		7404C7A32321307E00A68BF5 /* UILabel+CustomFont.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "UILabel+CustomFont.h"; path = "Riista-Ios/Utils/UILabel+CustomFont.h"; sourceTree = SOURCE_ROOT; };
 		7404C7A42329131B00A68BF5 /* Model_v12.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model_v12.xcdatamodel; sourceTree = "<group>"; };
-		74082748204924F100F2C4C4 /* ShootingTestValueButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ShootingTestValueButton.swift; path = "Riista-Ios/UI/ShootingTestValueButton.swift"; sourceTree = SOURCE_ROOT; };
 		7408274F204EE9A200F2C4C4 /* ShootingTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShootingTest.h; sourceTree = "<group>"; };
 		74082750204EE9C500F2C4C4 /* ShootingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShootingTest.m; sourceTree = "<group>"; };
 		740E6C23215122E700EB1498 /* AreaMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AreaMap.swift; path = "Riista-Ios/Database/AreaMap.swift"; sourceTree = SOURCE_ROOT; };
@@ -1166,10 +1196,6 @@
 		742B92F7213449DB0018D96D /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		742C116B2419441400545799 /* UIImage+AspectFill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIImage+AspectFill.swift"; path = "Riista-ios/Utils/Extensions/UIImage+AspectFill.swift"; sourceTree = SOURCE_ROOT; };
 		742D39042020ADC400008279 /* Riista-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Riista-Bridging-Header.h"; sourceTree = "<group>"; };
-		742D39052020ADC500008279 /* ShootingTestCalendarEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestCalendarEvent.swift; sourceTree = "<group>"; };
-		742D39072020AE7200008279 /* ShootingTestVenue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestVenue.swift; sourceTree = "<group>"; };
-		742D39092020AE8800008279 /* ShootingTestVenueAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestVenueAddress.swift; sourceTree = "<group>"; };
-		742D390B2020AEC200008279 /* ShootingTestOfficial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestOfficial.swift; sourceTree = "<group>"; };
 		742D390D2020B15600008279 /* ShootingTestManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestManager.swift; sourceTree = "<group>"; };
 		742D39102020CE3A00008279 /* ShootingTestCalendarEventsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShootingTestCalendarEventsViewController.swift; path = "Riista-Ios/Controller/Pages/ShootingTest/ShootingTestCalendarEventsViewController.swift"; sourceTree = SOURCE_ROOT; };
 		742D3912202893EE00008279 /* RiistaBridgingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RiistaBridgingUtils.swift; path = "Riista-Ios/Utils/RiistaBridgingUtils.swift"; sourceTree = SOURCE_ROOT; };
@@ -1179,12 +1205,6 @@
 		742D391A202B581200008279 /* ShootingTestQueueViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestQueueViewController.swift; sourceTree = "<group>"; };
 		742D391C202B582400008279 /* ShootingTestPaymentsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestPaymentsViewController.swift; sourceTree = "<group>"; };
 		742D391E202B596900008279 /* ShootingTestTabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestTabBarViewController.swift; sourceTree = "<group>"; };
-		742D39202031E77C00008279 /* ShootingTestParticipantSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShootingTestParticipantSummary.swift; path = "Riista-Ios/Database/ShootingTestParticipantSummary.swift"; sourceTree = SOURCE_ROOT; };
-		742D39222031E7D200008279 /* ShootingTestParticipantDetailed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestParticipantDetailed.swift; sourceTree = "<group>"; };
-		742D39242031E85000008279 /* ShootingTestAttemptDetailed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestAttemptDetailed.swift; sourceTree = "<group>"; };
-		742D39262031E86100008279 /* ShootingTestAttemptSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestAttemptSummary.swift; sourceTree = "<group>"; };
-		742D39282031E88A00008279 /* ShootingTestSearchPersonResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestSearchPersonResult.swift; sourceTree = "<group>"; };
-		742D392A2031E91600008279 /* ErrorResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorResponse.swift; sourceTree = "<group>"; };
 		742D392C2034758700008279 /* ShootingTestAttemptStateView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ShootingTestAttemptStateView.xib; path = "Riista-Ios/View/ShootingTestAttemptStateView.xib"; sourceTree = SOURCE_ROOT; };
 		742D392E203478AE00008279 /* ShootingTestAttemptStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShootingTestAttemptStateView.swift; path = "Riista-Ios/UI/ShootingTestAttemptStateView.swift"; sourceTree = SOURCE_ROOT; };
 		742D39302034B79800008279 /* ShootingTestUserAttemptsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShootingTestUserAttemptsViewController.swift; path = "Riista-Ios/Controller/Pages/ShootingTest/ShootingTestUserAttemptsViewController.swift"; sourceTree = SOURCE_ROOT; };
@@ -1203,9 +1223,6 @@
 		7430A272215BA7A600628982 /* DatetimeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatetimeUtil.swift; sourceTree = "<group>"; };
 		7430C99E203EF20F000DF8BB /* RiistaNibView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RiistaNibView.swift; path = "Riista-Ios/UI/RiistaNibView.swift"; sourceTree = SOURCE_ROOT; };
 		7430C9A0203EF2B7000DF8BB /* ShootingTestOfficialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingTestOfficialView.swift; sourceTree = "<group>"; };
-		7430C9A2203EF305000DF8BB /* ShootingTestOfficialView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ShootingTestOfficialView.xib; path = "Riista-Ios/View/ShootingTestOfficialView.xib"; sourceTree = SOURCE_ROOT; };
-		7430C9A42042FED9000DF8BB /* SelectedShootingTestTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SelectedShootingTestTypes.swift; path = "Riista-Ios/Database/SelectedShootingTestTypes.swift"; sourceTree = SOURCE_ROOT; };
-		74327FB81AE14A0A002D4B0F /* ic_delete@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ic_delete@2x.png"; path = "Riista-Ios/Assets/Icons/ic_delete@2x.png"; sourceTree = SOURCE_ROOT; };
 		743478871E42252A0095C916 /* RiistaAnnouncementsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RiistaAnnouncementsViewController.h; sourceTree = "<group>"; };
 		743478881E42252A0095C916 /* RiistaAnnouncementsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RiistaAnnouncementsViewController.m; sourceTree = "<group>"; };
 		74373B822151718100D70BE0 /* map_type_mml_aerial@3x.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "map_type_mml_aerial@3x.jpg"; path = "Riista-Ios/Assets/Icons/map_type_mml_aerial@3x.jpg"; sourceTree = SOURCE_ROOT; };
@@ -1254,7 +1271,6 @@
 		745EAEC01E43638F002A361F /* AnnouncementsSync.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AnnouncementsSync.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		745FF08324863FD500EF3E5F /* UIView+ConstraintToSuperview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIView+ConstraintToSuperview.swift"; path = "Riista-Ios/Utils/UIView+ConstraintToSuperview.swift"; sourceTree = SOURCE_ROOT; };
 		746007051D9BCAC600916819 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		746214F2204839A800908138 /* ShootingTestValueButton.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ShootingTestValueButton.xib; path = "Riista-Ios/View/ShootingTestValueButton.xib"; sourceTree = SOURCE_ROOT; };
 		74638E4920933B22007B735F /* LineSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LineSeparator.swift; path = "Riista-Ios/UI/LineSeparator.swift"; sourceTree = SOURCE_ROOT; };
 		746585331AE4FA290015C4F8 /* Model_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model_v4.xcdatamodel; sourceTree = "<group>"; };
 		746585371AE53CAD0015C4F8 /* crosshair.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = crosshair.png; path = "Riista-Ios/Assets/crosshair.png"; sourceTree = SOURCE_ROOT; };
@@ -1281,11 +1297,8 @@
 		7486022721300D7C0059C978 /* species_37142.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = species_37142.jpg; sourceTree = "<group>"; };
 		7486C7DD1CC652DF00336778 /* DiaryEntryBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = DiaryEntryBase.m; path = "Riista-Ios/Database/DiaryEntryBase.m"; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		7486C7DF1CC652F100336778 /* DiaryEntryBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = DiaryEntryBase.h; path = "Riista-Ios/Database/DiaryEntryBase.h"; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		7486C8101CC8E19D00336778 /* ic_delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ic_delete.png; path = "Riista-Ios/Assets/Icons/ic_delete.png"; sourceTree = SOURCE_ROOT; };
-		7486C8111CC8E19D00336778 /* ic_delete@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ic_delete@3x.png"; path = "Riista-Ios/Assets/Icons/ic_delete@3x.png"; sourceTree = SOURCE_ROOT; };
 		748B8A881D2546BA000F0323 /* RiistaModelUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = RiistaModelUtils.h; path = "Riista-Ios/Utils/RiistaModelUtils.h"; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		748B8A891D2546BA000F0323 /* RiistaModelUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = RiistaModelUtils.m; path = "Riista-Ios/Utils/RiistaModelUtils.m"; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		749E15A1205AC10F00A0C956 /* ic_delete_white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ic_delete_white@2x.png"; path = "Riista-Ios/Assets/Icons/ic_delete_white@2x.png"; sourceTree = SOURCE_ROOT; };
 		74A1E80B1AB1E446003036A0 /* Model_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model_v3.xcdatamodel; sourceTree = "<group>"; };
 		74A9A2D22189C0710078279D /* NSManagedObject+RiistaCopying.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSManagedObject+RiistaCopying.h"; path = "Riista-Ios/Utils/NSManagedObject+RiistaCopying.h"; sourceTree = SOURCE_ROOT; };
 		74A9A2D32189C08F0078279D /* NSManagedObject+RiistaCopying.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+RiistaCopying.m"; sourceTree = "<group>"; };
@@ -1297,7 +1310,6 @@
 		74B694891D76FDC8002845C8 /* Model_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model_v7.xcdatamodel; sourceTree = "<group>"; };
 		74B6E7131E3F82EA00F40665 /* HarvestStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = HarvestStoryboard.storyboard; sourceTree = "<group>"; };
 		74B8BB041CB534E7002152EF /* DetailsStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = DetailsStoryboard.storyboard; sourceTree = "<group>"; };
-		74BF763D20446521003575D1 /* ShootingTestUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShootingTestUtil.swift; path = "Riista-Ios/Utils/ShootingTestUtil.swift"; sourceTree = SOURCE_ROOT; };
 		74BF763F20471E51003575D1 /* ShootingTestCheckbox.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ShootingTestCheckbox.xib; path = "Riista-Ios/View/ShootingTestCheckbox.xib"; sourceTree = SOURCE_ROOT; };
 		74BF764120471F1E003575D1 /* ShootingTestCheckbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShootingTestCheckbox.swift; path = "Riista-Ios/UI/ShootingTestCheckbox.swift"; sourceTree = SOURCE_ROOT; };
 		74C3652A1ADBF6630030E6E4 /* RiistaSpecimen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = RiistaSpecimen.h; path = "Riista-Ios/Database/RiistaSpecimen.h"; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1306,7 +1318,6 @@
 		74C79AE91CECA1E900598316 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/MappedValue.strings; sourceTree = "<group>"; };
 		74C79AEA1CECA1EC00598316 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/MappedValue.strings; sourceTree = "<group>"; };
 		74C9789823337DF800375372 /* AnnouncementViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnnouncementViewController.swift; path = "Riista-Ios/Controller/Pages/AnnouncementViewController.swift"; sourceTree = SOURCE_ROOT; };
-		74CAD28D22F99638009E5076 /* MhPermitSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MhPermitSync.swift; path = "Riista-Ios/Database/MhPermitSync.swift"; sourceTree = SOURCE_ROOT; };
 		74CF4AA7247E4A2600007580 /* ImageEditUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ImageEditUtil.swift; path = "Riista-Ios/Controller/ImageEditUtil.swift"; sourceTree = SOURCE_ROOT; };
 		74CFB92323BF38CE00C6775C /* ImageFullViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ImageFullViewController.swift; path = "Riista-Ios/Controller/Pages/ImageFullViewController.swift"; sourceTree = SOURCE_ROOT; };
 		74D8116823AA3D6200E9E72C /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GalleryViewController.swift; path = "Riista-ios/Controller/Gallery/GalleryViewController.swift"; sourceTree = SOURCE_ROOT; };
@@ -1333,6 +1344,7 @@
 		D36F3DD82486282600A67BF2 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D50095BA285C8606005E64C0 /* Model_v19.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model_v19.xcdatamodel; sourceTree = "<group>"; };
 		D503AA14280FC9450048B74D /* TrainingContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TrainingContentView.swift; path = "Riista-Ios/Controller/MyDetails/Trainings/TrainingContentView.swift"; sourceTree = SOURCE_ROOT; };
+		D514FBC52A81245900C38DFD /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AboutViewController.swift; path = "Riista-Ios/Controller/Pages/AboutViewController.swift"; sourceTree = SOURCE_ROOT; };
 		D5232D26284626E000A1B294 /* ViewSrvaEventViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ViewSrvaEventViewController.swift; path = "Riista-ios/Controller/Srva/View/ViewSrvaEventViewController.swift"; sourceTree = SOURCE_ROOT; };
 		D53324862844F73E00E2832A /* SelectSpeciesAndImageFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SelectSpeciesAndImageFieldCell.swift; path = "Riista-Ios/Controller/Common/Datafields/Cells/SelectSpeciesAndImageFieldCell.swift"; sourceTree = SOURCE_ROOT; };
 		D541FB93292F9490002375A0 /* HunterInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HunterInfoViewController.swift; path = "Riista-Ios/Controller/HuntingControl/HunterInfo/HunterInfoViewController.swift"; sourceTree = SOURCE_ROOT; };
@@ -1472,12 +1484,8 @@
 		E09C9EC9195CE2760058A549 /* RiistaSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = RiistaSessionManager.h; path = "Riista-Ios/Database/RiistaSessionManager.h"; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E09C9ECA195CE2760058A549 /* RiistaSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = RiistaSessionManager.m; path = "Riista-Ios/Database/RiistaSessionManager.m"; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E09CFD661957A2DE0061DFA5 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
-		E09CFD681957B0F70061DFA5 /* RiistaSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = RiistaSettingsViewController.h; path = "Riista-Ios/Controller/Pages/RiistaSettingsViewController.h"; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		E09CFD691957B0F70061DFA5 /* RiistaSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = RiistaSettingsViewController.m; path = "Riista-Ios/Controller/Pages/RiistaSettingsViewController.m"; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E09D14A519322A3F00A7AFCE /* login_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = login_bg.png; sourceTree = "<group>"; };
 		E09D14A619322A3F00A7AFCE /* sarvi_logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sarvi_logo.png; sourceTree = "<group>"; };
-		E09D14AB19322A3F00A7AFCE /* Styles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Styles.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		E09D14AC19322A3F00A7AFCE /* Styles.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Styles.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E09D14B019322A3F00A7AFCE /* UIColor+ApplicationColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIColor+ApplicationColor.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E09D14B119322A3F00A7AFCE /* UIColor+ApplicationColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = "UIColor+ApplicationColor.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E09D14DB19325D5100A7AFCE /* RiistaPageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = RiistaPageViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1496,8 +1504,6 @@
 		E0A38B871923B34F001A4BEF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E0A38BB21923B4A2001A4BEF /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		E0A480741990E0670034E452 /* ic_action_refresh@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ic_action_refresh@2x.png"; path = "Riista-Ios/Assets/Icons/ic_action_refresh@2x.png"; sourceTree = SOURCE_ROOT; };
-		E0A480751990E0670034E452 /* ic_menu_add@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ic_menu_add@2x.png"; path = "Riista-Ios/Assets/Icons/ic_menu_add@2x.png"; sourceTree = SOURCE_ROOT; };
-		E0A480761990E0670034E452 /* ic_menu_edit@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ic_menu_edit@2x.png"; path = "Riista-Ios/Assets/Icons/ic_menu_edit@2x.png"; sourceTree = SOURCE_ROOT; };
 		E0A54D7E19335F3500F03A2F /* RiistaMyGameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = RiistaMyGameViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E0A54D7F19335F3500F03A2F /* RiistaMyGameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RiistaMyGameViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E0A54D87193363AB00F03A2F /* RiistaHeaderLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = RiistaHeaderLabel.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1560,8 +1566,17 @@
 				041FAE3D2913D6D400FBBB6E /* MigrateCoreDataDatabaseToRiistaCommon.swift */,
 				041FAE3F2913D83C00FBBB6E /* MigrateSrvaEntriesToRiistaCommon.swift */,
 				04CCC8CA29796C49005F6763 /* MigrateObservationEntriesToRiistaCommon.swift */,
+				040F33FD2991115500A426A3 /* MigrateDiaryEntriesToRiistaCommon.swift */,
 			);
 			path = DatabaseMigration;
+			sourceTree = "<group>";
+		};
+		042548482A9765DC008D5F7E /* SunsetAndSunrise */ = {
+			isa = PBXGroup;
+			children = (
+				042548492A976635008D5F7E /* SunriseAndSunsetTimesViewController.swift */,
+			);
+			path = SunsetAndSunrise;
 			sourceTree = "<group>";
 		};
 		042F9CB2281AB28F001457C6 /* Files */ = {
@@ -1587,6 +1602,7 @@
 				04527F472934A05300E49D79 /* EntityFilterChange.swift */,
 				04527F442932AA4700E49D79 /* EntityFilterChangeListener.swift */,
 				04527F492934A06000E49D79 /* EntityFilterChangeNotifier.swift */,
+				0493CDCC2A7BC4200041A650 /* EntityFilterChangeRequestListener.swift */,
 			);
 			path = FilterChange;
 			sourceTree = "<group>";
@@ -1595,6 +1611,8 @@
 			isa = PBXGroup;
 			children = (
 				04527F4C293757F400E49D79 /* AppSync.swift */,
+				04F4995E29F7E87300ABE80A /* Synchronization.swift */,
+				04F4996029F802BD00ABE80A /* PendingSynchronization.swift */,
 				04527F4E2937689400E49D79 /* SynchronizationMode.swift */,
 				0465F099294AFCDE00F341AD /* PreventAppSyncWhileModifyingSynchronizableEntry.swift */,
 			);
@@ -1611,6 +1629,14 @@
 				0472D04B27FEFAC000D436DB /* ListSelectableStringsView.swift */,
 			);
 			path = SelectString;
+			sourceTree = "<group>";
+		};
+		048128112A41CE1F0053C3DF /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				048128122A41CE2E0053C3DF /* HarvestSettingsViewController.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		0483D28C29266A7600738E4F /* GameLog */ = {
@@ -1631,12 +1657,49 @@
 			path = Gallery;
 			sourceTree = "<group>";
 		};
+		0493CDBD2A7A7AB60041A650 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				0400A09B28C76643007CE773 /* Notifications.swift */,
+				0493CDC82A7A8FD40041A650 /* EntityModified.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		049949402A2DF92200EA78FB /* Permits */ = {
+			isa = PBXGroup;
+			children = (
+				049949432A2DFD0800EA78FB /* Metsahallitus */,
+			);
+			path = Permits;
+			sourceTree = "<group>";
+		};
+		049949432A2DFD0800EA78FB /* Metsahallitus */ = {
+			isa = PBXGroup;
+			children = (
+				049949412A2DF94100EA78FB /* ListMetsahallitusPermitsViewController.swift */,
+				048D45BB2A2F492700C59DEB /* ViewMetsahallitusPermitsViewController.swift */,
+				049949462A2DFE2800EA78FB /* MetsahallitusPermitCell.swift */,
+				049949442A2DFDFF00EA78FB /* MetsahallitusPermitsTableViewController.swift */,
+				049949482A2DFEC000EA78FB /* MetsahallitusPermitActionListener.swift */,
+			);
+			path = Metsahallitus;
+			sourceTree = "<group>";
+		};
 		04B56E312937A179008100C6 /* Logging */ = {
 			isa = PBXGroup;
 			children = (
 				04B56E322937A182008100C6 /* AppLogger.swift */,
 			);
 			path = Logging;
+			sourceTree = "<group>";
+		};
+		04B7B12A29F92F9200B57DCE /* Dropdown */ = {
+			isa = PBXGroup;
+			children = (
+				04B7B12B29F92F9F00B57DCE /* DropdownHelper.swift */,
+			);
+			path = Dropdown;
 			sourceTree = "<group>";
 		};
 		04C041CF28E5E1B4006218E5 /* UpdateDialog */ = {
@@ -1694,6 +1757,8 @@
 			children = (
 				04E7E12D2987EE0400FF1DD5 /* DeleteUserAccountViewController.swift */,
 				04E12D1729C9E60000428978 /* UserAccountUnregisterRequestedViewController.swift */,
+				042B70CD2A71160D00C1928E /* AppSettingsViewController.swift */,
+				042B70D12A71470100C1928E /* AppSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1984,7 +2049,7 @@
 				65924D5C254314A900452ED6 /* IdentifiableImage.swift */,
 				65EB3CF22547676600C2E64E /* PhotoPermissions.swift */,
 				65710BE52549956B002BE90B /* LimitedPhotoLibraryAccessUpdater.swift */,
-				65710C6E254CA417002BE90B /* ImageIdentifier+DiaryImage.swift */,
+				65710C6E254CA417002BE90B /* ImageIdentifier+EntityImage.swift */,
 				6586C307255136B3006035A7 /* ImageIdentifier.swift */,
 				65710C72254FD413002BE90B /* RiistaUIImagePicker.swift */,
 				65710C75254FF1DE002BE90B /* GalleryImagePickeriOS14.swift */,
@@ -2007,6 +2072,7 @@
 		6597B93B25BA2EF80011424F /* Harvest */ = {
 			isa = PBXGroup;
 			children = (
+				048128112A41CE1F0053C3DF /* Settings */,
 				041FAE26291125AB00FBBB6E /* Modify */,
 				041FAE1B290BD8AD00FBBB6E /* View */,
 				6597B93C25BA2F0C0011424F /* InstructionsViewController.swift */,
@@ -2114,7 +2180,8 @@
 				65AA859426DE57CA007BF63E /* LocalizedStringProvider.swift */,
 				3F4A390F660D8133B9E3C6BD /* CurrentLanguageProvider.swift */,
 				3F4A35CF548D2901A3CA8596 /* SpeciesInformationResolver.swift */,
-				041FAE222910193F00FBBB6E /* AppPermitProvider.swift */,
+				041FAE222910193F00FBBB6E /* AppHarvestPermitProvider.swift */,
+				045BF47E2A0D822F00EF5F99 /* MigrateUserInformationToRiistaCommon.swift */,
 			);
 			path = RiistaCommon;
 			sourceTree = "<group>";
@@ -2168,6 +2235,7 @@
 				04B8877927F32FEC00DA7784 /* ChipFieldCell.swift */,
 				651871722760F7FB00FB78CD /* SelectDurationFieldCell.swift */,
 				D55F81CB282543DD00EC97F7 /* CheckboxBooleanFieldCell.swift */,
+				048128142A41D4E50053C3DF /* ToggleSwitchBooleanFieldCell.swift */,
 				D59670D02833B7B400EBC0F6 /* SpecimenFieldCell.swift */,
 				D53324862844F73E00E2832A /* SelectSpeciesAndImageFieldCell.swift */,
 			);
@@ -2368,6 +2436,7 @@
 			isa = PBXGroup;
 			children = (
 				65E1838A270B26BE003120F3 /* KeyboardHandler.swift */,
+				042B70D72A779CEE00C1928E /* KeyboardToolBar.swift */,
 			);
 			path = Keyboard;
 			sourceTree = "<group>";
@@ -2397,6 +2466,13 @@
 				04CC777328B3A949000B7FC4 /* ObservationEntry+Extensions.swift */,
 				041FAE1E290BDD2100FBBB6E /* DiaryEntry+RiistaCommonExtensions.swift */,
 				041FAE2429101A8F00FBBB6E /* Permit+Extensions.swift */,
+				04B7B12F29FA744700B57DCE /* CalendarEventType+Extensions.swift */,
+				04CB960329FA97A600463573 /* CommonShootingTestCalendarEvent+Extensions.swift */,
+				040152FD2A02668F00990FB0 /* CommonShootingTestParticipant+Extensions.swift */,
+				040152FF2A0377BE00990FB0 /* CommonShootingTestParticipantDetailed+Extensions.swift */,
+				044CB6102A03CBD80003C6B7 /* Dictionary+Extensions.swift */,
+				04FAC1D12A1B849B00DC6B93 /* Thread+extensions.swift */,
+				0419701C2A31B683009159F6 /* UIRefreshControl+extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2533,17 +2609,6 @@
 		742D38FA201A1EED00008279 /* ShootingTest */ = {
 			isa = PBXGroup;
 			children = (
-				742D392A2031E91600008279 /* ErrorResponse.swift */,
-				7430C9A42042FED9000DF8BB /* SelectedShootingTestTypes.swift */,
-				742D39052020ADC500008279 /* ShootingTestCalendarEvent.swift */,
-				742D39072020AE7200008279 /* ShootingTestVenue.swift */,
-				742D39092020AE8800008279 /* ShootingTestVenueAddress.swift */,
-				742D390B2020AEC200008279 /* ShootingTestOfficial.swift */,
-				742D39202031E77C00008279 /* ShootingTestParticipantSummary.swift */,
-				742D39222031E7D200008279 /* ShootingTestParticipantDetailed.swift */,
-				742D39242031E85000008279 /* ShootingTestAttemptDetailed.swift */,
-				742D39262031E86100008279 /* ShootingTestAttemptSummary.swift */,
-				742D39282031E88A00008279 /* ShootingTestSearchPersonResult.swift */,
 				742D390D2020B15600008279 /* ShootingTestManager.swift */,
 			);
 			name = ShootingTest;
@@ -2572,8 +2637,6 @@
 				659CDF3C276CBB1B000A7816 /* Details */,
 				659CDF4C2771FCEE000A7816 /* HuntingLicense */,
 				659CDF3F2770C303000A7816 /* ClubMemberships */,
-				74010F6A22F46105008F3D33 /* MhPermitListViewController.swift */,
-				74010F6E22F46123008F3D33 /* MhPermitDetailsViewController.swift */,
 				743031F3243E1FDB00B5F648 /* OccupationsViewController.swift */,
 				743031F7243E1FED00B5F648 /* ShootingTestsViewController.swift */,
 				743031FB243E217900B5F648 /* OccupationsCell.swift */,
@@ -2591,7 +2654,6 @@
 				743C82311B302A7800223BB7 /* PermitSpeciesAmounts.m */,
 				74010F7322F848CB008F3D33 /* MhPermit+CoreDataProperties.swift */,
 				74010F7422F848CB008F3D33 /* MhPermit+CoreDataClass.swift */,
-				74CAD28D22F99638009E5076 /* MhPermitSync.swift */,
 			);
 			name = Permit;
 			sourceTree = "<group>";
@@ -2690,6 +2752,7 @@
 				04AD539A292755A2007C924D /* FilterableEntityType.swift */,
 				04DDEC8029263D4D005A470D /* EntityFilter.swift */,
 				04DDEC8229263E11005A470D /* SharedEntityFilterState.swift */,
+				04C7081E2A44510500444D68 /* ShowEntriesForOtherActorsFilterHelper.swift */,
 			);
 			path = Filter;
 			sourceTree = "<group>";
@@ -2758,6 +2821,7 @@
 				D5C2AB88283E0A8A00052426 /* EditSpecimensViewController.swift */,
 				D5C2AB8A283E3C5C00052426 /* SpecimenHeaderFieldCell.swift */,
 				D583B6D82846EB0E007DFFAA /* ViewSpecimensViewController.swift */,
+				04EBB4D129DADED8005EED98 /* SpecimensViewControllerLauncher.swift */,
 			);
 			path = Specimen;
 			sourceTree = "<group>";
@@ -2924,9 +2988,11 @@
 				04E7E12C2987EDEE00FF1DD5 /* Settings */,
 				04CC776F28B39A42000B7FC4 /* Observation */,
 				E0A54D7D19335F3500F03A2F /* Pages */,
+				049949402A2DF92200EA78FB /* Permits */,
 				0472D04627FEF4D200D436DB /* SelectString */,
 				D5C2AB87283E0A5600052426 /* Specimen */,
 				D55F81C52824EE0C00EC97F7 /* Srva */,
+				042548482A9765DC008D5F7E /* SunsetAndSunrise */,
 				E096891019339A1500D4E52B /* RiistaUIViewController.h */,
 				E096891119339A1500D4E52B /* RiistaUIViewController.m */,
 				E09D14DB19325D5100A7AFCE /* RiistaPageViewController.h */,
@@ -2936,6 +3002,7 @@
 				654E9C0C279EA8CB006EC18E /* TopLevelTabBarViewController.swift */,
 				654E9C1027A15710006EC18E /* BaseTabBarViewController.swift */,
 				654E9C0E279EDC0E006EC18E /* MainNavigationController.swift */,
+				04B42F532A83A60500C23EDC /* BaseViewController.swift */,
 			);
 			name = Controller;
 			path = "Riista-ios/Controller";
@@ -2944,6 +3011,7 @@
 		E09D14AA19322A3F00A7AFCE /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				0493CDBD2A7A7AB60041A650 /* Notifications */,
 				04C041CF28E5E1B4006218E5 /* UpdateDialog */,
 				65FCC849278C169E00571014 /* LogFilter */,
 				659CDF512772050E000A7816 /* Grid */,
@@ -2953,15 +3021,12 @@
 				65566265273E46C900E42198 /* Selections */,
 				655662502739B6F500E42198 /* Tableview */,
 				65FDBE9526EA194E00C1E1D0 /* Map */,
-				E09D14AB19322A3F00A7AFCE /* Styles.h */,
-				E09D14AC19322A3F00A7AFCE /* Styles.m */,
 				E0A54D87193363AB00F03A2F /* RiistaHeaderLabel.h */,
 				E0A54D88193363AB00F03A2F /* RiistaHeaderLabel.m */,
 				7430C99E203EF20F000DF8BB /* RiistaNibView.swift */,
 				742D392E203478AE00008279 /* ShootingTestAttemptStateView.swift */,
 				7430C9A0203EF2B7000DF8BB /* ShootingTestOfficialView.swift */,
 				74BF764120471F1E003575D1 /* ShootingTestCheckbox.swift */,
-				74082748204924F100F2C4C4 /* ShootingTestValueButton.swift */,
 				74638E4920933B22007B735F /* LineSeparator.swift */,
 				746DC1702354949800A51DB2 /* SeasonStatsView.swift */,
 				74FA048623573DAF00A3D4EE /* GameLogItemCell.swift */,
@@ -2999,7 +3064,6 @@
 				0472D04D28042B9600D436DB /* TextFieldAndLabel.swift */,
 				65566257273BF1A100E42198 /* LabelWithPadding.swift */,
 				65BA43BD2746435500008482 /* SingleLineTitleAndValue.swift */,
-				0400A09B28C76643007CE773 /* Notifications.swift */,
 				D58C866028D2E95800268D5D /* UnselectableTappableTextView.swift */,
 				04E12D1529C4A15D00428978 /* WarningView.swift */,
 			);
@@ -3010,6 +3074,7 @@
 		E09D14AD19322A3F00A7AFCE /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				04B7B12A29F92F9200B57DCE /* Dropdown */,
 				04B56E312937A179008100C6 /* Logging */,
 				042F9CB2281AB28F001457C6 /* Files */,
 				65E18389270B26A1003120F3 /* Keyboard */,
@@ -3040,7 +3105,6 @@
 				5C01B5EF1FD970A00001B129 /* RiistaVectorUtils.m */,
 				74F5FDFD1FA2147300FAD966 /* CheckOsVersionMacros.h */,
 				742D3912202893EE00008279 /* RiistaBridgingUtils.swift */,
-				74BF763D20446521003575D1 /* ShootingTestUtil.swift */,
 				7430A26E215BA34F00628982 /* SpeciesUtils.swift */,
 				7430A272215BA7A600628982 /* DatetimeUtil.swift */,
 				7430A26521591BD400628982 /* NSDateFormatter+Locale.h */,
@@ -3058,6 +3122,7 @@
 				65EB3C75254709CC00C2E64E /* Synchronized.swift */,
 				65710BE82549BE10002BE90B /* PresentedViewControllerDismissObserver.swift */,
 				65710C64254C3D95002BE90B /* MDCButton+loadstatus.swift */,
+				042B70D52A7260D600C1928E /* LocalizableView.swift */,
 				65710C67254C47D7002BE90B /* PropertyStoring.swift */,
 				65710C6A254C5BD6002BE90B /* LoadStatus.swift */,
 				65E25413255D59D50075D3BE /* Timer.swift */,
@@ -3091,7 +3156,6 @@
 				74373B832151718200D70BE0 /* map_type_mml_topographic.jpg */,
 				74373B852151718200D70BE0 /* map_type_mml_topographic@2x.jpg */,
 				74373B842151718200D70BE0 /* map_type_mml_topographic@3x.jpg */,
-				749E15A1205AC10F00A0C956 /* ic_delete_white@2x.png */,
 				741FCA662036C02200DC6AA9 /* ic_fail_white.png */,
 				741FCA652036C02200DC6AA9 /* ic_fail_white@2x.png */,
 				741FCA672036C02300DC6AA9 /* ic_fail_white@3x.png */,
@@ -3102,12 +3166,7 @@
 				742D39332036BD5900008279 /* ic_search_white@2x.png */,
 				742D39322036BD5700008279 /* ic_search_white@3x.png */,
 				5CB2D61C1FD93E28001369BE /* ic_settings@2x.png */,
-				7486C8101CC8E19D00336778 /* ic_delete.png */,
-				74327FB81AE14A0A002D4B0F /* ic_delete@2x.png */,
-				7486C8111CC8E19D00336778 /* ic_delete@3x.png */,
 				E0A480741990E0670034E452 /* ic_action_refresh@2x.png */,
-				E0A480751990E0670034E452 /* ic_menu_add@2x.png */,
-				E0A480761990E0670034E452 /* ic_menu_edit@2x.png */,
 				E099994E193F22D000C807CB /* ic_launcher.png */,
 			);
 			path = Icons;
@@ -3117,9 +3176,7 @@
 			isa = PBXGroup;
 			children = (
 				742D392C2034758700008279 /* ShootingTestAttemptStateView.xib */,
-				7430C9A2203EF305000DF8BB /* ShootingTestOfficialView.xib */,
 				74BF763F20471E51003575D1 /* ShootingTestCheckbox.xib */,
-				746214F2204839A800908138 /* ShootingTestValueButton.xib */,
 				746DC16C2354938D00A51DB2 /* SeasonStatsView.xib */,
 				74B4D03823F6E7A500230FE7 /* SpeciesCategoryDialog.xib */,
 				65A420E2247D33BA002A187B /* ImageSourceSelectionDialog.xib */,
@@ -3226,8 +3283,6 @@
 				743478871E42252A0095C916 /* RiistaAnnouncementsViewController.h */,
 				743478881E42252A0095C916 /* RiistaAnnouncementsViewController.m */,
 				746DC168234F682000A51DB2 /* ContactDetailsViewController.swift */,
-				E09CFD681957B0F70061DFA5 /* RiistaSettingsViewController.h */,
-				E09CFD691957B0F70061DFA5 /* RiistaSettingsViewController.m */,
 				E09973C7193DF8780063F674 /* RiistaSpeciesSelectViewController.h */,
 				E09973C8193DF8780063F674 /* RiistaSpeciesSelectViewController.m */,
 				74E0F2B91B300DF300637085 /* RiistaPermitListViewController.h */,
@@ -3238,6 +3293,7 @@
 				74CFB92323BF38CE00C6775C /* ImageFullViewController.swift */,
 				65A420EF247E419A002A187B /* ThirdPartyLicensesController.swift */,
 				654E56B426CFB29F00C4C59B /* RiistaMoreViewController.swift */,
+				D514FBC52A81245900C38DFD /* AboutViewController.swift */,
 			);
 			path = Pages;
 			sourceTree = "<group>";
@@ -3357,7 +3413,6 @@
 				E09AD2F3195B9A1100B66130 /* arrow_left.png in Resources */,
 				7471B02F1ACB073F00D1CB9C /* half-horn.png in Resources */,
 				E09C1ACE1958FB53001B83E4 /* species_27152.jpg in Resources */,
-				7430C9A3203EF305000DF8BB /* ShootingTestOfficialView.xib in Resources */,
 				E09C1AB81958FB53001B83E4 /* species_26287.jpg in Resources */,
 				E09D14B319322A3F00A7AFCE /* sarvi_logo.png in Resources */,
 				E09C1AD51958FB53001B83E4 /* species_37122.jpg in Resources */,
@@ -3384,15 +3439,12 @@
 				E09C1AD21958FB53001B83E4 /* species_27759.jpg in Resources */,
 				74B8BB051CB534E7002152EF /* DetailsStoryboard.storyboard in Resources */,
 				E09C1AEF1958FB53001B83E4 /* species_47926.jpg in Resources */,
-				746214F3204839A800908138 /* ShootingTestValueButton.xib in Resources */,
 				741FCA702036C02500DC6AA9 /* ic_pass_white@3x.png in Resources */,
 				E09C1AC31958FB53001B83E4 /* species_26419.jpg in Resources */,
 				7418828B234B6889009A9D51 /* Colors.xcassets in Resources */,
 				7404C7872321289400A68BF5 /* OpenSans-LightItalic.ttf in Resources */,
 				E09C1AE51958FB53001B83E4 /* species_47305.jpg in Resources */,
 				E09C1ABC1958FB53001B83E4 /* species_26366.jpg in Resources */,
-				749E15A2205AC11000A0C956 /* ic_delete_white@2x.png in Resources */,
-				E0A480791990E0670034E452 /* ic_menu_edit@2x.png in Resources */,
 				746585381AE53CAD0015C4F8 /* crosshair.png in Resources */,
 				E09C1A6C1958E8DD001B83E4 /* Localizable.strings in Resources */,
 				74373B912151718300D70BE0 /* map_type_mml_topographic.jpg in Resources */,
@@ -3409,7 +3461,6 @@
 				E09C1AD01958FB53001B83E4 /* species_27649.jpg in Resources */,
 				74BF764020471E51003575D1 /* ShootingTestCheckbox.xib in Resources */,
 				E09C1ABB1958FB53001B83E4 /* species_26360.jpg in Resources */,
-				7486C8191CC8E19D00336778 /* ic_delete@3x.png in Resources */,
 				E09C1AC41958FB53001B83E4 /* species_26427.jpg in Resources */,
 				E09C1AC21958FB53001B83E4 /* species_26415.jpg in Resources */,
 				741FCA6D2036C02500DC6AA9 /* ic_fail_white@3x.png in Resources */,
@@ -3454,15 +3505,12 @@
 				E09C1ADB1958FB53001B83E4 /* species_46587.jpg in Resources */,
 				E09C1AE71958FB53001B83E4 /* species_47348.jpg in Resources */,
 				74373B972151718300D70BE0 /* map_type_mml_topographic@2x.jpg in Resources */,
-				E0A480781990E0670034E452 /* ic_menu_add@2x.png in Resources */,
 				742D3915202B4AE900008279 /* ShootingTest.storyboard in Resources */,
 				E09C1ACD1958FB53001B83E4 /* species_27048.jpg in Resources */,
 				E09973C6193DEF020063F674 /* species.json in Resources */,
-				74327FB91AE14A0A002D4B0F /* ic_delete@2x.png in Resources */,
 				74373B942151718300D70BE0 /* map_type_mml_topographic@3x.jpg in Resources */,
 				741FCA6C2036C02500DC6AA9 /* ic_fail_white.png in Resources */,
 				74373B9A2151718300D70BE0 /* map_type_google@3x.jpg in Resources */,
-				7486C8181CC8E19D00336778 /* ic_delete.png in Resources */,
 				E09C1ABA1958FB53001B83E4 /* species_26298.jpg in Resources */,
 				741FCA6F2036C02500DC6AA9 /* ic_pass_white.png in Resources */,
 				D36F3DD22480DAB400A67BF2 /* GoogleService-Info-Production.plist in Resources */,
@@ -3548,7 +3596,6 @@
 				"${PODS_ROOT}/MaterialComponents/components/Dialogs/src/MaterialDialogs.bundle",
 				"${PODS_ROOT}/MaterialComponents/components/ProgressView/src/MaterialProgressView.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/MaterialComponents/MaterialIcons_ic_check_circle.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/OAStackView/OAStackView.bundle",
 				"${PODS_ROOT}/Siren/Sources/Siren.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
@@ -3559,7 +3606,6 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MaterialDialogs.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MaterialProgressView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MaterialIcons_ic_check_circle.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/OAStackView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Siren.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3593,8 +3639,11 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
-				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(BUILT_PRODUCTS_DIR)/$(EXECUTABLE_PATH)",
 			);
 			name = "Crashlytics dSYM Upload";
 			outputFileListPaths = (
@@ -3616,9 +3665,11 @@
 				E096C0B719AA545100B2DBD3 /* KeyChainItemWrapper.m in Sources */,
 				65D74EEE26FC91CE0046CFE4 /* GroupHuntingMarkerManager.swift in Sources */,
 				6518717C2762435A00FB78CD /* SelectGroupHuntingDayViewController.swift in Sources */,
+				049949472A2DFE2800EA78FB /* MetsahallitusPermitCell.swift in Sources */,
 				65E1811827902DD100D05C3B /* PointOfInterestTableViewController.swift in Sources */,
 				04AD53972926C340007C924D /* MonthNameFormatter.swift in Sources */,
 				04A4A496281938B900F1CF15 /* HuntingControlAttachmentOpenHelper.swift in Sources */,
+				049949452A2DFDFF00EA78FB /* MetsahallitusPermitsTableViewController.swift in Sources */,
 				E00C988519471A8100833233 /* DiaryImage.m in Sources */,
 				D541FB98292FA3AE002375A0 /* StartScanButtonCustomFieldCell.swift in Sources */,
 				65E2541D255D73010075D3BE /* ImageLoadOptions.swift in Sources */,
@@ -3638,8 +3689,9 @@
 				65FDBEAC26EF70FC00C1E1D0 /* TileCacheProvider.swift in Sources */,
 				742D391F202B596900008279 /* ShootingTestTabBarViewController.swift in Sources */,
 				6518717E2762439E00FB78CD /* SelectableHuntingDayCell.swift in Sources */,
-				742D39252031E85000008279 /* ShootingTestAttemptDetailed.swift in Sources */,
 				745EAEBB1E4358D3002A361F /* Announcement+CoreDataProperties.m in Sources */,
+				042B70D82A779CEE00C1928E /* KeyboardToolBar.swift in Sources */,
+				D514FBC62A81245900C38DFD /* AboutViewController.swift in Sources */,
 				04527F4A2934A06000E49D79 /* EntityFilterChangeNotifier.swift in Sources */,
 				6513DF422768CE5900F6E8AE /* BottomSheetHelper.swift in Sources */,
 				65FCC82C278574B900571014 /* AnnouncementsControllerHolder.swift in Sources */,
@@ -3647,6 +3699,7 @@
 				E0999968193F3CBF00C807CB /* DiaryEntry.m in Sources */,
 				65579F8D25712A7A00E6D515 /* HarvestSpecimenFieldType.swift in Sources */,
 				65FDBE9326E8E96800C1E1D0 /* BadgeView.swift in Sources */,
+				040F33FE2991115500A426A3 /* MigrateDiaryEntriesToRiistaCommon.swift in Sources */,
 				65B8D1B627346FB300BB6E8A /* ViewGroupHuntingHarvestViewController.swift in Sources */,
 				6513DF372768806A00F6E8AE /* MapHarvestCell.swift in Sources */,
 				746C2DBF1C9C29D800ED139C /* ObservationEntry.m in Sources */,
@@ -3670,17 +3723,15 @@
 				74082751204EE9C500F2C4C4 /* ShootingTest.m in Sources */,
 				65A0D80E250A44D10097DBB5 /* NSLayoutConstraint+setConstrainedViewHidden.swift in Sources */,
 				6557A01B2577A82D00E6D515 /* WithConditionals.swift in Sources */,
-				74082749204924F100F2C4C4 /* ShootingTestValueButton.swift in Sources */,
 				D58C866128D2E95800268D5D /* UnselectableTappableTextView.swift in Sources */,
 				65924D5D254314A900452ED6 /* IdentifiableImage.swift in Sources */,
 				65FCC8432785B40000571014 /* BaseMarkerManager.swift in Sources */,
 				743031F8243E1FED00B5F648 /* ShootingTestsViewController.swift in Sources */,
 				65BA43BE2746435500008482 /* SingleLineTitleAndValue.swift in Sources */,
-				742D390C2020AEC200008279 /* ShootingTestOfficial.swift in Sources */,
-				742D39272031E86100008279 /* ShootingTestAttemptSummary.swift in Sources */,
-				74010F6B22F46105008F3D33 /* MhPermitListViewController.swift in Sources */,
+				040152FE2A02668F00990FB0 /* CommonShootingTestParticipant+Extensions.swift in Sources */,
 				04527F512937894D00E49D79 /* PeriodicTask.swift in Sources */,
 				6597B89A25B9ACFA0011424F /* InstructionsButton.swift in Sources */,
+				048D45BC2A2F492700C59DEB /* ViewMetsahallitusPermitsViewController.swift in Sources */,
 				6588E2612747C41B00ECC5E8 /* EditGroupHuntingHarvestViewController.swift in Sources */,
 				743031FC243E217900B5F648 /* OccupationsCell.swift in Sources */,
 				D583B6D728465016007DFFAA /* SrvaEvent+Extensions.swift in Sources */,
@@ -3692,18 +3743,19 @@
 				742625A2203C59BB005E51C1 /* ShootingTestEditPaymentViewController.swift in Sources */,
 				659A3FFD270F0D08001442FE /* SendRegistrationLinkView.swift in Sources */,
 				6588E26D274E5A5100ECC5E8 /* InformationLabelFieldCell.swift in Sources */,
-				74BF763E20446521003575D1 /* ShootingTestUtil.swift in Sources */,
 				6597B93D25BA2F0D0011424F /* InstructionsViewController.swift in Sources */,
 				65579FF0257639CB00E6D515 /* GameAge.swift in Sources */,
 				65FAEEF227AC03A500CAEAE2 /* TimeSpanCell.swift in Sources */,
 				65710BE92549BE10002BE90B /* PresentedViewControllerDismissObserver.swift in Sources */,
 				659CDF5327720565000A7816 /* TwoColumnRowView.swift in Sources */,
 				65F1D7752784528A00A71F66 /* MapMarkerClickHandler.swift in Sources */,
+				04B7B13029FA744700B57DCE /* CalendarEventType+Extensions.swift in Sources */,
 				651871732760F7FC00FB78CD /* SelectDurationFieldCell.swift in Sources */,
 				654E9C0F279EDC0E006EC18E /* MainNavigationController.swift in Sources */,
 				65FCC8402785B40000571014 /* MarkerSource.swift in Sources */,
 				D55F81CA2824EE5400EC97F7 /* CreateSrvaEventViewController.swift in Sources */,
 				0472D04E28042B9600D436DB /* TextFieldAndLabel.swift in Sources */,
+				040153002A0377BE00990FB0 /* CommonShootingTestParticipantDetailed+Extensions.swift in Sources */,
 				6517AF7125D26EAB00B6B65A /* JSONUtils.swift in Sources */,
 				65E2542B255E8FAE0075D3BE /* CGSize+extensions.swift in Sources */,
 				659CDF452771B742000A7816 /* HuntingClubPendingInvitationCell.swift in Sources */,
@@ -3724,6 +3776,7 @@
 				65D74EE426FB49720046CFE4 /* UserLocationOnMap.swift in Sources */,
 				041FAE322912854C00FBBB6E /* CreateHarvestViewController.swift in Sources */,
 				04A4A49428191D9300F1CF15 /* Collection+extensions.swift in Sources */,
+				0493CDCD2A7BC4200041A650 /* EntityFilterChangeRequestListener.swift in Sources */,
 				747EC0341ED30A3B007A9FBE /* PhoneNumberValidator.m in Sources */,
 				65AD845E24F6825900E76049 /* FeatureAvailabilityChecker.swift in Sources */,
 				65BA43BC27459D1C00008482 /* ViewGroupHuntingObservationViewController.swift in Sources */,
@@ -3744,19 +3797,18 @@
 				659D448C24E2B2DC008474A5 /* ObservationEntryMappingV12ToV13.swift in Sources */,
 				65DF66CB272FFEA7006C3DB8 /* MaterialDialogViewController.swift in Sources */,
 				743C82331B302A7800223BB7 /* PermitSpeciesAmounts.m in Sources */,
-				742D390A2020AE8800008279 /* ShootingTestVenueAddress.swift in Sources */,
+				048128132A41CE2F0053C3DF /* HarvestSettingsViewController.swift in Sources */,
 				E09162D319386F5C0025190E /* RiistaGameDatabase.m in Sources */,
-				742D39212031E77C00008279 /* ShootingTestParticipantSummary.swift in Sources */,
 				74208ECF247526A80043AC58 /* NSString+DigitOnly.swift in Sources */,
 				65FAEEDF27A961C400CAEAE2 /* HuntingControlEventsTableViewController.swift in Sources */,
-				041FAE232910193F00FBBB6E /* AppPermitProvider.swift in Sources */,
+				041FAE232910193F00FBBB6E /* AppHarvestPermitProvider.swift in Sources */,
 				6518714E2758168800FB78CD /* HuntingDaysTableViewController.swift in Sources */,
 				65D74EF026FC91E60046CFE4 /* GroupHuntingMarkerType.swift in Sources */,
-				7430C9A52042FED9000DF8BB /* SelectedShootingTestTypes.swift in Sources */,
 				65E1811027902D1B00D05C3B /* PointOfInterestFilterViewController.swift in Sources */,
 				65E1811A27903D3900D05C3B /* SeparatorCell.swift in Sources */,
 				042F9CB4281AB2AF001457C6 /* FileDownloader.swift in Sources */,
 				65E1837F270AD60E003120F3 /* LoginView.swift in Sources */,
+				0493CDC92A7A8FD40041A650 /* EntityModified.swift in Sources */,
 				0472D04C27FEFAC000D436DB /* ListSelectableStringsView.swift in Sources */,
 				65FDBEA426EA385F00C1E1D0 /* ListensViewModelStatusChanges.swift in Sources */,
 				74FA04902358A55B00A3D4EE /* GameLogHeaderCell.swift in Sources */,
@@ -3777,7 +3829,6 @@
 				6588E265274BB32000ECC5E8 /* TextFieldCell.swift in Sources */,
 				6518713727576A5300FB78CD /* AlertDialogBuilder.swift in Sources */,
 				7486C7DE1CC652DF00336778 /* DiaryEntryBase.m in Sources */,
-				742D392B2031E91600008279 /* ErrorResponse.swift in Sources */,
 				65E1811127902D1B00D05C3B /* PointOfInterestFilterType.swift in Sources */,
 				0472D04A27FEF6FC00D436DB /* SelectableStringCell.swift in Sources */,
 				6557A2692583AF8100E6D515 /* UIFont+extensions.swift in Sources */,
@@ -3788,6 +3839,7 @@
 				041FAE3B2913CF1B00FBBB6E /* MigrationFromV12ToV20.xcmappingmodel in Sources */,
 				74C9789923337DF800375372 /* AnnouncementViewController.swift in Sources */,
 				6588E26B274D279F00ECC5E8 /* DoubleFieldCell.swift in Sources */,
+				04F4995F29F7E87300ABE80A /* Synchronization.swift in Sources */,
 				65FAEEEA27ABB96F00CAEAE2 /* CreateHuntingControlEventViewController.swift in Sources */,
 				74010F7522F848CB008F3D33 /* MhPermit+CoreDataProperties.swift in Sources */,
 				65FCC8362785B37D00571014 /* BaseMapControl.swift in Sources */,
@@ -3797,6 +3849,7 @@
 				5C2787E51FDBF11000FBFB3D /* RiistaClubAreaMap.m in Sources */,
 				65FCC8412785B40000571014 /* MarkerClickHandler.swift in Sources */,
 				65D74EC126F34B0E0046CFE4 /* OfflineMapSettingsView.swift in Sources */,
+				042B70D62A7260D600C1928E /* LocalizableView.swift in Sources */,
 				0420A611294351C700D61E29 /* BackgroundOperationStatus.swift in Sources */,
 				658848252763EF9F00511AEE /* CreateGroupHuntingHarvestViewController.swift in Sources */,
 				746C2DBE1C9C29D800ED139C /* ObservationEntry+CoreDataProperties.m in Sources */,
@@ -3811,6 +3864,7 @@
 				65D74EDE26FB07DF0046CFE4 /* MultiDelegate.swift in Sources */,
 				6513DF3B276882C500F6E8AE /* MapClusteredItemsTableViewController.swift in Sources */,
 				74E0F2BB1B300DF300637085 /* RiistaPermitListViewController.m in Sources */,
+				0419701D2A31B683009159F6 /* UIRefreshControl+extensions.swift in Sources */,
 				5C01B5EC1FD95AD90001B129 /* RiistaVectorTileLayer.m in Sources */,
 				04208FEC27F5941A0008B32A /* UIButton+extensions.swift in Sources */,
 				659CDF4B2771FCDA000A7816 /* HuntingLicenseContentView.swift in Sources */,
@@ -3822,6 +3876,7 @@
 				E098FE721936064700E3BE56 /* Model.xcdatamodeld in Sources */,
 				659D449224E2C5A5008474A5 /* MigrationFromV12ToV13.xcmappingmodel in Sources */,
 				659A4003270F34DB001442FE /* AuthenticationSendLinkToEmailView.swift in Sources */,
+				04B7B12C29F92F9F00B57DCE /* DropdownHelper.swift in Sources */,
 				65E1837A270ACE93003120F3 /* StartPasswordRecoveryView.swift in Sources */,
 				5C15B2FD1FE14D1C00DFBBB9 /* RiistaClubAreaMapManager.m in Sources */,
 				65924D552541B74700452ED6 /* CameraImagePicker.swift in Sources */,
@@ -3855,17 +3910,20 @@
 				744B57A41AD6BD3C00742B65 /* Address.m in Sources */,
 				659A400627105168001442FE /* ChangeUsernameViewController.swift in Sources */,
 				6513DF382768806A00F6E8AE /* MapDiaryEntryCell.swift in Sources */,
-				65710C6F254CA417002BE90B /* ImageIdentifier+DiaryImage.swift in Sources */,
+				65710C6F254CA417002BE90B /* ImageIdentifier+EntityImage.swift in Sources */,
 				65FCC8382785B37D00571014 /* MapToggleFullscreenControl.swift in Sources */,
 				656262B1274EDA4200011FA4 /* HuntingDayAndTimeFieldCell.swift in Sources */,
+				0425484A2A976635008D5F7E /* SunriseAndSunsetTimesViewController.swift in Sources */,
 				041FAE402913D83C00FBBB6E /* MigrateSrvaEntriesToRiistaCommon.swift in Sources */,
 				7429988F240C00D20013BACF /* MaterialVerticalButton.swift in Sources */,
+				049949492A2DFEC000EA78FB /* MetsahallitusPermitActionListener.swift in Sources */,
 				E09973C9193DF8780063F674 /* RiistaSpeciesSelectViewController.m in Sources */,
 				744B579F1AD6BD3C00742B65 /* Rhy.m in Sources */,
 				65F1D7742784528A00A71F66 /* MapMarkerSource.swift in Sources */,
 				6556627F2742F59400E42198 /* ButtonWithRoundedCorners.swift in Sources */,
 				6518718327629E3400FB78CD /* HuntingGroupTargetProvider.swift in Sources */,
 				740E6C24215122E700EB1498 /* AreaMap.swift in Sources */,
+				042B70CE2A71160D00C1928E /* AppSettingsViewController.swift in Sources */,
 				74A9A2D42189C08F0078279D /* NSManagedObject+RiistaCopying.m in Sources */,
 				6537AEDF25E7C76D00E3D9D4 /* LoginAnalytics.swift in Sources */,
 				04AD53A3292E478A007C924D /* ControllerHolderWithCallbacks.swift in Sources */,
@@ -3907,6 +3965,7 @@
 				6556625C273D04F500E42198 /* ReadOnlySpeciesFieldCell.swift in Sources */,
 				0483D28A2926550A00738E4F /* HarvestDataSource.swift in Sources */,
 				74B4D03D23F6E7D300230FE7 /* SpeciesCategoryDialogController.swift in Sources */,
+				04C7081F2A44510500444D68 /* ShowEntriesForOtherActorsFilterHelper.swift in Sources */,
 				65FAEEEE27ABF48000CAEAE2 /* DateCell.swift in Sources */,
 				04527F452932AA4700E49D79 /* EntityFilterChangeListener.swift in Sources */,
 				743031F4243E1FDB00B5F648 /* OccupationsViewController.swift in Sources */,
@@ -3915,13 +3974,14 @@
 				E095354D1934A1BD00A3534C /* RiistaUtils.m in Sources */,
 				65E180FD278EC81600D05C3B /* PointOfInterestMarkerView.swift in Sources */,
 				65FCC8342785B37D00571014 /* MoveToUserLocationControl.swift in Sources */,
+				045BF47F2A0D822F00EF5F99 /* MigrateUserInformationToRiistaCommon.swift in Sources */,
 				651B96C62540330700D69EC4 /* LocalImageManager.swift in Sources */,
+				042B70D22A71470100C1928E /* AppSettingsView.swift in Sources */,
 				65FDBE9E26EA27C000C1E1D0 /* GroupHuntingMapViewController.swift in Sources */,
 				745EAEC11E43638F002A361F /* AnnouncementsSync.m in Sources */,
 				65FAEEF527AC718600CAEAE2 /* ViewHuntingControlEventViewController.swift in Sources */,
 				6556626F273EA25F00E42198 /* SelectableMaterialButton.swift in Sources */,
 				651871552758F0AF00FB78CD /* HuntingDayActionListener.swift in Sources */,
-				742D39232031E7D200008279 /* ShootingTestParticipantDetailed.swift in Sources */,
 				742D3913202893EE00008279 /* RiistaBridgingUtils.swift in Sources */,
 				742D392F203478AE00008279 /* ShootingTestAttemptStateView.swift in Sources */,
 				65E1812627905C6C00D05C3B /* PointsOfInterestCollectionView.swift in Sources */,
@@ -3933,7 +3993,6 @@
 				651871442757AF9200FB78CD /* ModifyGroupHuntingObservationViewController.swift in Sources */,
 				65D74EDC26FB005C0046CFE4 /* LocationManager.swift in Sources */,
 				659A400A2710766E001442FE /* SnapKit+extensions.swift in Sources */,
-				74010F6F22F46123008F3D33 /* MhPermitDetailsViewController.swift in Sources */,
 				D58FA5AE2806E018007B8058 /* OccupationTrainingCell.swift in Sources */,
 				6588482A2767734100511AEE /* ClickableCellBackground.swift in Sources */,
 				7430A25E2153BF9600628982 /* MapAreaManager.swift in Sources */,
@@ -3944,13 +4003,13 @@
 				65E180F5278C555E00D05C3B /* UILabel+extensions.swift in Sources */,
 				65FCC8392785B37D00571014 /* MapZoomControls.swift in Sources */,
 				65566258273BF1A100E42198 /* LabelWithPadding.swift in Sources */,
+				04F4996129F802BD00ABE80A /* PendingSynchronization.swift in Sources */,
 				D55F81CC282543DD00EC97F7 /* CheckboxBooleanFieldCell.swift in Sources */,
 				04E12D1629C4A15D00428978 /* WarningView.swift in Sources */,
 				65E1811C2790403400D05C3B /* PointOfInterestItemCell.swift in Sources */,
 				04712E4E2983A6DD0002CC1E /* MyGameQuickButtonsHelper.swift in Sources */,
 				65F1D76C27843E0A00A71F66 /* MapViewController.swift in Sources */,
 				65D74EC526F36B8B0046CFE4 /* MemUtils.swift in Sources */,
-				E09CFD6A1957B0F80061DFA5 /* RiistaSettingsViewController.m in Sources */,
 				65D74EB126F0D5060046CFE4 /* CardButton.swift in Sources */,
 				D5232D27284626E000A1B294 /* ViewSrvaEventViewController.swift in Sources */,
 				6586C308255136B3006035A7 /* ImageIdentifier.swift in Sources */,
@@ -4005,7 +4064,6 @@
 				65710C65254C3D95002BE90B /* MDCButton+loadstatus.swift in Sources */,
 				746DC1712354949800A51DB2 /* SeasonStatsView.swift in Sources */,
 				0472D0522805FBCC00D436DB /* AttachmentFieldCell.swift in Sources */,
-				742D39062020ADC500008279 /* ShootingTestCalendarEvent.swift in Sources */,
 				65DF66C0272BD83A006C3DB8 /* OverlayStackView.swift in Sources */,
 				65F1D7762784528A00A71F66 /* MapMarkerStorage.swift in Sources */,
 				65E18381270AFF64003120F3 /* AuthenticationUiConstants.swift in Sources */,
@@ -4023,11 +4081,11 @@
 				65A420E7247D3A6B002A187B /* ImageSourceSelectionDialogController.swift in Sources */,
 				65E25414255D59D50075D3BE /* Timer.swift in Sources */,
 				D5C2AB8B283E3C5C00052426 /* SpecimenHeaderFieldCell.swift in Sources */,
-				74CAD28E22F99638009E5076 /* MhPermitSync.swift in Sources */,
+				04CB960429FA97A600463573 /* CommonShootingTestCalendarEvent+Extensions.swift in Sources */,
 				65FCC83B2785B3F400571014 /* MapExternalIdProvider.swift in Sources */,
+				048128152A41D4E50053C3DF /* ToggleSwitchBooleanFieldCell.swift in Sources */,
 				65D74F01270712950046CFE4 /* AuthenticationViewController.swift in Sources */,
 				742D391D202B582400008279 /* ShootingTestPaymentsViewController.swift in Sources */,
-				742D39082020AE7200008279 /* ShootingTestVenue.swift in Sources */,
 				0483D288292652FF00738E4F /* ManagedObjectContextDataSource.swift in Sources */,
 				6566AD2324EE9F0F00574CAD /* MigrationFromV12ToV14.xcmappingmodel in Sources */,
 				658848272765427700511AEE /* CreateGroupHuntingObservationViewController.swift in Sources */,
@@ -4037,10 +4095,12 @@
 				6518714227579E5500FB78CD /* Array+extensions.swift in Sources */,
 				D55F81CE282A60B200EC97F7 /* CheckBoxButton.swift in Sources */,
 				6537AEDA25E789A000E3D9D4 /* CrashlyticsHelper.swift in Sources */,
+				044CB6112A03CBD80003C6B7 /* Dictionary+Extensions.swift in Sources */,
 				E099996A193F3CBF00C807CB /* GeoCoordinate.m in Sources */,
 				656E7610248657AA00958F2C /* ManagedContextRelatedObjectHolder.swift in Sources */,
 				0465F09A294AFCDE00F341AD /* PreventAppSyncWhileModifyingSynchronizableEntry.swift in Sources */,
 				746DC169234F682000A51DB2 /* ContactDetailsViewController.swift in Sources */,
+				04EBB4D229DADED8005EED98 /* SpecimensViewControllerLauncher.swift in Sources */,
 				65D74EB726F205430046CFE4 /* UIStackView+Extensions.swift in Sources */,
 				65D74EE026FB0A4E0046CFE4 /* Weak.swift in Sources */,
 				0465F09C295DB4A600F341AD /* HideableUIBarButtonItem.swift in Sources */,
@@ -4067,7 +4127,6 @@
 				659CDF5527733CBE000A7816 /* ViewOrSelectLocationOnMapViewController.swift in Sources */,
 				746C1B7A1B3AABC600EBABDD /* RiistaDateTimeUtils.m in Sources */,
 				65E180F9278D8BAF00D05C3B /* MaterialButtonWithRoundedCorners.swift in Sources */,
-				742D39292031E88A00008279 /* ShootingTestSearchPersonResult.swift in Sources */,
 				04527F43292F9A0700E49D79 /* EntityDataSourceListener.swift in Sources */,
 				042C754427FC468100C18BFF /* MultiLineStringFieldCell.swift in Sources */,
 				74638E4A20933B22007B735F /* LineSeparator.swift in Sources */,
@@ -4092,7 +4151,6 @@
 				65924D522541B6A900452ED6 /* RiistaImagePicker.swift in Sources */,
 				041FAE3E2913D6D400FBBB6E /* MigrateCoreDataDatabaseToRiistaCommon.swift in Sources */,
 				04B8877A27F32FEC00DA7784 /* ChipFieldCell.swift in Sources */,
-				E09D14B519322A3F00A7AFCE /* Styles.m in Sources */,
 				742B92F8213449DB0018D96D /* AppConstants.swift in Sources */,
 				65566271273EB08000E42198 /* GenderFieldCell.swift in Sources */,
 				65566262273D4ED600E42198 /* DateAndTimeFieldCell.swift in Sources */,
@@ -4116,14 +4174,17 @@
 				3F4A3C99D07547D38D102FF1 /* CurrentLanguageProvider.swift in Sources */,
 				D56B5BB42862FFAC0088D3DC /* ObservationEntryMappingV12ToV19.swift in Sources */,
 				3F4A3E1120DB9377AA10D98E /* SpeciesInformationResolver.swift in Sources */,
+				04B42F542A83A60500C23EDC /* BaseViewController.swift in Sources */,
 				3F4A3A921030E767A220C380 /* BaseControllerWithViewModel.swift in Sources */,
 				3F4A3E054B5CAEDA9FDBE502 /* ProvidesControllerWithLoadableModel.swift in Sources */,
 				04527F4D293757F400E49D79 /* AppSync.swift in Sources */,
 				65E18102278EF5D900D05C3B /* UIColor+extensions.swift in Sources */,
 				3F4A35F01FAC3FC9F7D4B683 /* PlaceholderDataFieldCell.swift in Sources */,
 				3F4A34CC58CC1AEABA1AF793 /* DataFieldCell.swift in Sources */,
+				04FAC1D22A1B849B00DC6B93 /* Thread+extensions.swift in Sources */,
 				3F4A3174815AEB0BE8965D12 /* DataFieldCellType.swift in Sources */,
 				3F4A3C4DEE2114DD7DE2FE91 /* DataFieldType.swift in Sources */,
+				049949422A2DF94100EA78FB /* ListMetsahallitusPermitsViewController.swift in Sources */,
 				658685632796FD72007E9D31 /* Date+extensions.swift in Sources */,
 				04CCC8CB29796C49005F6763 /* MigrateObservationEntriesToRiistaCommon.swift in Sources */,
 				3F4A3888C459FE6E0E86ABE6 /* PlaceholderView.swift in Sources */,
@@ -4242,7 +4303,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-objC";
 				SDKROOT = iphoneos;
@@ -4263,9 +4324,10 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 52;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = K4HNG4P8YP;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K4HNG4P8YP;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "$(inherited) i386";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -4281,7 +4343,7 @@
 					"@executable_path/Frameworks",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 2.5.16;
+				MARKETING_VERSION = 2.6.7;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -4365,8 +4427,6 @@
 					"-framework",
 					"\"Metal\"",
 					"-framework",
-					"\"OAStackView\"",
-					"-framework",
 					"\"OpenGLES\"",
 					"-framework",
 					"\"Protobuf\"",
@@ -4407,6 +4467,7 @@
 				PRODUCT_NAME = "Oma riista";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "Oma Riista Staging - Development";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Oma Riista Staging - Development";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = STAGING;
 				SWIFT_OBJC_BRIDGING_HEADER = "Riista-Ios/Riista-Bridging-Header.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
@@ -4464,7 +4525,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-objC";
 				SDKROOT = iphoneos;
@@ -4512,7 +4573,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-objC";
 				SDKROOT = iphoneos;
@@ -4532,9 +4593,10 @@
 				CODE_SIGN_ENTITLEMENTS = "Oma riista.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 52;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = K4HNG4P8YP;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K4HNG4P8YP;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "$(inherited) i386";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -4550,7 +4612,7 @@
 					"@executable_path/Frameworks",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 2.5.16;
+				MARKETING_VERSION = 2.6.7;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -4633,8 +4695,6 @@
 					"\"MaterialComponents\"",
 					"-framework",
 					"\"Metal\"",
-					"-framework",
-					"\"OAStackView\"",
 					"-framework",
 					"\"OpenGLES\"",
 					"-framework",
@@ -4676,6 +4736,7 @@
 				PRODUCT_NAME = "Oma riista";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "Oma Riista Dev - Development";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Oma Riista Dev - Development";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEV;
 				SWIFT_OBJC_BRIDGING_HEADER = "Riista-Ios/Riista-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -4697,9 +4758,10 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 52;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = K4HNG4P8YP;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K4HNG4P8YP;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "$(inherited) i386";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -4715,7 +4777,7 @@
 					"@executable_path/Frameworks",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 2.5.16;
+				MARKETING_VERSION = 2.6.7;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -4799,8 +4861,6 @@
 					"-framework",
 					"\"Metal\"",
 					"-framework",
-					"\"OAStackView\"",
-					"-framework",
 					"\"OpenGLES\"",
 					"-framework",
 					"\"Protobuf\"",
@@ -4841,6 +4901,7 @@
 				PRODUCT_NAME = "Oma riista";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "Oma Riista Production - Development";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Oma Riista Production - Development";
 				SWIFT_OBJC_BRIDGING_HEADER = "Riista-Ios/Riista-Bridging-Header.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 5.0;

@@ -1,7 +1,11 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import <Foundation/Foundation.h>
 
+@class RiistaCommonMapTileVersions;
+
 @interface RiistaVectorTileLayer : GMSTileLayer
+
+- (instancetype)initWithMapTileVersions:(RiistaCommonMapTileVersions *)mapTileVersionProvider;
 
 - (void)setExternalId:(NSString*)externalId;
 - (void)setInvertColors:(BOOL)invert;

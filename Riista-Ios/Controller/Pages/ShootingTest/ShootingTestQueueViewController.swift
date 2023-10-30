@@ -1,4 +1,6 @@
 import UIKit
+import RiistaCommon
+
 
 class ParticipantQueueCell: UITableViewCell {
     @IBOutlet weak var titleLabel: UILabel!
@@ -8,10 +10,10 @@ class ParticipantQueueCell: UITableViewCell {
     @IBOutlet weak var bowView: ShootingTestAttemptStateView!
 }
 
-class ShootingTestQueueViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ShootingTestQueueViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var tableView: UITableView!
 
-    var items = Array<ShootingTestParticipantSummary>()
+    private var participants = [CommonShootingTestParticipant]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,25 +48,21 @@ class ShootingTestQueueViewController: UIViewController, UITableViewDataSource, 
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
 
         tabBarVc.refreshEvent()
-        tabBarVc.fetchParticipants() { (result:Array?, error:Error?) in
-            self.navigationItem.rightBarButtonItem?.isEnabled = true
+        tabBarVc.shootingTestManager.listParticipantsForEvent { participants, error in
+            if let participants = participants {
+                self.participants = participants
+                    .filter { participant in
+                        participant.completed == false
+                    }.sorted(by: { lhs, rhs in
+                        let lhsNoAttempts = lhs.attempts.isEmpty == true && rhs.attempts.isEmpty == false
+                        let lhsNotCompleted = !lhs.completed && rhs.completed
+                        let lhsRegisteredEarlier = (lhs.registrationTime ?? "") < (rhs.registrationTime ?? "")
 
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let participants = try JSONDecoder().decode([ShootingTestParticipantSummary].self, from: json)
-
-                    self.items.removeAll()
-                    self.items.insert(contentsOf: participants.filter { $0.completed == false }, at: 0)
-                    self.items.sort(by: <)
-                    self.tableView.reloadData()
-                }
-                catch {
-                    print("Failed to parse <ShootingTestParticipantSummary> item")
-                }
-            }
-            else {
-                print("listParticipantsForEvent failed: " + (error?.localizedDescription)!)
+                        return lhsNoAttempts || lhsNotCompleted || lhsRegisteredEarlier
+                    })
+                self.tableView.reloadData()
+            } else {
+                print("listParticipantsForEvent failed: \(error?.localizedDescription ?? String(describing: error))")
             }
         }
     }
@@ -76,7 +74,7 @@ class ShootingTestQueueViewController: UIViewController, UITableViewDataSource, 
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return participants.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -84,22 +82,34 @@ class ShootingTestQueueViewController: UIViewController, UITableViewDataSource, 
             fatalError("The dequeued cell is not an instance of ParticipantQueueCell.")
         }
 
-        let item = items[indexPath.row]
+        let participant = participants[indexPath.row]
 
-        cell.titleLabel.text = String(format: "%@ %@", item.lastName!, item.firstName!)
+        if let hunterNumber = participant.hunterNumber {
+            cell.titleLabel.text = "\(participant.formattedFullNameLastFirst), \(hunterNumber)"
+        } else {
+            cell.titleLabel.text = participant.formattedFullNameLastFirst
+        }
 
-        cell.bearView.refreshAttemptStateView(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeBearShort"),
-                                              attempts: item.attemptSummaryFor(type: ShootingTestAttemptDetailed.ClassConstants.TYPE_BEAR),
-                                              intended: item.bearTestIntended)
-        cell.mooseView.refreshAttemptStateView(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeMooseShort"),
-                                               attempts: item.attemptSummaryFor(type: ShootingTestAttemptDetailed.ClassConstants.TYPE_MOOSE),
-                                               intended: item.mooseTestIntended)
-        cell.deerView.refreshAttemptStateView(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeRoeDeerShort"),
-                                              attempts: item.attemptSummaryFor(type: ShootingTestAttemptDetailed.ClassConstants.TYPE_ROE_DEER),
-                                              intended: item.deerTestIntended)
-        cell.bowView.refreshAttemptStateView(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeBowShort"),
-                                             attempts: item.attemptSummaryFor(type: ShootingTestAttemptDetailed.ClassConstants.TYPE_BOW),
-                                             intended: item.bowTestIntended)
+        cell.bearView.refreshAttemptStateView(
+            title: "ShootingTestTypeBearShort".localized(),
+            attempt: participant.attemptSummaryFor(type: .bear),
+            intended: participant.bearTestIntended
+        )
+        cell.mooseView.refreshAttemptStateView(
+            title: "ShootingTestTypeMooseShort".localized(),
+            attempt: participant.attemptSummaryFor(type: .moose),
+            intended: participant.mooseTestIntended
+        )
+        cell.deerView.refreshAttemptStateView(
+            title: "ShootingTestTypeRoeDeerShort".localized(),
+            attempt: participant.attemptSummaryFor(type: .roeDeer),
+            intended: participant.deerTestIntended
+        )
+        cell.bowView.refreshAttemptStateView(
+            title: "ShootingTestTypeBowShort".localized(),
+            attempt: participant.attemptSummaryFor(type: .bow),
+            intended: participant.bowTestIntended
+        )
 
         return cell
     }
@@ -107,10 +117,15 @@ class ShootingTestQueueViewController: UIViewController, UITableViewDataSource, 
     // MARK - UITableViewDelegate
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = items[indexPath.row]
+        guard let shootingTestManager = (self.tabBarController as? ShootingTestTabBarViewController)?.shootingTestManager else {
+            return
+        }
+
+        let participant = participants[indexPath.row]
 
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "userAttemptsViewController") as! ShootingTestUserAttemptsViewController
-        vc.participantId = item.id!
+        vc.shootingTestManager = shootingTestManager
+        vc.participantId = participant.id
         self.navigationController?.pushViewController(vc, animated: true)
     }
 }

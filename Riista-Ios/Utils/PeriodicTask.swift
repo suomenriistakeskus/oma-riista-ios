@@ -7,7 +7,7 @@ class PeriodicTask {
     private let taskName: String
 
     private lazy var logger: AppLogger = {
-        AppLogger(context: taskName)
+        AppLogger(context: taskName, printTimeStamps: false)
     }()
 
     /**

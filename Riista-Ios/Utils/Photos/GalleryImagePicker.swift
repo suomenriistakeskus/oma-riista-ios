@@ -13,12 +13,7 @@ class GalleryImagePicker: RiistaUIImagePicker {
         // The .referenceUrl points to the image in ALAssetLibrary framework. Don't mix this with .imageUrl
         // as the latter points to the file on the disk (and we cannot load images based on that information)
         let imageUrl: URL? = info[.referenceURL] as? URL
-        let localIdentifier: String?
-        if #available(iOS 11, *) {
-            localIdentifier = (info[.phAsset] as? PHAsset)?.localIdentifier
-        } else {
-            localIdentifier = nil
-        }
+        let localIdentifier: String? = (info[.phAsset] as? PHAsset)?.localIdentifier
 
         guard let imageIdentifier = ImageIdentifier.create(localIdentifier: localIdentifier,
                                                            imageUrl: imageUrl?.absoluteString) else {

@@ -50,7 +50,7 @@ class ViewSrvaEventViewController:
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -82,8 +82,14 @@ class ViewSrvaEventViewController:
 
         tableViewController.addDefaultCellFactories(
             navigationControllerProvider: self,
-            specimenLauncher: { [weak self] fieldId, specimenData in
-                self?.showSpecimens(specimenData: specimenData)
+            specimenLauncher: { [weak self] fieldId, specimenData, allowEdit in
+                SpecimensViewControllerLauncher.launch(
+                    parent: self,
+                    fieldId: fieldId,
+                    specimenData: specimenData,
+                    allowEdit: allowEdit,
+                    onSpecimensEditDone: nil
+                )
             },
             speciesImageClickListener: { [weak self] fieldId, entityImage in
                 self?.onSpeciesImageClicked(fieldId: fieldId, entityImage: entityImage)
@@ -104,13 +110,8 @@ class ViewSrvaEventViewController:
     }
 
     private func updateEditAndDeleteButtonVisibilities(canEdit: Bool) {
-        editSrvaNavBarButton.isHidden = !canEdit
-        deleteSrvaNavBarButton.isHidden = !canEdit
-    }
-
-    private func showSpecimens(specimenData: SpecimenFieldDataContainer) {
-        let specimenViewController = ViewSpecimensViewController(specimenData: specimenData)
-        self.navigationController?.pushViewController(specimenViewController, animated: true)
+        editSrvaNavBarButton.isHiddenCompat = !canEdit
+        deleteSrvaNavBarButton.isHiddenCompat = !canEdit
     }
 
     private func onSpeciesImageClicked(fieldId: SrvaEventField, entityImage: EntityImage?) {
@@ -159,11 +160,14 @@ class ViewSrvaEventViewController:
     private func deleteSrva() {
         tableView.showLoading()
 
-        controller.deleteSrvaEvent(updateToBackend: AppSync.shared.isAutomaticSyncEnabled()) { [weak self] success, _ in
-            guard let self = self else { return }
+        controller.deleteSrvaEvent(
+            updateToBackend: AppSync.shared.isAutomaticSyncEnabled(),
+            completionHandler: handleOnMainThread { [weak self] success, _ in
+                guard let self = self else { return }
 
-            self.tableView.hideLoading()
-            self.navigationController?.popViewController(animated: true)
-        }
+                self.tableView.hideLoading()
+                self.navigationController?.popViewController(animated: true)
+            }
+        )
     }
 }

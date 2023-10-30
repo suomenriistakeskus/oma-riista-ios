@@ -42,8 +42,8 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     private lazy var markerClickHandler: MapMarkerClickHandler = {
         let clickHandler = MapMarkerClickHandler(mapView: mapView)
         clickHandler.onHarvestMarkerClicked = { [weak self] markerItemId in
-            guard case .objectId(let harvestId) = markerItemId else {
-                print("markerItemId didn't specify NSManagedObjectId (harvest)")
+            guard case .commonLocalId(let harvestId) = markerItemId else {
+                print("markerItemId didn't specify common local id (harvest)")
                 return false
             }
 
@@ -122,6 +122,12 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
         return UIBarButtonItem(customView: toggleMarkersButton)
     }()
 
+    private lazy var entriesForOtherActorsHelper: ShowEntriesForOtherActorsFilterHelper = {
+        let helper = ShowEntriesForOtherActorsFilterHelper()
+        helper.changeListener = SharedEntityFilterStateUpdater()
+        return helper
+    }()
+
     private lazy var toggleMarkersButton: CustomizableMaterialButton = {
         let btn = CustomizableMaterialButton(
             config: CustomizableMaterialButtonConfig { config in
@@ -141,14 +147,15 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
         btn.onClicked = { [weak self] in
             self?.onToggleMarkerVisibility()
         }
-        if #available(iOS 11.0, *) {
-            // nop, lets use autolayout as it is available for navbar starting from ios 11
-        } else {
-            // use a rough guess for frame size. The frame width will be updated based on text afterwards
-            btn.frame = CGRect(x: 0, y: 0, width: 150, height: 32)
-        }
         return btn
     }()
+
+    private lazy var toggleMarkersNavBarButton: HideableUIBarButtonItem = {
+        let navbarButton = HideableUIBarButtonItem(customView: toggleMarkersButton)
+        return navbarButton
+    }()
+
+    private lazy var allLeftNavBarButtons: [HideableUIBarButtonItem] = [entriesForOtherActorsHelper.showEntriesForOtherActorsNavBarButton, toggleMarkersNavBarButton]
 
     private lazy var appDelegate: RiistaAppDelegate = {
         return UIApplication.shared.delegate as! RiistaAppDelegate
@@ -178,12 +185,17 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
         // - it is possible to e.g. navigate to ViewObservationViewController and edit data there
         //   -> we want to update observation position once we get back here
         mapDataSource.shouldReloadData = true
-        SharedEntityFilterState.shared.addListener(mapDataSource)
+        mapDataSource.addEntityFilterChangeListener(entriesForOtherActorsHelper)
+        SharedEntityFilterState.shared.addEntityFilterChangeListener(mapDataSource)
         filterView.updateTexts()
 
         tabBarItem.title = "Map".localized()
         navigationItem.title = "" // no nav bar title
-        navigationItem.leftBarButtonItem = toggleMarkersBarButton
+        navigationItem.leftBarButtonItems = allLeftNavBarButtons.visibleButtons
+        entriesForOtherActorsHelper.showEntriesForOtherActorsNavBarButton.onShouldBeHiddenChanged = {
+            self.navigationItem.leftBarButtonItems = self.allLeftNavBarButtons.visibleButtons
+            NotificationCenter.default.post(Notification(name: .NavigationItemUpdated))
+        }
 
         loadPointsOfInterestWhenViewAppears()
         showPointsOfInterestOrIndicateMissingAreaId()
@@ -197,7 +209,8 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     }
 
     override func viewWillDisappear(_ animated: Bool) {
-        SharedEntityFilterState.shared.removeListener(mapDataSource)
+        mapDataSource.removeEntityFilterChangeListener(entriesForOtherActorsHelper)
+        SharedEntityFilterState.shared.removeEntityFilterChangeListener(mapDataSource)
         NotificationCenter.default.removeObserver(self)
 
         super.viewWillDisappear(animated)
@@ -214,7 +227,7 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     override func configureSubviewConstraints() {
         filterArea.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
 
         super.configureSubviewConstraints()
@@ -224,7 +237,7 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
         mapControlsOverlay.snp.makeConstraints { make in
             // controls may reach both edges
             make.leading.trailing.equalToSuperview()
-            make.top.greaterThanOrEqualTo(topLayoutGuide.snp.bottom)
+            make.top.greaterThanOrEqualTo(view.safeAreaLayoutGuide.snp.top)
             make.top.greaterThanOrEqualTo(filterArea.snp.bottom)
             make.bottom.equalTo(view.layoutMarginsGuide)
         }
@@ -274,20 +287,6 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
             self.toggleMarkersButton.leadingIcon = hideMarkersImage
             self.toggleMarkersButton.setTitle("MapHideMarkers".localized(), for: .normal)
         }
-
-        updateToggleMarkersButtonFrameOnIOS10()
-    }
-
-    private func updateToggleMarkersButtonFrameOnIOS10() {
-        if #available(iOS 11.0, *) {
-            // nop, lets use autolayout as it is available for navbar starting from ios 11
-            return
-        }
-
-        let titleWidth = (toggleMarkersButton.title(for: .normal) ?? "")
-            .getPreferredSize(font: toggleMarkersButton.customTitleLabel.font).width
-
-        toggleMarkersButton.updateFrame(width: titleWidth + 40) // 40 = icon + spacings
     }
 
     @objc private func refreshAfterManagedObjectContextChange() {
@@ -297,17 +296,14 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
 
     // MARK: - Marker click handling
 
-    internal func onHarvestClicked(harvestId: NSManagedObjectID) {
+    internal func onHarvestClicked(harvestId: KotlinLong) {
         // harvest can be clicked directly on the map but also from bottomsheet
         // -> ensure bottom sheet is dismissed before navigating forward
         bottomSheetHelper.dismiss() { [weak self] in
             guard let self = self else { return }
 
-            let diaryEntry = RiistaGameDatabase.sharedInstance().diaryEntry(with: harvestId, context: self.moContext)
-            if let harvest = diaryEntry?.toCommonHarvest(objectId: harvestId) {
-                let viewController = ViewHarvestViewController(harvest: harvest)
-                self.navigationController?.pushViewController(viewController, animated: true)
-            }
+            let viewController = ViewHarvestViewController(harvestId: harvestId.int64Value)
+            self.navigationController?.pushViewController(viewController, animated: true)
         }
     }
 
@@ -368,7 +364,7 @@ class MapViewController: BaseMapViewController, RiistaTabPage,
     // MARK: - ListMapEntriesViewController
 
     func onHarvestClicked(harvestId: ItemId, acceptStatus: AcceptStatus) {
-        if let harvestId = harvestId.localId {
+        if let harvestId = harvestId.commonLocalId {
             onHarvestClicked(harvestId: harvestId)
         }
     }

@@ -26,6 +26,7 @@ import fi.riista.common.network.BackendApiProvider
 import fi.riista.common.preferences.MockPreferences
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.util.MockDateTimeProvider
+import kotlinx.coroutines.runBlocking
 import kotlin.test.*
 
 class ViewSrvaEventControllerTest {
@@ -580,6 +581,7 @@ class ViewSrvaEventControllerTest {
             ),
             species = Species.Known(speciesCode = SpeciesCodes.MOOSE_ID),
             otherSpeciesDescription = null,
+            totalSpecimenAmount = 1,
             specimens = listOf(
                 CommonSrvaSpecimen(
                     gender = Gender.MALE.toBackendEnum(),
@@ -657,7 +659,9 @@ class ViewSrvaEventControllerTest {
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
 
         val mockUserContextProvider = CurrentUserContextProviderFactory.createMocked()
-        mockUserContextProvider.userLoggedIn(MOCK_USER_INFO)
+        runBlocking {
+            mockUserContextProvider.userLoggedIn(MOCK_USER_INFO)
+        }
 
         return SrvaContext(
             backendApiProvider = object : BackendApiProvider {
@@ -678,6 +682,7 @@ class ViewSrvaEventControllerTest {
     companion object {
         private val MOCK_USER_INFO = UserInfoDTO(
             username = "user",
+            personId = 123L,
             firstName = "user_first",
             lastName = "user_last",
             birthDate = null,
@@ -693,9 +698,6 @@ class ViewSrvaEventControllerTest {
             huntingCardValidNow = true,
             qrCode = null,
             timestamp = "2022-01-01",
-            gameDiaryYears = emptySet(),
-            harvestYears = emptySet(),
-            observationYears = emptySet(),
             shootingTests = emptyList(),
             occupations = emptyList(),
             enableSrva = true,

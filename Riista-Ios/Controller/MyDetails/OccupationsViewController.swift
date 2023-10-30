@@ -1,6 +1,6 @@
 import Foundation
 
-class OccupationsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class OccupationsViewController: BaseViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
 

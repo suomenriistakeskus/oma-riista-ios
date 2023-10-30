@@ -55,7 +55,7 @@ class ListGroupHuntingHuntingDaysController:
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.tableView = tableView
@@ -104,7 +104,7 @@ class ListGroupHuntingHuntingDaysController:
                                      style: .plain,
                                      target: self,
                                      action: #selector(onCreateHuntingDayClicked))
-        button.isHidden = true
+        button.isHiddenCompat = true
         return button
     }()
 
@@ -126,8 +126,8 @@ class ListGroupHuntingHuntingDaysController:
         view.addSubview(container)
         container.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         container.addArrangedSubview(dateFilter)
@@ -179,7 +179,7 @@ class ListGroupHuntingHuntingDaysController:
     override func onViewModelLoaded(viewModel: ListHuntingDaysViewModel) {
         super.onViewModelLoaded(viewModel: viewModel)
 
-        createHuntingDayNavBarButton.isHidden = !viewModel.canCreateHuntingDay
+        createHuntingDayNavBarButton.isHiddenCompat = !viewModel.canCreateHuntingDay
 
         if let huntingDays = viewModel.huntingDays {
             showDateFilter(huntingDays: huntingDays)

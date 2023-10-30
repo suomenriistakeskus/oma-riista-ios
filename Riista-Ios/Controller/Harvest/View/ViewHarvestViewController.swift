@@ -1,18 +1,27 @@
 import Foundation
+import DropDown
 import MaterialComponents
 import RiistaCommon
 
+
+fileprivate let HARVEST_SETTINGS: Int = 1
+
 class ViewHarvestViewController:
     BaseControllerWithViewModel<ViewHarvestViewModel, ViewHarvestController>,
-    ProvidesNavigationController, ModifyHarvestCompletionListener
+    ProvidesNavigationController, ModifyHarvestViewControllerListener
 {
+    let harvestId: Int64
 
     private lazy var _controller: ViewHarvestController = {
         ViewHarvestController(
+            harvestId: harvestId,
+            harvestContext: RiistaSDK.shared.harvestContext,
             harvestSeasons: RiistaSDK.shared.harvestSeasons,
             speciesResolver: SpeciesInformationResolver(),
-            permitProvider: AppPermitProvider(),
-            stringProvider: LocalizedStringProvider()
+            harvestPermitProvider: AppHarvestPermitProvider(),
+            preferences: RiistaSDK.shared.preferences,
+            stringProvider: LocalizedStringProvider(),
+            languageProvider: CurrentLanguageProvider()
         )
     }()
 
@@ -22,18 +31,7 @@ class ViewHarvestViewController:
         }
     }
 
-    private lazy var appDelegate: RiistaAppDelegate = {
-        return UIApplication.shared.delegate as! RiistaAppDelegate
-    }()
-
-    internal lazy var moContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
-        context.parent = appDelegate.managedObjectContext
-        return context
-    }()
-
     private let tableViewController = DataFieldTableViewController<CommonHarvestField>()
-    var harvest: CommonHarvest
 
     private lazy var editHarvestNavBarButton: UIBarButtonItem = {
         UIBarButtonItem(
@@ -53,21 +51,44 @@ class ViewHarvestViewController:
        )
     }()
 
+    private lazy var moreMenuNavBarButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(
+            image: UIImage(named: "more_menu"),
+            style: .plain,
+            target: self,
+            action: #selector(onMoreMenuItemClicked)
+        )
+        return button
+    }()
+
+    private lazy var moreMenuItems: DropdownItemProvider = {
+        let provider = DropdownItemProvider()
+        provider.addItem(DropdownItem(
+            id: HARVEST_SETTINGS,
+            title: "HarvestSettings".localized(),
+            hidden: false,
+            onClicked: { [weak self] in
+                self?.onHarvestSettingsClicked()
+            }
+        ))
+        return provider
+    }()
+
     private(set) lazy var tableView: TableView = {
         let tableView = TableView()
         tableView.layoutMargins = AppConstants.UI.DefaultHorizontalEdgeInsets
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
         return tableView
     }()
 
-    @objc init(harvest: CommonHarvest) {
-        self.harvest = harvest
+    @objc init(harvestId: Int64) {
+        self.harvestId = harvestId
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -81,8 +102,8 @@ class ViewHarvestViewController:
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 
@@ -91,8 +112,14 @@ class ViewHarvestViewController:
 
         tableViewController.addDefaultCellFactories(
             navigationControllerProvider: self,
-            specimenLauncher: { [weak self] fieldId, specimenData in
-                self?.showSpecimens(specimenData: specimenData)
+            specimenLauncher: { [weak self] fieldId, specimenData, allowEdit in
+                SpecimensViewControllerLauncher.launch(
+                    parent: self,
+                    fieldId: fieldId,
+                    specimenData: specimenData,
+                    allowEdit: allowEdit,
+                    onSpecimensEditDone: nil
+                )
             },
             speciesImageClickListener: { [weak self] fieldId, entityImage in
                 self?.onSpeciesImageClicked(fieldId: fieldId, entityImage: entityImage)
@@ -100,35 +127,8 @@ class ViewHarvestViewController:
         )
 
         title = "Harvest".localized()
-    }
 
-    override func viewWillAppear(_ animated: Bool) {
-        controllerHolder.bindToViewModelLoadStatus()
-
-        super.viewWillAppear(animated)
-        navigationItem.rightBarButtonItems = [
-            deleteHarvestNavBarButton,
-            editHarvestNavBarButton
-        ]
-
-        // Reload harvest, user might have edited it
-        guard let localUri = harvest.localUrl,
-              let uri = URL(string: localUri),
-              let objectId = moContext.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri) else {
-                  print("Unable to retrieve objectID")
-                  return
-        }
-
-        if let harvestEntry = RiistaGameDatabase.sharedInstance().diaryEntry(with: objectId, context: moContext) {
-            self.moContext.refresh(harvestEntry, mergeChanges: true)
-
-            if let commonHarvest = harvestEntry.toCommonHarvest(objectId: objectId) {
-                self.harvest = commonHarvest
-                controller.harvest = commonHarvest
-
-                controllerHolder.loadViewModel(refresh: controllerHolder.shouldRefreshViewModel)
-            }
-        }
+        navigationItem.rightBarButtonItems = [moreMenuNavBarButton, deleteHarvestNavBarButton, editHarvestNavBarButton]
     }
 
     override func onViewModelLoaded(viewModel: ViewModelType) {
@@ -140,18 +140,13 @@ class ViewHarvestViewController:
     }
 
     private func updateEditAndDeleteButtonVisibilities(canEdit: Bool) {
-        editHarvestNavBarButton.isHidden = !canEdit
-        deleteHarvestNavBarButton.isHidden = !canEdit
+        editHarvestNavBarButton.isHiddenCompat = !canEdit
+        deleteHarvestNavBarButton.isHiddenCompat = !canEdit
     }
 
     private func updateEditAndDeleteButtonEnabledStatus(enabled: Bool) {
         editHarvestNavBarButton.isEnabled = enabled
         deleteHarvestNavBarButton.isEnabled = enabled
-    }
-
-    private func showSpecimens(specimenData: SpecimenFieldDataContainer) {
-        let specimenViewController = ViewSpecimensViewController(specimenData: specimenData)
-        self.navigationController?.pushViewController(specimenViewController, animated: true)
     }
 
     private func onSpeciesImageClicked(fieldId: CommonHarvestField, entityImage: EntityImage?) {
@@ -171,8 +166,18 @@ class ViewHarvestViewController:
     }
 
     @objc private func onEditHarvestClicked() {
-        let viewController = EditHarvestViewController(harvest: harvest)
+        guard let editableHarvest = controller.getLoadedViewModelOrNull()?.editableHarvest else {
+            print("Canno edit, no editable harvest?")
+            return
+        }
+
+        let viewController = EditHarvestViewController(harvest: editableHarvest)
+        viewController.listener = self
         self.navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    func onHarvestUpdated() {
+        controllerHolder.shouldRefreshViewModel = true
     }
 
     @objc private func onDeleteHarvestClicked() {
@@ -188,80 +193,37 @@ class ViewHarvestViewController:
     }
 
     private func deleteHarvest() {
-        guard let localUri = harvest.localUrl,
-              let uri = URL(string: localUri),
-              let objectId = moContext.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri) else {
-                  print("Unable to retrieve objectID, cannot delete harvest")
-                  return
-          }
+        tableView.showLoading()
 
-        guard let harvestEntry = RiistaGameDatabase.sharedInstance().diaryEntry(with: objectId, context: moContext) else {
-            print("Couldn't find harvest, cannot delete")
-            return
-        }
+        controller.deleteHarvest(
+            updateToBackend: AppSync.shared.isAutomaticSyncEnabled(),
+            completionHandler: handleOnMainThread { [weak self] success, _ in
+                guard let self = self else { return }
 
-        RiistaGameDatabase.sharedInstance().deleteLocalEvent(harvestEntry)
-
-        if (deleteHarvestIfLocalOnly(harvest: harvestEntry)) {
-            navigationController?.popViewController(animated: true)
-            return
-        }
-
-        if (SynchronizationMode.currentValue == .automatic) {
-            tableView.showLoading()
-            updateEditAndDeleteButtonEnabledStatus(enabled: false)
-
-            RiistaGameDatabase.sharedInstance().deleteDiaryEntryCompat(harvestEntry) { [weak self] wasSuccess in
-                self?.tableView.hideLoading { [weak self] in
-                    if (wasSuccess) {
-                        self?.deleteLocalHarvest(harvest: harvestEntry)
-                        self?.navigationController?.popViewController(animated: true)
-                    } else {
-                        self?.updateEditAndDeleteButtonEnabledStatus(enabled: true)
-
-                        let errorDialog = AlertDialogBuilder.createError(message: "NetworkOperationFailed".localized())
-                        self?.present(errorDialog, animated: true)
-                    }
-                }
+                self.tableView.hideLoading()
+                self.navigationController?.popViewController(animated: true)
             }
-        } else {
-            navigationController?.popViewController(animated: true)
-        }
+        )
     }
 
-
-    private func deleteHarvestIfLocalOnly(harvest: DiaryEntry) -> Bool {
-        if (harvest.remote?.boolValue == true) {
-            return false
+    @objc private func onMoreMenuItemClicked() {
+        let dropDown = DropDown()
+        dropDown.anchorView = moreMenuNavBarButton
+        dropDown.direction = .bottom
+        dropDown.bottomOffset = CGPoint(x: 0, y: moreMenuNavBarButton.plainView.bounds.height)
+        dropDown.setDataSource(using: moreMenuItems)
+        dropDown.selectionAction = { [weak self] (index: Int, _: String) in
+            self?.moreMenuItems.onItemSelected(index: index)
         }
 
-        deleteLocalHarvest(harvest: harvest)
-        return true
+        dropDown.show()
     }
 
-    private func deleteLocalHarvest(harvest: DiaryEntry) {
-        harvest.managedObjectContext?.performAndWait {
-            harvest.managedObjectContext?.delete(harvest)
-            harvest.managedObjectContext?.performAndWait {
-                try? harvest.managedObjectContext?.save()
+    private func onHarvestSettingsClicked() {
+        // changing settings may affect how data is displayed -> refresh when returning
+        controllerHolder.shouldRefreshViewModel = true
 
-                if let appDelegate = UIApplication.shared.delegate as? RiistaAppDelegate {
-                    appDelegate.managedObjectContext.performAndWait {
-                        try? appDelegate.managedObjectContext.save()
-                    }
-                } else {
-                    print("Failed to obtain app delegate for saving managed object contexts.")
-                }
-            }
-        }
-    }
-
-    func updateUserInterfaceAfterHarvestSaved() {
-        self.navigationController?.popToViewController(self, animated: false)
-
-        // also pop this view controller as harvest id (in coredata) may change when it
-        // is synchronized to the backend -> it cannot be modified again
-        // TODO: figure out a way to remove this limitation
-        self.navigationController?.popViewController(animated: true)
+        let viewController = HarvestSettingsViewController()
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }

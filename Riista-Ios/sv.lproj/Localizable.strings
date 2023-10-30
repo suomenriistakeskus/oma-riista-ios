@@ -20,6 +20,7 @@
 "MenuEventSearch" = "Sök evenemang";
 "MenuReadMagazine" = "Läs senaste numret av Jägaren";
 "MenuOpenSeasons" = "Jakttider";
+"MenuAbout" = "Information";
 "MenuMore" = "Mer";
 
 "LoginTabTitle" = "Logga in";
@@ -72,7 +73,9 @@
 "MyDetailsTitleHuntingLicense" = "Jaktkort";
 "MyDetailsTitleShootingTests" = "Skjutprovsprestationerna";
 "MyDetailsNoShootingTestAttempts" = "Inga ikraftvarande elektroniska skjutprovsprestationer";
-"MyDetailsInsurancePolicyText" = "I detta kort nämnda jägare har en jägarförsäkring, som är giltig i alla nordiska länder, Schweiz och EU-länder.";
+"MyDetailsInsurancePolicyText" = "I detta kort nämnda jägare har en jägarförsäkring, som är giltig i alla nordiska länder, EU-länderna, Schweiz och Storbritannien på jaktresor som varar högst 60 dygn.";
+"MyDetailsInsuranceInstructionsLinkTitle" = "Försäkringsinstruktioner";
+"MyDetailsInsuranceInstructionsLinkUrl" = "https://riista.fi/sv/jakt/tjanster-for-jagarna/forsakringar/jagarforsakring/";
 "MyDetailsPayment" = "Jaktvårdsavgift";
 "MyDetailsExamDate" = "Datum för avläggande av examen";
 "MyDetailsMembership" = "JVF medlemsskap";
@@ -82,13 +85,6 @@
 "MyDetailsHuntingBan" = "Jaktförbud";
 "MyDetailsAssignmentsTitle" = "Uppdrag";
 "MyDetailsClubMembershipsTitle" = "Föreningsmedlemsskap";
-"MyDetailsMhPermitsTitle" = "Forststyrelsens licenser";
-"MyDetailsMhPermitTitle" = "Licens";
-"MyDetailsMhCardTitle" = "Forststyrelsen";
-"MyDetailsMhPermitArea" = "Område";
-"MyDetailsMhPermitName" = "Typ av licens";
-"MyDetailsMhPermitPeriod" = "Tid";
-"MyDetailsMhPermitHarvestFeedback" = "Skicka bytesrespons";
 "MyDetailsTrainingsTitle" = "Tränings";
 "MyDetailsNoTrainings" = "Inga tränings";
 "MyDetailsTrainingDate" = "Datum";
@@ -101,9 +97,18 @@
 "JhtTrainingOccupationTypeRhynEdustajaRiistavahinkojenMaastokatselmuksessa" = "JVF:s representant för terrängobservation vid viltskador";
 "OccupationTrainingOccupationTypePetoyhdyshenkilo" = "Rovdjurskontaktperson";
 "AlertTitle" = "Obs";
-"MyDetailsMhFeedbackAlertMessage" = "Du håller på att flytta dig från Oma riista -tjänsten till Forststyrelsens fångstresponssystem.\n\nOm det uppstår problem vid givandet av fångstresponsen eller om du vill ha tilläggsinformation om ärendet, ta kontakt med kundtjänsten för vildmarkstillstånd vid Forststyrelsen, t. 020 69 2424 (vardagar kl. 9-16) eller per e-post till adressen eraluvat@metsa.fi.";
 "Duration" = "I kraft";
 "DurationIndefinite" = "Tills vidare";
+
+"MetsahallitusPermitsTitle" = "Forststyrelsens licenser";
+"MetsahallitusPermitsNoPermits" = "Inga licenser";
+"MetsahallitusPermitTitle" = "Licens";
+"MetsahallitusPermitCardTitle" = "Forststyrelsen";
+"MetsahallitusPermitArea" = "Område";
+"MetsahallitusPermitName" = "Typ av licens";
+"MetsahallitusPermitPeriod" = "Tid";
+"MetsahallitusPermitHarvestFeedback" = "Skicka bytesrespons";
+"MetsahallitusPermitFeedbackAlertMessage" = "Du håller på att flytta dig från Oma riista -tjänsten till Forststyrelsens fångstresponssystem.\n\nOm det uppstår problem vid givandet av fångstresponsen eller om du vill ha tilläggsinformation om ärendet, ta kontakt med kundtjänsten för vildmarkstillstånd vid Forststyrelsen, t. 020 69 2424 (vardagar kl. 9-16) eller per e-post till adressen eraluvat@metsa.fi.";
 
 "HuntingClubMembershipInvitations" = "Föreningsinbjudningar";
 "HuntingClubMembershipAcceptInvitation" = "Godkänn inbjudan";
@@ -132,6 +137,7 @@
 "MapSettingStateLands" = "Statens mark";
 "MapSettingRhyBorders" = "JVF-gränser";
 "MapSettingGameTriangles" = "Vilttrianglar";
+"MapSettingLeadShotBan" = "Områden med blyhagelförbud";
 "MapSettingOfflineMaps" = "Offlinekartor";
 "MapSettingLabelBackgroundMaps" = "Bakgrundskarta";
 "MapSettingLabelMapLayers" = "Kartlager";
@@ -280,6 +286,7 @@
 "ObservationDetailsMooseCalfWithinDeerHunting" = "Ensam kalv";
 "ObservationDetailsMooseUnknownWithinDeerHunting" = "Okända";
 "ObservationDetailsDescription" = "Beskrivning";
+"ErrorObservationSpecimenAmountAtLeastTwo" = "Det måste finnas minst två individuppgifter";
 
 "ObservationDetailsCategory" = "Observationssammanhang";
 "ObservationCategoryNormal" = "Vanligt";
@@ -350,12 +357,12 @@
 "PhoneShort" = "Tel.";
 "ContactLicenseIssuesTitle" = "Jaktkortsärenden";
 
-"DeleteUserAccount" = "Radera användarkoden";
-"DeleteUserAccountMessage" = "Jag vill radera mina frivilliga viltuppgifter, användarkontot samt mina personuppgifter från Oma\U00A0riista\U00A0-tjänsten.\n\nJag förstår, att mina uppgifter inte kan returneras efter\U00A0raderingen.";
-"DeleteUserAccountQuestion" = "Är du säker på att du vill radera din användarkod?";
+"DeleteUserAccount" = "Radera användarkontot";
+"DeleteUserAccountMessage" = "Jag vill radera mina frivilliga viltuppgifter, användarkonto samt mina personuppgifter från Oma\U00A0riista\U00A0-tjänsten. Jag förstår, att mina uppgifter inte kan returneras efter raderingen.\n\nOm du raderar Oma riista -kontot, raderas inte dina uppgifter från Jägarregistret. Du måste kontakta Jägarregistret skriftiligen om du vill att dina uppgifter ska raderas även därifrån. Genom att radera uppgifterna från jägarregistret förfaller jägarexamen och det går inte längre att utöva\U00A0jakt.";
+"DeleteUserAccountQuestion" = "Att byta användarsignum/e-postadress i Oma riista -tjänsten förutsätter inte att man raderar användarkontot, det lyckas genom att du registrera dig till tjänsten på nytt.  Då kommer också all information som du tidigare angett i tjänsten att förbli som förut.\n\nÄr du säker på att du vill radera din användarkonto?";
 "DeleteUserAccountRequestSentTitleShort" = "Begäran har skickats";
 "DeleteUserAccountRequestSentTitle" = "Begäran om radering av användarkontot har skickats";
-"DeleteUserAccountRequestSentMessageAtTime" = "Ett automatiskt e-postmeddelande har skickats till Oma riista -tjänstens underhåll %@ angående begäran om radering av användarkonto och en kopia av meddelandet har även vidarebefordrats till den e-postadress som angetts i dina egna uppgifter. Vanligen raderas användarkontot av underhållet inom två\U00A0veckor.\n\nVar vänlig och ta kontakt med kundtjänsten oma@riista.fi, ifall du i misstag har begärt om radering av användarkontot.";
+"DeleteUserAccountRequestSentMessageAtTime" = "Ett automatiskt e-postmeddelande har skickats till Oma riista -tjänstens underhåll %@ angående begäran om radering av användarkontot och en kopia av meddelandet har även vidarebefordrats till den e-postadress som angetts i dina egna uppgifter. Vanligen raderas användarkontot av underhållet inom två\U00A0veckor.\n\nVar vänlig och ta kontakt med kundtjänsten oma@riista.fi, ifall du i misstag har begärt om radering av användarkontot.\n\nOm du raderar Oma riista -kontot, raderas inte dina uppgifter från Jägarregistret. Du måste kontakta Jägarregistret skriftiligen om du vill att dina uppgifter ska raderas även därifrån. Genom att radera uppgifterna från jägarregistret förfaller jägarexamen och det går inte längre att utöva\U00A0jakt.";
 "DeleteUserAccountContinueUsing" = "Fortsätt använda tjänsten";
 
 "Synchronization" = "Synkronisering";
@@ -363,6 +370,7 @@
 "Automatic" = "Automatisk";
 "Version" = "Version %@";
 "Language" = "Språk";
+"MapSettings" = "Kartinställningar";
 
 "MapTypeSelect" = "Karta typ";
 "MapTypeTopographic" = "Terräng";
@@ -429,6 +437,7 @@
 "UpdateAvailableTitle" = "Uppdatering finns att få";
 "UpdateAvailableMessage" = "Ladda ner en ny version av Oma riista från App Store.";
 "UpdateAction" = "Uppdatera";
+"UpdateAllAction" = "Uppdatera alla";
 
 "ButtonClearTitle" = "Tyhjennä";
 "NetworkOperationFailed" = "Operationen misslyckades";
@@ -571,7 +580,7 @@
 
 "GroupMemberSelectionSelectHunter" = "Välj en skytt";
 "GroupMemberSelectionSelectObserver" = "Välj en observationer";
-"GroupMemberSelectionSearchByName" = "Sök efter namn";
+"GroupMemberSelectionSearchByName" = "Filtrera listan efter namn";
 "GroupMemberSelectionNameHint" = "Namn";
 
 "GroupHuntingContinueToApprove" = "Gå för att godkänna";
@@ -639,6 +648,27 @@
 "HarvestFieldLoneCalf" = "Ensam kalv";
 "HarvestAdditionalInformationInstructions" = "Tilläggsuppgifter, t.ex. foster, parasiter, sjukdomar, ärr efter rovdjursrivning, älgflugor, krockskador, färgförändringar, brunstuppgifter";
 "HarvestAdditionalInformationInstructionsWhiteTailedDeer" = "Tilläggsuppgifter, t.ex. foster, parasiter, sjukdomar, ärr efter rovdjursrivning, älgflugor, krockskador, färgförändringar, brunstuppgifter, avvikande från metod 4 eller 5, snödjupet cm";
+"HarvestLabelOwnHarvest" = "Eget byte";
+"HarvestLabelHuntingClub" = "Förening";
+"HarvestLabelHuntingClubOfficialCode" = "Föreningens kundnummer";
+
+"HuntingClubSelectionSelectClub" = "Välj förening";
+"HuntingClubSelectionSearchByName" = "Sök med namn eller kundnummer";
+"HuntingClubSelectionSearchByNameHint" = "Namn eller kundnummer";
+"HuntingClubSelectionNoClubSelection" = "Inget val";
+"HuntingClubSelectionOtherClub" = "Annat";
+
+"HuntingClubSearchEnterClubOfficialCode" = "Ge föreningens 7-siffriga kundnummer";
+"HuntingClubSearchInvalidOfficialCode" = "Föreningens kundnummer är felaktigt";
+"HuntingClubSearchSearchingByOfficialCode" = "Föreningens uppgifter hämtas..";
+"HuntingClubSearchSearchFailed" = "Hittades ingen förening med kundnumret.";
+
+"HarvestSettings" = "Inställningar för anteckning av byte";
+"HarvestSettingsAddHarvestForOtherHunter" = "Antecknar byte åt någon annan";
+"HarvestSettingsAddHarvestForOtherHunterExplanation" = "\U25CF Antecknar byten åt andra jägare";
+"HarvestSettingsEnableClubSelection" = "Antecknar byte åt annan förening";
+"HarvestSettingsEnableClubSelectionExplanation" = "\U25CF Välj en förening för vilken byten rapporteras";
+"FilterShowingEntriesForOthers" = "Visar antecknade poster för andra";
 
 "FitnessClassExcellent" = "Utmärkt";
 "FitnessClassNormal" = "Normal";
@@ -662,6 +692,8 @@
 "GroupHuntingObservationFieldAuthor" = "Anmälare";
 
 "ObservationTypeNako" = "Synobservation";
+"ObservationTypePoikue" = "Kull";
+"ObservationTypePari" = "Par";
 "ObservationTypeJalki" = "Spårobservation";
 "ObservationTypeUloste" = "Exkrement";
 "ObservationTypeAani" = "Ljud";
@@ -684,7 +716,7 @@
 "ObservationTypeLuolasto" = "Gryt";
 "ObservationTypePesimaluoto" = "Häckningskär";
 "ObservationTypeLepailyluoto" = "Viloskär";
-"ObservationTypePesimasuo" = "Häckningsmyr";
+"ObservationTypePesimasuo" = "Ruggningsplats";
 "ObservationTypeMuutonAikainenLepailyalue" = "Viloplats för flyttande fågel";
 "ObservationTypeRiistankulkupaikka" = "Viltpassage";
 "ObservationTypePoikueymparisto" = "Livsmiljö för skogshönsfågelkullar";
@@ -698,6 +730,13 @@
 "ObservationTypeLeppakuusimetsaTaiKoivikuusimetsa" = "Myrens kantskog";
 "ObservationTypeRuokailupajukkoTaiKoivikko" = "Födoplats bland vide- eller björkbestånd";
 "ObservationTypeMuu" = "Annat";
+
+"SunriseAndSunsetTitle" = "Soltider";
+"SunDaySelectionLabel" = "Datum";
+"SunSunriseLabel" = "Soluppgång";
+"SunSunsetLabel" = "Solnedgång";
+"SunInstructions" = "Välj en plats för att se tider för\nsoluppgång och solnedgång.";
+"SunDisclaimer" = "Solens upp- och nedgångstid har beräknats med hjälp läget av kartans platspekare. Soluppgången är det klockslaget, då solens övre kant blir synlig ovanför horisonten. På motsvarande sätt är solnedgången den stunden, då solens övre kant försvinner bakom horisonten. Solens upp- och nedgångstid varierar mellan orterna beroende på deras plats i longitud och latitud samt på årstiden. De officiella solens upp- och nedgångstider för Finland definieras i Helsingfors universitets almanacka.";
 
 
 /* Hunting control */
@@ -729,11 +768,11 @@
 "HuntingControlChooseInspectors" = "Välj övervakare";
 "HuntingControlChooseCooperation" = "Välj samarbete";
 
-"HuntingControlInspectorSelectionSearchByName" = "Sök efter namn";
-"HuntingControlInspectorSelectionNameHint" = "Namn";
+"HuntingControlErrorNoInspectorsForSelectedDate" = "Det finns inga övervakare för den valda dagen";
+"HuntingControlErrorNoSelfAsInspector" = "Du kan inte ta bort dig själv från listan över övervakare";
 
 "HuntingControlAttachments" = "Bilagor";
-"HuntingControlInspectorSelectionSearchByName" = "Sök efter namn";
+"HuntingControlInspectorSelectionSearchByName" = "Filtrera listan efter namn";
 "HuntingControlInspectorSelectionNameHint" = "Namn";
 "HuntingControlErrorNoInspectorsForSelectedDate" = "Det finns inga övervakare för den valda dagen";
 "HuntingControlEventSaveFailedGeneric" = "Det gick inte att spara övervakningshändelsen";

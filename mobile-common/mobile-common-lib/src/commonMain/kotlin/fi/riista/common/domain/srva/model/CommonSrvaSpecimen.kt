@@ -10,7 +10,16 @@ import kotlinx.serialization.Serializable
 data class CommonSrvaSpecimen(
     val gender: BackendEnum<Gender>,
     val age: BackendEnum<GameAge>,
+) {
+    fun isEmpty() = this == EMPTY_SRVA_SPECIMEN
+}
+
+private val EMPTY_SRVA_SPECIMEN = CommonSrvaSpecimen(
+    gender = BackendEnum.create(null),
+    age = BackendEnum.create(null),
 )
+
+internal fun Iterable<CommonSrvaSpecimen>.keepNonEmpty() = filter { !it.isEmpty() }
 
 internal fun CommonSrvaSpecimen.toCommonSpecimenData(): CommonSpecimenData {
     return CommonSpecimenData(

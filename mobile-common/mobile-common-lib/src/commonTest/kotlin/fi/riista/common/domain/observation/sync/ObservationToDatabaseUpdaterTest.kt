@@ -39,7 +39,11 @@ class ObservationToDatabaseUpdaterTest {
             ?.toObservationPage()
         assertNotNull(observationPage)
         runBlocking {
-            updater.update(username = username, observations = observationPage.content)
+            updater.update(
+                username = username,
+                observations = observationPage.content,
+                overwriteNonModified = false,
+            )
         }
 
         val insertedObservations = repository.listObservations(username)
@@ -66,7 +70,7 @@ class ObservationToDatabaseUpdaterTest {
         assertEquals("Matti", observation.observerName)
         assertEquals("123456", observation.observerPhoneNumber)
         assertEquals("Other info", observation.officialAdditionalInfo)
-        var expectedSpecimens = setOf(
+        var expectedSpecimens = listOf(
             CommonObservationSpecimen(
                 remoteId = 192,
                 revision = 0,
@@ -78,7 +82,7 @@ class ObservationToDatabaseUpdaterTest {
                 lengthOfPaw =  6.6
             )
         )
-        assertEquals(expectedSpecimens, observation.specimens?.toSet())
+        assertEquals(expectedSpecimens, observation.specimens)
         assertFalse(assertNotNull(observation.pack))
         assertFalse(assertNotNull(observation.litter))
         assertEquals(6787724453918204169, observation.mobileClientRefId)
@@ -92,7 +96,11 @@ class ObservationToDatabaseUpdaterTest {
         println(updatedObservationPage)
         assertNotNull(updatedObservationPage)
         runBlocking {
-            updater.update(username = username, observations = updatedObservationPage.content)
+            updater.update(
+                username = username,
+                observations = updatedObservationPage.content,
+                overwriteNonModified = false,
+            )
         }
 
         val updatedObservations = repository.listObservations(username)
@@ -119,7 +127,7 @@ class ObservationToDatabaseUpdaterTest {
         assertEquals("Ville", observation.observerName)
         assertEquals("7654321", observation.observerPhoneNumber)
         assertEquals("New info", observation.officialAdditionalInfo)
-        expectedSpecimens = setOf(
+        expectedSpecimens = listOf(
             CommonObservationSpecimen(
                 remoteId = 192,
                 revision = 1,
@@ -130,18 +138,8 @@ class ObservationToDatabaseUpdaterTest {
                 widthOfPaw =  5.4,
                 lengthOfPaw =  6.5
             ),
-            CommonObservationSpecimen(
-                remoteId = null,
-                revision = null,
-                gender = null.toBackendEnum(),
-                age = null.toBackendEnum(),
-                stateOfHealth = null.toBackendEnum(),
-                marking = null.toBackendEnum(),
-                widthOfPaw = null,
-                lengthOfPaw = null,
-            )
         )
-        assertEquals(expectedSpecimens, observation.specimens?.toSet())
+        assertEquals(expectedSpecimens, observation.specimens)
         assertTrue(assertNotNull(observation.pack))
         assertTrue(assertNotNull(observation.litter))
         assertEquals(6787724453918204169, observation.mobileClientRefId)
@@ -164,7 +162,11 @@ class ObservationToDatabaseUpdaterTest {
             ?.toObservationPage()
         assertNotNull(observationPage)
         runBlocking {
-            updater.update(username = username, observations = observationPage.content)
+            updater.update(
+                username = username,
+                observations = observationPage.content,
+                overwriteNonModified = false,
+            )
         }
 
         val insertedObservations = repository.listObservations(username)
@@ -175,7 +177,11 @@ class ObservationToDatabaseUpdaterTest {
 
         // Change some observation data but keep revision as it is. Now try to update the observation => it shouldn't be written to DB
         observation = observation.copy(totalSpecimenAmount = 2)
-        updater.update(username = username, observations = listOf(observation))
+        updater.update(
+            username = username,
+            observations = listOf(observation),
+            overwriteNonModified = false,
+        )
 
         var updatedObservations = repository.listObservations(username)
         assertEquals(1, updatedObservations.size)
@@ -185,11 +191,65 @@ class ObservationToDatabaseUpdaterTest {
         val newSpecVersion = observation.observationSpecVersion + 1
         observation = observation.copy(observationSpecVersion = newSpecVersion)
 
-        updater.update(username = username, observations = listOf(observation))
+        updater.update(
+            username = username,
+            observations = listOf(observation),
+            overwriteNonModified = false,
+        )
         updatedObservations = repository.listObservations(username)
         assertEquals(1, updatedObservations.size)
         assertEquals(2, updatedObservations[0].totalSpecimenAmount)
         assertEquals(newSpecVersion, updatedObservations[0].observationSpecVersion)
+    }
+
+    @Test
+    fun `non-modified observation can be overwritten in database`() = runBlocking {
+        val username = "user"
+        val dbDriverFactory = createDatabaseDriverFactory()
+        val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
+        val updater = ObservationToDatabaseUpdater(database)
+        val repository = ObservationRepository(database)
+
+        assertEquals(0, repository.listObservations(username).size)
+
+        val observationPage = MockObservationPageData.observationPageWithOneObservation
+            .deserializeFromJson<ObservationPageDTO>()
+            ?.toObservationPage()
+        assertNotNull(observationPage)
+        runBlocking {
+            updater.update(
+                username = username,
+                observations = observationPage.content,
+                overwriteNonModified = false,
+            )
+        }
+
+        val insertedObservations = repository.listObservations(username)
+        assertEquals(1, insertedObservations.size)
+
+        var observation = insertedObservations[0]
+        assertEquals(1, observation.totalSpecimenAmount)
+
+        // Change some observation data but keep revision as it is. Now try to update the observation => it shouldn't be written to DB
+        observation = observation.copy(totalSpecimenAmount = 2)
+        updater.update(
+            username = username,
+            observations = listOf(observation),
+            overwriteNonModified = false,
+        )
+
+        var updatedObservations = repository.listObservations(username)
+        assertEquals(1, updatedObservations.size)
+        assertEquals(1, updatedObservations[0].totalSpecimenAmount)
+
+        updater.update(
+            username = username,
+            observations = listOf(observation),
+            overwriteNonModified = true,
+        )
+        updatedObservations = repository.listObservations(username)
+        assertEquals(1, updatedObservations.size)
+        assertEquals(2, updatedObservations[0].totalSpecimenAmount)
     }
 
     @Test
@@ -295,7 +355,11 @@ class ObservationToDatabaseUpdaterTest {
             observation = observationWithLocalImage.copy(remoteId = null),
         )
 
-        updater.update(username = username, observations = listOf(observation))
+        updater.update(
+            username = username,
+            observations = listOf(observation),
+            overwriteNonModified = false,
+        )
         val updatedObservations = repository.listObservations(username)
         assertEquals(1, updatedObservations.size)
         val updatedObservation = updatedObservations.first()

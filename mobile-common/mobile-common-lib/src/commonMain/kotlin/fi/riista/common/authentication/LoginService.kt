@@ -66,7 +66,7 @@ class LoginService internal constructor(
         loginCredentials = LoginCredentials(username, password)
     }
 
-    fun logout() {
+    suspend fun logout() {
         loginCredentials = null
         currentUserContextProvider.userLoggedOut()
     }

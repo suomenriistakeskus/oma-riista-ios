@@ -1,6 +1,11 @@
 import Foundation
+import MaterialComponents.MaterialButtons
+import RiistaCommon
 
-class ShootingTestEditPaymentViewController: UIViewController, ShootingTestValueButtonDelegate, ValueSelectionDelegate {
+
+class ShootingTestEditPaymentViewController: BaseViewController, SelectSingleStringViewControllerDelegate {
+    private static let singleAttemptCost: Int = 20
+
     @IBOutlet weak var participantTitle: UILabel!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var hunterNumberLabel: UILabel!
@@ -8,12 +13,13 @@ class ShootingTestEditPaymentViewController: UIViewController, ShootingTestValue
     @IBOutlet weak var totalTitleLabel: UILabel!
     @IBOutlet weak var totalAmountLabel: UILabel!
     @IBOutlet weak var paidTitleLabel: UILabel!
-    @IBOutlet weak var paidAmountValue: ShootingTestValueButton!
+    @IBOutlet weak var paidAmountValue: UILabel!
+    @IBOutlet weak var changPaidAmountButton: MaterialButton!
     @IBOutlet weak var remainingTitleLabel: UILabel!
     @IBOutlet weak var remainingAmountLabel: UILabel!
     @IBOutlet weak var finishedCheckbox: ShootingTestCheckbox!
-    @IBOutlet weak var cancelButton: UIButton!
-    @IBOutlet weak var saveButton: UIButton!
+    @IBOutlet weak var cancelButton: MDCButton!
+    @IBOutlet weak var saveButton: MDCButton!
 
     @IBAction func cancelPressed(_ sender: UIButton) {
         self.navigationController?.popViewController(animated: true)
@@ -23,30 +29,52 @@ class ShootingTestEditPaymentViewController: UIViewController, ShootingTestValue
         self.saveUpdatedPaymentState()
     }
 
-    var participantId: Int?
-    var participant: ShootingTestParticipantSummary?
+    private lazy var logger = AppLogger(for: self, printTimeStamps: false)
+
+    var shootingTestManager: ShootingTestManager?
+    var participantId: Int64?
+    private var participant: CommonShootingTestParticipant? {
+        didSet {
+            self.paidAmount = participant?.paidAmount.toDecimalNumber().int64Value ?? 0
+        }
+    }
+
+    var paidAmount: Int64 = 0 {
+        didSet {
+            guard let participant = self.participant else {
+                logger.w { "Cannot update paidAmountValue.text as there's no participant" }
+                return
+            }
+
+            self.paidAmountValue.text = participant.formatAmount(amount: paidAmount)
+        }
+    }
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        Styles.styleButton(self.saveButton)
-        Styles.styleNegativeButton(self.cancelButton)
+        AppTheme.shared.setupPrimaryButtonTheme(button: self.changPaidAmountButton)
+        self.saveButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.cancelButton.applyOutlinedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
 
-        self.paidAmountValue.delegate = self
+        changPaidAmountButton.onClicked = {
+            self.startChangePaidAmount()
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        self.participantTitle.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentParticipantTitle").uppercased()
-        self.paymentsTitleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentTitle").uppercased()
-        self.totalTitleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentTotal")
-        self.paidTitleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentPaid")
-        self.remainingTitleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentRemaining")
-        self.finishedCheckbox.setTitle(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentTestFinished"))
+        self.participantTitle.text = "ShootingTestPaymentParticipantTitle".localized().uppercased()
+        self.paymentsTitleLabel.text = "ShootingTestPaymentTitle".localized().uppercased()
+        self.totalTitleLabel.text = "ShootingTestPaymentTotal".localized()
+        self.paidTitleLabel.text = "ShootingTestPaymentPaid".localized()
+        self.remainingTitleLabel.text = "ShootingTestPaymentRemaining".localized()
+        self.finishedCheckbox.setTitle(text: "ShootingTestPaymentTestFinished".localized())
 
-        self.cancelButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Cancel"), for: .normal)
-        self.saveButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Save"), for: .normal)
+        self.cancelButton.setTitle("Cancel".localized(), for: .normal)
+        self.saveButton.setTitle("Save".localized(), for: .normal)
 
         title = "ShootingTestPaymentEditTitle".localized()
         if (self.participant == nil) {
@@ -55,89 +83,108 @@ class ShootingTestEditPaymentViewController: UIViewController, ShootingTestValue
     }
 
     func refreshData() {
-        ShootingTestManager.getParticipantSummary(participantId: self.participantId!) { (result:Any?, error:Error?) in
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let item = try JSONDecoder().decode(ShootingTestParticipantSummary.self, from: json)
+        guard let shootingTestManager = self.shootingTestManager, let participantId = self.participantId else {
+            logger.v { "No shooting test manager / participant id, cannot refresh" }
+            return
+        }
 
-                    self.participant = item
-                    self.refreshUi(item: self.participant!)
+        shootingTestManager.getParticipantSummary(participantId: participantId) { [weak self] participantResult, error in
+            guard let self = self else { return }
+
+            if let participant = participantResult {
+                self.participant = participant
+                self.refreshUi(participant: participant)
+            } else {
+                self.logger.w {
+                    "getParticipantSummary failed: \(error?.localizedDescription ?? String(describing: error))"
                 }
-                catch {
-                    print("Failed to parse <ShootingTestParticipantSummary> item")
-                }
-            }
-            else {
-                print("getParticipantSummary failed: " + (error?.localizedDescription)!)
             }
         }
     }
 
-    private func refreshUi(item: ShootingTestParticipantSummary) {
-        self.nameLabel.text = String(format: "%@ %@", item.lastName!, item.firstName!)
-        self.hunterNumberLabel.text = item.hunterNumber!
+    private func refreshUi(participant: CommonShootingTestParticipant) {
+        self.nameLabel.text = participant.formattedFullNameFirstLast
+        self.hunterNumberLabel.text = participant.hunterNumber ?? ""
 
-        self.totalAmountLabel.text = String(format: "%d €", item.totalDueAmount!)
-        self.paidAmountValue.setTitle(text: String(format: "%d €", item.paidAmount!))
-        self.remainingAmountLabel.text = String(format: "%d €", item.remainingAmount!)
+        self.totalAmountLabel.text = participant.formattedTotalDueAmount
+        self.paidAmountValue.text = participant.formattedPaidAmount
+        self.remainingAmountLabel.text = participant.formattedRemainingAmount
 
-        self.finishedCheckbox.setChecked(checked: item.completed!)
+        self.finishedCheckbox.setChecked(checked: participant.completed)
 
         self.saveButton.isEnabled = true
     }
 
     private func saveUpdatedPaymentState() {
-        let valueText = self.paidAmountValue.getTitle()
-        let words = valueText!.components(separatedBy: " ")
-        let paidCount = Int(words[0])! / 20
+        guard let shootingTestManager = self.shootingTestManager,
+              let participantId = self.participantId,
+              let participantRev = self.participant?.rev else {
+            return
+        }
 
-        ShootingTestManager.updatePaymentStateForParticipant(participantId: self.participantId!,
-                                                             rev: (self.participant?.rev)!,
-                                                             paidAttempts: paidCount,
-                                                             completed: self.finishedCheckbox.getChecked())
-        { (result:Any?, error:Error?) in
-            if (error == nil) {
+        let paidCount = round(
+            Double(integerLiteral: self.paidAmount) / Double(Self.singleAttemptCost)
+        ).toDecimalNumber().intValue
+
+        shootingTestManager.updatePaymentStateForParticipant(
+            participantId: participantId,
+            participantRev: participantRev,
+            paidAttempts: paidCount,
+            completed: self.finishedCheckbox.getChecked()
+        ) { [weak self] success, error in
+            guard let self = self else { return }
+
+            if (success) {
                 self.navigationController?.popViewController(animated: true)
-            }
-            else {
-                print("updatePaymentStateForParticipant failed: " + (error?.localizedDescription)!)
+            } else {
+                self.logger.w {
+                    "updatePaymentStateForParticipant failed: \(error?.localizedDescription ?? String(describing: error))"
+                }
             }
         }
     }
 
-    // MARK: ShootingTestValueButtonDelegate
+    // MARK: Change paid amount
 
-    func didPressButton(_ tag: Int) {
-        let sb = UIStoryboard.init(name: "DetailsStoryboard", bundle: nil)
-        let controller = sb.instantiateViewController(withIdentifier: "valueListController") as! ValueListViewController
-        controller.delegate = self
-        controller.fieldKey = "PAID_AMOUNT"
-        controller.titlePrompt = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestPaymentPaid")
-
-        var valueList:[String] = [String(format: "%d €", 0)]
-        var i = 0
-
-        let totalValue = Int((self.participant?.totalDueAmount)!)
-        while (i < totalValue) {
-            i += 20
-            valueList.append(String(format: "%d €", i))
+    func startChangePaidAmount() {
+        guard let participant = self.participant else {
+            logger.w { "No participant, cannot show possible payments" }
+            return
         }
-        controller.values = valueList
 
-        let segue = UIStoryboardSegue.init(identifier: "", source: self, destination: controller, performHandler: {
-            self.navigationController?.pushViewController(controller, animated: true)
-        })
-        segue.perform()
+        let totalDueAmount: Int64 = participant.totalDueAmount.toDecimalNumber().int64Value
+        var selectableValues: [StringWithId] = stride(from: 0, through: totalDueAmount, by: Self.singleAttemptCost)
+            .map { amount in
+                StringWithId(
+                    string: participant.formatAmount(amount: amount),
+                    id: amount
+                )
+            }
+
+        // should not happen as long as totalDueAmount is divisible by `Self.singleAttemptCost` but let's make sure
+        // the totalDueAmount is also selectable when some day it can be something else..
+        if let lastAddedValue = selectableValues.last?.id, lastAddedValue < totalDueAmount {
+            selectableValues.append(
+                StringWithId(
+                    string: participant.formatAmount(amount: totalDueAmount),
+                    id: totalDueAmount
+                )
+            )
+        }
+
+        let viewController = SelectSingleStringViewController()
+        viewController.title = "ShootingTestPaymentPaid".localized()
+        viewController.delegate = self
+        viewController.setValues(values: selectableValues)
+
+        self.navigationController?.pushViewController(viewController, animated: true)
     }
 
-    // MARK: ValueSelectionDelegate
-    func valueSelected(forKey key: String!, value: String!) {
-        self.paidAmountValue.setTitle(text: value)
+    // MARK: SelectSingleStringViewController
 
-        let words = value.components(separatedBy: " ")
-        let paidAmount = Int(words[0])!
-
-        self.remainingAmountLabel.text = String((self.participant?.totalDueAmount)! - paidAmount)
+    func onStringSelected(string: SelectSingleStringViewController.SelectableString) {
+        // id is the paid amount!
+        self.paidAmount = string.id
+        self.remainingAmountLabel.text = self.participant?.formatRemainingAmount(newPaidAmount: string.id)
     }
 }

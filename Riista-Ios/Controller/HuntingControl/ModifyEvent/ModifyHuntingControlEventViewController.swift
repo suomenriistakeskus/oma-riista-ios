@@ -38,7 +38,7 @@ class ModifyHuntingControlEventViewController<Controller: ModifyHuntingControlEv
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -107,8 +107,8 @@ class ModifyHuntingControlEventViewController<Controller: ModifyHuntingControlEv
         view.addSubview(container)
         container.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         container.addArrangedSubview(tableView)
@@ -126,14 +126,14 @@ class ModifyHuntingControlEventViewController<Controller: ModifyHuntingControlEv
 
         tableViewController.addDefaultCellFactories(
             navigationControllerProvider: self,
-            locationEventDispatcher: controller.locationEventDispatcher,
-            stringWithIdEventDispatcher: controller.stringWithIdEventDispatcher,
-            stringClickEventDispatcher: controller.stringWithIdClickEventDispatcher,
-            stringEventDispatcher: controller.stringEventDispatcher,
-            booleanEventDispatcher: controller.booleanEventDispatcher,
-            intEventDispatcher: controller.intEventDispatcher,
-            localDateEventDispatcher: controller.dateEventDispatcher,
-            localTimeEventDispatcher: controller.timeEventDispatcher,
+            locationEventDispatcher: controller.eventDispatchers.locationEventDispatcher,
+            stringWithIdEventDispatcher: controller.eventDispatchers.stringWithIdEventDispatcher,
+            stringClickEventDispatcher: controller.eventDispatchers.stringWithIdClickEventDispatcher,
+            stringEventDispatcher: controller.eventDispatchers.stringEventDispatcher,
+            booleanEventDispatcher: controller.eventDispatchers.booleanEventDispatcher,
+            intEventDispatcher: controller.eventDispatchers.intEventDispatcher,
+            localDateEventDispatcher: controller.eventDispatchers.localDateEventDispatcher,
+            localTimeEventDispatcher: controller.eventDispatchers.localTimeEventDispatcher,
             attachmentClickListener: onAttachmentClicked,
             attachmentRemoveListener: onAttachmentRemoveClicked,
             attachmentStatusProvider: self,
@@ -202,9 +202,7 @@ class ModifyHuntingControlEventViewController<Controller: ModifyHuntingControlEv
             attachmentSources.append(.takePhoto)
         }
         attachmentSources.append(.pickFromPhotos)
-        if (canPickFileAttachment()) {
-            attachmentSources.append(.pickFile)
-        }
+        attachmentSources.append(.pickFile)
 
         if (attachmentSources.count == 1) {
             // no need to display dialog, only one possibility here
@@ -252,28 +250,7 @@ class ModifyHuntingControlEventViewController<Controller: ModifyHuntingControlEv
             self, reason: reason, imageLoadRequest: loadRequest, allowAnotherPhotoSelection: true)
     }
 
-    private func canPickFileAttachment() -> Bool {
-        if #available(iOS 11,*) {
-            return true
-        } else {
-            // It seems that using UIDocumentPickerViewController would require iCloud capabilities
-            // on iOS 10 devices: https://stackoverflow.com/a/30615480 (see comments)
-            // -> don't support adding attachments on iOS10 devices right now. Instead let's check
-            //    from analytics whether it is reasonable to add CloudKit to app afterwards
-            return false
-        }
-    }
-
     private func pickAttachment() {
-        if (!canPickFileAttachment()) {
-            let dialogController = AlertDialogBuilder.create(
-                title: "Toiminto ei tuettu",
-                message: "Toiminto ei ole tällä hetkellä tuettu tällä iOS-versiolla."
-            )
-            present(dialogController, animated: true)
-            return
-        }
-
         let types: [String] = [kUTTypeContent, kUTTypeData, kUTTypeArchive] as [String]
 
         // IMPORTANT: use .import as mode as that copies the file under application tmp directory.
@@ -281,9 +258,7 @@ class ModifyHuntingControlEventViewController<Controller: ModifyHuntingControlEv
         let documentPicker = UIDocumentPickerViewController(documentTypes: types, in: .import)
         documentPicker.delegate = self
         documentPicker.modalPresentationStyle = .pageSheet
-        if #available(iOS 11.0, *) {
-            documentPicker.allowsMultipleSelection = false
-        }
+        documentPicker.allowsMultipleSelection = false
         present(documentPicker, animated: true)
     }
 
@@ -334,7 +309,7 @@ class ModifyHuntingControlEventViewController<Controller: ModifyHuntingControlEv
             mimeType: mimetype
         )
 
-        controller.addAttachmentEventDispatcher.addAttachment(attachment: attachment)
+        controller.eventDispatchers.attachmentEventDispatcher.addAttachment(attachment: attachment)
     }
 
     private func addFileAsAnAttachment(url: URL) {
@@ -357,7 +332,7 @@ class ModifyHuntingControlEventViewController<Controller: ModifyHuntingControlEv
             mimeType: mimetype
         )
 
-        controller.addAttachmentEventDispatcher.addAttachment(attachment: attachment)
+        controller.eventDispatchers.attachmentEventDispatcher.addAttachment(attachment: attachment)
     }
 
     private func createThumbnail(url: URL, mimeType: String) -> UIImage? {
@@ -424,7 +399,7 @@ class ModifyHuntingControlEventViewController<Controller: ModifyHuntingControlEv
             guard let self = self else { return }
 
             self.attachmentOpenHelper.cancelAttachmentDownload(attachment: attachment)
-            self.controller.attachmentActionEventDispatcher.dispatchEvent(fieldId: fieldId)
+            self.controller.eventDispatchers.attachmentActionEventDispatcher.dispatchEvent(fieldId: fieldId)
         })
         alertController.addAction(MDCAlertAction(title: "No".localized()))
 

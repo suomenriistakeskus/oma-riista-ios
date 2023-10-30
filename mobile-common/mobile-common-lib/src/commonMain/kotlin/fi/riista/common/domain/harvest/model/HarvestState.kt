@@ -4,6 +4,7 @@ import fi.riista.common.domain.model.HarvestReportState
 import fi.riista.common.domain.model.StateAcceptedToHarvestPermit
 import fi.riista.common.resources.LocalizableEnum
 import fi.riista.common.resources.RR
+import fi.riista.common.ui.dataField.IndicatorColor
 
 enum class HarvestState(
     override val resourcesStringId: RR.string
@@ -33,6 +34,19 @@ enum class HarvestState(
         }
     }
 }
+
+val HarvestState.indicatorColor: IndicatorColor
+    get() {
+        return when (this) {
+            HarvestState.REPORT_SENT_FOR_APPROVAL,
+            HarvestState.PERMIT_PROPOSED -> IndicatorColor.YELLOW
+            HarvestState.REPORT_APPROVED,
+            HarvestState.PERMIT_ACCEPTED -> IndicatorColor.GREEN
+            HarvestState.REPORT_REQUIRED,
+            HarvestState.REPORT_REJECTED,
+            HarvestState.PERMIT_REJECTED -> IndicatorColor.RED
+        }
+    }
 
 private fun HarvestReportState.asHarvestState(): HarvestState =
     when (this) {

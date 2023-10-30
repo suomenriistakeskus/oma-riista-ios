@@ -181,7 +181,8 @@ class LocationFieldCell<FieldId : DataFieldId>:
     func onLocationSelected(location: CLLocationCoordinate2D) {
         dispatchValueChanged(
             eventDispatcher: locationEventDispatcher,
-            value: location) { dispatcher, fieldId, location in
+            value: location
+        ) { dispatcher, fieldId, location in
             dispatcher.dispatchLocationChanged(fieldId: fieldId, value: location.toETRSCoordinate(source: .manual))
         }
     }

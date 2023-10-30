@@ -16,11 +16,16 @@ class EntityFilter: CustomStringConvertible {
     let entityType: FilterableEntityType
     fileprivate let filterData: FilterData
     private let supportsSpeciesFilter: Bool
+    private let supportsShowEntriesForOtherActorsFilter: Bool
 
     let updateTimeStamp: Foundation.Date
 
     var hasSpeciesFilter: Bool {
         supportsSpeciesFilter && !filterData.species.isEmpty
+    }
+
+    open var showEntriesForOtherActors: Bool? {
+        return nil // not supported, override to change behaviour
     }
 
     var description: String {
@@ -30,12 +35,14 @@ class EntityFilter: CustomStringConvertible {
     fileprivate init(
         entityType: FilterableEntityType,
         filterData: FilterData,
-        supportsSpeciesFilter: Bool
+        supportsSpeciesFilter: Bool,
+        supportsShowEntriesForOtherActorsFilter: Bool
     ) {
         self.entityType = entityType
         self.filterData = filterData
         self.updateTimeStamp = Date()
         self.supportsSpeciesFilter = supportsSpeciesFilter
+        self.supportsShowEntriesForOtherActorsFilter = supportsShowEntriesForOtherActorsFilter
     }
 
     func changeEntityType(entityType: FilterableEntityType) -> EntityFilter {
@@ -51,11 +58,19 @@ class EntityFilter: CustomStringConvertible {
         }
     }
 
+    func changeShowEntriesForOtherActors(showEntriesForOtherActors: Bool) -> EntityFilter {
+        fatalError("Subclasses should implement this")
+    }
+
     open func changeYear(year: Int) -> EntityFilter {
         fatalError("Subclasses should implement this")
     }
 
     func changeSpecies(speciesCategoryId: Int?, species: [RiistaCommon.Species]) -> EntityFilter {
+        fatalError("Subclasses should implement this")
+    }
+
+    func ensureSpeciesDisplayed(species: RiistaCommon.Species) -> EntityFilter {
         fatalError("Subclasses should implement this")
     }
 }
@@ -74,20 +89,31 @@ class HarvestFilter: EntityFilter {
         filterData.species
     }
 
+    override var showEntriesForOtherActors: Bool {
+        filterData.showEntriesForOtherActors
+    }
+
     fileprivate init(filterData: FilterData) {
         super.init(
             entityType: .harvest,
             filterData: filterData.validateSpecies { $0 is Species.Known }.preventFutureHuntingYear(),
-            supportsSpeciesFilter: true
+            supportsSpeciesFilter: true,
+            supportsShowEntriesForOtherActorsFilter: true
         )
     }
 
     convenience init(
         seasonStartYear: Int,
         speciesCategory: Int?,
-        species: [RiistaCommon.Species]
+        species: [RiistaCommon.Species],
+        showEntriesForOtherActors: Bool
     ) {
-        self.init(filterData: FilterData(year: seasonStartYear, speciesCategory: speciesCategory, species: species))
+        self.init(filterData: FilterData(
+            year: seasonStartYear,
+            speciesCategory: speciesCategory,
+            species: species,
+            showEntriesForOtherActors: showEntriesForOtherActors
+        ))
     }
 
     override func changeYear(year: Int) -> EntityFilter {
@@ -96,6 +122,16 @@ class HarvestFilter: EntityFilter {
 
     override func changeSpecies(speciesCategoryId: Int?, species: [RiistaCommon.Species]) -> EntityFilter {
         HarvestFilter(filterData: filterData.changeSpecies(speciesCategoryId: speciesCategoryId, species: species))
+    }
+
+    override func ensureSpeciesDisplayed(species: RiistaCommon.Species) -> EntityFilter {
+        HarvestFilter(filterData: filterData.ensureSpeciesDisplayed(species: species))
+    }
+
+    override func changeShowEntriesForOtherActors(showEntriesForOtherActors: Bool) -> EntityFilter {
+        HarvestFilter(
+            filterData: filterData.changeShowEntriesForOtherActors(showEntriesForOtherActors: showEntriesForOtherActors)
+        )
     }
 }
 
@@ -119,7 +155,8 @@ class ObservationFilter: EntityFilter {
         super.init(
             entityType: .observation,
             filterData: filterData.validateSpecies { $0 is Species.Known }.preventFutureHuntingYear(),
-            supportsSpeciesFilter: true
+            supportsSpeciesFilter: true,
+            supportsShowEntriesForOtherActorsFilter: false
         )
     }
 
@@ -129,6 +166,17 @@ class ObservationFilter: EntityFilter {
 
     override func changeSpecies(speciesCategoryId: Int?, species: [RiistaCommon.Species]) -> EntityFilter {
         ObservationFilter(filterData: filterData.changeSpecies(speciesCategoryId: speciesCategoryId, species: species))
+    }
+
+    override func ensureSpeciesDisplayed(species: RiistaCommon.Species) -> EntityFilter {
+        ObservationFilter(filterData: filterData.ensureSpeciesDisplayed(species: species))
+    }
+
+    override func changeShowEntriesForOtherActors(showEntriesForOtherActors: Bool) -> EntityFilter {
+        logger.w { "ObservationFilter doesn't support changing show entries for other actors" }
+        return ObservationFilter(
+            filterData: filterData.changeShowEntriesForOtherActors(showEntriesForOtherActors: showEntriesForOtherActors)
+        )
     }
 }
 
@@ -147,7 +195,8 @@ class SrvaFilter: EntityFilter {
         super.init(
             entityType: .srva,
             filterData: filterData.validateSpecies { SrvaFilter.srvaSpecies.contains($0) },
-            supportsSpeciesFilter: true
+            supportsSpeciesFilter: true,
+            supportsShowEntriesForOtherActorsFilter: false
         )
     }
 
@@ -161,25 +210,53 @@ class SrvaFilter: EntityFilter {
             species: species
         ))
     }
+
+    override func ensureSpeciesDisplayed(species: RiistaCommon.Species) -> EntityFilter {
+        SrvaFilter(filterData: filterData.ensureSpeciesDisplayed(species: species))
+    }
+
+    override func changeShowEntriesForOtherActors(showEntriesForOtherActors: Bool) -> EntityFilter {
+        logger.w { "SrvaFilter doesn't support changing show entries for other actors" }
+        return SrvaFilter(
+            filterData: filterData.changeShowEntriesForOtherActors(showEntriesForOtherActors: showEntriesForOtherActors)
+        )
+    }
 }
 
 
 class PointOfInterestFilter: EntityFilter {
     fileprivate init(filterData: FilterData) {
-        super.init(entityType: .pointOfInterest, filterData: filterData, supportsSpeciesFilter: false)
+        super.init(
+            entityType: .pointOfInterest,
+            filterData: filterData,
+            supportsSpeciesFilter: false,
+            supportsShowEntriesForOtherActorsFilter: false
+        )
     }
 
     override func changeYear(year: Int) -> EntityFilter {
-        print("PointOfInterestFilter doesn't support changing year")
+        logger.w { "PointOfInterestFilter doesn't support changing year" }
         return PointOfInterestFilter(filterData: filterData.changeYear(year: year))
     }
 
     override func changeSpecies(speciesCategoryId: Int?, species: [RiistaCommon.Species]) -> EntityFilter {
-        print("PointOfInterestFilter doesn't support changing species")
+        logger.w { "PointOfInterestFilter doesn't support changing species" }
         return PointOfInterestFilter(filterData: filterData.changeSpecies(
             speciesCategoryId: speciesCategoryId,
             species: species
         ))
+    }
+
+    override func ensureSpeciesDisplayed(species: RiistaCommon.Species) -> EntityFilter {
+        logger.w { "PointOfInterestFilter doesn't support ensuring species exists" }
+        return PointOfInterestFilter(filterData: filterData.ensureSpeciesDisplayed(species: species))
+    }
+
+    override func changeShowEntriesForOtherActors(showEntriesForOtherActors: Bool) -> EntityFilter {
+        logger.w { "PointOfInterestFilter doesn't support changing show entries for other actors" }
+        return PointOfInterestFilter(
+            filterData: filterData.changeShowEntriesForOtherActors(showEntriesForOtherActors: showEntriesForOtherActors)
+        )
     }
 }
 
@@ -189,22 +266,26 @@ fileprivate class FilterData: CustomStringConvertible {
     let year: Int
     let speciesCategoryId: Int?
     let species: [RiistaCommon.Species]
+    let showEntriesForOtherActors: Bool
 
     var description: String {
-        "year: \(year), speciesCategory: \(speciesCategoryId ?? -1), species: \(species)"
+        "year: \(year), speciesCategory: \(speciesCategoryId ?? -1), " +
+        "species: \(species), showForOthers: \(showEntriesForOtherActors)"
     }
 
-    init(year: Int, speciesCategory: Int?, species: [RiistaCommon.Species]) {
+    init(year: Int, speciesCategory: Int?, species: [RiistaCommon.Species], showEntriesForOtherActors: Bool) {
         self.year = year
         self.speciesCategoryId = speciesCategory
         self.species = species
+        self.showEntriesForOtherActors = showEntriesForOtherActors
     }
 
     func changeYear(year: Int) -> FilterData {
         FilterData(
             year: year,
             speciesCategory: self.speciesCategoryId,
-            species: self.species
+            species: self.species,
+            showEntriesForOtherActors: self.showEntriesForOtherActors
         )
     }
 
@@ -212,7 +293,32 @@ fileprivate class FilterData: CustomStringConvertible {
         FilterData(
             year: self.year,
             speciesCategory: speciesCategoryId,
-            species: species
+            species: species,
+            showEntriesForOtherActors: self.showEntriesForOtherActors
+        )
+    }
+
+    func ensureSpeciesDisplayed(species: RiistaCommon.Species) -> FilterData {
+        if (self.species.contains(species) || self.species.isEmpty) {
+            // already in filter or not filtering at all
+            return self
+        }
+
+        // todo: don't invalidate category if given species is among category species
+        return FilterData(
+            year: self.year,
+            speciesCategory: nil, // invalidate as category may not contain the species
+            species: self.species + [species],
+            showEntriesForOtherActors: self.showEntriesForOtherActors
+        )
+    }
+
+    func changeShowEntriesForOtherActors(showEntriesForOtherActors: Bool) -> FilterData {
+        FilterData(
+            year: self.year,
+            speciesCategory: self.speciesCategoryId,
+            species: self.species,
+            showEntriesForOtherActors: showEntriesForOtherActors
         )
     }
 
@@ -253,3 +359,5 @@ fileprivate extension Array where Element == RiistaCommon.Species {
         }
     }
 }
+
+fileprivate let logger = AppLogger(context: "EntityFilters", printTimeStamps: false)

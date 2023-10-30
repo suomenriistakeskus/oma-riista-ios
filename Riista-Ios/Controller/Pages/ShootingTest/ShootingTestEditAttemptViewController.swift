@@ -1,332 +1,270 @@
 import Foundation
+import MaterialComponents.MaterialButtons
+import RiistaCommon
 
-class ShootingTestEditAttemptViewController : UIViewController, UITextFieldDelegate, ShootingTestValueButtonDelegate, ValueSelectionDelegate {
-    private struct ClassConstants {
-        static let BEAR_INDEX = 0
-        static let MOOSE_INDEX = 1
-        static let DEER_INDEX = 2
-        static let BOW_INDEX = 3
-    }
+
+class ShootingTestEditAttemptViewController : BaseViewController, UITextFieldDelegate, SelectSingleStringViewControllerDelegate {
 
     @IBOutlet weak var typeLabel: UILabel!
     @IBOutlet weak var typeSelect: UISegmentedControl!
     @IBOutlet weak var hitsLabel: UILabel!
     @IBOutlet weak var hitSelect: UISegmentedControl!
-    @IBOutlet weak var resultTitle: UILabel!
-    @IBOutlet weak var resultView: ShootingTestValueButton!
+    @IBOutlet weak var resultView: SelectStringView!
     @IBOutlet weak var noteLabel: UILabel!
     @IBOutlet weak var noteField: UITextField!
     @IBOutlet weak var buttonArea: UIView!
-    @IBOutlet weak var cancelButton: UIButton!
-    @IBOutlet weak var saveButton: UIButton!
+    @IBOutlet weak var cancelButton: MDCButton!
+    @IBOutlet weak var saveButton: MDCButton!
 
-    @IBAction func cancelPressed(_ sender: UIButton) {
-        self.navigationController?.popViewController(animated: true)
-    }
-
-    @IBAction func savePressed(_ sender: UIButton) {
-        let input = self.storeInputs()
-
-        if (input.validateData()) {
-            if (self.attemptId != nil && self.attemptId! >= 0) {
-                self.saveAndUpdateAttempt(input: input)
-            }
-            else {
-                self.saveAndAddAttempt(input: input)
-            }
-        }
-    }
-
-    var participantId: Int = -1
-    var participantRev: Int = -1
-    var attemptId: Int?
-    var attempt: ShootingTestAttemptDetailed?
+    var participantId: Int64?
+    var participantRev: Int32?
+    var attemptId: Int64?
 
     var enableBear = true
     var enableMoose = true
     var enableRoeDeer = true
     var enableBow = true
 
+    var shootingTestManager: ShootingTestManager?
+
+    private lazy var editableAttemptData: ShootingTestAttemptData = ShootingTestAttemptData()
+
+    private var keyboardHandler: KeyboardHandler?
+    private let stringProvider = LocalizedStringProvider()
+    private lazy var logger = AppLogger(for: self, printTimeStamps: false)
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        Styles.styleNegativeButton(self.cancelButton)
-        Styles.styleButton(self.saveButton)
+        self.cancelButton.applyOutlinedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.saveButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
 
         self.typeSelect.addTarget(self, action: #selector(typeControlValueChanged(sender:)), for:.valueChanged)
         self.hitSelect.addTarget(self, action: #selector(hitsControlValueChanged(sender:)), for:.valueChanged)
 
+        noteField.inputAccessoryView = KeyboardToolBar().hideKeyboardOnDone(editView: noteField)
         self.noteField.delegate = self
-        self.resultView.delegate = self
+        self.resultView.label.text = "ShootingTestAttemptListResultTitle".localized().uppercased()
+        self.resultView.onClicked = {
+            self.navigateToResultSelection()
+        }
 
-        self.hideKeyboard()
-        self.resetUiValues()
+        // use same font for all labels
+        let labelFont = UIFont.appFont(for: .label, fontWeight: .regular)
+        self.typeLabel.font = labelFont
+        self.hitsLabel.font = labelFont
+        self.resultView.label.label.font = labelFont
+        self.noteLabel.font = labelFont
+
+
+        // No need to adjust content upwards/downwards when keyboard is opened / closed
+        // -> also no need for delegate nor listening of keyboard events
+        keyboardHandler = KeyboardHandler(view: view, contentMovement: .none)
+
+        self.updateUiState()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        self.typeLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptTypeTitle").uppercased()
-        self.typeSelect.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeBear"), forSegmentAt: 0)
-        self.typeSelect.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeMoose"), forSegmentAt: 1)
-        self.typeSelect.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeRoeDeer"), forSegmentAt: 2)
-        self.typeSelect.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeBow"), forSegmentAt: 3)
+        self.typeLabel.text = "ShootingTestAttemptTypeTitle".localized().uppercased()
+        self.typeSelect.setTitle("ShootingTestTypeBear".localized(),
+                                 forSegmentAt: ShootingTestType.bear.segmentedControlIndex)
+        self.typeSelect.setTitle("ShootingTestTypeMoose".localized(),
+                                 forSegmentAt: ShootingTestType.moose.segmentedControlIndex)
+        self.typeSelect.setTitle("ShootingTestTypeRoeDeer".localized(),
+                                 forSegmentAt: ShootingTestType.roeDeer.segmentedControlIndex)
+        self.typeSelect.setTitle("ShootingTestTypeBow".localized(),
+                                 forSegmentAt: ShootingTestType.bow.segmentedControlIndex)
 
-        self.hitsLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptHitsTitle").uppercased()
+        self.hitsLabel.text = "ShootingTestAttemptHitsTitle".localized().uppercased()
 
-        self.resultTitle.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptResultTitle").uppercased()
+        self.noteLabel.text = "ShootingTestAttemptNoteTitle".localized().uppercased()
+        self.noteField.placeholder = "ShootingTestAttemptNoteHint".localized()
 
-        self.noteLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptNoteTitle").uppercased()
-        self.noteField.placeholder = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptNoteHint")
-
-        self.cancelButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Cancel"), for: .normal)
-        self.saveButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "Save"), for: .normal)
+        self.cancelButton.setTitle("Cancel".localized(), for: .normal)
+        self.saveButton.setTitle("Save".localized(), for: .normal)
 
         title = "ShootingTestAttemptEditViewTitle".localized()
-        self.updateUiState()
 
-        if (self.attempt == nil && self.attemptId != nil) {
+        if (self.attemptId != nil && self.editableAttemptData.originalAttempt == nil) {
+            // we've got an attempt id (i.e. we're editing) but we don't yet have original attempt
             self.refreshData()
         }
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        keyboardHandler?.hideKeyboard()
+        super.viewWillDisappear(animated)
+    }
+
     func refreshData() {
-        ShootingTestManager.getAttempt(attemptId: self.attemptId!)  { (result:Any?, error:Error?) in
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let attempt = try JSONDecoder().decode(ShootingTestAttemptDetailed.self, from: json)
+        guard let shootingTestManager = self.shootingTestManager,
+              let attemptId = self.attemptId else {
+            logger.w { "No shootingTestManager / attempt id, refusing to refresh" }
+            return
+        }
 
-                    self.attempt = attempt
-                    self.refreshUiWith(attempt: self.attempt!)
-                }
-                catch {
-                    print("Failed to parse <ShootingTestParticipantDetailed> item")
-                }
+        shootingTestManager.getAttempt(attemptId: attemptId) { [weak self] attempt, error in
+            guard let self = self else { return }
+
+            if let attemptData = attempt?.toAttemptdData() {
+                self.editableAttemptData = attemptData
+                self.updateUiState()
+            } else {
+                self.logger.w { "getAttempt failed: \(error?.localizedDescription ?? String(describing: error))" }
             }
-            else {
-                print("getAttempt failed: " + (error?.localizedDescription)!)
-            }
         }
     }
 
-    private func resetUiValues() {
-        self.typeSelect.selectedSegmentIndex = UISegmentedControl.noSegment
-        self.hitSelect.selectedSegmentIndex = UISegmentedControl.noSegment
-
-        self.resultView.setTitle(text: nil)
-
-        self.noteField.text = nil
+    @IBAction func cancelPressed(_ sender: UIButton) {
+        self.navigationController?.popViewController(animated: true)
     }
 
-    private func refreshUiWith(attempt: ShootingTestAttemptDetailed) {
-        resetUiValues()
+    @IBAction func savePressed(_ sender: UIButton) {
+        // ensure editable data is up-to-date
+        self.updateEditableAttemptData()
 
-        switch attempt.type! {
-        case ShootingTestAttemptDetailed.ClassConstants.TYPE_BEAR:
-            self.typeSelect.selectedSegmentIndex = ClassConstants.BEAR_INDEX
-            break
-        case ShootingTestAttemptDetailed.ClassConstants.TYPE_MOOSE:
-            self.typeSelect.selectedSegmentIndex = ClassConstants.MOOSE_INDEX
-            break
-        case ShootingTestAttemptDetailed.ClassConstants.TYPE_ROE_DEER:
-            self.typeSelect.selectedSegmentIndex = ClassConstants.DEER_INDEX
-            break
-        case ShootingTestAttemptDetailed.ClassConstants.TYPE_BOW:
-            self.typeSelect.selectedSegmentIndex = ClassConstants.BOW_INDEX
-            break
-        default:
-            self.typeSelect.selectedSegmentIndex = UISegmentedControl.noSegment
-            break
+        guard let attemptData = self.editableAttemptData.getValidatedAttemptData() else {
+            logger.v { "Failed to create valid attempt, not saving" }
+            return
         }
 
-        switch attempt.hits! {
-        case 0:
-            self.hitSelect.selectedSegmentIndex = 4
-            break
-        case 1:
-            self.hitSelect.selectedSegmentIndex = 3
-            break
-        case 2:
-            self.hitSelect.selectedSegmentIndex = 2
-            break
-        case 3:
-            self.hitSelect.selectedSegmentIndex = 1
-            break
-        case 4:
-            self.hitSelect.selectedSegmentIndex = 0
-            break
-        default:
-            self.hitSelect.selectedSegmentIndex = UISegmentedControl.noSegment
-            break
+        if let attemptId = self.attemptId, attemptId >= 0 {
+            saveAndUpdateAttempt(attemptData: attemptData)
+        } else {
+            saveAndAddAttempt(attemptData: attemptData)
         }
-
-        self.resultView.setTitle(text: ShootingTestAttemptDetailed.localizedResultText(value: attempt.result!))
-        self.noteField.text = attempt.note
-
-        self.updateUiState()
     }
 
-    private func storeInputs() -> ShootingTestAttemptDetailed {
-        var typeValue: String?
-        var hitsValue: Int?
-        var resultValue: String?
-        var noteValue: String?
-
-        switch self.typeSelect.selectedSegmentIndex {
-        case ClassConstants.BEAR_INDEX:
-            typeValue = ShootingTestAttemptDetailed.ClassConstants.TYPE_BEAR
-            break
-        case ClassConstants.MOOSE_INDEX:
-            typeValue = ShootingTestAttemptDetailed.ClassConstants.TYPE_MOOSE
-            break
-        case ClassConstants.DEER_INDEX:
-            typeValue = ShootingTestAttemptDetailed.ClassConstants.TYPE_ROE_DEER
-            break
-        case ClassConstants.BOW_INDEX:
-            typeValue = ShootingTestAttemptDetailed.ClassConstants.TYPE_BOW
-            break
-        default:
-            typeValue = nil
-            break
+    private func saveAndAddAttempt(attemptData: ValidatedShootingTestAttemptData) {
+        guard let shootingTestManager = self.shootingTestManager,
+              let participantId = self.participantId,
+              let participantRev = self.participantRev else {
+            logger.w { "No shootingTestManager or participant id / rev, cannot save" }
+            return
         }
 
-        switch self.hitSelect.selectedSegmentIndex {
-        case 0:
-            hitsValue = 4
-            break
-        case 1:
-            hitsValue = 3
-            break
-        case 2:
-            hitsValue = 2
-            break
-        case 3:
-            hitsValue = 1
-            break
-        case 4:
-            hitsValue = 0
-            break
-        default:
-            hitsValue = nil
-            break
-        }
+        shootingTestManager.addAttemptForParticipant(
+            participantId: participantId,
+            particiopantRev: participantRev,
+            shootingTestType: attemptData.shootingTestType,
+            shootingTestResult: attemptData.shootingTestResult,
+            hits: attemptData.hits,
+            note: attemptData.note
+        ) { [weak self] success, error in
+            guard let self = self else { return }
 
-        resultValue = ShootingTestAttemptDetailed.textToResultValue(text: self.resultView.getTitle())
-        noteValue = self.noteField.text
-        if (noteValue != nil && noteValue!.isEmpty) {
-            noteValue = nil
-        }
-
-        return ShootingTestAttemptDetailed(type: typeValue, hits: hitsValue, result: resultValue, note: noteValue)
-    }
-
-    private func isQualifiedResult() -> Bool {
-        if (self.typeSelect.selectedSegmentIndex != ClassConstants.BOW_INDEX && self.hitSelect.selectedSegmentIndex == 0) {
-            return true
-        }
-        else if (self.typeSelect.selectedSegmentIndex == ClassConstants.BOW_INDEX && self.hitSelect.selectedSegmentIndex == 1) {
-            return true
-        }
-
-        return false
-    }
-
-    private func saveAndAddAttempt(input: ShootingTestAttemptDetailed) {
-        ShootingTestManager.addAttemptForParticipant(participantId: self.participantId,
-                                                     particiopantRev: self.participantRev,
-                                                     type: input.type!,
-                                                     result: input.result!,
-                                                     hits: input.hits!,
-                                                     note: input.note)
-        { (result:Any?, error:Error?) in
-            if (error == nil) {
+            if (success) {
                 self.navigationController?.popViewController(animated: true)
-            }
-            else {
-                print("addAttemptForParticipant failed: " + (error?.localizedDescription)!)
+            } else {
+                self.logger.w {
+                    "addAttemptForParticipant failed: \(error?.localizedDescription ?? String(describing: error))"
+                }
             }
         }
     }
 
-    private func saveAndUpdateAttempt(input: ShootingTestAttemptDetailed) {
-        ShootingTestManager.updateAttempt(attemptId: (self.attempt?.id)!,
-                                          rev: (self.attempt?.rev)!,
-                                          participantId: self.participantId,
-                                          participantRev: self.participantRev,
-                                          type: input.type!,
-                                          result: input.result!,
-                                          hits: input.hits!,
-                                          note: input.note)
-        { (result:Any?, error:Error?) in
-            if (error == nil) {
+    private func saveAndUpdateAttempt(attemptData: ValidatedShootingTestAttemptData) {
+        guard let shootingTestManager = self.shootingTestManager,
+              let attemptId = attemptData.attemptId,
+              let attemptRev = attemptData.attemptRev,
+              let participantId = self.participantId,
+              let participantRev = self.participantRev else {
+            logger.w { "No attempt, participant id / rev -> cannot save" }
+            return
+        }
+
+        shootingTestManager.updateAttempt(
+            attemptId: attemptId,
+            attemptRev: attemptRev,
+            participantId: participantId,
+            participantRev: participantRev,
+            shootingTestType: attemptData.shootingTestType,
+            shootingTestResult: attemptData.shootingTestResult,
+            hits: attemptData.hits,
+            note: attemptData.note
+        ) { [weak self] success, error in
+            guard let self = self else { return }
+
+            if (success) {
                 self.navigationController?.popViewController(animated: true)
-            }
-            else {
-                print("updateAttempt failed: " + (error?.localizedDescription)!)
+            } else {
+                self.logger.d { "updateAttempt failed: \(error?.localizedDescription ?? String(describing: error))" }
             }
         }
     }
 
     @objc func typeControlValueChanged(sender: UISegmentedControl) {
-        self.hitSelect.selectedSegmentIndex = UISegmentedControl.noSegment
-        self.resultView.setTitle(text: nil)
-        self.noteField.text = nil
+        editableAttemptData.shootingTestType = ShootingTestType.fromIndex(sender.selectedSegmentIndex)
+        editableAttemptData.hits = nil
+        editableAttemptData.shootingTestResult = nil
+        editableAttemptData.note = nil
 
         self.updateUiState()
     }
 
     @objc func hitsControlValueChanged(sender: UISegmentedControl) {
-        if (self.isQualifiedResult()) {
-            self.resultView.setTitle(text: ShootingTestAttemptDetailed.localizedResultText(value: ShootingTestAttemptDetailed.ClassConstants.RESULT_QUALIFIED))
-        }
-        else {
-            self.resultView.setTitle(text: ShootingTestAttemptDetailed.localizedResultText(value: ShootingTestAttemptDetailed.ClassConstants.RESULT_UNQUALIFIED))
-        }
-        self.noteField.text = nil
+        editableAttemptData.hits = sender.numberOfHits
+        editableAttemptData.updateShootingTestResult()
+        editableAttemptData.note = nil
 
         self.updateUiState()
     }
 
     private func updateUiState() {
-        let input = self.storeInputs()
-
-        self.updateTypeInputState(input: input)
-        self.updateHitsInputState(input: input)
-        self.updateResultButtonState(input: input)
-        self.updateNoteInputState(input: input)
-        self.updateSaveButtonState(input: input)
+        self.updateShootingTestTypeInputState()
+        self.updateHitsInputState()
+        self.updateResultButtonState()
+        self.updateNoteInputState()
+        self.updateSaveButtonState()
     }
 
-    private func updateTypeInputState(input: ShootingTestAttemptDetailed) {
-        self.typeSelect.setEnabled(enableBear, forSegmentAt: ClassConstants.BEAR_INDEX);
-        self.typeSelect.setEnabled(enableMoose, forSegmentAt: ClassConstants.MOOSE_INDEX);
-        self.typeSelect.setEnabled(enableRoeDeer, forSegmentAt: ClassConstants.DEER_INDEX);
-        self.typeSelect.setEnabled(enableBow, forSegmentAt: ClassConstants.BOW_INDEX);
+    private func updateShootingTestTypeInputState() {
+        self.typeSelect.setEnabled(enableBear, forSegmentAt: ShootingTestType.bear.segmentedControlIndex);
+        self.typeSelect.setEnabled(enableMoose, forSegmentAt: ShootingTestType.moose.segmentedControlIndex);
+        self.typeSelect.setEnabled(enableRoeDeer, forSegmentAt: ShootingTestType.roeDeer.segmentedControlIndex);
+        self.typeSelect.setEnabled(enableBow, forSegmentAt: ShootingTestType.bow.segmentedControlIndex);
+
+        self.typeSelect.selectedSegmentIndex =
+            editableAttemptData.shootingTestType?.segmentedControlIndex ?? UISegmentedControl.noSegment
     }
 
-    private func updateHitsInputState(input: ShootingTestAttemptDetailed) {
-        self.hitSelect.setEnabled(input.type != nil && ShootingTestAttemptDetailed.ClassConstants.TYPE_BOW != input.type, forSegmentAt: 0)
-        self.hitSelect.setEnabled(input.type != nil, forSegmentAt: 1)
-        self.hitSelect.setEnabled(input.type != nil, forSegmentAt: 2)
-        self.hitSelect.setEnabled(input.type != nil, forSegmentAt: 3)
-        self.hitSelect.setEnabled(input.type != nil, forSegmentAt: 4)
+    private func updateHitsInputState() {
+        let shootingTestTypeSelected = editableAttemptData.shootingTestType != nil
+        let otherThanBowSelected = shootingTestTypeSelected && editableAttemptData.shootingTestType != .bow
+
+        self.hitSelect.setEnabled(otherThanBowSelected, forSegmentAt: 0)
+        self.hitSelect.setEnabled(shootingTestTypeSelected, forSegmentAt: 1)
+        self.hitSelect.setEnabled(shootingTestTypeSelected, forSegmentAt: 2)
+        self.hitSelect.setEnabled(shootingTestTypeSelected, forSegmentAt: 3)
+        self.hitSelect.setEnabled(shootingTestTypeSelected, forSegmentAt: 4)
+
+        self.hitSelect.numberOfHits = editableAttemptData.hits
     }
 
-    private func updateResultButtonState(input: ShootingTestAttemptDetailed) {
-        self.resultView.setIsEnabled(enabled: input.type != nil && input.hits != nil)
+    private func updateResultButtonState() {
+        self.resultView.isEnabled = editableAttemptData.shootingTestType != nil && editableAttemptData.hits != nil
+        self.resultView.valueLabel.text = editableAttemptData.shootingTestResult?.localized(stringProvider: stringProvider)
     }
 
-    private func updateNoteInputState(input: ShootingTestAttemptDetailed) {
-        let show = ShootingTestAttemptDetailed.ClassConstants.RESULT_REBATED == input.result
+    private func updateNoteInputState() {
+        let show = editableAttemptData.shootingTestResult == .rebated
 
         self.noteLabel.isHidden = !show
         self.noteField.isHidden = !show
+        self.noteField.text = editableAttemptData.note
     }
 
-    private func updateSaveButtonState(input: ShootingTestAttemptDetailed) {
-        self.saveButton.isEnabled = input.validateData()
+    private func updateSaveButtonState() {
+        self.saveButton.isEnabled = editableAttemptData.isValid()
     }
+
+    private func updateEditableAttemptData() {
+        // note value is not saved elsewhere. Other data should have already been updated
+        editableAttemptData.note = self.noteField.text
+    }
+
 
     // MARK: UITextFieldDelegate
 
@@ -335,32 +273,226 @@ class ShootingTestEditAttemptViewController : UIViewController, UITextFieldDeleg
         return true
     }
 
-    // MARK: ShootingTestValueButtonDelegate
 
-    func didPressButton(_ tag: Int) {
-        let sb = UIStoryboard.init(name: "DetailsStoryboard", bundle: nil)
-        let controller = sb.instantiateViewController(withIdentifier: "valueListController") as! ValueListViewController
-        controller.delegate = self
-        controller.fieldKey = "RESULT"
-        controller.titlePrompt = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptResultTitle")
+    // MARK: Result selection
 
-        let valueList = [ShootingTestAttemptDetailed.localizedResultText(value: self.isQualifiedResult() ? ShootingTestAttemptDetailed.ClassConstants.RESULT_QUALIFIED : ShootingTestAttemptDetailed.ClassConstants.RESULT_UNQUALIFIED),
-                         ShootingTestAttemptDetailed.localizedResultText(value: ShootingTestAttemptDetailed.ClassConstants.RESULT_REBATED),
-                         ShootingTestAttemptDetailed.localizedResultText(value: ShootingTestAttemptDetailed.ClassConstants.RESULT_TIMED_OUT)]
+    func navigateToResultSelection() {
+        let possibleResults = editableAttemptData.possibleResults
+        if (possibleResults.isEmpty) {
+            logger.w { "No possible results, refusing to initiate result change" }
+            return
+        }
 
-        controller.values = valueList
-
-        let segue = UIStoryboardSegue.init(identifier: "", source: self, destination: controller, performHandler: {
-            self.navigationController?.pushViewController(controller, animated: true)
+        let viewcontroller = SelectSingleStringViewController()
+        viewcontroller.title = "ShootingTestAttemptResultTitle".localized()
+        viewcontroller.delegate = self
+        viewcontroller.setValues(values: possibleResults.map { result in
+            result.localized(stringProvider: stringProvider)
         })
-        segue.perform()
+
+        self.navigationController?.pushViewController(viewcontroller, animated: true)
     }
 
-    // MARK: ValueSelectionDelegate
 
-    func valueSelected(forKey key: String!, value: String!) {
-        self.resultView.setTitle(text: value)
+    // MARK: SelectSingleStringViewControllerDelegate
+
+    func onStringSelected(string: SelectSingleStringViewController.SelectableString) {
+        let possibleResults = editableAttemptData.possibleResults
+        if (possibleResults.isEmpty) {
+            logger.w { "No possible shooting test results, refusing to update result" }
+            return
+        }
+
+        guard let shootingTestResult = possibleResults.getOrNil(index: Int(string.id)) else {
+            logger.w { "No possible shooting test result for index \(string.id), not updating result" }
+            return
+        }
+
+        editableAttemptData.shootingTestResult = shootingTestResult
 
         self.updateUiState()
+    }
+}
+
+
+fileprivate class ShootingTestAttemptData {
+    private lazy var logger = AppLogger(for: self, printTimeStamps: false)
+
+    static let maxNumberOfHits: [ShootingTestType : Int] = [
+        .bear : 4,
+        .moose : 4,
+        .roeDeer : 4,
+        .bow : 3,
+    ]
+
+    let originalAttempt: CommonShootingTestAttempt?
+    var shootingTestType: ShootingTestType? {
+        didSet {
+            updateIsQualified()
+        }
+    }
+    var hits: Int? {
+        didSet {
+            updateIsQualified()
+        }
+    }
+    var shootingTestResult: ShootingTestResult?
+    var note: String?
+
+
+    var possibleResults: [ShootingTestResult] {
+        if let isQualified = self.isQualified {
+            return [
+                isQualified ? .qualified : .unqualified,
+                .rebated,
+                .timedOut
+            ]
+        } else {
+            return []
+        }
+    }
+
+    private var isQualified: Bool? // nil when information not yet available
+
+    init(originalAttempt: CommonShootingTestAttempt? = nil,
+         shootingTestType: ShootingTestType? = nil,
+         hits: Int? = nil,
+         shootingTestResult: ShootingTestResult? = nil,
+         note: String? = nil) {
+        self.originalAttempt = originalAttempt
+        self.shootingTestType = shootingTestType
+        self.hits = hits
+        self.shootingTestResult = shootingTestResult
+        self.note = note
+
+        self.updateIsQualified()
+    }
+
+    func updateShootingTestResult() {
+        if let isQualified = isQualified {
+            shootingTestResult = isQualified ? .qualified : .unqualified
+        } else {
+            shootingTestResult = nil
+        }
+    }
+
+    func getValidatedAttemptData() -> ValidatedShootingTestAttemptData? {
+        guard let shootingTestType = self.shootingTestType else {
+            logger.v { "Not valid: no shootingTestType"}
+            return nil
+        }
+        guard let shootingTestResult = self.shootingTestResult else {
+            logger.v { "Not valid: no shootingTestResult"}
+            return nil
+        }
+        guard let maxNumberOfHitsForTestType = Self.maxNumberOfHits[shootingTestType] else {
+            logger.e { "Not valid: no max number of hits for shootingTestType \(shootingTestType)"}
+            return nil
+        }
+        guard let hits = self.hits else {
+            logger.v { "Not valid: no hits"}
+            return nil
+        }
+
+        if (hits < 0 || hits > maxNumberOfHitsForTestType) {
+            logger.v { "Not valid: invalid hit count = \(hits) shootingTestType \(shootingTestType)"}
+            return nil
+        }
+
+        return ValidatedShootingTestAttemptData(
+            attemptId: originalAttempt?.id,
+            attemptRev: originalAttempt?.rev,
+            shootingTestType: shootingTestType,
+            hits: hits,
+            shootingTestResult: shootingTestResult,
+            note: note
+        )
+    }
+
+    func isValid() -> Bool {
+        getValidatedAttemptData() != nil
+    }
+
+    private func updateIsQualified() {
+        guard let shootingTestType = self.shootingTestType else {
+            logger.v { "Refusing to update isQualified: no shooting test type" }
+            self.isQualified = nil
+            return
+        }
+        guard let maxNumberOfHitsForTestType = Self.maxNumberOfHits[shootingTestType] else {
+            logger.e { "Refusing to update isQualified: no max number of hits for test type \(shootingTestType)" }
+            self.isQualified = nil
+            return
+        }
+
+        if let hits = self.hits {
+            self.isQualified = hits >= maxNumberOfHitsForTestType
+        } else {
+            self.isQualified = nil
+        }
+    }
+}
+
+fileprivate struct ValidatedShootingTestAttemptData {
+    var attemptId: Int64?
+    var attemptRev: Int32?
+    let shootingTestType: ShootingTestType
+    let hits: Int
+    let shootingTestResult: ShootingTestResult
+    let note: String?
+}
+
+
+fileprivate extension CommonShootingTestAttempt {
+    func toAttemptdData() -> ShootingTestAttemptData {
+        ShootingTestAttemptData(
+            originalAttempt: self,
+            shootingTestType: self.type.value,
+            hits: Int(self.hits),
+            shootingTestResult: self.result.value,
+            note: self.note
+        )
+    }
+}
+
+
+fileprivate extension ShootingTestType {
+    private static let segmentedControlIndices: [ShootingTestType : Int] = [
+        .bear : 0,
+        .moose : 1,
+        .roeDeer : 2,
+        .bow : 3,
+    ]
+
+    var segmentedControlIndex: Int {
+        return Self.segmentedControlIndices[self] ?? UISegmentedControl.noSegment
+    }
+
+    static func fromIndex(_ index: Int) -> ShootingTestType? {
+        return Self.segmentedControlIndices.key(forValue: index)
+    }
+}
+
+
+fileprivate extension UISegmentedControl {
+    static let maxNumberOfHits = 4 // Keep in sync with storyboard and UISegmentedControl over there!
+
+    var numberOfHits: Int? {
+        get {
+            if (self.selectedSegmentIndex == UISegmentedControl.noSegment) {
+                 return nil
+            } else if (self.selectedSegmentIndex < 0 || self.selectedSegmentIndex > Self.maxNumberOfHits) {
+                return nil
+            } else {
+                return Self.maxNumberOfHits - self.selectedSegmentIndex
+            }
+        }
+        set (hits) {
+            if let hits = hits, hits >= 0, hits <= Self.maxNumberOfHits {
+                self.selectedSegmentIndex = Self.maxNumberOfHits - hits
+            } else {
+                self.selectedSegmentIndex = UISegmentedControl.noSegment
+            }
+        }
     }
 }

@@ -3,14 +3,11 @@ import MaterialComponents
 import RiistaCommon
 
 fileprivate enum GalleryItemModel {
-    case diaryEntry(entry: DiaryEntryBase, itemType: FilterableEntityType)
     case commonEntry(localId: KotlinLong, itemType: FilterableEntityType, image: EntityImage)
     case none
 
     static func == (lhs: GalleryItemModel, rhs: GalleryItemModel) -> Bool {
         switch (lhs, rhs) {
-        case (let diaryEntry(l_entry, l_itemType), let diaryEntry(r_entry, r_itemType)):
-            return l_entry.objectID == r_entry.objectID && l_itemType == r_itemType
         case (let commonEntry(l_localId, l_itemType, _), let commonEntry(r_localId, r_itemType, _)):
             return l_localId == r_localId && l_itemType == r_itemType
         case (.none, .none):
@@ -36,16 +33,6 @@ class GalleryItemCell: MDCCardCollectionCell {
 
     weak var parent: UIViewController?
 
-    private lazy var appDelegate: RiistaAppDelegate = {
-        return UIApplication.shared.delegate as! RiistaAppDelegate
-    }()
-
-    private lazy var moContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
-        context.parent = appDelegate.managedObjectContext
-        return context
-    }()
-
     override func awakeFromNib() {
         super.awakeFromNib()
 
@@ -60,10 +47,15 @@ class GalleryItemCell: MDCCardCollectionCell {
     }
 
     @discardableResult
-    func setupFrom(diaryEntry: DiaryEntry, parent: UIViewController) -> UICollectionViewCell {
+    func setupFrom(harvest: CommonHarvest, parent: UIViewController) -> UICollectionViewCell {
         self.parent = parent
 
-        displayedItem = .diaryEntry(entry: diaryEntry, itemType: .harvest)
+        if let localId = harvest.localId, let primaryImage = harvest.images.primaryImage {
+            displayedItem = .commonEntry(localId: localId, itemType: .harvest, image: primaryImage)
+        } else {
+            displayedItem = .none
+        }
+
         loadImage()
 
         return self
@@ -110,17 +102,6 @@ class GalleryItemCell: MDCCardCollectionCell {
         let itemToDisplay = displayedItem
 
         switch itemToDisplay {
-        case .diaryEntry(let entry, _):
-            ImageUtils.loadEventImage(
-                entry, for: imageView,
-                options: ImageLoadOptions.aspectFilled(size: imageView.bounds.size),
-                onSuccess: { [weak self] image in
-                    self?.setDisplayedImage(image, itemModel: itemToDisplay)
-                },
-                onFailure: { [weak self] failureReason in
-                    self?.displayImageLoadFailedIndicator(itemModel: itemToDisplay)
-                }
-            )
         case .commonEntry(_, _, let primaryImage):
             ImageUtils.loadEntityImage(
                 image: primaryImage,
@@ -162,17 +143,13 @@ class GalleryItemCell: MDCCardCollectionCell {
 
     @IBAction func leftButtomClick(_ sender: AnyObject?) {
         switch displayedItem {
-        case .diaryEntry(let entry, let itemType):
-            if (itemType == .harvest) {
-                viewHarvest(objectId: entry.objectID)
-            } else {
-                print("Unexpected itemType \(itemType) for .diaryEntry (left click)")
-            }
         case .commonEntry(let localId, let itemType, _):
-            if (itemType == .srva) {
-                viewSrva(localId: localId)
+            if (itemType == .harvest) {
+                viewHarvest(localId: localId)
             } else if (itemType == .observation) {
                 viewObservation(localId: localId)
+            } else if (itemType == .srva) {
+                viewSrva(localId: localId)
             } else {
                 print("Unexpected itemType \(itemType) for .commonEntry (left click)")
             }
@@ -181,12 +158,9 @@ class GalleryItemCell: MDCCardCollectionCell {
         }
     }
 
-    private func viewHarvest(objectId: NSManagedObjectID) {
-        let diaryEntry = RiistaGameDatabase.sharedInstance().diaryEntry(with: objectId, context: self.moContext)
-        if let harvest = diaryEntry?.toCommonHarvest(objectId: objectId) {
-            let viewController = ViewHarvestViewController(harvest: harvest)
-            self.parent?.navigationController?.pushViewController(viewController, animated: true)
-            }
+    private func viewHarvest(localId: KotlinLong) {
+        let viewController = ViewHarvestViewController(harvestId: localId.int64Value)
+        self.parent?.navigationController?.pushViewController(viewController, animated: true)
     }
 
     private func viewObservation(localId: KotlinLong) {
@@ -209,8 +183,6 @@ class GalleryItemCell: MDCCardCollectionCell {
         let dest = sb.instantiateViewController(withIdentifier: "ImageFullController") as! ImageFullViewController
 
         switch displayedItem {
-        case .diaryEntry(let entry, _):
-            dest.item = entry
         case .commonEntry(_, _, let primaryImage):
             dest.entityImage = primaryImage
         case .none:

@@ -123,6 +123,148 @@ class ViewSpecimensControllerTest {
     }
 
     @Test
+    fun testProducedFieldsMatchDataWhenLowerAmountSpecified() = runBlockingTest {
+        val controller = getController()
+
+        val specimenData = getSpecimenData(specimenAmount = 2)
+        controller.loadSpecimenData(specimenData)
+
+        val viewModel = assertNotNull(controller.viewModelLoadStatus.value.loadedViewModel)
+
+        val fields = viewModel.fields
+        assertEquals(6, fields.size)
+        var expectedIndex = 0
+
+        var speciesIndex = 0
+        fields.getLabelField(expectedIndex++, SpecimenFieldType.SPECIMEN_HEADER.toField(speciesIndex)).let {
+            assertEquals("${specimenData.speciesName} ${speciesIndex + 1}", it.text)
+            assertEquals(LabelField.Type.CAPTION, it.type)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.GENDER.toField(speciesIndex)).let {
+            it.value.assertEquals(RR.string.gender_male)
+            it.settings.label.assertEquals(RR.string.gender_label)
+            assertTrue(it.settings.readOnly)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.AGE.toField(speciesIndex)).let {
+            it.value.assertEquals(RR.string.age_adult)
+            it.settings.label.assertEquals(RR.string.age_label)
+            assertTrue(it.settings.readOnly)
+        }
+
+        speciesIndex++
+        fields.getLabelField(expectedIndex++, SpecimenFieldType.SPECIMEN_HEADER.toField(speciesIndex)).let {
+            assertEquals("${specimenData.speciesName} ${speciesIndex + 1}", it.text)
+            assertEquals(LabelField.Type.CAPTION, it.type)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.GENDER.toField(speciesIndex)).let {
+            it.value.assertEquals(RR.string.gender_female)
+            it.settings.label.assertEquals(RR.string.gender_label)
+            assertTrue(it.settings.readOnly)
+        }
+        fields.getStringField(expectedIndex, SpecimenFieldType.AGE.toField(speciesIndex)).let {
+            it.value.assertEquals(RR.string.age_young)
+            it.settings.label.assertEquals(RR.string.age_label)
+            assertTrue(it.settings.readOnly)
+        }
+    }
+
+
+
+    @Test
+    fun testProducedFieldsMatchDataWhenHigherSpecimenAmount() = runBlockingTest {
+        val controller = getController()
+
+        val specimenData = getSpecimenData(specimenAmount = 5)
+        controller.loadSpecimenData(specimenData)
+
+        val viewModel = assertNotNull(controller.viewModelLoadStatus.value.loadedViewModel)
+
+        val fields = viewModel.fields
+        assertEquals(15, fields.size)
+        var expectedIndex = 0
+
+        var speciesIndex = 0
+        fields.getLabelField(expectedIndex++, SpecimenFieldType.SPECIMEN_HEADER.toField(speciesIndex)).let {
+            assertEquals("${specimenData.speciesName} ${speciesIndex + 1}", it.text)
+            assertEquals(LabelField.Type.CAPTION, it.type)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.GENDER.toField(speciesIndex)).let {
+            it.value.assertEquals(RR.string.gender_male)
+            it.settings.label.assertEquals(RR.string.gender_label)
+            assertTrue(it.settings.readOnly)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.AGE.toField(speciesIndex)).let {
+            it.value.assertEquals(RR.string.age_adult)
+            it.settings.label.assertEquals(RR.string.age_label)
+            assertTrue(it.settings.readOnly)
+        }
+
+        speciesIndex++
+        fields.getLabelField(expectedIndex++, SpecimenFieldType.SPECIMEN_HEADER.toField(speciesIndex)).let {
+            assertEquals("${specimenData.speciesName} ${speciesIndex + 1}", it.text)
+            assertEquals(LabelField.Type.CAPTION, it.type)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.GENDER.toField(speciesIndex)).let {
+            it.value.assertEquals(RR.string.gender_female)
+            it.settings.label.assertEquals(RR.string.gender_label)
+            assertTrue(it.settings.readOnly)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.AGE.toField(speciesIndex)).let {
+            it.value.assertEquals(RR.string.age_young)
+            it.settings.label.assertEquals(RR.string.age_label)
+            assertTrue(it.settings.readOnly)
+        }
+
+        speciesIndex++
+        fields.getLabelField(expectedIndex++, SpecimenFieldType.SPECIMEN_HEADER.toField(speciesIndex)).let {
+            assertEquals("${specimenData.speciesName} ${speciesIndex + 1}", it.text)
+            assertEquals(LabelField.Type.CAPTION, it.type)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.GENDER.toField(speciesIndex)).let {
+            it.value.assertEquals(RR.string.gender_unknown)
+            it.settings.label.assertEquals(RR.string.gender_label)
+            assertTrue(it.settings.readOnly)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.AGE.toField(speciesIndex)).let {
+            it.value.assertEquals(RR.string.age_unknown)
+            it.settings.label.assertEquals(RR.string.age_label)
+            assertTrue(it.settings.readOnly)
+        }
+
+        speciesIndex++
+        fields.getLabelField(expectedIndex++, SpecimenFieldType.SPECIMEN_HEADER.toField(speciesIndex)).let {
+            assertEquals("${specimenData.speciesName} ${speciesIndex + 1}", it.text)
+            assertEquals(LabelField.Type.CAPTION, it.type)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.GENDER.toField(speciesIndex)).let {
+            it.value.assertEquals("-")
+            it.settings.label.assertEquals(RR.string.gender_label)
+            assertTrue(it.settings.readOnly)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.AGE.toField(speciesIndex)).let {
+            it.value.assertEquals("-")
+            it.settings.label.assertEquals(RR.string.age_label)
+            assertTrue(it.settings.readOnly)
+        }
+
+        speciesIndex++
+        fields.getLabelField(expectedIndex++, SpecimenFieldType.SPECIMEN_HEADER.toField(speciesIndex)).let {
+            assertEquals("${specimenData.speciesName} ${speciesIndex + 1}", it.text)
+            assertEquals(LabelField.Type.CAPTION, it.type)
+        }
+        fields.getStringField(expectedIndex++, SpecimenFieldType.GENDER.toField(speciesIndex)).let {
+            it.value.assertEquals("-")
+            it.settings.label.assertEquals(RR.string.gender_label)
+            assertTrue(it.settings.readOnly)
+        }
+        fields.getStringField(expectedIndex, SpecimenFieldType.AGE.toField(speciesIndex)).let {
+            it.value.assertEquals("-")
+            it.settings.label.assertEquals(RR.string.age_label)
+            assertTrue(it.settings.readOnly)
+        }
+    }
+
+    @Test
     fun testProducingGenderField() = runBlockingTest {
         val controller = getController()
 
@@ -256,6 +398,7 @@ class ViewSpecimensControllerTest {
 
     private fun getSpecimenData(
         speciesCode: SpeciesCode = 99,
+        specimenAmount: Int = 4,
         fieldSpecifications: List<SpecimenFieldSpecification> = listOf(
             SpecimenFieldSpecification(
                 fieldType = SpecimenFieldType.GENDER,
@@ -271,6 +414,7 @@ class ViewSpecimensControllerTest {
     ): SpecimenFieldDataContainer {
         return SpecimenFieldDataContainer.createForSrva(
             species = Species.Known(speciesCode),
+            specimenAmount = specimenAmount,
             specimens = listOf(
                 CommonSpecimenData.createForTests(
                     gender = Gender.MALE.toBackendEnum(),

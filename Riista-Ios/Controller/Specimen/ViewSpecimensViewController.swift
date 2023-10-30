@@ -15,7 +15,7 @@ class ViewSpecimensViewController:
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -50,8 +50,8 @@ class ViewSpecimensViewController:
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 
@@ -66,7 +66,8 @@ class ViewSpecimensViewController:
     }
 
     override func onWillLoadViewModel(willRefresh: Bool) {
-        controller.loadSpecimenData(specimenData: specimenData) { _, _ in
+        controller.loadSpecimenData(specimenData: specimenData) { _ in
+            // nop, but remember to switch to main thread if something is added
         }
     }
 

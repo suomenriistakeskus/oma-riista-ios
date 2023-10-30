@@ -31,6 +31,7 @@ data class HuntingControlEventField(
         NUMBER_OF_PROOF_ORDERS,
         HEADLINE_ATTACHMENTS,
         ERROR_NO_INSPECTORS_FOR_DATE,
+        ERROR_NO_SELF_AS_INSPECTOR,
         ATTACHMENT,
         ADD_ATTACHMENT,
         ;

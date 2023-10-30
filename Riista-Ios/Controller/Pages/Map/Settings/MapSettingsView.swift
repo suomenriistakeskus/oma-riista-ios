@@ -17,7 +17,7 @@ typealias OnMapTypeChanged = (RiistaMapType) -> Void
 class MapSettingsView: UIStackView {
 
     private lazy var mapTypeLabel: CaptionView = {
-        CaptionView(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapTypeSelect"))
+        CaptionView(text: "MapTypeSelect".localized())
     }()
 
     private let knownMapTypes: [MapTypeAndImageAndName] = [
@@ -81,37 +81,42 @@ class MapSettingsView: UIStackView {
     //MMARK: - Map layers + other settings
 
     lazy var genericSettingsLabel: CaptionView = {
-        CaptionView(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingGeneralTitle"))
+        CaptionView(text: "MapSettingGeneralTitle".localized())
     }()
 
     lazy var showUserLocationToggle: ToggleView = {
-        ToggleView(labelText: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingShowLocation"),
+        ToggleView(labelText: "MapSettingShowLocation".localized(),
                    minHeight: AppConstants.UI.DefaultToggleHeight)
     }()
 
     lazy var invertClubAreaColorsToggle: ToggleView = {
-        ToggleView(labelText: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingInvertColors"),
+        ToggleView(labelText: "MapSettingInvertColors".localized(),
                    minHeight: AppConstants.UI.DefaultToggleHeight)
     }()
 
     lazy var displayStateLandsToggle: ToggleView = {
-        ToggleView(labelText: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingStateLands"),
+        ToggleView(labelText: "MapSettingStateLands".localized(),
                    minHeight: AppConstants.UI.DefaultToggleHeight)
     }()
 
     // GMA i.e. riistanhoitoyhdistys
     lazy var displayGMABordersToggle: ToggleView = {
-        ToggleView(labelText: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingRhyBorders"),
+        ToggleView(labelText: "MapSettingRhyBorders".localized(),
                    minHeight: AppConstants.UI.DefaultToggleHeight)
     }()
 
     lazy var displayGameTrianglesToggle: ToggleView = {
-        ToggleView(labelText: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingGameTriangles"),
+        ToggleView(labelText: "MapSettingGameTriangles".localized(),
+                   minHeight: AppConstants.UI.DefaultButtonHeight)
+    }()
+
+    lazy var displayLeadShotBanToggle: ToggleView = {
+        ToggleView(labelText: "MapSettingLeadShotBan".localized(),
                    minHeight: AppConstants.UI.DefaultButtonHeight)
     }()
 
     lazy var displayMooseRestrictionsToggle: ToggleView = {
-        ToggleView(labelText: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingMooseRestrictions"),
+        ToggleView(labelText: "MapSettingMooseRestrictions".localized(),
                    minHeight: AppConstants.UI.DefaultButtonHeight)
     }()
 
@@ -120,7 +125,7 @@ class MapSettingsView: UIStackView {
     }()
 
     lazy var displaySmallGameRestrictionsToggle: ToggleView = {
-        ToggleView(labelText: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingSmallGameRestrictions"),
+        ToggleView(labelText: "MapSettingSmallGameRestrictions".localized(),
                    minHeight: AppConstants.UI.DefaultButtonHeight)
     }()
 
@@ -129,7 +134,7 @@ class MapSettingsView: UIStackView {
     }()
 
     lazy var displayAviHuntingBanToggle: ToggleView = {
-        ToggleView(labelText: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingAviHuntingBan"),
+        ToggleView(labelText: "MapSettingAviHuntingBan".localized(),
                    minHeight: AppConstants.UI.DefaultButtonHeight)
     }()
 
@@ -138,13 +143,13 @@ class MapSettingsView: UIStackView {
     }()
 
     lazy var offlineSettingsButton: CardButton = {
-        CardButton(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingOfflineMaps"))
+        CardButton(title: "MapSettingOfflineMaps".localized())
     }()
 
     // MARK: - Selected area views
 
     lazy var selectedAreasLabel: CaptionView = {
-        CaptionView(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingSelectedAreas"))
+        CaptionView(text: "MapSettingSelectedAreas".localized())
     }()
 
     lazy var selectedClubAreaView: SelectedMapAreaView = {
@@ -171,7 +176,7 @@ class MapSettingsView: UIStackView {
         label.font = UIFont.appFont(for: .label)
         label.textColor = UIColor.applicationColor(GreyDark)
         label.textAlignment = .center
-        label.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingNoSelectedAreas")
+        label.text = "MapSettingNoSelectedAreas".localized()
         label.isHidden = true
 
         label.snp.makeConstraints { make in
@@ -205,19 +210,19 @@ class MapSettingsView: UIStackView {
     // MARK: - Add area views
 
     lazy var addAreaLabel: CaptionView = {
-        CaptionView(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapAddArea"))
+        CaptionView(text: "MapAddArea".localized())
     }()
 
     lazy var selectClubAreaButton: CardButton = {
-        createSelectAreaButton(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingAddAreaClub"))
+        createSelectAreaButton(title: "MapSettingAddAreaClub".localized())
     }()
 
     lazy var selectSmallGameAreaButton: CardButton = {
-        createSelectAreaButton(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingAddAreaPienriista"))
+        createSelectAreaButton(title: "MapSettingAddAreaPienriista".localized())
     }()
 
     lazy var selectMooseAreaButton: CardButton = {
-        createSelectAreaButton(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "MapSettingAddAreaMoose"))
+        createSelectAreaButton(title: "MapSettingAddAreaMoose".localized())
     }()
 
     init() {
@@ -248,6 +253,8 @@ class MapSettingsView: UIStackView {
         addView(displayGMABordersToggle)
         addSeparator(spaceAround: 4)
         addView(displayGameTrianglesToggle)
+        addSeparator(spaceAround: 4)
+        addView(displayLeadShotBanToggle)
         addSeparator(spaceAround: 4)
         addView(displayMooseRestrictionsToggle)
         addView(mooseRestrictionsLink)

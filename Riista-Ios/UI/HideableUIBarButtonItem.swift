@@ -7,13 +7,19 @@ import Foundation
  * but button still reserves space from the nav bar.
  */
 class HideableUIBarButtonItem: UIBarButtonItem {
-    var shouldBeHidden: Bool = false
+    var shouldBeHidden: Bool = false {
+        didSet {
+            onShouldBeHiddenChanged?()
+        }
+    }
+
+    var onShouldBeHiddenChanged: OnChanged? = nil
 }
 
 extension Array where Element == HideableUIBarButtonItem {
-    var visibleButtons: [HideableUIBarButtonItem] {
+    var visibleButtons: [UIBarButtonItem] {
         compactMap { button in
-            if (button.shouldBeHidden) {
+            if button.shouldBeHidden {
                 return nil
             } else {
                 return button

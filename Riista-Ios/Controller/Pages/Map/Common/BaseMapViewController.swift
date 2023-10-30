@@ -10,7 +10,7 @@ protocol CanCenterMapAtLocation: AnyObject {
 /**
  * A base class for map view controllers
  */
-class BaseMapViewController: UIViewController, GMSMapViewDelegate, CanCenterMapAtLocation {
+class BaseMapViewController: BaseViewController, GMSMapViewDelegate, CanCenterMapAtLocation {
     lazy var mapView: RiistaMapView = {
         createMapView()
     }()
@@ -186,6 +186,7 @@ class BaseMapViewController: UIViewController, GMSMapViewDelegate, CanCenterMapA
         mapView.addMapLayer(areaType: .Moose, zIndex: 40)
         mapView.addMapLayer(areaType: .Pienriista, zIndex: 50)
         mapView.addMapLayer(areaType: .GameTriangles, zIndex: 60)
+        mapView.addMapLayer(areaType: .LeadShotBan, zIndex: 100)
         mapView.addMapLayer(areaType: .MooseRestrictions, zIndex: 70)
         mapView.addMapLayer(areaType: .SmallGameRestrictions, zIndex: 80)
         mapView.addMapLayer(areaType: .AviHuntingBan, zIndex: 90)
@@ -203,6 +204,7 @@ class BaseMapViewController: UIViewController, GMSMapViewDelegate, CanCenterMapA
         mapView.setMapLayerVisibility(areaType: .Valtionmaa, visible: RiistaSettings.showStateOwnedLands())
         mapView.setMapLayerVisibility(areaType: .Rhy, visible: RiistaSettings.showRhyBorders())
         mapView.setMapLayerVisibility(areaType: .GameTriangles, visible: RiistaSettings.showGameTriangles())
+        mapView.setMapLayerVisibility(areaType: .LeadShotBan, visible: RiistaSettings.showLeadShotBan())
         mapView.setMapLayerVisibility(areaType: .MooseRestrictions, visible: RiistaSettings.showMooseRestrictions())
         mapView.setMapLayerVisibility(areaType: .SmallGameRestrictions, visible: RiistaSettings.showSmallGameRestrictions())
         mapView.setMapLayerVisibility(areaType: .AviHuntingBan, visible: RiistaSettings.showAviHuntingBan())

@@ -2,6 +2,7 @@
 
 package fi.riista.common.domain.observation.ui.list
 
+import fi.riista.common.RiistaSDK
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.constants.Constants
 import fi.riista.common.domain.constants.SpeciesCodes
@@ -19,6 +20,7 @@ import fi.riista.common.domain.observation.model.CommonObservationSpecimen
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
 import fi.riista.common.dto.LocalizedStringDTO
 import fi.riista.common.helpers.createDatabaseDriverFactory
+import fi.riista.common.helpers.initializeMocked
 import fi.riista.common.helpers.runBlockingTest
 import fi.riista.common.io.CommonFileProviderMock
 import fi.riista.common.metadata.MetadataProvider
@@ -36,6 +38,7 @@ import fi.riista.common.network.BackendApiProvider
 import fi.riista.common.preferences.MockPreferences
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.util.MockDateTimeProvider
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -61,11 +64,7 @@ class ListCommonObservationsControllerTest {
         assertTrue(controller.viewModelLoadStatus.value is ViewModelLoadStatus.Loaded)
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(0, allObservations.size)
             assertEquals(0, observationHuntingYears.size)
-            assertEquals(
-                expected = MockMetadataProvider.INSTANCE.observationMetadata.speciesMetadata.keys.map { Species.Known(it) },
-                actual = observationSpecies)
             assertNull(filterHuntingYear)
             assertNull(filterSpecies)
             assertFalse(filteringEnabled)
@@ -83,11 +82,9 @@ class ListCommonObservationsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allObservations.size)
             assertEquals(5, filteredObservations.size)
             assertEquals(listOf(2022, 2021, 2020), observationHuntingYears)
 
-            assertEquals(filteredObservations, allObservations)
             // todo: the order of Observation events should be guaranteed
             assertNotNull(filteredObservations.find { it.remoteId == 1L }, "remoteId == 1")
             assertNotNull(filteredObservations.find { it.remoteId == 2L }, "remoteId == 2")
@@ -99,6 +96,26 @@ class ListCommonObservationsControllerTest {
             //assertEquals(3, filteredObservations[2].remoteId)
             assertFalse(filteringEnabled)
 
+        }
+    }
+
+    @Test
+    fun testListingDeletedEvents() = runBlockingTest {
+        val observationContext = getObservationContext()
+        val controller = getController(observationContext = observationContext)
+
+        observationContext.saveObservation(
+            getObservation(
+                remoteId = 1,
+                species = Species.Known(speciesCode = SpeciesCodes.MOOSE_ID),
+                pointOfTime = getDatetimeForHuntingYear(2021, 12),
+            ).copy(deleted = true)
+        )
+
+        controller.loadViewModel()
+
+        with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
+            assertEquals(0, filteredObservations.size)
         }
     }
 
@@ -129,7 +146,6 @@ class ListCommonObservationsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(2, allObservations.size)
             assertEquals(1, filteredObservations.size)
             // todo: we should consider whether all Observation event years are returned if filtering only events that have images
             assertEquals(listOf(2022, 2021), observationHuntingYears)
@@ -150,14 +166,12 @@ class ListCommonObservationsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel 1")) {
-            assertEquals(5, allObservations.size, "all before")
             assertEquals(5, filteredObservations.size, "filtered before")
             assertFalse(filteringEnabled)
         }
 
         controller.setHuntingYearFilter(huntingYear = 2022)
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allObservations.size, "all after")
             assertEquals(2, filteredObservations.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), observationHuntingYears)
 
@@ -180,7 +194,6 @@ class ListCommonObservationsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allObservations.size, "all after")
             assertEquals(2, filteredObservations.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), observationHuntingYears)
 
@@ -202,7 +215,6 @@ class ListCommonObservationsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel 1")) {
-            assertEquals(5, allObservations.size, "all before")
             assertEquals(5, filteredObservations.size, "filtered before")
             assertFalse(filteringEnabled)
         }
@@ -214,7 +226,6 @@ class ListCommonObservationsControllerTest {
         controller.setSpeciesFilter(species = speciesFilter)
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allObservations.size, "all after")
             assertEquals(3, filteredObservations.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), observationHuntingYears)
 
@@ -242,7 +253,6 @@ class ListCommonObservationsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allObservations.size, "all after")
             assertEquals(3, filteredObservations.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), observationHuntingYears)
 
@@ -265,7 +275,6 @@ class ListCommonObservationsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel 1")) {
-            assertEquals(5, allObservations.size, "all before")
             assertEquals(5, filteredObservations.size, "filtered before")
             assertFalse(filteringEnabled)
         }
@@ -274,7 +283,6 @@ class ListCommonObservationsControllerTest {
         controller.setSpeciesFilter(species = speciesFilter)
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allObservations.size, "all after")
             assertEquals(5, filteredObservations.size, "filtered after")
             assertFalse(filteringEnabled)
         }
@@ -290,7 +298,6 @@ class ListCommonObservationsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel 1")) {
-            assertEquals(5, allObservations.size, "all before")
             assertEquals(5, filteredObservations.size, "filtered before")
             assertFalse(filteringEnabled)
         }
@@ -299,7 +306,6 @@ class ListCommonObservationsControllerTest {
         controller.setFilters(huntingYear = 2022, species = speciesFilter)
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allObservations.size, "all after")
             assertEquals(1, filteredObservations.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), observationHuntingYears)
 
@@ -324,7 +330,6 @@ class ListCommonObservationsControllerTest {
         controller.setSpeciesFilter(species = speciesFilter)
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(5, allObservations.size, "all after")
             assertEquals(1, filteredObservations.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), observationHuntingYears)
 
@@ -346,7 +351,6 @@ class ListCommonObservationsControllerTest {
         controller.loadViewModel()
 
         with (assertNotNull(controller.getLoadedViewModelOrNull(), "viewModel")) {
-            assertEquals(6, allObservations.size, "all after")
             assertEquals(2, filteredObservations.size, "filtered after")
             assertEquals(listOf(2022, 2021, 2020), observationHuntingYears)
 
@@ -498,17 +502,30 @@ class ListCommonObservationsControllerTest {
     private fun getObservationContext(): ObservationContext {
         val dbDriverFactory = createDatabaseDriverFactory()
         val database = RiistaDatabase(driver = dbDriverFactory.createDriver())
-
+        val mockBackendAPI = BackendAPIMock()
         val mockUserContextProvider = CurrentUserContextProviderFactory.createMocked()
-        mockUserContextProvider.userLoggedIn(mockUserInfoDTO)
+        val mockDateTimeProvider = MockDateTimeProvider()
+        val mockCommonFileProvider = CommonFileProviderMock()
+
+        RiistaSDK.initializeMocked(
+            databaseDriverFactory = dbDriverFactory,
+            mockBackendAPI = mockBackendAPI,
+            mockCurrentUserContextProvider = mockUserContextProvider,
+            mockLocalDateTimeProvider = mockDateTimeProvider,
+            mockFileProvider = mockCommonFileProvider,
+        )
+
+        runBlocking {
+            mockUserContextProvider.userLoggedIn(mockUserInfoDTO)
+        }
 
         return ObservationContext(
             backendApiProvider = object : BackendApiProvider {
-                override val backendAPI: BackendAPI = BackendAPIMock()
+                override val backendAPI: BackendAPI = mockBackendAPI
             },
             preferences = MockPreferences(),
-            localDateTimeProvider = MockDateTimeProvider(),
-            commonFileProvider = CommonFileProviderMock(),
+            localDateTimeProvider = mockDateTimeProvider,
+            commonFileProvider = mockCommonFileProvider,
             database = database,
             currentUserContextProvider = mockUserContextProvider,
         )
@@ -516,6 +533,7 @@ class ListCommonObservationsControllerTest {
 
     private val mockUserInfoDTO = UserInfoDTO(
         username = "user",
+        personId = 123L,
         firstName = "user_first",
         lastName = "user_last",
         birthDate = null,
@@ -531,9 +549,6 @@ class ListCommonObservationsControllerTest {
         huntingCardValidNow = true,
         qrCode = null,
         timestamp = "2022-01-01",
-        gameDiaryYears = emptySet(),
-        harvestYears = emptySet(),
-        observationYears = emptySet(),
         shootingTests = emptyList(),
         occupations = emptyList(),
         enableSrva = true,
@@ -542,10 +557,4 @@ class ListCommonObservationsControllerTest {
     )
 
     private fun getMetadataProvider(): MetadataProvider = MockMetadataProvider.INSTANCE
-
-    companion object {
-        private val HUNTING_YEAR_2021 = LocalDateTime(2021, 9, 1, 13, 14, 15)
-        private val HUNTING_YEAR_2022_01 = LocalDateTime(2021, 9, 1, 13, 14, 15)
-        private val HUNTING_YEAR_2022_02 = LocalDateTime(2021, 9, 1, 13, 14, 15)
-    }
 }

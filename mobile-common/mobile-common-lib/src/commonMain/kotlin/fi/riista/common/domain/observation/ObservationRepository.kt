@@ -1,29 +1,49 @@
 package fi.riista.common.domain.observation
 
+import fi.riista.common.database.DatabaseWriteContext
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.database.model.toDbEntityImageString
 import fi.riista.common.database.model.toEntityImages
 import fi.riista.common.database.util.DbImageUtil.updateLocalImagesFromRemote
 import fi.riista.common.domain.model.EntityImage
 import fi.riista.common.domain.model.EntityImages
+import fi.riista.common.domain.model.HuntingYear
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.model.getHuntingYear
+import fi.riista.common.domain.model.getHuntingYearEnd
+import fi.riista.common.domain.model.getHuntingYearStart
 import fi.riista.common.domain.observation.model.CommonObservation
 import fi.riista.common.domain.observation.model.CommonObservationSpecimen
-import fi.riista.common.model.BackendEnum
+import fi.riista.common.domain.observation.model.keepNonEmpty
 import fi.riista.common.model.ETRMSGeoLocation
 import fi.riista.common.model.LocalDateTime
+import fi.riista.common.model.LocalTime
 import fi.riista.common.model.toBackendEnum
+import fi.riista.common.model.toStringISO8601WithTime
 import fi.riista.common.util.deserializeFromJson
 import fi.riista.common.util.serializeToJson
-import fi.riista.common.util.withNumberOfElements
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+
+internal data class ObservationFilter(
+    val huntingYear: HuntingYear?,
+    val species: List<Species>?,
+    val requireImages: Boolean,
+)
 
 internal class ObservationRepository(database: RiistaDatabase) {
     private val observationQueries = database.dbObservationQueries
 
-    fun upsertObservation(username: String, observation: CommonObservation): CommonObservation {
-        return observationQueries.transactionWithResult {
+    /**
+     * If an observation is new it is inserted to the database. If it is existing then it is updated.
+     * If it was inserted then the returned observation will contain the assigned localId.
+     * Any local images that are marked as deleted are removed.
+     */
+    suspend fun upsertObservation(
+        username: String,
+        observation: CommonObservation,
+    ): CommonObservation = withContext(DatabaseWriteContext) {
+        return@withContext observationQueries.transactionWithResult {
             if (observation.localId != null) {
                 updateObservation(observation)
             } else {
@@ -32,7 +52,10 @@ internal class ObservationRepository(database: RiistaDatabase) {
                     remoteObservation = observation
                 )
                 if (localObservation != null) {
-                    val mergedEvent = mergeObservation(localObservation = localObservation, updatingObservation = observation)
+                    val mergedEvent = mergeObservation(
+                        localObservation = localObservation,
+                        updatingObservation = observation
+                    )
                     updateObservation(observation = mergedEvent)
                 } else {
                     insertObservation(username = username, observation = observation)
@@ -155,10 +178,7 @@ internal class ObservationRepository(database: RiistaDatabase) {
             location_altitudeAccuracy = observation.location.altitudeAccuracy,
         )
 
-        return observationQueries
-            .selectByLocalId(local_id = localId)
-            .executeAsOne()
-            .toCommonObservation()
+        return observation.copy(images = observation.images.withDeletedImagesRemoved())
     }
 
     private fun insertObservation(username: String, observation: CommonObservation): CommonObservation {
@@ -207,10 +227,7 @@ internal class ObservationRepository(database: RiistaDatabase) {
         )
         val insertedObservationId = observationQueries.lastInsertRowId().executeAsOne()
 
-        return observationQueries
-            .selectByLocalId(insertedObservationId)
-            .executeAsOne()
-            .toCommonObservation()
+        return observation.copy(localId = insertedObservationId, images = observation.images.withDeletedImagesRemoved())
     }
 
     fun getByLocalId(localId: Long): CommonObservation {
@@ -220,11 +237,9 @@ internal class ObservationRepository(database: RiistaDatabase) {
     }
 
     fun getByRemoteId(username: String, remoteId: Long): CommonObservation? {
-        return observationQueries.transactionWithResult {
-            observationQueries.selectByRemoteId(username = username, remote_id = remoteId)
-                .executeAsOneOrNull()
-                ?.toCommonObservation()
-        }
+        return observationQueries.selectByRemoteId(username = username, remote_id = remoteId)
+            .executeAsOneOrNull()
+            ?.toCommonObservation()
     }
 
     fun listObservations(username: String): List<CommonObservation> {
@@ -239,24 +254,31 @@ internal class ObservationRepository(database: RiistaDatabase) {
             .map { it.toCommonObservation() }
     }
 
-    fun markDeleted(observationLocalId: Long?): Boolean {
+    suspend fun markDeleted(observationLocalId: Long?): CommonObservation? {
         return if (observationLocalId != null) {
-            observationQueries.transaction {
-                observationQueries.markDeleted(observationLocalId)
+            withContext(DatabaseWriteContext) {
+                observationQueries.transactionWithResult {
+                    observationQueries.markDeleted(observationLocalId)
+
+                    observationQueries.selectByLocalId(local_id = observationLocalId)
+                        .executeAsOneOrNull()
+                        ?.toCommonObservation()
+                }
             }
-            true
         } else {
-            false
+            null
         }
     }
 
-    fun hardDelete(observation: CommonObservation) {
+    suspend fun hardDelete(observation: CommonObservation) {
         if (observation.localId != null) {
-            observationQueries.hardDelete(observation.localId)
+            withContext(DatabaseWriteContext) {
+                observationQueries.hardDelete(observation.localId)
+            }
         }
     }
 
-    fun hardDeleteByRemoteId(username: String, remoteId: Long) {
+    suspend fun hardDeleteByRemoteId(username: String, remoteId: Long) = withContext(DatabaseWriteContext) {
         observationQueries.hardDeleteByRemoteId(username, remoteId)
     }
 
@@ -274,8 +296,10 @@ internal class ObservationRepository(database: RiistaDatabase) {
             .distinct()
     }
 
-    fun getObservationsWithLocalImages(username: String): List<CommonObservation> {
-        return observationQueries.transactionWithResult {
+    suspend fun getObservationsWithLocalImages(
+        username: String,
+    ): List<CommonObservation> = withContext(DatabaseWriteContext) {
+        return@withContext observationQueries.transactionWithResult {
             // Get first local_ids and then get corresponding observations, as it is not possible to get a list of
             // DbObservation when query contains "local_images IS NOT NULL", because SqlDelight is too clever in that case.
             val localIds = observationQueries
@@ -308,6 +332,19 @@ internal class ObservationRepository(database: RiistaDatabase) {
                     else -> Species.Known(it.game_species_code)
                 }
             }
+    }
+
+    fun filter(username: String, filter: ObservationFilter): List<CommonObservation> {
+        val startDate = filter.huntingYear?.getHuntingYearStart()
+        val endDate = filter.huntingYear?.getHuntingYearEnd()
+        return observationQueries.filter(
+            username = username,
+            startDateTime = startDate?.toStringISO8601WithTime(LocalTime.minLocalTime),
+            endDateTime = endDate?.toStringISO8601WithTime(LocalTime.maxLocalTime),
+            filterSpecies = !filter.species.isNullOrEmpty(),
+            species = filter.species?.mapNotNull { it.knownSpeciesCodeOrNull() } ?: emptyList(),
+            requireImages = filter.requireImages,
+        ).executeAsList().map { it.toCommonObservation() }
     }
 }
 
@@ -355,7 +392,9 @@ private fun CommonObservationSpecimen.toDbObservationSpecimen() = DbObservationS
 )
 
 private fun List<CommonObservationSpecimen>.toDbSpecimensString(): String? {
-    return this.map { it.toDbObservationSpecimen() }
+    return this
+        .keepNonEmpty()
+        .map { it.toDbObservationSpecimen() }
         .serializeToJson()
 }
 
@@ -394,7 +433,7 @@ private fun DbObservation.toCommonObservation(): CommonObservation {
             remoteImageIds = remote_images?.deserializeFromJson<List<String>>() ?: listOf(),
         ),
         totalSpecimenAmount = total_specimen_amount,
-        specimens = specimens.toCommonSpecimens(total_specimen_amount),
+        specimens = specimens?.toCommonObservationSpecimens(),
         canEdit = can_edit,
         modified = modified,
         deleted = deleted,
@@ -414,23 +453,4 @@ private fun DbObservation.toCommonObservation(): CommonObservation {
         litter = litter,
         pack = pack,
     )
-}
-
-private fun String?.toCommonSpecimens(totalSpecimenAmount: Int?): List<CommonObservationSpecimen>? {
-    val sanitizedSpecimenAmount = totalSpecimenAmount ?: 0
-    val commonSpecimens =
-        this?.toCommonObservationSpecimens()
-            ?.withNumberOfElements(sanitizedSpecimenAmount) {
-                CommonObservationSpecimen(
-                    remoteId = null,
-                    revision = null,
-                    gender = BackendEnum.create(null),
-                    age = BackendEnum.create(null),
-                    stateOfHealth = BackendEnum.create(null),
-                    marking = BackendEnum.create(null),
-                    widthOfPaw = null,
-                    lengthOfPaw = null,
-                )
-            }
-    return commonSpecimens
 }

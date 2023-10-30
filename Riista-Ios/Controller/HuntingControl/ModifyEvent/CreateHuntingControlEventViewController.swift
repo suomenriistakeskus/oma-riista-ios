@@ -15,10 +15,11 @@ class CreateHuntingControlEventViewController :
 
     private lazy var _controller: RiistaCommon.CreateHuntingControlEventController = {
         RiistaCommon.CreateHuntingControlEventController(
-            huntingControlContext: RiistaSDK.shared.currentUserContext.huntingControlContext,
+            huntingControlContext: RiistaSDK.shared.huntingControlContext,
             huntingControlRhyTarget: huntingControlRhyTarget,
             stringProvider: LocalizedStringProvider(),
-            commonFileProvider: RiistaSDK.shared.commonFileProvider
+            commonFileProvider: RiistaSDK.shared.commonFileProvider,
+            userContext: RiistaSDK.shared.currentUserContext
         )
     }()
 
@@ -65,11 +66,14 @@ class CreateHuntingControlEventViewController :
         tableView.showLoading()
         saveButton.isEnabled = false
 
-        controller.createHuntingControlEvent { [weak self] result, error in
-            self?.tableView.hideLoading()
-            self?.saveButton.isEnabled = true
-            self?.onHuntingControlEventCreated(result: result, error: error)
-        }
+        controller.saveHuntingControlEvent(
+            updateToBackend: AppSync.shared.isAutomaticSyncEnabled(),
+            completionHandler: handleOnMainThread { [weak self] result, error in
+                self?.tableView.hideLoading()
+                self?.saveButton.isEnabled = true
+                self?.onHuntingControlEventCreated(result: result, error: error)
+            }
+        )
     }
 
     private func onHuntingControlEventCreated(result: HuntingControlEventOperationResponse?, error: Error?) {

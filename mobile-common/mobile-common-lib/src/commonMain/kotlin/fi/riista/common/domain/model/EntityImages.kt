@@ -96,6 +96,13 @@ data class EntityImages(
         )
     }
 
+    fun withDeletedImagesRemoved(): EntityImages {
+        return copy(
+            localImages = localImages.filter { it.status != EntityImage.Status.LOCAL_TO_BE_REMOVED },
+            remoteImageIds = remoteImageIds,
+        )
+    }
+
     companion object {
         internal fun noImages() = EntityImages(listOf(), listOf())
     }

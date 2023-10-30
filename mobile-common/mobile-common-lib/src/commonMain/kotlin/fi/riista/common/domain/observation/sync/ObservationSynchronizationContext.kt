@@ -1,8 +1,5 @@
 package fi.riista.common.domain.observation.sync
 
-import co.touchlab.stately.concurrency.AtomicReference
-import co.touchlab.stately.concurrency.value
-import fi.riista.common.RiistaSDK
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.observation.ObservationOperationResponse
 import fi.riista.common.domain.observation.ObservationRepository
@@ -11,62 +8,22 @@ import fi.riista.common.domain.observation.sync.dto.toObservationPage
 import fi.riista.common.domain.observation.sync.model.ObservationPage
 import fi.riista.common.domain.userInfo.CurrentUserContextProvider
 import fi.riista.common.io.CommonFileProvider
-import fi.riista.common.logging.getLogger
 import fi.riista.common.model.LocalDateTime
-import fi.riista.common.network.AbstractSynchronizationContext
-import fi.riista.common.network.AbstractSynchronizationContextProvider
 import fi.riista.common.network.BackendApiProvider
-import fi.riista.common.network.SyncDataPiece
-import fi.riista.common.network.UserSynchronizationContext
+import fi.riista.common.network.sync.AbstractSynchronizationContext
+import fi.riista.common.network.sync.SyncDataPiece
+import fi.riista.common.network.sync.SynchronizationConfig
 import fi.riista.common.preferences.Preferences
 import fi.riista.common.util.LocalDateTimeProvider
 
-internal class ObservationSynchronizationContextProvider(
-    private val backendApiProvider: BackendApiProvider,
-    private val database: RiistaDatabase,
-    private val preferences: Preferences,
-    private val localDateTimeProvider: LocalDateTimeProvider,
-    private val commonFileProvider: CommonFileProvider,
-    private val currentUserContextProvider: CurrentUserContextProvider,
-    syncFinishedListener: (suspend () -> Unit)?,
-) : AbstractSynchronizationContextProvider(syncFinishedListener = syncFinishedListener) {
-
-    private var userSynchronizationContext: AtomicReference<UserSynchronizationContext?> = AtomicReference(null)
-
-    override val synchronizationContext: ObservationSynchronizationContext?
-        get() {
-            val username = currentUserContextProvider.userContext.username
-            return if (username != null) {
-                var synchronizationContext = userSynchronizationContext.value
-                if (synchronizationContext == null || synchronizationContext.username != username) {
-                    synchronizationContext = UserSynchronizationContext(
-                        username = username,
-                        synchronizationContext = ObservationSynchronizationContext(
-                            backendApiProvider = backendApiProvider,
-                            database = database,
-                            preferences = preferences,
-                            localDateTimeProvider = localDateTimeProvider,
-                            username = username,
-                            commonFileProvider = commonFileProvider,
-                        )
-                    ).also {
-                        userSynchronizationContext.set(it)
-                    }
-                }
-                return synchronizationContext.synchronizationContext as ObservationSynchronizationContext
-            } else {
-                null
-            }
-        }
-}
 
 internal class ObservationSynchronizationContext(
     val backendApiProvider: BackendApiProvider,
     database: RiistaDatabase,
     preferences: Preferences,
     localDateTimeProvider: LocalDateTimeProvider,
-    val username: String,
     commonFileProvider: CommonFileProvider,
+    private val currentUserContextProvider: CurrentUserContextProvider,
 ) : AbstractSynchronizationContext(
     preferences = preferences,
     localDateTimeProvider = localDateTimeProvider,
@@ -88,17 +45,19 @@ internal class ObservationSynchronizationContext(
         commonFileProvider = commonFileProvider,
     )
 
-    override suspend fun doSynchronize() {
+    override suspend fun synchronize(config: SynchronizationConfig) {
         val lastSynchronizationTimeStamp = getLastSynchronizationTimeStamp(suffix = OBSERVATION_FETCH_SUFFIX)
+            .takeIf { config.forceContentReload.not() }
         var timestamp: LocalDateTime? = lastSynchronizationTimeStamp
 
-        val username = RiistaSDK.currentUserContext.username ?: kotlin.run {
+        val username = currentUserContextProvider.userContext.username ?: kotlin.run {
             logger.w { "Unable to sync when no logged in user" }
             return
         }
 
         // Fetch deleted observations from backend and delete those from local DB
         val lastDeleteTimestamp = getLastSynchronizationTimeStamp(suffix = OBSERVATION_DELETE_SUFFIX)
+            .takeIf { config.forceContentReload.not() }
         val deleteTimestamp = deletedObservationsUpdater.fetchFromBackend(username, lastDeleteTimestamp)
         if (deleteTimestamp != null) {
             saveLastSynchronizationTimeStamp(timestamp = deleteTimestamp, suffix = OBSERVATION_DELETE_SUFFIX)
@@ -115,7 +74,12 @@ internal class ObservationSynchronizationContext(
                 return
             }
             timestamp = page.latestEntry
-            observationToDatabaseUpdater.update(username = username, observations = page.content)
+
+            observationToDatabaseUpdater.update(
+                username = username,
+                observations = page.content,
+                overwriteNonModified = config.forceContentReload,
+            )
         } while (page?.hasMore == true)
 
         sendModifiedObservations(username)
@@ -130,7 +94,7 @@ internal class ObservationSynchronizationContext(
     }
 
     internal suspend fun sendObservationToBackend(observation: CommonObservation): ObservationOperationResponse {
-        val username = RiistaSDK.currentUserContext.username ?: kotlin.run {
+        val username = currentUserContextProvider.userContext.username ?: kotlin.run {
             logger.w { "Unable to sync when no logged in user" }
             return ObservationOperationResponse.Error("Unable to sync when no logged in user")
         }
@@ -174,11 +138,8 @@ internal class ObservationSynchronizationContext(
         return observationToNetworkUpdater.update(username, events)
     }
 
-    override fun logger() = logger
-
     companion object {
         private const val OBSERVATION_FETCH_SUFFIX = "fetch"
         private const val OBSERVATION_DELETE_SUFFIX = "delete"
-        private val logger by getLogger(ObservationSynchronizationContext::class)
     }
 }

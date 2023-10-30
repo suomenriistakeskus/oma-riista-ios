@@ -26,8 +26,6 @@ class RoundedCornersHelper {
      */
     private weak var view: UIView?
 
-    private var cachedViewBounds: CGRect = CGRect.zero
-
     init(view: UIView) {
         self.view = view
     }
@@ -38,28 +36,13 @@ class RoundedCornersHelper {
             return
         }
 
-        if (shouldUpdateRoundedCorners(viewBounds: viewBounds)) {
+        if (cornersInvalidated) {
             updateRoundedCorners(viewBounds: viewBounds)
         }
     }
 
-    private func shouldUpdateRoundedCorners(viewBounds: CGRect) -> Bool {
-        if (cornersInvalidated) {
-            return true
-        }
-
-        // rounded corners are implemented differently on iOS10 and thus rounded corners
-        // need to be updated whenever bounds change
-        if #available(iOS 11.0, *) {
-            return false
-        }
-
-        return cachedViewBounds != viewBounds
-    }
-
     private func updateRoundedCorners(viewBounds: CGRect) {
         cornersInvalidated = false
-        cachedViewBounds = viewBounds
         view?.roundCorners(corners: roundedCorners, cornerRadius: cornerRadius)
     }
 }

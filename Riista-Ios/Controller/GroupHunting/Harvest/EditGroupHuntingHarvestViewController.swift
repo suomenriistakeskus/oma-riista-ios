@@ -19,6 +19,7 @@ class EditGroupHuntingHarvestViewController : ModifyGroupHuntingHarvestViewContr
         RiistaCommon.EditGroupHarvestController(
             groupHuntingContext: UserSession.shared().groupHuntingContext,
             harvestTarget: harvestTarget,
+            speciesResolver: SpeciesInformationResolver(),
             stringProvider: LocalizedStringProvider()
         )
     }()
@@ -65,16 +66,18 @@ class EditGroupHuntingHarvestViewController : ModifyGroupHuntingHarvestViewContr
         tableView.showLoading()
         saveButton.isEnabled = false
 
-        controller.acceptHarvest { [weak self] result, error in
-            guard let self = self else {
-                print("No self? Was viewcontroller dismissed while approving harvest?")
-                return
-            }
+        controller.acceptHarvest(
+            completionHandler: handleOnMainThread { [weak self] result, error in
+                guard let self = self else {
+                    print("No self? Was viewcontroller dismissed while approving harvest?")
+                    return
+                }
 
-            self.tableView.hideLoading()
-            self.saveButton.isEnabled = true
-            self.onApproveCompleted(result: result, error: error)
-        }
+                self.tableView.hideLoading()
+                self.saveButton.isEnabled = true
+                self.onApproveCompleted(result: result, error: error)
+            }
+        )
     }
 
     private func onApproveCompleted(result: GroupHuntingHarvestOperationResponse?, error: Error?) {
@@ -106,16 +109,18 @@ class EditGroupHuntingHarvestViewController : ModifyGroupHuntingHarvestViewContr
         tableView.showLoading()
         saveButton.isEnabled = false
 
-        controller.updateHarvest { [weak self] result, error in
-            guard let self = self else {
-                print("No self? Was viewcontroller dismissed while updating harvest?")
-                return
-            }
+        controller.updateHarvest(
+            completionHandler: handleOnMainThread { [weak self] result, error in
+                guard let self = self else {
+                    print("No self? Was viewcontroller dismissed while updating harvest?")
+                    return
+                }
 
-            self.tableView.hideLoading()
-            self.saveButton.isEnabled = true
-            self.onHarvestUpdateCompleted(result: result, error: error)
-        }
+                self.tableView.hideLoading()
+                self.saveButton.isEnabled = true
+                self.onHarvestUpdateCompleted(result: result, error: error)
+            }
+        )
     }
 
     private func onHarvestUpdateCompleted(result: GroupHuntingHarvestOperationResponse?, error: Error?) {

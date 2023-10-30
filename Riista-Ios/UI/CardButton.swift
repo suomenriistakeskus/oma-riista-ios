@@ -114,10 +114,10 @@ class CardButton: MDCCard {
         }
     }
 
-    init(title: String? = "") {
+    init(title: String? = "", height: CGFloat = AppConstants.UI.DefaultButtonHeight) {
         super.init(frame: CGRect.zero)
         self.title = title
-        setup()
+        setup(height: height)
     }
 
     override init(frame: CGRect) {
@@ -134,7 +134,7 @@ class CardButton: MDCCard {
         onClicked?()
     }
 
-    private func setup() {
+    private func setup(height: CGFloat = AppConstants.UI.DefaultButtonHeight) {
         addSubview(button)
 
         button.snp.makeConstraints { make in
@@ -161,7 +161,7 @@ class CardButton: MDCCard {
         }
 
         self.snp.makeConstraints { make in
-            make.height.greaterThanOrEqualTo(AppConstants.UI.DefaultButtonHeight)
+            make.height.greaterThanOrEqualTo(height)
         }
     }
 

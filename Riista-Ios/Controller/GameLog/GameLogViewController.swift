@@ -16,6 +16,8 @@ class GameLogViewController: RiistaPageViewController, RiistaPageDelegate, LogFi
         return dataSource
     }()
 
+    private lazy var entriesForOtherActorsHelper = ShowEntriesForOtherActorsFilterHelper()
+
     private lazy var createNewEntryButton: HideableUIBarButtonItem = {
         let button = HideableUIBarButtonItem(
             image: UIImage(named: "add_white"),
@@ -36,6 +38,7 @@ class GameLogViewController: RiistaPageViewController, RiistaPageDelegate, LogFi
         return button
     }()
 
+    private lazy var allLeftNavBarButtons: [HideableUIBarButtonItem] = [entriesForOtherActorsHelper.showEntriesForOtherActorsNavBarButton]
     private lazy var allNavBarButtons: [HideableUIBarButtonItem] = [synchronizeManuallyButton, createNewEntryButton]
 
     private lazy var refreshControl: UIRefreshControl = {
@@ -70,7 +73,9 @@ class GameLogViewController: RiistaPageViewController, RiistaPageDelegate, LogFi
 
         filterView.dataSource = gameLogDataSource
         filterView.delegate = self
-        filterView.changeListener = SharedEntityFilterStateUpdater()
+        let updater = SharedEntityFilterStateUpdater()
+        filterView.changeListener = updater
+        entriesForOtherActorsHelper.changeListener = updater
 
         NotificationCenter.default.addObserver(
             self,
@@ -90,17 +95,17 @@ class GameLogViewController: RiistaPageViewController, RiistaPageDelegate, LogFi
             name: Notification.Name.ManualSynchronizationPossibleStatusChanged,
             object: nil
         )
-        // TODO: selecting correct entity type when new one is created
-/*        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(onLogTypeSelected),
-                                               name: NSNotification.Name(rawValue: RiistaLogTypeSelectedKey),
-                                               object: nil)*/
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        SharedEntityFilterState.shared.addListener(gameLogDataSource)
+        // let helper listen for the data source. This way helper remains in sync with the data source
+        // - the data source does not support all filter types after all
+        // - do this before adding data source as listener --> both get updated
+        gameLogDataSource.addEntityFilterChangeListener(entriesForOtherActorsHelper)
+        SharedEntityFilterState.shared.addEntityFilterChangeListener(gameLogDataSource)
+
         filterView.updateTexts()
 
         updateManualSyncButton(
@@ -109,11 +114,18 @@ class GameLogViewController: RiistaPageViewController, RiistaPageDelegate, LogFi
         )
 
         self.navigationItem.title = "Gamelog".localized()
+
+        self.navigationItem.leftBarButtonItems = allLeftNavBarButtons.visibleButtons
         self.navigationItem.rightBarButtonItems = allNavBarButtons.visibleButtons
+        entriesForOtherActorsHelper.showEntriesForOtherActorsNavBarButton.onShouldBeHiddenChanged = {
+            self.navigationItem.leftBarButtonItems = self.allLeftNavBarButtons.visibleButtons
+            NotificationCenter.default.post(Notification(name: .NavigationItemUpdated))
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
-        SharedEntityFilterState.shared.removeListener(gameLogDataSource)
+        gameLogDataSource.removeEntityFilterChangeListener(entriesForOtherActorsHelper)
+        SharedEntityFilterState.shared.removeEntityFilterChangeListener(gameLogDataSource)
 
         super.viewWillDisappear(animated)
     }
@@ -163,7 +175,7 @@ class GameLogViewController: RiistaPageViewController, RiistaPageDelegate, LogFi
     }
 
     @objc private func performManualAppSync() {
-        AppSync.shared.synchronize(usingMode: .manual)
+        AppSync.shared.synchronizeManually(forceContentReload: false)
     }
 
     private func updateManualSyncPossible(manualSyncPossible: Bool) {
@@ -204,17 +216,13 @@ class GameLogViewController: RiistaPageViewController, RiistaPageDelegate, LogFi
         filterView.refresh()
     }
 
-    func onHarvestClicked(harvest: DiaryEntry) {
-        let delegate = UIApplication.shared.delegate as! RiistaAppDelegate
-        let context = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
-        context.parent = delegate.managedObjectContext
-        let objectId = harvest.objectID
-
-        let diaryEntry = RiistaGameDatabase.sharedInstance().diaryEntry(with: objectId, context: context)
-        if let harvest = diaryEntry?.toCommonHarvest(objectId: objectId) {
-            let viewController = ViewHarvestViewController(harvest: harvest)
-            self.navigationController?.pushViewController(viewController, animated: true)
+    func onHarvestClicked(harvest: CommonHarvest) {
+        guard let harvestId = harvest.localId?.int64Value else {
+            return
         }
+
+        let viewController = ViewHarvestViewController(harvestId: harvestId)
+        navigationController?.pushViewController(viewController, animated: true)
     }
 
     func onObservationClicked(observation: CommonObservation) {

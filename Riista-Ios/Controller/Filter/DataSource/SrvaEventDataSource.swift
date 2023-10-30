@@ -74,18 +74,26 @@ class SrvaEventDataSource: TypedFilterableEntityDataSource<CommonSrvaEvent> {
         onCompleted(years)
     }
 
-    override func onFilterChanged(newFilter: EntityFilter, oldFilter: EntityFilter?) -> Bool {
+    override func getCurrentSeasonOrYear() -> Int? {
+        return Int(Date().toLocalDate().year)
+    }
+
+    override func onApplyFilter(
+        newFilter: EntityFilter,
+        oldFilter: EntityFilter?,
+        onFilterApplied: @escaping OnFilterApplied
+    ) {
         guard let newFilter = newFilter as? SrvaFilter else {
             fatalError("Only supporting SrvaFilter for SrvaEventDataSource")
         }
 
         // filters will be applied as pending filter if viewmodel has not been yet loaded
         controller.setFilters(
-            year: Int32(newFilter.calendarYear),
+            year: newFilter.calendarYear.toKotlinInt(),
             species: newFilter.species
         )
 
-        return true
+        onFilterApplied(true)
     }
 
     override func getSectionName(sectionIndex: Int) -> String? {

@@ -2,7 +2,7 @@ import Foundation
 
 import MaterialComponents
 
-class GalleryViewController: UIViewController, UICollectionViewDelegateFlowLayout,
+class GalleryViewController: BaseViewController, UICollectionViewDelegateFlowLayout,
                              RiistaPageDelegate, LogFilterViewDelegate,
                              EntityDataSourceListener {
 
@@ -17,6 +17,9 @@ class GalleryViewController: UIViewController, UICollectionViewDelegateFlowLayou
         return dataSource
     }()
 
+    private lazy var entriesForOtherActorsHelper = ShowEntriesForOtherActorsFilterHelper()
+    private lazy var allRightNavBarButtons: [HideableUIBarButtonItem] = [entriesForOtherActorsHelper.showEntriesForOtherActorsNavBarButton]
+
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -28,7 +31,9 @@ class GalleryViewController: UIViewController, UICollectionViewDelegateFlowLayou
 
         filterView.dataSource = galleryDataSource
         filterView.delegate = self
-        filterView.changeListener = SharedEntityFilterStateUpdater()
+        let updater = SharedEntityFilterStateUpdater()
+        filterView.changeListener = updater
+        entriesForOtherActorsHelper.changeListener = updater
 
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(refreshAfterManagedObjectContextChange),
@@ -43,16 +48,28 @@ class GalleryViewController: UIViewController, UICollectionViewDelegateFlowLayou
         // - it is possible to e.g. navigate to ViewObservationViewController and edit image there
         //   -> we want to update observation image once we get back here
         galleryDataSource.shouldReloadData = true
-        SharedEntityFilterState.shared.addListener(galleryDataSource)
+        // let helper listen for the data source. This way helper remains in sync with the data source
+        // - the data source does not support all filter types after all
+        // - do this before adding data source as listener --> both get updated
+        galleryDataSource.addEntityFilterChangeListener(entriesForOtherActorsHelper)
+        SharedEntityFilterState.shared.addEntityFilterChangeListener(galleryDataSource)
+
         filterView.updateTexts()
 
         self.pageSelected()
 
         self.title = "Gallery".localized()
+
+        self.navigationItem.rightBarButtonItems = allRightNavBarButtons.visibleButtons
+        entriesForOtherActorsHelper.showEntriesForOtherActorsNavBarButton.onShouldBeHiddenChanged = {
+            self.navigationItem.rightBarButtonItems = self.allRightNavBarButtons.visibleButtons
+            NotificationCenter.default.post(Notification(name: .NavigationItemUpdated))
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
-        SharedEntityFilterState.shared.removeListener(galleryDataSource)
+        galleryDataSource.removeEntityFilterChangeListener(entriesForOtherActorsHelper)
+        SharedEntityFilterState.shared.removeEntityFilterChangeListener(galleryDataSource)
 
         super.viewWillDisappear(animated)
     }

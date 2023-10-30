@@ -20,6 +20,7 @@
 "MenuEventSearch" = "Event search";
 "MenuReadMagazine" = "Read latest Metsästäjä magazine";
 "MenuOpenSeasons" = "Open seasons";
+"MenuAbout" = "About";
 "MenuMore" = "More";
 
 "LoginTabTitle" = "Login";
@@ -72,7 +73,9 @@
 "MyDetailsTitleShootingTests" = "Shooting tests";
 "MyDetailsNoShootingTestAttempts" = "No valid shooting tests";
 "MyDetailsTitleHuntingLicense" = "Hunting license";
-"MyDetailsInsurancePolicyText" = "The valid Hunting card includes the Hunter`s Insurance, which is valid in all Nordic Countries, in Switzerland and in EU-Countries";
+"MyDetailsInsurancePolicyText" = "The valid Hunting card includes the Hunter`s Insurance, which is valid in all Nordic Countries, EU member states, Switzerland and in Great Britain for hunting trips lasting up to 60 days.";
+"MyDetailsInsuranceInstructionsLinkTitle" = "Insurance instructions";
+"MyDetailsInsuranceInstructionsLinkUrl" = "https://riista.fi/metsastys/palvelut-metsastajalle/vakuutukset/metsastajavakuutus/";
 "MyDetailsPayment" = "Game management fee";
 "MyDetailsExamDate" = "Exam date";
 "MyDetailsMembership" = "GMA membership";
@@ -82,13 +85,6 @@
 "MyDetailsHuntingBan" = "Hunting ban";
 "MyDetailsAssignmentsTitle" = "Assignments";
 "MyDetailsClubMembershipsTitle" = "Club memberships";
-"MyDetailsMhPermitsTitle" = "Metsähallitus permits";
-"MyDetailsMhPermitTitle" = "Permit";
-"MyDetailsMhCardTitle" = "Metsähallitus";
-"MyDetailsMhPermitArea" = "Area";
-"MyDetailsMhPermitName" = "Permit type";
-"MyDetailsMhPermitPeriod" = "Time";
-"MyDetailsMhPermitHarvestFeedback" = "Submit harvest feedback";
 "MyDetailsTrainingsTitle" = "Trainings";
 "MyDetailsNoTrainings" = "No Trainings";
 "MyDetailsTrainingDate" = "Training date";
@@ -101,9 +97,18 @@
 "JhtTrainingOccupationTypeRhynEdustajaRiistavahinkojenMaastokatselmuksessa" = "GMA representative in wildlife damage field survey";
 "OccupationTrainingOccupationTypePetoyhdyshenkilo" = "Large carnivore contact person";
 "AlertTitle" = "Note";
-"MyDetailsMhFeedbackAlertMessage" = "You are navigating from Oma riista to Metsähallitus hunting feedback service.\n\nIf you encounter any issues submitting feedback or want additional information, contact Metsähallitus Wilderness permits service, p. 020 69 2424 (weekdays 9-16) or email eraluvat@metsa.fi.";
 "Duration" = "Duration";
 "DurationIndefinite" = "Indefinitely";
+
+"MetsahallitusPermitsTitle" = "Metsähallitus permits";
+"MetsahallitusPermitsNoPermits" = "No permits";
+"MetsahallitusPermitTitle" = "Permit";
+"MetsahallitusPermitCardTitle" = "Metsähallitus";
+"MetsahallitusPermitArea" = "Area";
+"MetsahallitusPermitName" = "Permit type";
+"MetsahallitusPermitPeriod" = "Time";
+"MetsahallitusPermitHarvestFeedback" = "Submit harvest feedback";
+"MetsahallitusPermitFeedbackAlertMessage" = "You are navigating from Oma riista to Metsähallitus hunting feedback service.\n\nIf you encounter any issues submitting feedback or want additional information, contact Metsähallitus Wilderness permits service, p. 020 69 2424 (weekdays 9-16) or email eraluvat@metsa.fi.";
 
 "HuntingClubMembershipInvitations" = "Club Invitations";
 "HuntingClubMembershipAcceptInvitation" = "Accept invitation";
@@ -132,6 +137,7 @@
 "MapSettingStateLands" = "State-owned lands";
 "MapSettingRhyBorders" = "GMA-borders";
 "MapSettingGameTriangles" = "Game triangles";
+"MapSettingLeadShotBan" = "Areas with lead shot ban";
 "MapSettingOfflineMaps" = "Offline maps";
 "MapSettingLabelBackgroundMaps" = "Background map";
 "MapSettingLabelMapLayers" = "Map layers";
@@ -280,6 +286,7 @@
 "ObservationDetailsMooseCalfWithinDeerHunting" = "Lone calf";
 "ObservationDetailsMooseUnknownWithinDeerHunting" = "Unknown";
 "ObservationDetailsDescription" = "Description";
+"ErrorObservationSpecimenAmountAtLeastTwo" = "There must be at least two specimens";
 
 "ObservationDetailsCategory" = "Observation context";
 "ObservationCategoryNormal" = "Normal";
@@ -351,11 +358,11 @@
 "ContactLicenseIssuesTitle" = "Hunting license issues";
 
 "DeleteUserAccount" = "Delete user account";
-"DeleteUserAccountMessage" = "I want to delete my voluntary game data, user account and personal data from the Oma\U00A0riista\U00A0service.\n\nI understand that my data cannot be restored after\U00A0deletion.";
-"DeleteUserAccountQuestion" = "Are you sure you want to delete your user account?";
+"DeleteUserAccountMessage" = "I want to delete my voluntary game data, user account and personal data from the Oma\U00A0riista\U00A0service. I understand that my data cannot be restored after\U00A0deletion.\n\nDeleting your Oma riista account does not delete your information from the register of hunters. You must contact the register of hunters in writing if you want your information to be deleted from the register of hunters as well. Deleting data from the register of hunters means ending the hunting hobby.";
+"DeleteUserAccountQuestion" = "Changing the username/email address in the Oma riista service does not require deleting the user account, this is done by registering for the service again. In this case, all the information you previously entered in the service will also remain as before.\n\nAre you sure you want to delete your user account?";
 "DeleteUserAccountRequestSentTitleShort" = "Request sent";
 "DeleteUserAccountRequestSentTitle" = "User account deletion request has been sent";
-"DeleteUserAccountRequestSentMessageAtTime" = "An automatic e-mail message regarding the user account deletion request has been sent to the customer service of the Oma riista service %@, and a copy of the message has also been forwarded to the e-mail address specified in your personal information. Typically, the user account is deleted by the customer service in two\U00A0weeks.\n\nPlease contact customer service at oma@riista.fi, if you requested to delete the user account\U00A0in\U00A0error.";
+"DeleteUserAccountRequestSentMessageAtTime" = "An automatic e-mail message regarding the user account deletion request has been sent to the customer service of the Oma riista service %@, and a copy of the message has also been forwarded to the e-mail address specified in your personal information. Typically, the user account is deleted by the customer service in two\U00A0weeks.\n\nPlease contact customer service at oma@riista.fi, if you requested to delete the user account\U00A0in\U00A0error.\n\nDeleting your Oma riista account does not delete your information from the register of hunters. You must contact the register of hunters in writing if you want your information to be deleted from the register of hunters as well. Deleting data from the register of hunters means ending the hunting hobby.";
 "DeleteUserAccountContinueUsing" = "Continue using the service";
 
 "Synchronization" = "Synchronization";
@@ -363,6 +370,7 @@
 "Automatic" = "Automatic";
 "Version" = "Version %@";
 "Language" = "Language";
+"MapSettings" = "Map settings";
 
 "MapTypeSelect" = "Map type";
 "MapTypeTopographic" = "Terrain";
@@ -429,6 +437,7 @@
 "UpdateAvailableTitle" = "Update available";
 "UpdateAvailableMessage" = "Download new Oma riista version from App Store.";
 "UpdateAction" = "Update";
+"UpdateAllAction" = "Update all";
 
 "ButtonClearTitle" = "Clear";
 "NetworkOperationFailed" = "Operation failed";
@@ -572,7 +581,7 @@
 
 "GroupMemberSelectionSelectHunter" = "Select hunter";
 "GroupMemberSelectionSelectObserver" = "Select observer";
-"GroupMemberSelectionSearchByName" = "Search with name";
+"GroupMemberSelectionSearchByName" = "Filter the list by name";
 "GroupMemberSelectionNameHint" = "Name";
 
 "GroupHuntingContinueToApprove" = "Continue to Approve";
@@ -641,6 +650,28 @@
 "HarvestAdditionalInformationInstructions" = "Additional information, e.g. fetus, parasites, diseases, laceration, deer flies, crash injuries, color variations, heat information";
 "HarvestAdditionalInformationInstructionsWhiteTailedDeer" = "Additional information, e.g. fetus, parasites, diseases, laceration, deer flies, crash injuries, color variations, heat information, method exception 4 or 5, snow depth cm";
 
+"HarvestLabelOwnHarvest" = "Own harvest";
+"HarvestLabelHuntingClub" = "Hunting club";
+"HarvestLabelHuntingClubOfficialCode" = "Club customer number";
+
+"HuntingClubSelectionSelectClub" = "Select hunting club";
+"HuntingClubSelectionSearchByName" = "Search with name or customer number";
+"HuntingClubSelectionSearchByNameHint" = "Name or customer number";
+"HuntingClubSelectionNoClubSelection" = "No selection";
+"HuntingClubSelectionOtherClub" = "Other";
+
+"HuntingClubSearchEnterClubOfficialCode" = "Type 7-digit hunting club customer number";
+"HuntingClubSearchInvalidOfficialCode" = "Hunting club customer number is invalid";
+"HuntingClubSearchSearchingByOfficialCode" = "Fetching hunting club information..";
+"HuntingClubSearchSearchFailed" = "Failed to fetch hunting club information.";
+
+"HarvestSettings" = "Harvest settings";
+"HarvestSettingsAddHarvestForOtherHunter" = "Report harvests for others";
+"HarvestSettingsAddHarvestForOtherHunterExplanation" = "\U25CF Report harvests that are shot by other hunters";
+"HarvestSettingsEnableClubSelection" = "Report harvests to different clubs";
+"HarvestSettingsEnableClubSelectionExplanation" = "\U25CF Select a club for which the harvest is reported";
+"FilterShowingEntriesForOthers" = "Showing entries reported for others";
+
 "FitnessClassExcellent" = "Excellent";
 "FitnessClassNormal" = "Normal";
 "FitnessClassThin" = "Thin";
@@ -663,6 +694,8 @@
 "GroupHuntingObservationFieldAuthor" = "Reporter";
 
 "ObservationTypeNako" = "Seen";
+"ObservationTypePoikue" = "Litter";
+"ObservationTypePari" = "Couple";
 "ObservationTypeJalki" = "Track";
 "ObservationTypeUloste" = "Dropping";
 "ObservationTypeAani" = "Sound";
@@ -685,7 +718,7 @@
 "ObservationTypeLuolasto" = "Cave";
 "ObservationTypePesimaluoto" = "Breeding islet";
 "ObservationTypeLepailyluoto" = "Resting islet";
-"ObservationTypePesimasuo" = "Breeding swamp";
+"ObservationTypePesimasuo" = "Moulting site";
 "ObservationTypeMuutonAikainenLepailyalue" = "Migratory resting area";
 "ObservationTypeRiistankulkupaikka" = "Game path";
 "ObservationTypePoikueymparisto" = "Brood habitat";
@@ -699,6 +732,13 @@
 "ObservationTypeLeppakuusimetsaTaiKoivikuusimetsa" = "Forest next to a peatland";
 "ObservationTypeRuokailupajukkoTaiKoivikko" = "Feeding site in willow or birch forest";
 "ObservationTypeMuu" = "Other";
+
+"SunriseAndSunsetTitle" = "Sunrise and sunset times";
+"SunDaySelectionLabel" = "Date";
+"SunSunriseLabel" = "Sunrise time";
+"SunSunsetLabel" = "Sunset time";
+"SunInstructions" = "Select a location in order to see\nsunrise and sunset times";
+"SunDisclaimer" = "The sunrise and sunset times have been calculated using the specified location and date. Sunrise is the time when the upper edge of the sun becomes visible above the horizon. Similarly, sunset is the moment when the upper edge of the sun disappears behind the horizon. The time of sunrise and sunset vary depending on location latitude and longitude as well as the time of year. The official sunrise and sunset times for Finland are defined in the University of Helsinki almanac.";
 
 
 /* Hunting control */
@@ -730,11 +770,11 @@
 "HuntingControlChooseInspectors" = "Select inspectors";
 "HuntingControlChooseCooperation" = "Select cooperation";
 
-"HuntingControlInspectorSelectionSearchByName" = "Search with name";
-"HuntingControlInspectorSelectionNameHint" = "Name";
+"HuntingControlErrorNoInspectorsForSelectedDate" = "There are no inspectors for the selected date";
+"HuntingControlErrorNoSelfAsInspector" = "You can't remove yourself from the list of inspectors";
 
 "HuntingControlAttachments" = "Attachments";
-"HuntingControlInspectorSelectionSearchByName" = "Search with name";
+"HuntingControlInspectorSelectionSearchByName" = "Filter the list by name";
 "HuntingControlInspectorSelectionNameHint" = "Name";
 "HuntingControlErrorNoInspectorsForSelectedDate" = "There are no inspectors for the selected date";
 "HuntingControlEventSaveFailedGeneric" = "Saving hunting control event failed";

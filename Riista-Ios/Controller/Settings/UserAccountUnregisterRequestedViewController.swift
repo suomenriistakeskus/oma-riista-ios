@@ -1,8 +1,11 @@
 import Foundation
 import RiistaCommon
 
-@objc class UserAccountUnregisterRequestedViewController: UIViewController {
-    private static let logger = AppLogger(for: UserAccountUnregisterRequestedViewController.self)
+@objc class UserAccountUnregisterRequestedViewController: BaseViewController {
+    private static let logger = AppLogger(
+        for: UserAccountUnregisterRequestedViewController.self,
+        printTimeStamps: false
+    )
 
     // once every hour
     static private let notificationCooldown = CooldownGate(seconds: 60*60)
@@ -96,25 +99,27 @@ import RiistaCommon
         view.addSubview(warningView)
         warningView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 
     private func continueUsingService() {
         loadIndicatorViewController = LoadIndicatorViewController().showIn(parentViewController: self)
 
-        RiistaSDK.shared.cancelUnregisterAccount { [weak self] succeeded, _ in
-            guard let self = self else { return }
+        RiistaSDK.shared.cancelUnregisterAccount(
+            completionHandler: handleOnMainThread { [weak self] succeeded, _ in
+                guard let self = self else { return }
 
-            self.loadIndicatorViewController?.hide()
+                self.loadIndicatorViewController?.hide()
 
-            if let succeeded = succeeded, succeeded.boolValue {
-                self.navigationController?.popViewController(animated: true)
-            } else {
-                self.onCancelAccountDeleteRequestFailed()
+                if let succeeded = succeeded, succeeded.boolValue {
+                    self.navigationController?.popViewController(animated: true)
+                } else {
+                    self.onCancelAccountDeleteRequestFailed()
+                }
             }
-        }
+        )
     }
 
     private func onCancelAccountDeleteRequestFailed() {

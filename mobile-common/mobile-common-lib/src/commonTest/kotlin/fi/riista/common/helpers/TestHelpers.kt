@@ -1,8 +1,6 @@
 package fi.riista.common.helpers
 
 import fi.riista.common.database.DatabaseDriverFactory
-import fi.riista.common.dto.LocalizedStringDTO
-import fi.riista.common.model.LocalizedString
 import fi.riista.common.util.coroutines.MainScopeProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlin.coroutines.CoroutineContext

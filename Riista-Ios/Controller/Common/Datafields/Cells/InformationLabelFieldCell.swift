@@ -38,6 +38,14 @@ class InformationLabelFieldCell<FieldId : DataFieldId>: TypedDataFieldCell<Field
         } else {
             informationLabel.text = field.text
         }
+
+        if (field.settings.textAlignment == LabelFieldTextAlignment.left) {
+            informationLabel.textAlignment = .left
+        } else if (field.settings.textAlignment == LabelFieldTextAlignment.center) {
+            informationLabel.textAlignment = .center
+        } else if (field.settings.textAlignment == LabelFieldTextAlignment.justified) {
+            informationLabel.textAlignment = .justified
+        }
     }
 
     class Factory<FieldId : DataFieldId>: DataFieldCellFactory<FieldId> {

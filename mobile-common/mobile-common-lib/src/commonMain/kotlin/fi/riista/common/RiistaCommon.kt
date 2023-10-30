@@ -7,17 +7,26 @@ import fi.riista.common.authentication.LoginService
 import fi.riista.common.database.DatabaseDriverFactory
 import fi.riista.common.database.RiistaDatabase
 import fi.riista.common.domain.dto.UserInfoDTO
+import fi.riista.common.domain.harvest.HarvestContext
+import fi.riista.common.domain.huntingControl.HuntingControlContext
+import fi.riista.common.domain.huntingclub.memberships.HuntingClubOccupations
+import fi.riista.common.domain.huntingclub.selectableForEntries.HuntingClubsSelectableForEntries
+import fi.riista.common.domain.huntingclub.selectableForEntries.HuntingClubsSelectableForEntriesFactory
 import fi.riista.common.domain.observation.ObservationContext
+import fi.riista.common.domain.permit.metsahallitusPermit.MetsahallitusPermits
 import fi.riista.common.domain.poi.PoiContext
 import fi.riista.common.domain.season.HarvestSeasons
+import fi.riista.common.domain.shootingTest.ShootingTestContext
 import fi.riista.common.domain.srva.SrvaContext
 import fi.riista.common.domain.userInfo.CurrentUserContextProvider
 import fi.riista.common.domain.userInfo.UserContext
+import fi.riista.common.domain.userInfo.repository.UserInformationDatabaseRepository
 import fi.riista.common.io.CommonFileProvider
 import fi.riista.common.io.CommonFileStorage
 import fi.riista.common.logging.CrashlyticsLogger
 import fi.riista.common.logging.LogLevel
 import fi.riista.common.logging.Logger
+import fi.riista.common.map.MapTileVersions
 import fi.riista.common.messages.AppStartupMessageHandler
 import fi.riista.common.messages.MessageHandler
 import fi.riista.common.metadata.DefaultMetadataProvider
@@ -28,11 +37,14 @@ import fi.riista.common.network.AuthenticationAwareBackendAPI
 import fi.riista.common.network.BackendAPI
 import fi.riista.common.network.BackendApiProvider
 import fi.riista.common.network.NetworkClient
-import fi.riista.common.network.SyncDataPiece
-import fi.riista.common.network.SynchronizationContextProvider
-import fi.riista.common.network.SynchronizationService
 import fi.riista.common.network.calls.NetworkResponse
 import fi.riista.common.network.cookies.CookieData
+import fi.riista.common.network.sync.SyncDataPiece
+import fi.riista.common.network.sync.SynchronizationConfig
+import fi.riista.common.network.sync.SynchronizationContext
+import fi.riista.common.network.sync.SynchronizationException
+import fi.riista.common.network.sync.SynchronizationService
+import fi.riista.common.network.sync.SynchronizedContent
 import fi.riista.common.preferences.PlatformPreferences
 import fi.riista.common.preferences.Preferences
 import fi.riista.common.remoteSettings.RemoteSettings
@@ -40,11 +52,10 @@ import fi.riista.common.util.LocalDateTimeProvider
 import fi.riista.common.util.SystemDateTimeProvider
 import fi.riista.common.util.coroutines.AppMainScopeProvider
 import fi.riista.common.util.coroutines.MainScopeProvider
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.jvm.JvmStatic
 
 object RiistaSDK {
-    const val SDK_VERSION = "0.0.2"
-
     private val logLevelHolder = AtomicReference(LogLevel.VERBOSE)
     @JvmStatic
     var logLevel: LogLevel
@@ -67,6 +78,15 @@ object RiistaSDK {
     @JvmStatic
     val versionInfo: VersionInfo
         get() = INSTANCE.sdkConfiguration.versionInfo
+
+    /**
+     * Gets the app startup message handler which is able to
+     * - parse given Json as startup message
+     * - provide the startup message (if any) to be displayed
+     */
+    @JvmStatic
+    val appStartupMessageHandler: AppStartupMessageHandler
+        get() = INSTANCE.startupMessageHandler
 
     /**
      * The UserContext that contains information about
@@ -96,12 +116,42 @@ object RiistaSDK {
         }
 
     /**
+     * The Metsahallitus permits
+     */
+    @JvmStatic
+    val metsahallitusPermits: MetsahallitusPermits
+        get() {
+            return INSTANCE.metsahallitusPermits
+        }
+
+    /**
+     * The hunting club memberships / occupations
+     */
+    @JvmStatic
+    val huntingClubOccupations: HuntingClubOccupations
+        get() = INSTANCE.huntingClubOccupations
+
+    /**
+     * A factory that is able to provider access to [HuntingClubsSelectableForEntries] in order
+     * to access hunting clubs that are selectable for entries.
+     */
+    @JvmStatic
+    val huntingClubsSelectableForEntriesFactory: HuntingClubsSelectableForEntries.Factory
+        get() = INSTANCE.huntingClubsSelectableForEntriesFactory
+
+    /**
      * The PoiContext that contains information about Points of interest.
      */
     @JvmStatic
     val poiContext: PoiContext
         get() {
             return INSTANCE.poiContext
+        }
+
+    @JvmStatic
+    val huntingControlContext: HuntingControlContext
+        get() {
+            return INSTANCE.huntingControlContext
         }
 
     @JvmStatic
@@ -117,6 +167,19 @@ object RiistaSDK {
         }
 
     @JvmStatic
+    val harvestContext: HarvestContext
+        get() {
+            return INSTANCE.harvestContext
+        }
+
+    @JvmStatic
+
+    val shootingTestContext: ShootingTestContext
+        get() {
+            return INSTANCE.shootingTestContext
+        }
+
+    @JvmStatic
     val accountService: AccountService
         get() {
             return INSTANCE.accountService
@@ -128,9 +191,18 @@ object RiistaSDK {
             return INSTANCE.commonFileProvider
         }
 
+    @JvmStatic
+    val mapTileVersions: MapTileVersions
+        get() = INSTANCE.mapTileVersions
+
     val crashlyticsLogger: CrashlyticsLogger
         get() {
             return INSTANCE.sdkConfiguration.crashlyticsLogger
+        }
+
+    val preferences: Preferences
+        get() {
+            return INSTANCE.preferences
         }
 
     internal val mainScopeProvider: MainScopeProvider
@@ -152,40 +224,14 @@ object RiistaSDK {
     }
 
     /**
-     * Initializes the Riista SDK with given information + using mock information where possible.
+     * Initializes the Riista SDK with given instance.
      *
      * This function is intended purely for tests.
      */
-    internal fun initializeMocked(
-        sdkConfiguration: RiistaSdkConfiguration,
-        databaseDriverFactory: DatabaseDriverFactory,
-        mockBackendAPI: BackendAPI,
-        mockCurrentUserContextProvider: CurrentUserContextProvider,
-        mockLocalDateTimeProvider: LocalDateTimeProvider,
-        mockMainScopeProvider: MainScopeProvider,
-        mockFileProvider: CommonFileProvider,
-    ) {
+    internal fun initializeMockInstance(instance: RiistaSdkImpl) {
         Logger.usePlatformLogger.value = false
-        val instance =  RiistaSdkImpl(
-            sdkConfiguration,
-            databaseDriverFactory,
-            mockBackendAPI = mockBackendAPI,
-            mockCurrentUserContextProvider = mockCurrentUserContextProvider,
-            mockLocalDateTimeProvider = mockLocalDateTimeProvider,
-            mockMainScopeProvider = mockMainScopeProvider,
-            mockFileProvider = mockFileProvider,
-        )
         INSTANCE_HOLDER.set(instance)
         instance.initialize()
-    }
-
-    /**
-     * Gets the app startup message handler which is able to
-     * - parse given Json as startup message
-     * - provide the startup message (if any) to be displayed
-     */
-    fun appStartupMessageHandler(): AppStartupMessageHandler {
-        return INSTANCE.startupMessageHandler
     }
 
     /**
@@ -260,23 +306,38 @@ object RiistaSDK {
     /**
      * Performs the logout. The [currentUserContext] will be cleared.
      */
-    fun logout() {
+    suspend fun logout() {
         return INSTANCE.logout()
     }
 
     /**
-     * Synchronize given submodules with backend.
+     * Synchronize specified data with backend.
      */
-    suspend fun synchronizeAllDataPieces() {
-        synchronizeDataPieces(SyncDataPiece.values().toList())
+    @Throws(SynchronizationException::class, CancellationException::class)
+    suspend fun synchronize(
+        syncDataPiece: SyncDataPiece,
+        config: SynchronizationConfig = SynchronizationConfig.DEFAULT,
+    ) {
+        synchronize(
+            synchronizedContent = SynchronizedContent.SelectedData(syncDataPieces = listOf(syncDataPiece)),
+            config = config
+        )
     }
 
     /**
-     * Synchronize given submodules with backend.
+     * Synchronize specified content submodules with backend.
      */
-    suspend fun synchronizeDataPieces(dataPieces: List<SyncDataPiece>) {
-        INSTANCE.synchronizeDataPieces(dataPieces)
+    @Throws(SynchronizationException::class, CancellationException::class)
+    suspend fun synchronize(
+        synchronizedContent: SynchronizedContent,
+        config: SynchronizationConfig = SynchronizationConfig.DEFAULT,
+    ) {
+        INSTANCE.synchronizationService.synchronizeDataPieces(
+            synchronizedContent = synchronizedContent,
+            config = config
+        )
     }
+
 
     /**
      * Gets all network cookies that the network client has stored so far. The cookies
@@ -298,11 +359,8 @@ object RiistaSDK {
         return INSTANCE.backendAPI.getNetworkCookies(requestUrl)
     }
 
-    internal fun registerSyncContextProvider(
-        syncDataPiece: SyncDataPiece,
-        synchronizationContextProvider: SynchronizationContextProvider
-    ) {
-        INSTANCE.synchronizationService.registerSyncContextProvider(syncDataPiece, synchronizationContextProvider)
+    internal fun registerSynchronizationContext(synchronizationContext: SynchronizationContext) {
+        INSTANCE.synchronizationService.registerSynchronizationContext(synchronizationContext)
     }
 }
 
@@ -347,10 +405,16 @@ internal class RiistaSdkImpl(
      * if running tests.
      */
     val mockFileProvider: CommonFileProvider? = null,
+
+    /**
+     * A mocked [Preferences] to be used instead of default one. Should only be passed
+     * if running tests.
+     */
+    private val mockPreferences: Preferences? = null
 ): RiistaSdkBase, BackendApiProvider {
 
     internal val preferences: Preferences by lazy {
-        PlatformPreferences()
+        mockPreferences ?: PlatformPreferences()
     }
 
     internal val startupMessageHandler by lazy {
@@ -376,9 +440,8 @@ internal class RiistaSdkImpl(
         mockCurrentUserContextProvider ?: CurrentUserContextProvider(
             backendApiProvider = this,
             groupHuntingAvailabilityResolver = remoteSettings,
+            userInformationRepository = userInformationRepository,
             preferences = preferences,
-            localDateTimeProvider = localDateTimeProvider,
-            commonFileProvider = commonFileProvider,
         )
     }
 
@@ -394,11 +457,11 @@ internal class RiistaSdkImpl(
         mockBackendAPI ?: AuthenticationAwareBackendAPI(loginService, networkClient)
     }
 
-    internal val loginService by lazy {
+    private val loginService by lazy {
         LoginService(networkClient, currentUserContextProvider)
     }
 
-    internal val emailService by lazy {
+    private val emailService by lazy {
         EmailService(networkClient)
     }
 
@@ -422,12 +485,54 @@ internal class RiistaSdkImpl(
             localDateTimeProvider = localDateTimeProvider,
             synchronizationService = synchronizationService,
             currentUserContextProvider = currentUserContextProvider,
-            mainScopeProvider = mainScopeProvider,
         )
     }
 
     internal val harvestSeasons by lazy {
-        HarvestSeasons()
+        HarvestSeasons(
+            databaseDriverFactory = databaseDriverFactory,
+            backendApiProvider = this,
+            preferences = preferences,
+            localDateTimeProvider = localDateTimeProvider,
+        )
+    }
+
+    internal val metsahallitusPermits by lazy {
+        MetsahallitusPermits(
+            currentUserContextProvider = currentUserContextProvider,
+            backendApiProvider = this,
+            database = database,
+            preferences = preferences,
+            localDateTimeProvider = localDateTimeProvider,
+        )
+    }
+
+    internal val huntingClubOccupations by lazy {
+        HuntingClubOccupations(
+            currentUserContextProvider = currentUserContextProvider,
+            backendApiProvider = this,
+            database = database,
+            preferences = preferences,
+            localDateTimeProvider = localDateTimeProvider,
+        )
+    }
+
+    internal val huntingClubsSelectableForEntriesFactory: HuntingClubsSelectableForEntries.Factory by lazy {
+        HuntingClubsSelectableForEntriesFactory(
+            usernameProvider = currentUserContextProvider,
+            database = database,
+            backendApiProvider = this,
+        )
+    }
+
+    internal val huntingControlContext by lazy {
+        HuntingControlContext(
+            backendApiProvider = this,
+            preferences = preferences,
+            localDateTimeProvider = localDateTimeProvider,
+            commonFileProvider = commonFileProvider,
+            currentUserContextProvider = currentUserContextProvider,
+        )
     }
 
     internal val poiContext by lazy {
@@ -454,8 +559,34 @@ internal class RiistaSdkImpl(
         )
     }
 
+    internal val harvestContext by lazy {
+        HarvestContext(
+            backendApiProvider = this,
+            preferences = preferences,
+            localDateTimeProvider = localDateTimeProvider,
+            commonFileProvider = commonFileProvider,
+            currentUserContextProvider = currentUserContextProvider,
+        )
+    }
+
+    internal val shootingTestContext by lazy {
+        ShootingTestContext(
+            backendApiProvider = this,
+        )
+    }
+
+    private val userInformationRepository by lazy {
+        UserInformationDatabaseRepository(
+            databaseDriverFactory = databaseDriverFactory
+        )
+    }
+
     internal val commonFileProvider by lazy {
         mockFileProvider ?: CommonFileStorage
+    }
+
+    internal val mapTileVersions by lazy {
+        MapTileVersions()
     }
 
     internal val localDateTimeProvider: LocalDateTimeProvider by lazy {
@@ -492,19 +623,20 @@ internal class RiistaSdkImpl(
         return accountService.cancelUnregisterAccount()
     }
 
-    fun logout() {
+    suspend fun logout() {
         loginService.logout()
-    }
-
-    suspend fun synchronizeDataPieces(dataPieces: List<SyncDataPiece>) {
-        synchronizationService.synchronizeDataPieces(dataPieces)
     }
 
     internal fun initialize() {
         metadataProvider.initialize()
+        huntingControlContext.initialize()
         srvaContext.initialize()
         observationContext.initialize()
+        harvestContext.initialize()
         accountService.initialize()
+        harvestSeasons.initialize()
+        metsahallitusPermits.initialize()
+        huntingClubOccupations.initialize()
     }
 }
 

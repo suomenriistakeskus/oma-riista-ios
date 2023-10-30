@@ -33,7 +33,7 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -101,8 +101,8 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
         view.addSubview(container)
         container.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         container.addArrangedSubview(tableView)
@@ -126,8 +126,14 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
             booleanEventDispatcher: controller.eventDispatchers.booleanEventDispatcher,
             intEventDispatcher: controller.eventDispatchers.intEventDispatcher,
             localDateTimeEventDispacter: controller.eventDispatchers.localDateTimeEventDispatcher,
-            specimenLauncher: { [weak self] fieldId, specimenData in
-                self?.showSpecimen(fieldId: fieldId, specimenData: specimenData)
+            specimenLauncher: { [weak self] fieldId, specimenData, allowEdit in
+                SpecimensViewControllerLauncher.launch(
+                    parent: self,
+                    fieldId: fieldId,
+                    specimenData: specimenData,
+                    allowEdit: allowEdit,
+                    onSpecimensEditDone: self?.onSpecimensEditDone
+                )
             },
             speciesEventDispatcher: controller.eventDispatchers.speciesEventDispatcher,
             speciesImageClickListener: { [weak self] fieldId, entityImage in
@@ -164,12 +170,6 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
 
     override func onViewModelLoadFailed() {
         super.onViewModelLoadFailed()
-    }
-
-    private func showSpecimen(fieldId: DataFieldId, specimenData: SpecimenFieldDataContainer) {
-        let specimenViewController = EditSpecimensViewController(fieldId: fieldId, specimenData: specimenData)
-        specimenViewController.onSpecimensEditDone = onSpecimensEditDone
-        self.navigationController?.pushViewController(specimenViewController, animated: true)
     }
 
     private func onSpeciesImageClicked(fieldId: SrvaEventField, entityImage: EntityImage?) {
@@ -216,32 +216,44 @@ class ModifySrvaEventViewController<Controller: ModifySrvaEventController>:
         saveButton.isEnabled = false
 
 
-        controller.saveSrvaEvent(updateToBackend: AppSync.shared.isAutomaticSyncEnabled()) { [weak self] response, error in
-            guard let self = self else { return }
+        controller.saveSrvaEvent(
+            updateToBackend: AppSync.shared.isAutomaticSyncEnabled(),
+            completionHandler: handleOnMainThread { [weak self] response, error in
+                guard let self = self else { return }
 
-            self.tableView.hideLoading()
-            self.saveButton.isEnabled = true
+                self.tableView.hideLoading()
+                self.saveButton.isEnabled = true
 
-            // notify possible parent about saved srva event
-            self.listener?.onSrvaEventUpdated()
+                // notify possible parent about saved srva event
+                self.listener?.onSrvaEventUpdated()
 
-            let databaseSaveResponse = response?.databaseSaveResponse
-            let networkSaveResponse = response?.networkSaveResponse
+                let databaseSaveResponse = response?.databaseSaveResponse
+                let networkSaveResponse = response?.networkSaveResponse
 
-            if let networkFailure = networkSaveResponse as? SrvaEventOperationResponse.NetworkFailure,
-               networkFailure.statusCode == 409 {
-                let errorDialog = AlertDialogBuilder.createError(message: "OutdatedDiaryEntry".localized())
-                self.present(errorDialog, animated: true)
-            } else if let successResponse = databaseSaveResponse as? SrvaEventOperationResponse.Success {
-                self.handleSuccessfullySavedSrvaEvent(srvaEvent: successResponse.srvaEvent)
-            } else {
-                let errorDialog = AlertDialogBuilder.createError(message: "DiaryEditFailed".localized())
-                self.present(errorDialog, animated: true)
+                if let networkFailure = networkSaveResponse as? SrvaEventOperationResponse.NetworkFailure,
+                   networkFailure.statusCode == 409 {
+                    let errorDialog = AlertDialogBuilder.createError(message: "OutdatedDiaryEntry".localized())
+                    self.present(errorDialog, animated: true)
+                } else if let successResponse = databaseSaveResponse as? SrvaEventOperationResponse.Success {
+                    self.handleSuccessfullySavedSrvaEvent(srvaEvent: successResponse.srvaEvent)
+                } else {
+                    let errorDialog = AlertDialogBuilder.createError(message: "DiaryEditFailed".localized())
+                    self.present(errorDialog, animated: true)
+                }
             }
-        }
+        )
     }
 
     private func handleSuccessfullySavedSrvaEvent(srvaEvent: CommonSrvaEvent) {
+        NotificationCenter.default.post(EntityModified(
+            object: EntityModified.Data(
+                entityType: .srva,
+                entityPointOfTime: srvaEvent.pointOfTime,
+                entitySpecies: srvaEvent.species,
+                entityReportedForOthers: false // currently not possible
+            )
+        ))
+
         saveImagesUnderLocalImages(srvaEvent: srvaEvent) { [weak self] in
             self?.navigateToNextViewAfterSaving(srvaEvent: srvaEvent)
         }

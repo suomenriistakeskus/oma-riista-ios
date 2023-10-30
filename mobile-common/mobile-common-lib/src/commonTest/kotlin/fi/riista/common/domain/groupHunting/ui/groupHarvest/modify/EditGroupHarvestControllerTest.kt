@@ -18,6 +18,7 @@ import fi.riista.common.network.MockResponse
 import fi.riista.common.resources.StringProvider
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
+import fi.riista.common.helpers.TestSpeciesResolver
 import fi.riista.common.model.StringWithId
 import kotlin.test.*
 
@@ -28,6 +29,7 @@ class EditGroupHarvestControllerTest {
         val controller = EditGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(),
             harvestTarget = getHarvestTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 
@@ -39,6 +41,7 @@ class EditGroupHarvestControllerTest {
         val controller = EditGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(),
             harvestTarget = getHarvestTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 
@@ -53,6 +56,7 @@ class EditGroupHarvestControllerTest {
             groupHuntingContext = getGroupHuntingContext(
                 BackendAPIMock(groupHuntingHuntingDayForDeerResponse = MockResponse.error(404))),
             harvestTarget = getHarvestTarget(harvestId = MockGroupHuntingData.ThirdHarvestId),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 
@@ -67,6 +71,7 @@ class EditGroupHarvestControllerTest {
         val controller = EditGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(backendAPIMock),
             harvestTarget = getHarvestTarget(harvestId = MockGroupHuntingData.ThirdHarvestId),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 
@@ -81,6 +86,7 @@ class EditGroupHarvestControllerTest {
         val controller = EditGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(),
             harvestTarget = getHarvestTarget(harvestId = MockGroupHuntingData.SecondHarvestId),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 
@@ -93,12 +99,13 @@ class EditGroupHarvestControllerTest {
     @Test
     fun testMooseCantBeAcceptedWithoutHuntingDayId() = runBlockingTest {
         val controller = EditGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(backendApi = BackendAPIMock(
-                        // no hunting days
-                        groupHuntingGroupHuntingDaysResponse = MockResponse.success("[]")
-                )),
-                harvestTarget = getHarvestTarget(harvestId = MockGroupHuntingData.SecondHarvestId),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(backendApi = BackendAPIMock(
+                    // no hunting days
+                    groupHuntingGroupHuntingDaysResponse = MockResponse.success("[]")
+            )),
+            harvestTarget = getHarvestTarget(harvestId = MockGroupHuntingData.SecondHarvestId),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         controller.loadViewModel()
@@ -110,9 +117,10 @@ class EditGroupHarvestControllerTest {
     @Test
     fun testSpecimenFieldsHaveDefaultValues() = runBlockingTest {
         val controller = EditGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(),
-                harvestTarget = getHarvestTarget(harvestId = MockGroupHuntingData.SecondHarvestId),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(),
+            harvestTarget = getHarvestTarget(harvestId = MockGroupHuntingData.SecondHarvestId),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         controller.loadViewModel()
@@ -131,6 +139,7 @@ class EditGroupHarvestControllerTest {
         val controller = EditGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(backendAPIMock),
             harvestTarget = getHarvestTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 
@@ -188,6 +197,7 @@ class EditGroupHarvestControllerTest {
         val controller = EditGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(backendAPIMock),
             harvestTarget = getHarvestTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 
@@ -214,6 +224,7 @@ class EditGroupHarvestControllerTest {
         val controller = EditGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(),
             harvestTarget = getHarvestTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 
@@ -231,6 +242,7 @@ class EditGroupHarvestControllerTest {
         val controller = EditGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(),
             harvestTarget = getHarvestTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 
@@ -249,6 +261,7 @@ class EditGroupHarvestControllerTest {
         val controller = EditGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(backendApi = backendAPIMock),
             harvestTarget = getHarvestTarget(harvestId = MockGroupHuntingData.SecondHarvestId),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 
@@ -269,6 +282,7 @@ class EditGroupHarvestControllerTest {
         val controller = EditGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(backendApi = backendAPIMock),
             harvestTarget = getHarvestTarget(harvestId = MockGroupHuntingData.SecondHarvestId),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
             stringProvider = getStringProvider()
         )
 

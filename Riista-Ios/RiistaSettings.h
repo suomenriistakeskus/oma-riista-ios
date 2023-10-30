@@ -62,6 +62,9 @@ typedef enum {
 + (BOOL)showGameTriangles;
 + (void)setShowGameTriangles:(BOOL)show;
 
++ (BOOL)showLeadShotBan;
++ (void)setShowLeadShotBan:(BOOL)show;
+
 + (BOOL)showMooseRestrictions;
 + (void)setShowMooseRestrictions:(BOOL)show;
 

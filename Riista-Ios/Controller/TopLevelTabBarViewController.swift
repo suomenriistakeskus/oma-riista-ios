@@ -1,5 +1,6 @@
 import Foundation
 import FirebaseMessaging
+import TypedNotification
 
 /**
  * A class that manages the top level tab navigation (i.e. front page, game log, map, announcements and more).
@@ -34,8 +35,11 @@ import FirebaseMessaging
         }
     }
 
+    private let notificationObservationBag = NotificationObservationBag()
+
     deinit {
         NotificationCenter.default.removeObserver(self)
+        notificationObservationBag.empty()
     }
 
     override func viewDidLoad() {
@@ -75,8 +79,12 @@ import FirebaseMessaging
     }
 
     func logout(navigateToLoginController: Bool) {
-        RiistaSDKHelper.logout()
+        RiistaSDKHelper.logout() { [weak self] in
+            self?.onRiistaSDKLogoutCompleted(navigateToLoginController: navigateToLoginController)
+        }
+    }
 
+    private func onRiistaSDKLogoutCompleted(navigateToLoginController: Bool) {
         AppSync.shared.disableSyncPrecondition(.credentialsVerified)
 
         RiistaSessionManager.sharedInstance().removeCredentials()
@@ -116,8 +124,17 @@ import FirebaseMessaging
         }
     }
 
-    @objc private func logEntrySaved() {
-        selectViewControllerAt(index: 1) // game log
+    private func showGameLogAfterEntityModified() {
+        switch selectedIndex {
+        case 3: fallthrough // messages -> should not be possible, but switch anyway
+        case 0:         selectViewControllerAt(index: 1)
+        case 1: fallthrough // game log -> no need to switch
+        case 2: fallthrough // map -> no need to switch
+        case 4: fallthrough // more (i.e. probably gallery) -> no need to switch
+        default:
+            // no need to switch
+            break
+        }
     }
 
     private func selectViewControllerAt(index: Int) {
@@ -192,19 +209,30 @@ import FirebaseMessaging
     private func registerAsObserver() {
         let notificationCenter = NotificationCenter.default
 
+        notificationCenter.addObserver(self, selector: #selector(updateNavigationBarForCurrentlySelectedViewController),
+                                       name: .NavigationItemUpdated, object: nil)
+
         notificationCenter.addObserver(self, selector: #selector(onLogoutRequested),
                                        name: .RequestLogout, object: nil)
         notificationCenter.addObserver(self, selector: #selector(onReloginFailed),
                                        name: RiistaReloginFailedKey.toNotificationName(), object: nil)
 
         notificationCenter.addObserver(self, selector: #selector(updateMenuTexts),
-                                       name: RiistaLanguageSelectionUpdatedKey.toNotificationName(), object: nil)
+                                       name: .LanguageSelectionUpdated, object: nil)
         notificationCenter.addObserver(self, selector: #selector(updateMenuTexts),
                                        name: RiistaPushAnnouncementKey.toNotificationName(), object: nil)
 
-        notificationCenter.addObserver(self, selector: #selector(logEntrySaved),
-                                       name: RiistaLogEntrySavedKey.toNotificationName(), object: nil)
+        notificationCenter.addObserver(
+            forType: EntityModified.self,
+            object: nil,
+            queue: .main
+        ) { [weak self] entityModified in
+            guard let self = self else {
+                return
+            }
 
+            self.showGameLogAfterEntityModified()
+        }.stored(in: notificationObservationBag)
     }
 
     @available(iOS 13.0, *)

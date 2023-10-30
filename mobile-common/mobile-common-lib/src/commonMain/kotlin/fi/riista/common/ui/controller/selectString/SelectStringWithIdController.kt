@@ -1,7 +1,5 @@
 package fi.riista.common.ui.controller.selectString
 
-import co.touchlab.stately.collections.IsoMutableList
-import co.touchlab.stately.ensureNeverFrozen
 import fi.riista.common.model.StringId
 import fi.riista.common.model.StringWithId
 import fi.riista.common.ui.controller.ControllerWithLoadableModel
@@ -28,15 +26,12 @@ class SelectStringWithIdController(
     HasUnreproducibleState<SelectStringWithIdController.State> {
 
     private var stateToRestore: State? = null
-    private val _selectedValues = IsoMutableList<StringWithId>()
+    private val _selectedValues = mutableListOf<StringWithId>()
     val selectedValues: List<StringWithId>
         get() = _selectedValues
 
     val eventDispatcher: SelectStringWithIdEventDispatcher = SelectStringWithIdEventToIntentMapper(intentHandler = this)
 
-    init {
-        ensureNeverFrozen()
-    }
 
     override fun createLoadViewModelFlow(refresh: Boolean):
             Flow<ViewModelLoadStatus<SelectStringWithIdViewModel>> = flow {

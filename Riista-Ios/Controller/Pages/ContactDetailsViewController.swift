@@ -2,7 +2,7 @@ import Foundation
 import MaterialComponents
 import MessageUI
 
-class ContactDetailsViewController: UIViewController, MFMailComposeViewControllerDelegate
+class ContactDetailsViewController: BaseViewController, MFMailComposeViewControllerDelegate
 {
     @IBOutlet weak var phoneSupportHeader: UILabel!
     @IBOutlet weak var phoneSupportCard: MDCCard!

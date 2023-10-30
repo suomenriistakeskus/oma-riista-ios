@@ -41,12 +41,6 @@ class WarningViewController: UIViewController {
             buttonText: buttonText,
             buttonOnClicked: buttonOnClicked
         )
-        let anotherButton = MaterialButton()
-        anotherButton.setTitle("peruuta", for: .normal)
-        anotherButton.applyOutlinedTheme(withScheme: AppTheme.shared.outlineButtonScheme())
-        anotherButton.snp.makeConstraints { make in
-            make.height.equalTo(AppConstants.UI.DefaultButtonHeight).priority(999)
-        }
 
         super.init(nibName: nil, bundle: nil)
 
@@ -76,8 +70,8 @@ class WarningViewController: UIViewController {
         view.addSubview(warningView)
         warningView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 }

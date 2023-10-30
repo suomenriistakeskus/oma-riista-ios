@@ -107,14 +107,14 @@ import Foundation
     }
 
     private class func getUnsentHarvestEntries() -> [AnalyticsDiaryEntry] {
-        let diaryEntries = RiistaGameDatabase.sharedInstance().unsentDiaryEntries()
+        let diaryEntries: [DiaryEntryBase] = []
 
-        return diaryEntries?.compactMap { diaryEntry in
+        return diaryEntries.compactMap { diaryEntry in
             if let harvest = diaryEntry as? DiaryEntry {
                 return AnalyticsDiaryEntry(harvest: harvest)
             } else {
                 return nil
             }
-        } ?? []
+        }
     }
 }

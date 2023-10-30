@@ -1,6 +1,5 @@
 package fi.riista.common.reactive
 
-import co.touchlab.stately.collections.IsoMutableList
 import co.touchlab.stately.concurrency.AtomicReference
 import fi.riista.common.util.WeakRef
 import fi.riista.common.util.removeFirst
@@ -24,7 +23,7 @@ class Subscription internal constructor(
 
 
 open class Observable<T>(initialValue: T) {
-    private val observers = IsoMutableList<ObserverRecord<T>>()
+    private val observers = mutableListOf<ObserverRecord<T>>()
 
     private var _valueHolder = AtomicReference(initialValue)
     private var _value: T

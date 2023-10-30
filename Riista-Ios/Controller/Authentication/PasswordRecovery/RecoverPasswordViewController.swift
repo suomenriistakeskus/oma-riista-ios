@@ -6,7 +6,7 @@ protocol RecoverPasswordViewControllerDelegate: AuthenticationChildHelpers {
     func cancelPasswordRecovery()
 }
 
-class RecoverPasswordViewController: UIViewController, KeyboardHandlerDelegate {
+class RecoverPasswordViewController: BaseViewController, KeyboardHandlerDelegate {
 
     weak var delegate: RecoverPasswordViewControllerDelegate?
     private let languageProvider = CurrentLanguageProvider()
@@ -63,18 +63,19 @@ class RecoverPasswordViewController: UIViewController, KeyboardHandlerDelegate {
 
         RiistaSDK.shared.sendPasswordForgottenEmail(
             email: username,
-            language: languageProvider.getCurrentLanguage()
-        ) { [weak self] response, _ in
-            guard let self = self else { return }
+            language: languageProvider.getCurrentLanguage(),
+            completionHandler: handleOnMainThread { [weak self] response, _ in
+                guard let self = self else { return }
 
-            if (response?.isSuccess == true) {
-                self.startPasswordRecoveryView.alpha = 0
-                self.passwordResetLinkSentView.alpha = 1
-            } else {
-                self.delegate?.showErrorDialog(title: "Error".localized(),
-                                               message: "NetworkOperationFailed".localized())
+                if (response?.isSuccess == true) {
+                    self.startPasswordRecoveryView.alpha = 0
+                    self.passwordResetLinkSentView.alpha = 1
+                } else {
+                    self.delegate?.showErrorDialog(title: "Error".localized(),
+                                                   message: "NetworkOperationFailed".localized())
+                }
             }
-        }
+        )
     }
 
 

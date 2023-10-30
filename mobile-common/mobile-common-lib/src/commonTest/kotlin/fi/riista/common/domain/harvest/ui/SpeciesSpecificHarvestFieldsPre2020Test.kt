@@ -381,7 +381,7 @@ class SpeciesSpecificHarvestFieldsPre2020Test {
             speciesCode = harvest.species.knownSpeciesCodeOrNull()!!
         )
 
-        return fields.createContext(harvest, mode)
+        return fields.createContext(harvest, mode, true)
     }
 
 

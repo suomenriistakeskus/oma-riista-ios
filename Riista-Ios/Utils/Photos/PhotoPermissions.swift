@@ -77,12 +77,8 @@ class PhotoPermissions {
         let internalHandler: (PHAuthorizationStatus) -> Void = { [self] authorizationStatus in
             let permissionStatus = self.mapFromPhotoLibraryAuthorizationStatus(authorizationStatus)
 
-            if (Thread.isMainThread) {
+            Thread.onMainThread {
                 handler(permissionStatus)
-            } else {
-                Async.main {
-                    handler(permissionStatus)
-                }
             }
         }
 

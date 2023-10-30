@@ -6,6 +6,9 @@ import RiistaCommon
     private static let QUICK_BUTTON_COUNT = 2
     private static let TITLE_DEFAULT: String = "-"
 
+    private let harvestDefaultPrimary = AppConstants.SpeciesCode.Moose
+    private let harvestDefaultSecondary = AppConstants.SpeciesCode.MountainHare
+
     private let observationDefaultPrimary = AppConstants.SpeciesCode.Moose
     private let observationDefaultSecondary = AppConstants.SpeciesCode.WhiteTailedDeer
 
@@ -15,6 +18,19 @@ import RiistaCommon
     @objc init(navigationController: UINavigationController?) {
         self.navigationController = navigationController
         super.init()
+    }
+
+    @objc func setupHarvestButtons(button1: UIButton, button2: UIButton) {
+        let buttons = [button1, button2]
+        let latestSpecies = fetchLatestHarvestSpecies()
+
+        for (buttonIndex, button) in buttons.enumerated() {
+            setupButton(
+                button: button,
+                species: latestSpecies.getOrNil(index: buttonIndex),
+                clickAction: #selector(onHarvestButtonClicked(button:))
+            )
+        }
     }
 
     @objc func setupObservationButtons(button1: UIButton, button2: UIButton) {
@@ -45,11 +61,40 @@ import RiistaCommon
         button.addTarget(self, action: clickAction, for: .touchUpInside)
     }
 
+    @objc private func onHarvestButtonClicked(button: UIButton) {
+        let initialSpeciesCode = button.speciesCode
+
+        let viewController = CreateHarvestViewController(initialSpeciesCode: initialSpeciesCode)
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+
     @objc private func onObservationButtonClicked(button: UIButton) {
         let initialSpeciesCode = button.speciesCode
 
         let viewController = CreateObservationViewController(initialSpeciesCode: initialSpeciesCode)
         navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    private func fetchLatestHarvestSpecies() -> [RiistaSpecies] {
+        var species: [RiistaSpecies] = RiistaSDK.shared.harvestContext
+            .getLatestHarvestSpecies(size: Int32(Self.QUICK_BUTTON_COUNT))
+            .compactMap { species in
+                guard let speciesCode = species.knownSpeciesCodeOrNull()?.intValue else {
+                    return nil
+                }
+
+                return RiistaGameDatabase.sharedInstance().species(byId: speciesCode)
+            }
+
+        if (species.count < Self.QUICK_BUTTON_COUNT) {
+            species.appendSpeciesIfDoesntExist(speciesCode: harvestDefaultPrimary)
+        }
+
+        if (species.count < Self.QUICK_BUTTON_COUNT) {
+            species.appendSpeciesIfDoesntExist(speciesCode: harvestDefaultSecondary)
+        }
+
+        return species
     }
 
     private func fetchLatestObservationSpecies() -> [RiistaSpecies] {

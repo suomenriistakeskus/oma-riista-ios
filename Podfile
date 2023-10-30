@@ -1,10 +1,11 @@
-platform :ios, '10.0'
+platform :ios, '11.0'
 use_frameworks! :linkage => :static
 
 $materialComponentsVersion = '~> 124.2.0'
 
 def allPods
     pod 'AcknowList'
+    pod 'AJJTypedNotification', '~> 2.0'
     pod 'Alamofire'
     pod 'AsyncSwift'
     pod 'DifferenceKit'
@@ -29,7 +30,6 @@ def allPods
     pod 'MaterialComponents/TextControls+UnderlinedTextFields', $materialComponentsVersion
     pod 'MKNetworkKit', :inhibit_warnings => true
     pod 'MultiSelectSegmentedControl'
-    pod 'OAStackView'
     pod 'OverlayContainer'
     pod 'Protobuf'
     pod 'QRCodeReader.swift'

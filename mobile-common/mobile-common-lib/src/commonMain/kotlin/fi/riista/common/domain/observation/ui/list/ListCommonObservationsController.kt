@@ -1,9 +1,10 @@
 package fi.riista.common.domain.observation.ui.list
 
-import co.touchlab.stately.ensureNeverFrozen
+import fi.riista.common.RiistaSDK
 import fi.riista.common.domain.model.Species
-import fi.riista.common.domain.model.getHuntingYear
 import fi.riista.common.domain.observation.ObservationContext
+import fi.riista.common.domain.observation.ObservationFilter
+import fi.riista.common.domain.observation.model.CommonObservation
 import fi.riista.common.logging.getLogger
 import fi.riista.common.metadata.MetadataProvider
 import fi.riista.common.ui.controller.ControllerWithLoadableModel
@@ -20,13 +21,7 @@ class ListCommonObservationsController(
 ) : ControllerWithLoadableModel<ListCommonObservationsViewModel>(),
     HasUnreproducibleState<ListCommonObservationsController.FilterState> {
 
-    init {
-        ensureNeverFrozen()
-    }
-
-    private val allObservationSpecies: List<Species> by lazy {
-        metadataProvider.observationMetadata.speciesMetadata.keys.map { Species.Known(it) }
-    }
+    private val repository = observationContext.repository
 
     /**
      * Pending filter to be applied once view model is loaded. Only taken into account if viewmodel
@@ -46,33 +41,35 @@ class ListCommonObservationsController(
 
         emit(ViewModelLoadStatus.Loading)
 
-        observationContext.observationProvider.fetch(refresh = refresh)
-
-        val allObservations = observationContext.observationProvider.observations
-        if (allObservations == null) {
-            emit(ViewModelLoadStatus.LoadFailed)
-            return@flow
-        }
         val observationHuntingYears = observationContext.getObservationHuntingYears().sortedDescending()
 
-        @Suppress("IfThenToElvis") // code is easier to read this way
         val viewModel = if (previouslyLoadedViewModel != null) {
+            val observations = fetchWithFilter(
+                huntingYear = previouslyLoadedViewModel.filterHuntingYear,
+                withSpecies = previouslyLoadedViewModel.filterSpecies,
+            ) ?: kotlin.run {
+                logger.w { "Unable to load observations" }
+                emit(ViewModelLoadStatus.LoadFailed)
+                return@flow
+            }
             previouslyLoadedViewModel.copy(
-                allObservations = allObservations,
                 observationHuntingYears = observationHuntingYears,
-                observationSpecies = allObservationSpecies
-            ).filterEvents() // re-apply filtering based on current filters
+                filteredObservations = observations,
+            )
         } else {
-            ListCommonObservationsViewModel(
-                allObservations = allObservations,
-                observationHuntingYears = observationHuntingYears,
-                observationSpecies = allObservationSpecies,
-                filterHuntingYear = null,
-                filterSpecies = null,
-                filteredObservations = allObservations,
-            ).filterEvents(
-                withHuntingYear = restoredFilterState?.huntingYear ?: pendingFilter?.huntingYear,
+            val observations = fetchWithFilter(
+                huntingYear = restoredFilterState?.huntingYear ?: pendingFilter?.huntingYear,
                 withSpecies = restoredFilterState?.species ?: pendingFilter?.species,
+            ) ?: kotlin.run {
+                logger.w { "Unable to load observations" }
+                emit(ViewModelLoadStatus.LoadFailed)
+                return@flow
+            }
+            ListCommonObservationsViewModel(
+                observationHuntingYears = observationHuntingYears,
+                filterHuntingYear = restoredFilterState?.huntingYear ?: pendingFilter?.huntingYear,
+                filterSpecies = restoredFilterState?.species ?: pendingFilter?.species,
+                filteredObservations = observations,
             )
         }
 
@@ -82,7 +79,7 @@ class ListCommonObservationsController(
         emit(ViewModelLoadStatus.Loaded(viewModel))
     }
 
-    fun setFilters(huntingYear: Int, species: List<Species>) {
+    fun setFilters(huntingYear: Int?, species: List<Species>?) {
         val currentViewModel = getLoadedViewModelOrNull() ?: kotlin.run {
             logger.v { "Cannot filter now, no viewmodel. Adding as a pending filter." }
             pendingFilter = FilterState(
@@ -91,91 +88,51 @@ class ListCommonObservationsController(
             )
             return
         }
+        val observations = fetchWithFilter(
+            huntingYear = huntingYear,
+            withSpecies = species,
+        ) ?: kotlin.run {
+            logger.w { "Unable to load observations" }
+            return
+        }
 
         updateViewModel(
-            viewModel = currentViewModel.filterEvents(
-                withHuntingYear = huntingYear,
-                withSpecies = species
+            viewModel = currentViewModel.copy(
+                filterHuntingYear = huntingYear,
+                filterSpecies = species,
+                filteredObservations = observations,
             )
         )
-
     }
 
     fun setHuntingYearFilter(huntingYear: Int) {
-        val currentViewModel = getLoadedViewModelOrNull() ?: kotlin.run {
-            logger.v { "Cannot filter hunting year now, no viewmodel. Adding as a pending filter." }
-            pendingFilter = FilterState(
-                huntingYear = huntingYear,
-                species = pendingFilter?.species,
-            )
-            return
-        }
-
-        updateViewModel(
-            viewModel = currentViewModel.filterEvents(withHuntingYear = huntingYear)
-        )
+        val speciesFilter = getLoadedViewModelOrNull()?.filterSpecies
+        setFilters(huntingYear, speciesFilter)
     }
 
     fun setSpeciesFilter(species: List<Species>) {
-        val currentViewModel = getLoadedViewModelOrNull() ?: kotlin.run {
-            logger.v { "Cannot filter species now, no viewmodel. Adding as a pending filter." }
-            pendingFilter = FilterState(
-                huntingYear = pendingFilter?.huntingYear,
-                species = species,
-            )
-            return
-        }
-
-        updateViewModel(
-            viewModel = currentViewModel.filterEvents(withSpecies = species)
-        )
+        val huntingYearFilter = getLoadedViewModelOrNull()?.filterHuntingYear
+        setFilters(huntingYearFilter, species)
     }
 
     fun clearAllFilters() {
-        val currentViewModel = getLoadedViewModelOrNull() ?: kotlin.run {
-            logger.v { "Cannot clear filters now, no viewmodel. Clearing pending filter." }
-            pendingFilter = null
-            return
-        }
-
-        updateViewModel(
-            viewModel = ListCommonObservationsViewModel(
-                allObservations = currentViewModel.allObservations,
-                observationHuntingYears = currentViewModel.observationHuntingYears,
-                observationSpecies = currentViewModel.observationSpecies,
-                filterHuntingYear = null,
-                filterSpecies = null,
-                filteredObservations = currentViewModel.allObservations,
-            )
-        )
+        setFilters(null, null)
     }
 
-    private fun ListCommonObservationsViewModel.filterEvents(
-        withHuntingYear: Int? = filterHuntingYear,
-        withSpecies: List<Species>? = filterSpecies,
-    ): ListCommonObservationsViewModel {
-        return ListCommonObservationsViewModel(
-            allObservations = this.allObservations,
-            observationHuntingYears = this.observationHuntingYears,
-            observationSpecies = this.observationSpecies,
-
-            filterHuntingYear = withHuntingYear,
-            filterSpecies = withSpecies,
-            filteredObservations = allObservations.filter { observation ->
-                if (listOnlyObservationsWithImages && observation.images.primaryImage == null) {
-                    return@filter false
-                }
-
-                if (withHuntingYear != null && observation.pointOfTime.date.getHuntingYear() != withHuntingYear) {
-                    return@filter false
-                }
-
-                if (withSpecies != null && withSpecies.isNotEmpty() && observation.species !in withSpecies) {
-                    return@filter false
-                }
-
-                return@filter true
-            }
+    private fun fetchWithFilter(
+        huntingYear: Int?,
+        withSpecies: List<Species>?,
+    ): List<CommonObservation>? {
+        val username = RiistaSDK.currentUserContext.username  ?: kotlin.run {
+            return null
+        }
+        return repository.filter(
+            username = username,
+            filter = ObservationFilter(
+                huntingYear = huntingYear,
+                species = withSpecies,
+                requireImages = listOnlyObservationsWithImages,
+            )
         )
     }
 

@@ -10,4 +10,10 @@ class CurrentLanguageProvider: RiistaCommon.LanguageProvider {
 
         return language ?? AppConstants.defaultLanguage
     }
+
+    func setCurrentLanguage(language: Language) {
+        RiistaSettings.setLanguageSetting(language.languageCode)
+
+        RiistaLocalization.sharedInstance().setLanguageFromSettings()
+    }
 }

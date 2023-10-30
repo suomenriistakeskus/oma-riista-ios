@@ -1,11 +1,22 @@
 extension UIBarButtonItem {
-    @objc var isHidden: Bool {
+    /**
+     * iOS 16 introduces isHidden for UIBarButtonItems. Provide a compatibility field for older iOS versions.
+     */
+    @objc var isHiddenCompat: Bool {
         get {
-            return !isEnabled && tintColor == .clear
+            if #available(iOS 16.0, *) {
+                return isHidden
+            } else {
+                return !isEnabled && tintColor == .clear
+            }
         }
         set {
-            tintColor = newValue ? .clear : nil
-            isEnabled = !newValue
+            if #available(iOS 16.0, *) {
+                isHidden = newValue
+            } else {
+                tintColor = newValue ? .clear : nil
+                isEnabled = !newValue
+            }
         }
     }
 }

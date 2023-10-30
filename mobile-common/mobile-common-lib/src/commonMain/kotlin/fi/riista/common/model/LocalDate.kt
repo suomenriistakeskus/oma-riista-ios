@@ -124,3 +124,9 @@ fun maxDate(val1: LocalDate?, val2: LocalDate?): LocalDate {
     }
     return maxOf(val1, val2)
 }
+
+fun LocalDate?.toStringISO8601WithTime(time: LocalTime) =
+    this?.let { LocalDateTime(this, time).toStringISO8601() }
+
+internal fun LocalDate.dayStart() = LocalDateTime(this, LocalTime(0, 0, 0))
+internal fun LocalDate.dayEnd() = LocalDateTime(this, LocalTime(23, 59, 59))

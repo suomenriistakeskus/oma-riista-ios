@@ -17,6 +17,7 @@ class CreateGroupHuntingHarvestViewController :
         RiistaCommon.CreateGroupHarvestController(
             groupHuntingContext: UserSession.shared().groupHuntingContext,
             huntingGroupTarget: huntingGroupTarget,
+            speciesResolver: SpeciesInformationResolver(),
             stringProvider: LocalizedStringProvider()
         )
     }()
@@ -64,11 +65,13 @@ class CreateGroupHuntingHarvestViewController :
         tableView.showLoading()
         saveButton.isEnabled = false
 
-        controller.createHarvest { [weak self] result, error in
-            self?.tableView.hideLoading()
-            self?.saveButton.isEnabled = true
-            self?.onCreateHarvestCompleted(result: result, error: error)
-        }
+        controller.createHarvest(
+            completionHandler: handleOnMainThread { [weak self] result, error in
+                self?.tableView.hideLoading()
+                self?.saveButton.isEnabled = true
+                self?.onCreateHarvestCompleted(result: result, error: error)
+            }
+        )
     }
 
     private func onCreateHarvestCompleted(result: GroupHuntingHarvestOperationResponse?, error: Error?) {

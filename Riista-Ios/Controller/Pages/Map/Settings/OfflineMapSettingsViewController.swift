@@ -2,7 +2,7 @@ import Foundation
 import MaterialComponents
 import SnapKit
 
-@objc class OfflineMapSettingsViewController: UIViewController {
+@objc class OfflineMapSettingsViewController: BaseViewController {
 
     private lazy var settingsContainer: OfflineMapSettingsView = {
         OfflineMapSettingsView()
@@ -14,10 +14,8 @@ import SnapKit
         scrollView.layoutMargins = AppConstants.UI.DefaultHorizontalEdgeInsets
         view = scrollView
 
-        if #available(iOS 11.0, *) {
-            // the layoutMargins we're setting may be less than system minimum layout margins..
-            viewRespectsSystemMinimumLayoutMargins = false
-        }
+        // the layoutMargins we're setting may be less than system minimum layout margins..
+        viewRespectsSystemMinimumLayoutMargins = false
 
         scrollView.addSubview(settingsContainer)
         settingsContainer.snp.makeConstraints { make in

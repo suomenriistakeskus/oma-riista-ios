@@ -33,6 +33,7 @@ extension SrvaEntry {
             approver: toCommonSrvaEventApprover(),
             species: gameSpeciesCode?.toSpecies() ?? Species.Other(),
             otherSpeciesDescription: otherSpeciesDescription,
+            totalSpecimenAmount: totalSpecimenAmount?.int32Value ?? Int32(specimens?.count ?? 1),
             specimens: parseCommonSpecimens(),
             eventCategory: SrvaEventCategoryType.Companion.shared.toBackendEnumCompat(value: eventName),
             deportationOrderNumber: deportationOrderNumber,

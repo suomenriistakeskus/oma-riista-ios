@@ -1,16 +1,12 @@
 package fi.riista.common.domain.harvest.ui
 
 import fi.riista.common.domain.constants.SpeciesCode
-import fi.riista.common.domain.constants.SpeciesCodes
 import fi.riista.common.domain.harvest.ui.fields.CommonHarvestFields
 import fi.riista.common.domain.harvest.ui.fields.CommonHarvestFields.Context.Mode
 import fi.riista.common.domain.harvest.ui.fields.SpeciesSpecificHarvestFieldsAfter2020
 import fi.riista.common.domain.model.GameAge
 import fi.riista.common.domain.model.Gender
 import fi.riista.common.domain.model.GreySealHuntingMethod
-import fi.riista.common.ui.dataField.voluntary
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 internal open class SpeciesSpecificHarvestFieldsAfter2020Test {
 
@@ -29,6 +25,6 @@ internal open class SpeciesSpecificHarvestFieldsAfter2020Test {
             speciesCode = harvest.species.knownSpeciesCodeOrNull()!!
         )
 
-        return fields.createContext(harvest, mode)
+        return fields.createContext(harvest, mode, true)
     }
 }

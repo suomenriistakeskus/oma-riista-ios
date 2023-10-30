@@ -59,7 +59,7 @@ class SelectGroupHuntingDayViewController:
                                      style: .plain,
                                      target: self,
                                      action: #selector(onCreateHuntingDayClicked))
-        button.isHidden = true
+        button.isHiddenCompat = true
         return button
     }()
 
@@ -79,8 +79,8 @@ class SelectGroupHuntingDayViewController:
         view.addSubview(selectDayView)
         selectDayView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 
@@ -132,7 +132,7 @@ class SelectGroupHuntingDayViewController:
     override func onViewModelLoaded(viewModel: SelectHuntingDayViewModel) {
         super.onViewModelLoaded(viewModel: viewModel)
 
-        createHuntingDayNavBarButton.isHidden = !viewModel.canCreateHuntingDay
+        createHuntingDayNavBarButton.isHiddenCompat = !viewModel.canCreateHuntingDay
         selectDayView.canSelectHuntingDay = viewModel.selectedHuntingDayId != nil
 
         if (viewModel.huntingDays.count > 0) {

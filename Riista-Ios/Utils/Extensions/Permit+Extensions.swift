@@ -2,8 +2,8 @@ import Foundation
 import RiistaCommon
 
 extension Permit {
-    func toCommonPermit() -> CommonPermit {
-        return CommonPermit(
+    func toCommonHarvestPermit() -> CommonHarvestPermit {
+        return CommonHarvestPermit(
             permitNumber: permitNumber,
             permitType: permitType,
             speciesAmounts: parseCommonSpeciesAmounts(),
@@ -11,20 +11,20 @@ extension Permit {
         )
     }
 
-    private func parseCommonSpeciesAmounts() -> [CommonPermitSpeciesAmount] {
+    private func parseCommonSpeciesAmounts() -> [CommonHarvestPermitSpeciesAmount] {
         guard let speciesAmounts = speciesAmounts else {
             return []
         }
 
         return speciesAmounts.compactMap { speciesAmount in
-            (speciesAmount as? PermitSpeciesAmounts)?.toCommonPermitSpeciesAmount()
+            (speciesAmount as? PermitSpeciesAmounts)?.toCommonHarvestPermitSpeciesAmount()
         }
     }
 }
 
 extension PermitSpeciesAmounts {
-    func toCommonPermitSpeciesAmount() -> CommonPermitSpeciesAmount {
-        return CommonPermitSpeciesAmount(
+    func toCommonHarvestPermitSpeciesAmount() -> CommonHarvestPermitSpeciesAmount {
+        return CommonHarvestPermitSpeciesAmount(
             speciesCode: gameSpeciesCode.toKotlinInt(),
             validityPeriods: [
                 datesToLocalDatePeriod(beginDate: beginDate, endDate: endDate),

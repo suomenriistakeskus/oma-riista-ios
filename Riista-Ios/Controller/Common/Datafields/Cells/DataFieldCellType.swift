@@ -41,6 +41,7 @@ enum DataFieldCellType {
 
     case yesNoToggle
     case checkbox
+    case toggleSwitch
 
     case instructions
 
@@ -96,6 +97,8 @@ enum DataFieldCellType {
             switch (field.settings.appearance) {
             case .checkbox:
                 return .checkbox
+            case .switch_:
+                return .toggleSwitch
             case .yesNoButtons: fallthrough
             default:
                 return .yesNoToggle

@@ -79,7 +79,7 @@ class ViewGroupHuntingObservationViewController:
             target: self,
             action: #selector(onEditButtonClicked)
         )
-        button.isHidden = true // by default, will be displayed later if allowed
+        button.isHiddenCompat = true // by default, will be displayed later if allowed
         return button
     }()
 
@@ -90,7 +90,7 @@ class ViewGroupHuntingObservationViewController:
             target: self,
             action: #selector(onMoreMenuItemClicked)
         )
-        button.isHidden = true // by default, will be displayed based on moreMenuItems
+        button.isHiddenCompat = true // by default, will be displayed based on moreMenuItems
         return button
     }()
 
@@ -106,7 +106,7 @@ class ViewGroupHuntingObservationViewController:
         ))
         provider.onItemsChanged = { [weak self] in
             let displayMoreMenu = (self?.moreMenuItems.visibleItems.count ?? 0) > 0
-            self?.moreMenuButton.isHidden = !displayMoreMenu
+            self?.moreMenuButton.isHiddenCompat = !displayMoreMenu
         }
         return provider
     }()
@@ -134,8 +134,8 @@ class ViewGroupHuntingObservationViewController:
         view.addSubview(container)
         container.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         let tableView = TableView()
@@ -148,7 +148,7 @@ class ViewGroupHuntingObservationViewController:
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -208,23 +208,25 @@ class ViewGroupHuntingObservationViewController:
         let loadingIndicator = LoadIndicatorViewController().showIn(parentViewController: self)
         editNavBarButton.isEnabled = false
 
-        controller.rejectObservation { [weak self] response, error in
-            guard let self = self else { return }
+        controller.rejectObservation(
+            completionHandler: handleOnMainThread { [weak self] response, error in
+                guard let self = self else { return }
 
-            loadingIndicator.hide()
-            self.editNavBarButton.isEnabled = true
+                loadingIndicator.hide()
+                self.editNavBarButton.isEnabled = true
 
-            if response is GroupHuntingObservationOperationResponse.Success {
-                if let listener = self.listener {
-                    listener.onObservationUpdated()
+                if response is GroupHuntingObservationOperationResponse.Success {
+                    if let listener = self.listener {
+                        listener.onObservationUpdated()
+                    }
+
+                    self.navigationController?.popViewController(animated: true)
+                } else {
+                    let dialog = AlertDialogBuilder.createError(message: "NetworkOperationFailed".localized())
+                    self.navigationController?.present(dialog, animated: true, completion: nil)
                 }
-
-                self.navigationController?.popViewController(animated: true)
-            } else {
-                let dialog = AlertDialogBuilder.createError(message: "NetworkOperationFailed".localized())
-                self.navigationController?.present(dialog, animated: true, completion: nil)
             }
-        }
+        )
     }
 
     private func updateApproveVisibility(canApprove: Bool) {
@@ -234,7 +236,7 @@ class ViewGroupHuntingObservationViewController:
     }
 
     private func updateEditButtonVisibility(canEdit: Bool) {
-        editNavBarButton.isHidden = !canEdit
+        editNavBarButton.isHiddenCompat = !canEdit
     }
 
     private func updateRejectButtonVisibility(canReject: Bool) {

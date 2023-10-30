@@ -4,7 +4,6 @@
 #import "RiistaPermitManager.h"
 #import "Permit.h"
 #import "PermitSpeciesAmounts.h"
-#import "Styles.h"
 #import "FinnishHuntingPermitNumberValidator.h"
 #import "RiistaKeyboardHandler.h"
 #import "RiistaGameDatabase.h"
@@ -82,6 +81,7 @@ const NSInteger PERMIT_DATE_DAYS_LIMIT = 30;
     _submitButton.titleEdgeInsets = UIEdgeInsetsMake(_submitButton.titleEdgeInsets.top, -10.0, _submitButton.titleEdgeInsets.bottom, -10.0);
     [self.submitButton addTarget:self action:@selector(submitButtonClick:) forControlEvents:UIControlEventTouchUpInside];
 
+    [self.numberInput setInputAccessoryView: [KeyboardToolBarHelper hideKeyboardWhenDone:self.numberInput]];
     [self.numberInput configureFor:FontUsageInputValue];
     [self.numberInput setDelegate:self];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(numberInputDidChange:)

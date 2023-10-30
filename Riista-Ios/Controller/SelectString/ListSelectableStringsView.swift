@@ -12,9 +12,9 @@ class ListSelectableStringsView: UIView {
     var onSelectButtonClicked: OnClicked?
     var onCancelButtonClicked: OnClicked?
 
-    var canSelectHuntingDay: Bool = false {
+    var canSelect: Bool = false {
         didSet {
-            selectButton.isEnabled = canSelectHuntingDay
+            selectButton.isEnabled = canSelect
         }
     }
 
@@ -117,7 +117,7 @@ class ListSelectableStringsView: UIView {
         btn.onClicked = { [weak self] in
             self?.onSelectButtonClicked?()
         }
-        btn.isEnabled = canSelectHuntingDay
+        btn.isEnabled = canSelect
         return btn
     }()
 

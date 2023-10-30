@@ -2,14 +2,16 @@ import UIKit
 import AVFoundation
 import QRCodeReader
 import Toast_Swift
+import MaterialComponents.MaterialButtons
 import MaterialComponents.MaterialDialogs
+import RiistaCommon
 
-class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate, QRCodeReaderViewControllerDelegate, ShootingTestCheckboxDelegate {
+class ShootingTestRegisterViewController: BaseViewController, UITextFieldDelegate, QRCodeReaderViewControllerDelegate, ShootingTestCheckboxDelegate {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var promptLabel: UILabel!
     @IBOutlet weak var inputTextView: UITextField!
-    @IBOutlet weak var searchButton: UIButton!
-    @IBOutlet weak var readQrCodeButton: UIButton!
+    @IBOutlet weak var searchButton: MDCButton!
+    @IBOutlet weak var readQrCodeButton: MDCButton!
     @IBOutlet weak var resultView: UIView!
     @IBOutlet weak var resultNameLabel: UILabel!
     @IBOutlet weak var resultNumberLabel: UILabel!
@@ -25,8 +27,8 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
     @IBOutlet weak var qrButtonHeight: NSLayoutConstraint!
 
     @IBOutlet weak var buttonView: UIView!
-    @IBOutlet weak var clearButton: UIButton!
-    @IBOutlet weak var addButton: UIButton!
+    @IBOutlet weak var clearButton: MDCButton!
+    @IBOutlet weak var addButton: MDCButton!
 
     @IBAction func searchButtonPressed(_ sender: UIButton) {
         self.inputTextView.resignFirstResponder()
@@ -50,10 +52,14 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
     }
 
     @IBAction func saveButtonPressed(_ sender: UIButton) {
-        self.addParticipant(hunterNumber: (self.searchResult?.hunterNumber)!)
+        guard let hunterNumber = self.searchResult?.hunterNumber else {
+            return
+        }
+
+        self.addParticipant(hunterNumber: hunterNumber)
     }
 
-    var searchResult: ShootingTestSearchPersonResult? = nil
+    var searchResult: CommonShootingTestPerson? = nil
 
     lazy var readerVC: QRCodeReaderViewController = {
         let builder = QRCodeReaderViewControllerBuilder {
@@ -62,6 +68,8 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
 
         return QRCodeReaderViewController(builder: builder)
     }()
+
+    private var keyboardHandler: KeyboardHandler?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,6 +81,7 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
             action: #selector(onRefreshClicked)
         )
 
+        inputTextView.inputAccessoryView = KeyboardToolBar().hideKeyboardOnDone(editView: inputTextView)
         inputTextView.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
 
         resultTestMooseView.delegate = self
@@ -86,7 +95,10 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
         style.displayShadow = true
         ToastManager.shared.style = style
 
-        self.hideKeyboard()
+        // No need to adjust content upwards/downwards when keyboard is opened / closed
+        // -> also no need for delegate nor listening of keyboard events
+        keyboardHandler = KeyboardHandler(view: view, contentMovement: .none)
+
         self.setupUI()
     }
 
@@ -98,102 +110,125 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
         self.refreshData()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        // Explicitly don't hide keyboard as this was the behaviour before transitioning
+        // to using KeyboardHandler. This allows navigating to other tabs and returning
+        // to this tab without having to click hunter number field again
+        // keyboardHandler?.hideKeyboard()
+
+        super.viewWillDisappear(animated)
+    }
+
     func setupUI() {
-        self.titleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterAddParticipant")
-        self.promptLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterHunterNumber").uppercased()
+        self.titleLabel.text = "ShootingTestRegisterAddParticipant".localized()
+        self.promptLabel.text = "ShootingTestRegisterHunterNumber".localized().uppercased()
 
         self.inputTextView.delegate = self
 
-        Styles.styleButton(self.searchButton)
-        Styles.styleButton(self.readQrCodeButton)
-        self.readQrCodeButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterReadQr"), for: .normal)
+        self.searchButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.readQrCodeButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.readQrCodeButton.isUppercaseTitle = false
+        self.readQrCodeButton.setTitle("ShootingTestRegisterReadQr".localized(), for: .normal)
 
-        Styles.styleButton(self.addButton)
-        Styles.styleNegativeButton(self.clearButton)
-        self.clearButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ButtonClearTitle"), for: .normal)
-        self.addButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterAddParticipant"), for: .normal)
+        self.addButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.addButton.isUppercaseTitle = false
+        self.clearButton.applyOutlinedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.clearButton.isUppercaseTitle = false
+        self.clearButton.setTitle("ButtonClearTitle".localized(), for: .normal)
+        self.addButton.setTitle("ShootingTestRegisterAddParticipant".localized(), for: .normal)
 
         self.resultStateLabel.layer.cornerRadius = 4
-        self.resultTestTypesLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterTestTypeTitle")
+        self.resultTestTypesLabel.text = "ShootingTestRegisterTestTypeTitle".localized()
 
-        self.resultTestBearView.setTitle(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeBear"))
-        self.resultTestMooseView.setTitle(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeMoose"))
-        self.resultTestRoeDeerView.setTitle(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeRoeDeer"))
-        self.resultTestBowView.setTitle(text: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestTypeBow"))
+        self.resultTestBearView.setTitle(text: "ShootingTestTypeBear".localized())
+        self.resultTestMooseView.setTitle(text: "ShootingTestTypeMoose".localized())
+        self.resultTestRoeDeerView.setTitle(text: "ShootingTestTypeRoeDeer".localized())
+        self.resultTestBowView.setTitle(text: "ShootingTestTypeBow".localized())
     }
 
-    private func refreshSearchResult(item: ShootingTestSearchPersonResult) {
+    private func refreshSearchResult(person: CommonShootingTestPerson) {
         self.inputTextView.isEnabled = false
         self.searchButton.isEnabled = false
 
         self.readQrCodeButton.isEnabled = false
+        self.readQrCodeButton.isHidden = true
         self.qrButtonHeight.constant = 0
 
-        self.resultNameLabel.text = String(format: "%@ %@", item.lastName!, item.firstName!)
-        self.resultNumberLabel.text = item.hunterNumber
-        self.resultDateOfBirthLabel.text = ShootingTestUtil.serverDateStringToDisplayDate(serverDate: item.dateOfBirth!)
+        self.resultNameLabel.text = String(format: "%@ %@",
+                                           person.lastName ?? "",
+                                           person.firstName ?? "")
+        self.resultNumberLabel.text = person.hunterNumber
+        self.resultDateOfBirthLabel.text = person.dateOfBirth?.toFoundationDate().formatDateOnly() ?? ""
 
-        switch item.registrationStatus! {
-        case ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_IN_PROGRESS:
-            self.resultStateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterUserAlreadyRegistered")
-            self.resultStateLabel.isHidden = false
-            self.resultStateView.isHidden = false
-            self.addButton.isEnabled = false
-            break
-        case ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_COMPLETED:
-            self.resultStateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterUserAlreadyCompleted")
-            self.resultStateLabel.isHidden = false
-            self.resultStateView.isHidden = false
-            self.addButton.isEnabled = true
-            break
-        case ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_HUNTING_PAYMENT_NOT_DONE:
-            self.resultStateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterUserHuntingPaymentNotDone")
-            self.resultStateLabel.isHidden = false
-            self.resultStateView.isHidden = false
-            self.addButton.isEnabled = true
-            break
-        case ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_OFFICIAL:
-            self.resultStateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterUserAlreadyOfficial")
-            self.resultStateLabel.isHidden = false
-            self.resultStateView.isHidden = false
-            self.addButton.isEnabled = false
-            break
-        case ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_HUNTING_BAN:
-            self.resultStateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterUserHuntingBan")
-            self.resultStateLabel.isHidden = false
-            self.resultStateView.isHidden = false
-            self.addButton.isEnabled = false
-            break
-        case ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_NOT_HUNTER:
-            self.resultStateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterUserNotHunter")
-            self.resultStateLabel.isHidden = false
-            self.resultStateView.isHidden = false
-            self.addButton.isEnabled = false
-            break
-        case ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_FOREIGN_HUNTER:
-            self.resultStateLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterUserForeignHunter")
-            self.resultStateLabel.isHidden = false
-            self.resultStateView.isHidden = false
-            self.addButton.isEnabled = true
-            break
-        case ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_HUNTING_PAYMENT_DONE:
+        if let registrationStatus = person.registrationStatus.value {
+            switch registrationStatus {
+            case ShootingTestRegistrationStatus.inProgress:
+                self.resultStateLabel.text = "ShootingTestRegisterUserAlreadyRegistered".localized()
+                self.resultStateLabel.isHidden = false
+                self.resultStateView.isHidden = false
+                self.addButton.isEnabled = false
+                break
+            case ShootingTestRegistrationStatus.completed:
+                self.resultStateLabel.text = "ShootingTestRegisterUserAlreadyCompleted".localized()
+                self.resultStateLabel.isHidden = false
+                self.resultStateView.isHidden = false
+                self.addButton.isEnabled = true
+                break
+            case ShootingTestRegistrationStatus.huntingPaymentNotDone:
+                self.resultStateLabel.text = "ShootingTestRegisterUserHuntingPaymentNotDone".localized()
+                self.resultStateLabel.isHidden = false
+                self.resultStateView.isHidden = false
+                self.addButton.isEnabled = true
+                break
+            case ShootingTestRegistrationStatus.disqualifiedAsOfficial:
+                self.resultStateLabel.text = "ShootingTestRegisterUserAlreadyOfficial".localized()
+                self.resultStateLabel.isHidden = false
+                self.resultStateView.isHidden = false
+                self.addButton.isEnabled = false
+                break
+            case ShootingTestRegistrationStatus.huntingBan:
+                self.resultStateLabel.text = "ShootingTestRegisterUserHuntingBan".localized()
+                self.resultStateLabel.isHidden = false
+                self.resultStateView.isHidden = false
+                self.addButton.isEnabled = false
+                break
+            case ShootingTestRegistrationStatus.noHunterNumber:
+                self.resultStateLabel.text = "ShootingTestRegisterUserNotHunter".localized()
+                self.resultStateLabel.isHidden = false
+                self.resultStateView.isHidden = false
+                self.addButton.isEnabled = false
+                break
+            case ShootingTestRegistrationStatus.foreignHunter:
+                self.resultStateLabel.text = "ShootingTestRegisterUserForeignHunter".localized()
+                self.resultStateLabel.isHidden = false
+                self.resultStateView.isHidden = false
+                self.addButton.isEnabled = true
+                break
+            case ShootingTestRegistrationStatus.huntingPaymentDone:
+                self.resultStateLabel.text = ""
+                self.resultStateLabel.isHidden = true
+                self.resultStateView.isHidden = true
+                self.addButton.isEnabled = true
+                break
+            default:
+                self.resultStateLabel.text = ""
+                self.resultStateLabel.isHidden = true
+                self.resultStateView.isHidden = true
+                self.addButton.isEnabled = false
+                break
+            }
+        } else {
             self.resultStateLabel.text = ""
             self.resultStateLabel.isHidden = true
             self.resultStateView.isHidden = true
-            self.addButton.isEnabled = true
-            break
-        default:
-            self.resultStateLabel.text = ""
-            self.resultStateLabel.isHidden = true
-            self.resultStateView.isHidden = true
             self.addButton.isEnabled = false
-            break
         }
 
-        self.resultTestBearView.setChecked(checked: (item.selectedShootingTestTypes?.bearTestIntended)!)
-        self.resultTestMooseView.setChecked(checked: (item.selectedShootingTestTypes?.mooseTestIntended)!)
-        self.resultTestRoeDeerView.setChecked(checked: (item.selectedShootingTestTypes?.roeDeerTestIntended)!)
-        self.resultTestBowView.setChecked(checked: (item.selectedShootingTestTypes?.bowTestIntended)!)
+
+        self.resultTestBearView.setChecked(checked: person.selectedShootingTestTypes.bearTestIntended)
+        self.resultTestMooseView.setChecked(checked: person.selectedShootingTestTypes.mooseTestIntended)
+        self.resultTestRoeDeerView.setChecked(checked: person.selectedShootingTestTypes.roeDeerTestIntended)
+        self.resultTestBowView.setChecked(checked: person.selectedShootingTestTypes.bowTestIntended)
         self.refreshAddButtonState()
 
         self.resultView.isHidden = false
@@ -218,6 +253,7 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
         self.inputTextView.text = ""
         self.searchButton.isEnabled = false
         self.readQrCodeButton.isEnabled = true
+        self.readQrCodeButton.isHidden = false
         self.qrButtonHeight.constant = 50
 
         self.buttonView.isHidden = true
@@ -225,13 +261,26 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
     }
 
     private func refreshAddButtonState() {
-        self.addButton.isEnabled = self.searchResult != nil &&
-            !(self.searchResult!.hunterNumber ?? "").isEmpty &&
-            (ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_HUNTING_PAYMENT_DONE == self.searchResult?.registrationStatus ||
-                ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_HUNTING_PAYMENT_NOT_DONE == self.searchResult?.registrationStatus ||
-                ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_COMPLETED == self.searchResult?.registrationStatus ||
-                ShootingTestSearchPersonResult.ClassConstants.REGISTRATION_STATUS_FOREIGN_HUNTER == self.searchResult?.registrationStatus) &&
-            (self.resultTestMooseView.getChecked() || self.resultTestBearView.getChecked() || self.resultTestRoeDeerView.getChecked() || self.resultTestBowView.getChecked())
+        guard let person = self.searchResult else {
+            self.addButton.isEnabled = false
+            return
+        }
+
+        let invalidHunterNumber = (person.hunterNumber ?? "").isEmpty
+        let testSelected =
+            self.resultTestMooseView.getChecked() ||
+            self.resultTestBearView.getChecked() ||
+            self.resultTestRoeDeerView.getChecked() ||
+            self.resultTestBowView.getChecked()
+
+        let personQualifies =
+            person.registrationStatus.value == ShootingTestRegistrationStatus.huntingPaymentDone ||
+            person.registrationStatus.value == ShootingTestRegistrationStatus.huntingPaymentNotDone ||
+            person.registrationStatus.value == ShootingTestRegistrationStatus.completed ||
+            person.registrationStatus.value == ShootingTestRegistrationStatus.foreignHunter
+
+
+        self.addButton.isEnabled = !invalidHunterNumber && personQualifies && testSelected
     }
 
     @objc private func onRefreshClicked() {
@@ -241,55 +290,36 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
 
     func refreshData() {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
-        tabBarVc.fetchEvent() { (result:Any?, error:Error?) in
+        tabBarVc.fetchEvent() { [weak self] shootingTestEvent, _ in
+            guard let self = self else { return }
+
             self.navigationItem.rightBarButtonItem?.isEnabled = true
 
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let event = try JSONDecoder().decode(ShootingTestCalendarEvent.self, from: json)
-
-                    if (event.isOngoing()) {
-                        self.inputTextView.isEnabled = true
-                        self.searchButton.isEnabled = self.inputTextView.text?.count == 8
-                        self.readQrCodeButton.isEnabled = true
-                    }
-                    else {
-                        self.inputTextView.isEnabled = false
-                        self.searchButton.isEnabled = false
-                        self.readQrCodeButton.isEnabled = false
-                    }
-                }
-                catch {
-                    print("Failed to parse <ShootingTestCalendarEvent> item")
-                }
-            }
-            else {
-                print("fetchEvent failed: " + (error?.localizedDescription)!)
+            if (shootingTestEvent?.ongoing == true) {
+                self.inputTextView.isEnabled = true
+                self.searchButton.isEnabled = self.inputTextView.text?.count == 8
+                self.readQrCodeButton.isEnabled = true
+            } else {
+                self.inputTextView.isEnabled = false
+                self.searchButton.isEnabled = false
+                self.readQrCodeButton.isEnabled = false
             }
         }
     }
 
     private func searchWithHunterNumber(input: String) {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
-        ShootingTestManager.searchWithHuntingNumberForEvent(eventId: tabBarVc.eventId!,
-                                                            hunterNumber: input)
-        { (result:Any?, error:Error?) in
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let item = try JSONDecoder().decode(ShootingTestSearchPersonResult.self, from: json)
+        tabBarVc.shootingTestManager.searchWithHuntingNumberForEvent(
+            hunterNumber: input
+        ) { [weak self] person, error in
+            guard let self = self else { return }
 
-                    self.searchResult = item
-                    self.refreshSearchResult(item: item)
-                }
-                catch {
-                    print("Failed to parse <ShootingTestSearchPersonResult> item")
-                }
-            }
-            else {
-                print("searchWithHuntingNumberForEvent failed: " + (error?.localizedDescription)!)
-                self.navigationController?.view.makeToast(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterSearchNoResults"))
+            if let person = person {
+                self.searchResult = person
+                self.refreshSearchResult(person: person)
+            } else {
+                print("searchWithHunterNumber failed: \(error?.localizedDescription ?? String(describing: error))")
+                self.navigationController?.view.makeToast("ShootingTestRegisterSearchNoResults".localized())
             }
         }
     }
@@ -297,42 +327,35 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
     private func searchWithSsn(input: String) {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
 
-        ShootingTestManager.searchWithSsnForEvent(eventId: tabBarVc.eventId!, ssn: input)
-        { (result:Any?, error:Error?) in
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let item = try JSONDecoder().decode(ShootingTestSearchPersonResult.self, from: json)
+        tabBarVc.shootingTestManager.searchWithSsnForEvent(
+            ssn: input
+        ) { [weak self] person, error in
+            guard let self = self else { return }
 
-                    self.searchResult = item
-                    self.refreshSearchResult(item: item)
-                }
-                catch {
-                    print("Failed to parse <ShootingTestSearchPersonResult> item")
-                }
-            }
-            else {
-                print("searchWithHuntingNumberForEvent failed: " + (error?.localizedDescription)!)
-                self.navigationController?.view.makeToast(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterSearchNoResults"))
+            if let person = person {
+                self.searchResult = person
+                self.refreshSearchResult(person: person)
+            } else {
+                print("searchWithSsn failed: \(error?.localizedDescription ?? String(describing: error))")
+                self.navigationController?.view.makeToast("ShootingTestRegisterSearchNoResults".localized())
             }
         }
     }
 
     private func addParticipant(hunterNumber: String) {
         let tabBarVc = self.tabBarController as! ShootingTestTabBarViewController
-        ShootingTestManager.addParticipantToEvent(eventId: tabBarVc.eventId!,
-                                                  hunterNumber: hunterNumber,
-                                                  bearTestIntended: self.resultTestBearView.getChecked(),
-                                                  mooseTestIntended: self.resultTestMooseView.getChecked(),
-                                                  roeDeerTestIntended: self.resultTestRoeDeerView.getChecked(),
-                                                  bowTestIntended: self.resultTestBowView.getChecked())
-        { (result:Any?, error:Error?) in
-            if (error == nil) {
+        tabBarVc.shootingTestManager.addParticipantToEvent(
+            hunterNumber: hunterNumber,
+            bearTestIntended: self.resultTestBearView.getChecked(),
+            mooseTestIntended: self.resultTestMooseView.getChecked(),
+            roeDeerTestIntended: self.resultTestRoeDeerView.getChecked(),
+            bowTestIntended: self.resultTestBowView.getChecked()
+        ) { success, error in
+            if (success) {
                 self.resetSearchResult()
                 self.refreshData()
-            }
-            else {
-                print("addParticipantToEvent failed: " + (error?.localizedDescription)!)
+            } else {
+                print("addParticipant failed: \(error?.localizedDescription ?? String(describing: error))")
             }
         }
     }
@@ -379,28 +402,28 @@ class ShootingTestRegisterViewController: UIViewController, UITextFieldDelegate,
             let matchString = result.value[Range(range!, in: result.value)!]
 
             let alert = MDCAlertController(title: nil,
-                                           message: String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterSearchWithScannedHunterNumber"), matchString as CVarArg))
-            alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "OK"),
+                                           message: String(format: "ShootingTestRegisterSearchWithScannedHunterNumber".localized(), matchString as CVarArg))
+            alert.addAction(MDCAlertAction(title: "OK".localized(),
                                            handler: { action in
                 self.searchWithHunterNumber(input: String(matchString))
             }))
-            alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "No"), handler: nil))
+            alert.addAction(MDCAlertAction(title: "No".localized(), handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
         else if (ssnMatches.count > 0) {
             let matchString = result.value
 
             let alert = MDCAlertController(title: nil,
-                                           message: String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterSearchWithScannedSsn"), matchString))
-            alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "OK"),
+                                           message: String(format: "ShootingTestRegisterSearchWithScannedSsn".localized(), matchString))
+            alert.addAction(MDCAlertAction(title: "OK".localized(),
                                            handler: { action in
                                             self.searchWithSsn(input: matchString)
             }))
-            alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "No"), handler: nil))
+            alert.addAction(MDCAlertAction(title: "No".localized(), handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
         else {
-            self.navigationController?.view.makeToast(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestRegisterReadQrFailed"))
+            self.navigationController?.view.makeToast("ShootingTestRegisterReadQrFailed".localized())
         }
     }
 

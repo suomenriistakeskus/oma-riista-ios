@@ -56,6 +56,8 @@ CREATE TABLE DbObservation (
 
 CREATE UNIQUE INDEX observation_remote_id_unique ON DbObservation(username, remote_id);
 
+CREATE INDEX observation_point_of_time ON DbObservation(username, point_of_time);
+
 selectByLocalId:
 SELECT * FROM DbObservation WHERE local_id = ?;
 
@@ -123,4 +125,14 @@ getObservationDateTimes:
 SELECT point_of_time FROM DbObservation WHERE username = ? AND deleted = 0;
 
 getLatestObservationSpecies:
-SELECT game_species_code FROM DbObservation WHERE username = ? AND deleted = 0 GROUP BY game_species_code ORDER BY MAX(datetime(point_of_time)) DESC LIMIT ?;
+SELECT game_species_code FROM DbObservation WHERE username = ? AND deleted = 0 GROUP BY game_species_code ORDER BY MAX(datetime(point_of_time)) DESC LIMIT :limit;
+
+filter:
+SELECT * FROM DbObservation WHERE
+    username = :username
+    AND deleted = 0
+    AND CASE WHEN :startDateTime IS NOT NULL THEN point_of_time >= :startDateTime ELSE 1 END
+    AND CASE WHEN :endDateTime IS NOT NULL THEN point_of_time <= :endDateTime ELSE 1 END
+    AND CASE WHEN :filterSpecies THEN game_species_code IN :species ELSE 1 END
+    AND CASE WHEN :requireImages THEN local_images IS NOT NULL OR remote_images IS NOT NULL ELSE 1 END
+    ORDER BY point_of_time DESC;

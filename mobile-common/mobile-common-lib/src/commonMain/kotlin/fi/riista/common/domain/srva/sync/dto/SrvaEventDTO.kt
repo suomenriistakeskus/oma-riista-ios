@@ -5,15 +5,12 @@ import fi.riista.common.domain.model.EntityImages
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.srva.model.CommonSrvaEvent
 import fi.riista.common.domain.srva.model.CommonSrvaEventAuthor
-import fi.riista.common.domain.srva.model.CommonSrvaSpecimen
 import fi.riista.common.domain.srva.model.toPersonWithHunterNumberDTO
 import fi.riista.common.dto.ETRMSGeoLocationDTO
 import fi.riista.common.dto.LocalDateTimeDTO
 import fi.riista.common.dto.toETRMSGeoLocation
 import fi.riista.common.dto.toLocalDateTime
-import fi.riista.common.model.BackendEnum
 import fi.riista.common.model.toBackendEnum
-import fi.riista.common.util.withNumberOfElements
 import fi.riista.common.model.toETRMSGeoLocationDTO
 import kotlinx.serialization.Serializable
 
@@ -57,14 +54,6 @@ fun SrvaEventDTO.toCommonSrvaEvent(
     deleted: Boolean = false,
 ): CommonSrvaEvent? {
     val pointOfTime = pointOfTime.toLocalDateTime() ?: return null
-    val commonSpecimens =
-        (specimens?.map { it.toCommonSrvaSpecimen() } ?: listOf())
-            .withNumberOfElements(totalSpecimenAmount) {
-                CommonSrvaSpecimen(
-                    gender = BackendEnum.create(null),
-                    age = BackendEnum.create(null),
-                )
-            }
 
     return CommonSrvaEvent(
         localId = localId,
@@ -87,7 +76,8 @@ fun SrvaEventDTO.toCommonSrvaEvent(
             else -> Species.Known(gameSpeciesCode)
         },
         otherSpeciesDescription = otherSpeciesDescription,
-        specimens = commonSpecimens,
+        totalSpecimenAmount = totalSpecimenAmount,
+        specimens = specimens?.map { it.toCommonSrvaSpecimen() } ?: listOf(),
         eventCategory = eventName.toBackendEnum(),
         deportationOrderNumber = deportationOrderNumber,
         eventType = eventType.toBackendEnum(),
@@ -138,7 +128,7 @@ fun CommonSrvaEvent.toSrvaEventDTO(): SrvaEventDTO? {
         eventType = eventType.rawBackendEnumValue,
         eventTypeDetail = eventTypeDetail.rawBackendEnumValue,
         otherEventTypeDetailDescription = otherEventTypeDetailDescription,
-        totalSpecimenAmount = specimens.size,
+        totalSpecimenAmount = totalSpecimenAmount,
         otherMethodDescription = otherMethodDescription,
         otherTypeDescription = otherEventTypeDescription,
         methods = methods.map { it.toSrvaMethodDTO() },

@@ -54,7 +54,7 @@ class CommonSrvaEventValidatorTest {
         val validationErrors = validate(srvaEvent = getSrvaEvent().copy(
             specimens = listOf(),
         ))
-        assertTrue(validationErrors.contains(CommonSrvaEventValidator.Error.INVALID_SPECIMEN_AMOUNT))
+        assertFalse(validationErrors.contains(CommonSrvaEventValidator.Error.INVALID_SPECIMEN_AMOUNT))
     }
 
     @Test

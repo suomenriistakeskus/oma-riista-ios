@@ -133,7 +133,7 @@ public class MhPermit: NSManagedObject {
     static func getLocalizedPermitTypeAndIdentifier(permit: MhPermit?, languageCode: String?) -> String? {
         if (permit != nil) {
             if (languageCode != nil) {
-                return "\(permit?.getPermitType(languageCode: languageCode) ?? RiistaBridgingUtils.RiistaLocalizedString(forkey: "MyDetailsMhCardTitle")), \(permit?.permitIdentifier ?? "")"
+                return "\(permit?.getPermitType(languageCode: languageCode) ?? RiistaBridgingUtils.RiistaLocalizedString(forkey: "MetsahallitusPermitCardTitle")), \(permit?.permitIdentifier ?? "")"
             }
             else {
                 return permit?.permitIdentifier

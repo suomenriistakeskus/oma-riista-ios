@@ -10,7 +10,7 @@ internal class HarvestReportingTypeResolver(
     fun resolveHarvestReportingType(harvest: CommonHarvestData): HarvestReportingType {
         val speciesCode = harvest.species.knownSpeciesCodeOrNull()
         val duringHarvestSeason = speciesCode?.let {
-            harvestSeasons.isDuringHuntingSeason(
+            harvestSeasons.isDuringHarvestSeason(
                 speciesCode = it,
                 date = harvest.pointOfTime.date
             )

@@ -4,6 +4,7 @@
 #import "Vectortile.pbobjc.h"
 #import "RiistaVectorUtils.h"
 #import "Oma_riista-Swift.h"
+#import "RiistaCommon/RiistaCommon.h"
 
 const NSInteger TILE_SIZE = 256;
 
@@ -12,6 +13,7 @@ NSString *const PienriistaTileUrlFormat = @"https://kartta.riista.fi/vector/pien
 NSString *const ValtionmaaTileUrlFormat = @"https://kartta.riista.fi/vector/metsahallitus/%lu/%lu/%lu";
 NSString *const RhyTileUrlFormat = @"https://kartta.riista.fi/vector/rhy/%lu/%lu/%lu";
 NSString *const GameTrianglesFormat = @"https://kartta.riista.fi/vector/riistakolmiot/%lu/%lu/%lu";
+NSString *const LeadShotBanFormat = @"https://kartta.riista.fi/vector/lyijyhaulikieltoalueet/%lu/%lu/%lu";
 NSString *const MooseRestrictionsFormat = @"https://kartta.riista.fi/vector/hirvi_rajoitusalueet/%lu/%lu/%lu";
 NSString *const SmallGameRestrictionsFormat = @"https://kartta.riista.fi/vector/pienriista_rajoitusalueet/%lu/%lu/%lu";
 NSString *const AviHuntingBanFormat = @"https://kartta.riista.fi/vector/avi_metsastyskieltoalueet/%lu/%lu/%lu";
@@ -30,6 +32,16 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
 @implementation RiistaVectorTileLayer
 {
     TileCache* tileCache;
+    RiistaCommonMapTileVersions* mapTileVersions;
+}
+
+- (instancetype)initWithMapTileVersions:(RiistaCommonMapTileVersions *)mapTileVersionProvider
+{
+    self = [self init];
+    if (self) {
+        mapTileVersions = mapTileVersionProvider;
+    }
+    return self;
 }
 
 -(instancetype)init
@@ -39,8 +51,29 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
         _externalAreaId = nil;
         _invertAreaColors = NO;
         tileCache = [[TileCacheProvider shared] getCacheWithType:CacheTypeVectorTiles];
+        [self setupTileSize];
     }
     return self;
+}
+
+- (void)setupTileSize
+{
+    // see RiistaMmlTileLayer.swift for same implementation. Keep these in sync!
+
+    CGFloat screenScale = [[UIScreen mainScreen] scale];
+
+    // the default tileSize available on the server is 256x256. There's no point in rendering
+    // in smaller size. Also prevent rendering tiles as too large as this would cause tiles to blur
+    //
+    // todo: this setting can be used as "map zoom" i.e. to help make texts more readable.
+    // - we could e.g. add a setting to UI ('easy to read map on/off') and we could add e.g. 128
+    //   to the extraZoom based on that value
+
+    // not really zoom but helps keeping current tile zoom level bit further when zooming in.
+    // This prevents displaying next zoom levels before their texts become readable
+    CGFloat extraZoom = 128;
+    CGFloat tileHeight = MIN(MAX(128 * screenScale, 256) + extraZoom, 512);
+    self.tileSize = tileHeight;
 }
 
 - (void)setExternalId:(NSString*)externalId
@@ -70,13 +103,22 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
         areaId = @"no-area-id";
     }
 
+    NSString *tileVersion = [self getTileTypeVersion];
+
     // discriminate tiles based on whether colors have been inverted or not
     // -> allows storing multiple images for same x-y-zoom combination
     if (self.invertAreaColors) {
-        return [NSString stringWithFormat:@"area-colors-inverted-%@", areaId];
+        return [NSString stringWithFormat:@"area-colors-inverted-%@%@", areaId, tileVersion];
     } else {
-        return [NSString stringWithFormat:@"normal-area-colors-%@", areaId];
+        return [NSString stringWithFormat:@"normal-area-colors-%@%@", areaId, tileVersion];
     }
+}
+
+- (NSString*)getTileTypeVersion
+{
+    NSString *areaTypeKey = [AreaTypeHelper getTypeKeyFor:self.areaType];
+
+    return [mapTileVersions getTileVersionTileType:areaTypeKey];
 }
 
 - (NSString *)getTileUrlString:(NSUInteger)x y:(NSUInteger)y zoom:(NSUInteger)zoom
@@ -100,6 +142,9 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
             break;
         case AreaTypeGameTriangles:
             tileUrl = [NSString stringWithFormat:GameTrianglesFormat, (unsigned long)zoom, (unsigned long)x, (unsigned long)y];
+            break;
+        case AreaTypeLeadShotBan:
+            tileUrl = [NSString stringWithFormat:LeadShotBanFormat, (unsigned long)zoom, (unsigned long)x, (unsigned long)y];
             break;
         case AreaTypeSeura:
             api = [NSString stringWithFormat:@"https://%@%@", base, @"area/vector/%@/%u/%u/%u"];
@@ -157,7 +202,7 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
         else {
             dispatch_queue_t tileQueue = dispatch_queue_create("fi.riistakeskus.riista",NULL);
             dispatch_async(tileQueue, ^{
-                __block UIImage *image = [self processImage:data];
+                __block UIImage *image = [self processImage:data zoom:zoom];
 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (image && self.areaType == AreaTypeSeura && self->_invertAreaColors) {
@@ -218,7 +263,7 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
     return returnImage;
 }
 
-- (UIImage*)processImage:(NSData*)data
+- (UIImage*)processImage:(NSData*)data zoom:(NSUInteger)zoom
 {
     CGRect rect = CGRectMake(0, 0, TILE_SIZE, TILE_SIZE);
     UIGraphicsBeginImageContext(rect.size);
@@ -252,7 +297,10 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
                         RiistaPolygon *poly = [polys objectAtIndex:j];
 
                         CGContextSaveGState(context);
-                        [self drawPolygon:poly :context :scale];
+                        [self drawPolygon:poly
+                                  context:context
+                                    scale:scale
+                                     zoom:zoom];
                         CGContextRestoreGState(context);
                     }
                 }
@@ -295,7 +343,7 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
     return !matchesExternalId;
 }
 
-- (void)drawPolygon:(RiistaPolygon*)polygon :(CGContextRef)context :(float)scale
+- (void)drawPolygon:(RiistaPolygon*)polygon context:(CGContextRef)context scale:(float)scale zoom:(NSUInteger)zoom
 {
     CGContextScaleCTM(context, scale, scale);
 
@@ -318,7 +366,7 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
     }
 
     [self setFillColor:context];
-    [self setBorderColor:context];
+    [self setBorderColor:context zoom:zoom];
 
     [path setUsesEvenOddFillRule:YES];
     [path setLineWidth:(1.0f / scale) * 2.0f];
@@ -344,6 +392,9 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
         case AreaTypeGameTriangles:
             CGContextSetRGBFillColor(context, 1, 0, 0, (CGFloat)64/255);
             break;
+        case AreaTypeLeadShotBan:
+            CGContextSetRGBFillColor(context, 1, 0, 0, (CGFloat)80/255);
+            break;
         case AreaTypeMooseRestrictions:
             CGContextSetRGBFillColor(context, 1, 0, 0, (CGFloat)64/255);
             break;
@@ -359,11 +410,19 @@ NSString *const AreaNameKey = @"KOHDE_NIMI";
     }
 }
 
-- (void)setBorderColor:(CGContextRef)context
+- (void)setBorderColor:(CGContextRef)context zoom:(NSUInteger)zoom
 {
     switch (self.areaType) {
         case AreaTypeRhy:
             CGContextSetRGBStrokeColor(context, 0.0, 0.0, 1, 0.9);
+            break;
+        case AreaTypeLeadShotBan:
+            if (zoom >= 13) {
+                CGContextSetRGBStrokeColor(context, 0.0, 0.0, 0.0, 0.9);
+            } else {
+                // same as fill
+                CGContextSetRGBStrokeColor(context, 1, 0, 0, (CGFloat)80/255);
+            }
             break;
         default:
             CGContextSetRGBStrokeColor(context, 0.0, 0.0, 0, 0.9);

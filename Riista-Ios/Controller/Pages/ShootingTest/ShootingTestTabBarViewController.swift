@@ -1,13 +1,28 @@
 import UIKit
 import Tabman
+import RiistaCommon
 
 fileprivate typealias TabBar = TMBarView<TMHorizontalBarLayout, TabBarButton, TMLineBarIndicator>
 
-class ShootingTestTabBarViewController: BaseTabBarViewController, TMBarDataSource, TMBarDelegate {
-    var calendarEventId : Int?
-    var eventId : Int?
 
-    var calendarEvent : ShootingTestCalendarEvent?
+class ShootingTestTabBarViewController: BaseTabBarViewController, TMBarDataSource, TMBarDelegate {
+    private lazy var logger = AppLogger(for: self, printTimeStamps: false)
+
+    // todo: get rid of this once other viewcontrollers have been refactored to use shootingTestManager instance
+    var calendarEventId : Int? {
+        guard let eventId = shootingTestManager.state.calendarEventId else { return nil }
+        return Int(eventId)
+    }
+
+    // todo: get rid of this once other viewcontrollers have been refactored to use shootingTestManager instance
+    var shootingTestEventId : Int? {
+        guard let eventId = shootingTestManager.state.shootingTestEventId else { return nil }
+        return Int(eventId)
+    }
+
+    var shootingTestEvent : CommonShootingTestCalendarEvent?
+
+    let shootingTestManager = ShootingTestManager()
 
     var isUserSelectedAsOfficial : Bool = false
     var isUserCoordinator : Bool = false
@@ -48,21 +63,16 @@ class ShootingTestTabBarViewController: BaseTabBarViewController, TMBarDataSourc
         ]
     }()
 
-    func setSelectedEvent(calendarEventId : Int, eventId : Int?) {
-        self.calendarEventId = calendarEventId
-        self.eventId = eventId
-    }
-
     func setEnabled(ongoing: Bool, selectedAsOfficial: Bool, isCoordinator: Bool) {
         for (index, item) in tabBarItems.enumerated() {
             if (index == 0) {
                 item.enabled = true
             }
             else if (index == 1 || index == 2) {
-                item.enabled = self.eventId != nil && ongoing && (selectedAsOfficial || isCoordinator)
+                item.enabled = self.shootingTestEventId != nil && ongoing && (selectedAsOfficial || isCoordinator)
             }
             else if (index == 3) {
-                item.enabled = self.eventId != nil && (selectedAsOfficial || isCoordinator)
+                item.enabled = self.shootingTestEventId != nil && (selectedAsOfficial || isCoordinator)
             }
             else {
                 item.enabled = false
@@ -81,7 +91,7 @@ class ShootingTestTabBarViewController: BaseTabBarViewController, TMBarDataSourc
         view.addSubview(customTabBar)
         customTabBar.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.height.equalTo(50) // same height as on storyboard for other view controllers
         }
 
@@ -95,104 +105,85 @@ class ShootingTestTabBarViewController: BaseTabBarViewController, TMBarDataSourc
     }
 
     func refreshEvent() {
-        self.fetchEvent() { (result:Dictionary?, error:Error?) in
+        self.fetchEvent() { _, _ in
             // Just to refresh tab view badges
         }
     }
 
-    func fetchEvent(completion: @escaping RiistaJsonCompletion) {
-        ShootingTestManager.getShootingTestCalendarEvent(eventId: self.calendarEventId!) { (result:Dictionary?, error:Error?) in
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let event = try JSONDecoder().decode(ShootingTestCalendarEvent.self, from: json)
+    func fetchEvent(completion: @escaping OnShootingTestEventFetched) {
+        shootingTestManager.getShootingTestCalendarEvent() { [weak self] shootingTestEvent, error in
+            guard let self = self else { return }
+            guard let shootingTestEvent = shootingTestEvent else  {
+                self.logger.w { "Failed to fetch shooting test event. Notifying manager." }
+                self.shootingTestManager.clearShootingTestEventId()
+                self.shootingTestEvent = nil
 
-                    self.calendarEvent = event
-                    self.eventId = self.calendarEvent?.shootingTestEventId
-
-                    let user = RiistaSettings.userInfo()
-
-                    var shootingTestOfficialOccupation: Occupation?
-                    var coordinatorOccupation: Occupation?
-                    if let rhyId = self.calendarEvent?.rhyId {
-                        shootingTestOfficialOccupation = user?.findOccupation(ofType: AppConstants.OccupationType.ShootingTestOfficial, forRhyId: Int32(rhyId))
-                        coordinatorOccupation = user?.findOccupation(ofType: AppConstants.OccupationType.Coordinator, forRhyId: Int32(rhyId))
-                    }
-
-                    var userSelectedAsOfficial = false
-                    if (shootingTestOfficialOccupation != nil) {
-                        for official in event.officials! {
-                            if (official.occupationId == shootingTestOfficialOccupation?.occupationId.intValue) {
-                                userSelectedAsOfficial = true;
-                            }
-                        }
-                    }
-
-                    self.isUserSelectedAsOfficial = userSelectedAsOfficial
-                    self.isUserCoordinator = coordinatorOccupation != nil
-
-                    self.setEnabled(ongoing: (self.calendarEvent?.isOngoing())!, selectedAsOfficial: self.isUserSelectedAsOfficial, isCoordinator: self.isUserCoordinator)
-
-                    let queueValue = (self.calendarEvent?.numberOfParticipantsWithNoAttempts)!
-                    let paymentsValue = (self.calendarEvent?.numberOfAllParticipants)! - (self.calendarEvent?.numberOfCompletedParticipants)!
-
-                    self.tabBarItems[2].badgeValue = queueValue > 0 ? String(queueValue) : nil
-                    self.tabBarItems[3].badgeValue = paymentsValue > 0 ? String(paymentsValue) : nil
-                }
-                catch {
-                    print("Failed to parse <ShootingTestCalendarEvent> item")
-                }
+                completion(nil, error)
+                return
             }
-            completion(result, error)
+
+            self.shootingTestManager.setShootingTestEventId(
+                shootingTestEventId: shootingTestEvent.shootingTestEventId?.int64Value
+            )
+            self.shootingTestEvent = shootingTestEvent
+
+            let user = RiistaSettings.userInfo()
+            var shootingTestOfficialOccupation: Oma_riista.Occupation?
+            var coordinatorOccupation: Oma_riista.Occupation?
+            if let rhyId = shootingTestEvent.rhyId?.int32Value {
+                shootingTestOfficialOccupation = user?.findOccupation(
+                    ofType: AppConstants.OccupationType.ShootingTestOfficial,
+                    forRhyId: rhyId
+                )
+                coordinatorOccupation = user?.findOccupation(
+                    ofType: AppConstants.OccupationType.Coordinator,
+                    forRhyId: rhyId
+                )
+            }
+            var userSelectedAsOfficial = false
+            if (shootingTestOfficialOccupation != nil) {
+                userSelectedAsOfficial = shootingTestEvent.officials?.contains(where: { official in
+                    official.occupationId == shootingTestOfficialOccupation?.occupationId.int64Value
+                }) ?? false
+            }
+            self.isUserSelectedAsOfficial = userSelectedAsOfficial
+            self.isUserCoordinator = coordinatorOccupation != nil
+            self.setEnabled(
+                ongoing: shootingTestEvent.ongoing,
+                selectedAsOfficial: self.isUserSelectedAsOfficial,
+                isCoordinator: self.isUserCoordinator
+            )
+            let queueValue = shootingTestEvent.numberOfParticipantsWithNoAttempts
+            let paymentsValue = shootingTestEvent.numberOfAllParticipants - shootingTestEvent.numberOfCompletedParticipants
+
+            self.tabBarItems[2].badgeValue = queueValue > 0 ? String(queueValue) : nil
+            self.tabBarItems[3].badgeValue = paymentsValue > 0 ? String(paymentsValue) : nil
+
+            completion(shootingTestEvent, nil)
         }
     }
 
-    func fetchSelectedOfficials(completion: @escaping RiistaJsonArrayCompletion) {
-        if (self.eventId != nil) {
-            ShootingTestManager.listSelectedOfficialsForEvent(eventId: self.eventId!)
-            { (result:Array?, error:Error?) in
-                completion(result, error)
+    func fetchSelectedOfficials(completion: @escaping OnShootingTestOfficialsFetched) {
+        if (self.shootingTestEventId != nil) {
+            shootingTestManager.listSelectedOfficialsForEvent() { officials, error in
+                completion(officials, error)
             }
-        }
-        else {
+        } else {
             print("Cannot fetch selected officials without event details")
         }
     }
 
-    func fetchAvailableOfficials(completion: @escaping RiistaJsonArrayCompletion) {
-        if (self.eventId != nil) {
-            self.availableOfficialsWithEventId(eventId: self.eventId!) { (result:Array?, error:Error?) in
-                completion(result, error)
+    func fetchAvailableOfficials(completion: @escaping OnShootingTestOfficialsFetched) {
+        if (self.shootingTestEventId != nil) {
+            shootingTestManager.listAvailableOfficialsForEvent() { officials, error in
+                completion(officials, error)
             }
-        }
-        else if (self.calendarEvent?.rhyId != nil) {
-            self.availableOfficialsWithRhy(rhyId: (self.calendarEvent?.rhyId)!) { (result:Array?, error:Error?) in
-                completion(result, error)
+        } else if let rhyId = self.shootingTestEvent?.rhyId?.int64Value {
+            shootingTestManager.listAvailableOfficialsForRhy(rhyID: rhyId) { officials, error in
+                completion(officials, error)
             }
-        }
-        else {
+        } else {
             print("Cannot fetch available officials without event details")
-        }
-    }
-
-    private func availableOfficialsWithRhy(rhyId: Int, completion: @escaping RiistaJsonArrayCompletion) {
-        ShootingTestManager.listAvailableOfficialsForRhy(rhyID: rhyId)
-        { (result:Array?, error:Error?) in
-            completion(result, error)
-        }
-    }
-
-    private func availableOfficialsWithEventId(eventId: Int, completion: @escaping RiistaJsonArrayCompletion) {
-        ShootingTestManager.listAvailableOfficialsForEvent(eventId: eventId)
-        { (result:Array?, error:Error?) in
-            completion(result, error)
-        }
-    }
-
-    func fetchParticipants(completion: @escaping RiistaJsonArrayCompletion) {
-        ShootingTestManager.listParticipantsForEvent(eventId: self.eventId!)
-        { (result:Array?, error:Error?) in
-            completion(result, error)
         }
     }
 

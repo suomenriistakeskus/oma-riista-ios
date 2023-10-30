@@ -53,6 +53,9 @@ class SelectSingleStringViewController: UITableViewController {
     private var values: [SelectableString] = []
     var delegate: SelectSingleStringViewControllerDelegate?
 
+    /**
+     * Sets the values. The value id will be the value index in the array.
+     */
     func setValues(values: [String]) {
         self.values = values.enumerated().map { (index, value) in
             SelectableString(id: Int64(index), value: value)
@@ -62,10 +65,9 @@ class SelectSingleStringViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if #available(iOS 11.0, *) {
-            // the layoutMargins we're setting may be less than system minimum layou margins..
-            viewRespectsSystemMinimumLayoutMargins = false
-        }
+        // the layoutMargins we're setting may be less than system minimum layou margins..
+        viewRespectsSystemMinimumLayoutMargins = false
+
         tableView.layoutMargins = AppConstants.UI.DefaultHorizontalEdgeInsets
         tableView.separatorStyle = .singleLine
         tableView.estimatedRowHeight = AppConstants.UI.ButtonHeightSmall

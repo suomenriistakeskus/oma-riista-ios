@@ -62,7 +62,7 @@ class ObservationDataSource: TypedFilterableEntityDataSource<CommonObservation> 
 
                 seasonStats.increaseCategoryAmount(
                     categoryId: species.categoryId,
-                    by: specimenAmount
+                    by: max(specimenAmount, 1)
                 )
             }
         }
@@ -79,18 +79,26 @@ class ObservationDataSource: TypedFilterableEntityDataSource<CommonObservation> 
         onCompleted(seasons)
     }
 
-    override func onFilterChanged(newFilter: EntityFilter, oldFilter: EntityFilter?) -> Bool {
+    override func getCurrentSeasonOrYear() -> Int? {
+        return Int(Date().toLocalDate().getHuntingYear())
+    }
+
+    override func onApplyFilter(
+        newFilter: EntityFilter,
+        oldFilter: EntityFilter?,
+        onFilterApplied: @escaping OnFilterApplied
+    ) {
         guard let newFilter = newFilter as? ObservationFilter else {
             fatalError("Only supporting ObservationFilter for ObservationDataSource")
         }
 
         // filters will be applied as pending filter if viewmodel has not been yet loaded
         controller.setFilters(
-            huntingYear: Int32(newFilter.seasonStartYear),
+            huntingYear: newFilter.seasonStartYear.toKotlinInt(),
             species: newFilter.species
         )
 
-        return true
+        onFilterApplied(true)
     }
 
     override func getSectionName(sectionIndex: Int) -> String? {

@@ -5,9 +5,11 @@ import fi.riista.common.domain.model.DeerHuntingType
 import fi.riista.common.domain.model.EntityImages
 import fi.riista.common.domain.model.GreySealHuntingMethod
 import fi.riista.common.domain.model.HarvestReportState
+import fi.riista.common.domain.model.Organization
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.model.StateAcceptedToHarvestPermit
 import fi.riista.common.domain.model.asKnownLocation
+import fi.riista.common.domain.model.asSearchableOrganization
 import fi.riista.common.model.BackendEnum
 import fi.riista.common.model.ETRMSGeoLocation
 import fi.riista.common.model.LocalDateTime
@@ -26,9 +28,11 @@ data class CommonHarvest(
     val pointOfTime: LocalDateTime,
     val description: String?,
     val canEdit: Boolean,
+    val modified: Boolean,
+    val deleted: Boolean,
     val images: EntityImages,
     val specimens: List<CommonHarvestSpecimen>,
-    val amount: Int?,
+    val amount: Int,
     val harvestSpecVersion: Int,
     val harvestReportRequired: Boolean,
     val harvestReportState: BackendEnum<HarvestReportState>,
@@ -43,7 +47,17 @@ data class CommonHarvest(
     val feedingPlace: Boolean?,
     val taigaBeanGoose: Boolean?,
     val greySealHuntingMethod: BackendEnum<GreySealHuntingMethod>,
-)
+    val actorInfo: GroupHuntingPerson,
+    val selectedClub: Organization?, // club for which this harvest has been recorded / logged
+) {
+    val harvestState: HarvestState? by lazy {
+        HarvestState.combinedState(
+            harvestReportState = harvestReportState.value,
+            stateAcceptedToHarvestPermit = stateAcceptedToHarvestPermit.value,
+            harvestReportRequired = harvestReportRequired,
+        )
+    }
+}
 
 
 internal fun CommonHarvest.toCommonHarvestData(): CommonHarvestData {
@@ -57,12 +71,15 @@ internal fun CommonHarvest.toCommonHarvestData(): CommonHarvestData {
         pointOfTime = pointOfTime,
         description = description,
         canEdit = canEdit,
+        modified = modified,
+        deleted = deleted,
         images = images,
         specimens = specimens.map { it.toCommonSpecimenData() },
         amount = amount,
         huntingDayId = null,
         authorInfo = null,
-        actorInfo = GroupHuntingPerson.Unknown,
+        actorInfo = actorInfo,
+        selectedClub = selectedClub.asSearchableOrganization(),
         harvestSpecVersion = harvestSpecVersion,
         harvestReportRequired = harvestReportRequired,
         harvestReportState = harvestReportState,
@@ -83,6 +100,13 @@ internal fun CommonHarvest.toCommonHarvestData(): CommonHarvestData {
 internal fun CommonHarvestData.toCommonHarvest(): CommonHarvest? {
     val geoLocation = location.etrsLocationOrNull ?: return null
 
+    // amount is nullable in harvest data (user can enter the value). Ensure proper
+    // value is set in the actual harvest.
+    val specimenAmount = amount ?: specimens.size
+    if (specimenAmount < 1) {
+        return null
+    }
+
     return CommonHarvest(
         localId = localId,
         localUrl = localUrl,
@@ -93,9 +117,11 @@ internal fun CommonHarvestData.toCommonHarvest(): CommonHarvest? {
         pointOfTime = pointOfTime,
         description = description,
         canEdit = canEdit,
+        modified = modified,
+        deleted = deleted,
         images = images,
         specimens = specimens.map { it.toCommonHarvestSpecimen() },
-        amount = amount,
+        amount = specimenAmount,
         harvestSpecVersion = harvestSpecVersion,
         harvestReportRequired = harvestReportRequired,
         harvestReportState = harvestReportState,
@@ -110,5 +136,7 @@ internal fun CommonHarvestData.toCommonHarvest(): CommonHarvest? {
         feedingPlace = feedingPlace,
         taigaBeanGoose = taigaBeanGoose,
         greySealHuntingMethod = greySealHuntingMethod,
+        actorInfo = actorInfo,
+        selectedClub = selectedClub.organization,
     )
 }

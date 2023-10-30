@@ -1,7 +1,13 @@
 package fi.riista.common.domain.huntingControl
 
+import fi.riista.common.database.DatabaseWriteContext
 import fi.riista.common.database.RiistaDatabase
-import fi.riista.common.domain.huntingControl.model.*
+import fi.riista.common.domain.huntingControl.model.HuntingControlAttachment
+import fi.riista.common.domain.huntingControl.model.HuntingControlCooperationType
+import fi.riista.common.domain.huntingControl.model.HuntingControlEvent
+import fi.riista.common.domain.huntingControl.model.HuntingControlEventData
+import fi.riista.common.domain.huntingControl.model.HuntingControlEventInspector
+import fi.riista.common.domain.huntingControl.model.HuntingControlGameWarden
 import fi.riista.common.domain.huntingControl.sync.model.GameWarden
 import fi.riista.common.domain.huntingControl.sync.model.LoadHuntingControlEvent
 import fi.riista.common.domain.model.CommonLocation
@@ -9,8 +15,18 @@ import fi.riista.common.domain.model.Organization
 import fi.riista.common.domain.model.OrganizationId
 import fi.riista.common.dto.toLocalDate
 import fi.riista.common.logging.getLogger
-import fi.riista.common.model.*
+import fi.riista.common.model.BackendEnum
+import fi.riista.common.model.ETRMSGeoLocation
+import fi.riista.common.model.LocalDate
+import fi.riista.common.model.LocalDatePeriod
+import fi.riista.common.model.LocalTime
+import fi.riista.common.model.LocalizedString
+import fi.riista.common.model.isWithinPeriod
+import fi.riista.common.model.toBackendEnum
+import fi.riista.common.model.toHoursAndMinutesString
+import fi.riista.common.model.toPeriodDate
 import fi.riista.common.util.contains
+import kotlinx.coroutines.withContext
 
 internal class HuntingControlRepository(database: RiistaDatabase) {
 
@@ -20,68 +36,98 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
     private val gameWardenQueries = database.dbHuntingControlGameWardenQueries
     private val attachmentQueries = database.dbHuntingControlEventAttachmentQueries
 
-    fun getRhys(username: String): List<Organization> {
-        return rhyQueries.selectByUser(
-            username = username,
-        ).executeAsList().map { rhy -> rhy.toOrganization() }
+    fun hasRhys(username: String): Boolean {
+        return rhyQueries.hasRhys(username).executeAsOne()
     }
 
-    fun getHuntingControlEvents(username: String, rhyId: OrganizationId): List<HuntingControlEvent> {
-        val dbHuntingControlEvents = huntingControlEventQueries.selectByRhy(
-            rhy_id = rhyId,
-            username = username,
-        ).executeAsList()
-        val huntingControlEvents = dbHuntingControlEvents.map { dbEvent ->
-            val inspectors =
-                inspectorQueries.selectByHuntingControlEvent(
-                    hunting_control_event_id = dbEvent.local_id
-                ).executeAsList().map { inspector ->
-                    inspector.toHuntingControlEventInspector()
-                }
-            val attachments =
-                attachmentQueries.selectByEvent(
-                    event_local_id = dbEvent.local_id,
-                ).executeAsList().map { attachment ->
-                    attachment.toHuntingControlAttachment()
-                }
-            dbEvent.toHuntingControlEvent(inspectors, attachments)
+    fun getRhys(username: String): List<Organization> {
+        return rhyQueries.selectByUser(username = username)
+            .executeAsList().map { rhy -> rhy.toOrganization() }
+    }
+
+    fun getRhy(username: String, rhyId: OrganizationId): Organization? {
+        return rhyQueries.getByRemoteId(username = username, remote_id = rhyId)
+            .executeAsOneOrNull()
+            ?.toOrganization()
+    }
+
+    suspend fun getHuntingControlEvents(
+        username: String,
+        rhyId: OrganizationId,
+    ): List<HuntingControlEvent> = withContext(DatabaseWriteContext) {
+        return@withContext huntingControlEventQueries.transactionWithResult {
+            val dbHuntingControlEvents = huntingControlEventQueries.selectByRhy(
+                rhy_id = rhyId,
+                username = username,
+            ).executeAsList()
+            val huntingControlEvents = dbHuntingControlEvents.map { dbEvent ->
+                toHuntingControlEventWithInspectorsAndAttachments(dbEvent)
+            }
+            huntingControlEvents
         }
-        return huntingControlEvents
+    }
+
+    suspend fun getHuntingControlEventByLocalId(
+        localId: Long,
+    ): HuntingControlEvent? = withContext(DatabaseWriteContext) {
+        return@withContext huntingControlEventQueries.transactionWithResult {
+            huntingControlEventQueries.selectByLocalId(localId)
+                .executeAsOneOrNull()
+                ?.let { toHuntingControlEventWithInspectorsAndAttachments(it) }
+        }
+    }
+
+    private fun toHuntingControlEventWithInspectorsAndAttachments(event: DbHuntingControlEvent): HuntingControlEvent {
+        val inspectors =
+            inspectorQueries.selectByHuntingControlEvent(
+                hunting_control_event_id = event.local_id
+            ).executeAsList().map { inspector ->
+                inspector.toHuntingControlEventInspector()
+            }
+        val attachments =
+            attachmentQueries.selectByEvent(
+                event_local_id = event.local_id,
+            ).executeAsList().map { attachment ->
+                attachment.toHuntingControlAttachment()
+            }
+        return event.toHuntingControlEvent(inspectors, attachments)
     }
 
     fun getGameWardens(username: String, rhyId: OrganizationId): List<HuntingControlGameWarden> {
-        return gameWardenQueries.selectByUserAndRhy(
-            rhy_id = rhyId,
-            username = username,
-        ).executeAsList().map { dbGameWarden ->
-            dbGameWarden.toHuntingControlGameWarden()
-        }
+        return gameWardenQueries.selectByUserAndRhy(rhy_id = rhyId, username = username)
+            .executeAsList().map { dbGameWarden ->
+                dbGameWarden.toHuntingControlGameWarden()
+            }
     }
 
-    fun getModifiedHuntingControlEvents(username: String): List<HuntingControlEvent> {
-        val dbHuntingControlEvents = huntingControlEventQueries.selectModifiedEventsByUsername(
-            username = username,
-        ).executeAsList()
-        val huntingControlEvents = dbHuntingControlEvents.map { dbEvent ->
-            val inspectors =
-                inspectorQueries.selectByHuntingControlEvent(
+    suspend fun getModifiedHuntingControlEvents(
+        username: String,
+    ): List<HuntingControlEvent> = withContext(DatabaseWriteContext) {
+        return@withContext huntingControlEventQueries.transactionWithResult {
+            val dbHuntingControlEvents = huntingControlEventQueries.selectModifiedEventsByUsername(
+                username = username,
+            ).executeAsList()
+            val huntingControlEvents = dbHuntingControlEvents.map { dbEvent ->
+                val inspectors = inspectorQueries.selectByHuntingControlEvent(
                     hunting_control_event_id = dbEvent.local_id
                 ).executeAsList().map { inspector ->
                     inspector.toHuntingControlEventInspector()
                 }
-            val attachments = attachmentQueries.selectByEvent(dbEvent.local_id).executeAsList()
-                .map { dbAttachment ->
-                    dbAttachment.toHuntingControlAttachment()
-                }
-            dbEvent.toHuntingControlEvent(inspectors, attachments)
+                val attachments = attachmentQueries.selectByEvent(dbEvent.local_id).executeAsList()
+                    .map { dbAttachment ->
+                        dbAttachment.toHuntingControlAttachment()
+                    }
+                dbEvent.toHuntingControlEvent(inspectors, attachments)
+            }
+            huntingControlEvents
         }
-        return huntingControlEvents
     }
 
-    fun createHuntingControlEvent(username: String, event: HuntingControlEventData): HuntingControlEvent {
-        var insertedEventId = 0L
-
-        huntingControlEventQueries.transaction {
+    suspend fun createHuntingControlEvent(
+        username: String,
+        event: HuntingControlEventData,
+    ): HuntingControlEvent = withContext(DatabaseWriteContext) {
+        return@withContext huntingControlEventQueries.transactionWithResult {
             val eventType = requireNotNull(event.eventType.rawBackendEnumValue)
             val status = requireNotNull(event.status.rawBackendEnumValue)
             val startTime = requireNotNull(event.startTime?.toHoursAndMinutesString())
@@ -119,22 +165,24 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
                 altitude = geoLocation.altitude,
                 altitudeAccuracy = geoLocation.altitudeAccuracy,
             )
-            insertedEventId = huntingControlEventQueries.lastInsertRowId().executeAsOne()
+            val insertedEventId = huntingControlEventQueries.lastInsertRowId().executeAsOne()
             insertInspectors(event, insertedEventId)
             insertAttachments(event.attachments, insertedEventId)
-        }
-        val attachments = attachmentQueries.selectByEvent(insertedEventId).executeAsList()
-            .map { dbAttachment ->
-                dbAttachment.toHuntingControlAttachment()
-            }
 
-        return huntingControlEventQueries
-            .selectByLocalId(insertedEventId)
-            .executeAsOne()
-            .toHuntingControlEvent(event.inspectors, attachments)
+            val attachments = attachmentQueries.selectByEvent(insertedEventId).executeAsList()
+                .map { dbAttachment ->
+                    dbAttachment.toHuntingControlAttachment()
+                }
+            huntingControlEventQueries
+                .selectByLocalId(insertedEventId)
+                .executeAsOne()
+                .toHuntingControlEvent(event.inspectors, attachments)
+        }
     }
 
-    fun updateHuntingControlEvent(event: HuntingControlEventData): HuntingControlEvent {
+    suspend fun updateHuntingControlEvent(
+        event: HuntingControlEventData,
+    ): HuntingControlEvent = withContext(DatabaseWriteContext) {
         val eventType = requireNotNull(event.eventType.rawBackendEnumValue)
         val status = requireNotNull(event.status.rawBackendEnumValue)
         val cooperationTypes = event.cooperationTypes.joinToString(separator = ",") { it.rawBackendEnumValue ?: "" }
@@ -146,7 +194,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
         val wolfTerritory = requireNotNull(event.wolfTerritory)
         val geoLocation = requireNotNull((event.location as? CommonLocation.Known)?.etrsLocation)
 
-        huntingControlEventQueries.transaction {
+        return@withContext huntingControlEventQueries.transactionWithResult {
             huntingControlEventQueries.updateByLocalId(
                 spec_version = event.specVersion,
                 remote_id = event.remoteId,
@@ -176,14 +224,15 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
             inspectorQueries.deleteByEvent(hunting_control_event_id = localId)
             insertInspectors(event, localId)
             updateAttachments(event.attachments, localId)
+
+            val attachments = attachmentQueries.selectByEvent(localId).executeAsList().map { dbAttachment ->
+                dbAttachment.toHuntingControlAttachment()
+            }
+            huntingControlEventQueries
+                .selectByLocalId(localId)
+                .executeAsOne()
+                .toHuntingControlEvent(event.inspectors, attachments)
         }
-        val attachments = attachmentQueries.selectByEvent(localId).executeAsList().map { dbAttachment ->
-            dbAttachment.toHuntingControlAttachment()
-        }
-        return huntingControlEventQueries
-            .selectByLocalId(localId)
-            .executeAsOne()
-            .toHuntingControlEvent(event.inspectors, attachments)
     }
 
     /**
@@ -193,7 +242,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
         return attachmentQueries.listAttachmentsMissingThumbnail().executeAsList()
     }
 
-    fun setThumbnail(thumbnail: String, attachmentRemoteId: Long) {
+    suspend fun setThumbnail(thumbnail: String, attachmentRemoteId: Long) = withContext(DatabaseWriteContext) {
         attachmentQueries.setThumbnail(thumbnail, attachmentRemoteId)
     }
 
@@ -203,7 +252,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
         // First remove attachments that have been deleted on remote
         idsInDb.forEach { attachmentIds ->
             if (!attachments.contains { it.remoteId == attachmentIds.remote_id }) {
-                deleteAttachment(attachmentIds.local_id)
+                attachmentQueries.deleteByLocalId(attachmentIds.local_id)
             }
         }
         // Then remove locally deleted attachments
@@ -213,7 +262,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
                 if (attachment.localId != null) {
                     if (attachment.remoteId == null) {
                         // Not yet sent to remote -> just delete
-                        deleteAttachment(attachment.localId)
+                        attachmentQueries.deleteByLocalId(attachment.localId)
                     } else {
                         // Already in remote -> mark as deleted
                         attachmentQueries.markDeletedByLocalId(attachment.localId)
@@ -260,9 +309,11 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
         }
     }
 
-    fun updateGameWardens(username: String, gameWardens: Map<OrganizationId, List<GameWarden>>) {
+    suspend fun updateGameWardens(
+        username: String,
+        gameWardens: Map<OrganizationId, List<GameWarden>>,
+    ) = withContext(DatabaseWriteContext) {
         gameWardenQueries.transaction {
-
             gameWardenQueries.deleteByUser(username)
 
             gameWardens.forEach { entry ->
@@ -327,7 +378,10 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
         }
     }
 
-    fun updateHuntingControlEvents(username: String, events: Map<OrganizationId, List<LoadHuntingControlEvent>>) {
+    suspend fun updateHuntingControlEvents(
+        username: String,
+        events: Map<OrganizationId, List<LoadHuntingControlEvent>>,
+    ) = withContext(DatabaseWriteContext) {
         huntingControlEventQueries.transaction {
             events.forEach { entry ->
                 val rhyId = entry.key
@@ -427,7 +481,10 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
         }
     }
 
-    fun updateRhys(username: String, rhys: List<Organization>) {
+    suspend fun updateRhys(
+        username: String,
+        rhys: List<Organization>,
+    ) = withContext(DatabaseWriteContext) {
         rhyQueries.transaction {
             // First delete from DB RHYs that user is no longer hunting controller for
             val rhysOnDb = getRhys(username)
@@ -447,11 +504,14 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
         }
     }
 
-    fun deleteAttachment(attachmentLocalId: Long) {
+    suspend fun deleteAttachment(attachmentLocalId: Long) = withContext(DatabaseWriteContext) {
         attachmentQueries.deleteByLocalId(attachmentLocalId)
     }
 
-    fun updateAttachmentRemoteId(remoteId: Long, localId: Long) {
+    suspend fun updateAttachmentRemoteId(
+        remoteId: Long,
+        localId: Long,
+    ) = withContext(DatabaseWriteContext) {
         attachmentQueries.updateRemoteIdByLocalId(remote_id = remoteId, local_id = localId)
     }
 
@@ -460,10 +520,7 @@ internal class HuntingControlRepository(database: RiistaDatabase) {
     }
 
     private fun deleteRhy(username: String, id: OrganizationId) {
-        rhyQueries.deleteRhy(
-            username = username,
-            remote_id = id,
-        )
+        rhyQueries.deleteRhy(username = username, remote_id = id)
     }
 
     private fun upsertRhy(username: String, rhy: Organization) {

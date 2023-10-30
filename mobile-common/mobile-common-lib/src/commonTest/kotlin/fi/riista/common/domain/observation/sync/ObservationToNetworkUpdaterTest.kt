@@ -65,9 +65,9 @@ class ObservationToNetworkUpdaterTest {
         assertEquals("This is an observation", observation.description)
         assertEquals(0, observation.imageIds.size)
 
-        // Specimens array has 36 CommonObservationSpecimenDTO objects, but 35 of them contains just null values
-        assertEquals(36, observation.specimens?.size)
-        val expectedSpecimens = setOf(
+        assertEquals(36, observation.totalSpecimenAmount)
+        assertEquals(1, observation.specimens?.size)
+        val expectedSpecimens = listOf(
             CommonObservationSpecimenDTO(
                 id = null,
                 rev = null,
@@ -78,18 +78,8 @@ class ObservationToNetworkUpdaterTest {
                 widthOfPaw = 2.2,
                 lengthOfPaw = 6.5,
             ),
-            CommonObservationSpecimenDTO(
-                id = null,
-                rev = null,
-                gender = null,
-                age = null,
-                state = null,
-                marking = null,
-                widthOfPaw = null,
-                lengthOfPaw = null,
-            )
         )
-        assertEquals(expectedSpecimens, observation.specimens?.toSet())
+        assertEquals(expectedSpecimens, observation.specimens)
         assertEquals(1, observation.mooselikeMaleAmount)
         assertEquals(2, observation.mooselikeFemaleAmount)
         assertEquals(3, observation.mooselikeFemale1CalfAmount)
@@ -144,9 +134,8 @@ class ObservationToNetworkUpdaterTest {
         assertEquals(0, observation.imageIds.size)
         assertEquals(36, observation.totalSpecimenAmount)
 
-        // Specimens array has 36 CommonObservationSpecimenDTO objects, but 35 of them contains just null values
-        assertEquals(36, observation.specimens?.size)
-        val expectedSpecimens = setOf(
+        assertEquals(1, observation.specimens?.size)
+        val expectedSpecimens = listOf(
             CommonObservationSpecimenDTO(
                 id = null,
                 rev = null,
@@ -156,19 +145,9 @@ class ObservationToNetworkUpdaterTest {
                 marking = "EARMARK",
                 widthOfPaw = 2.2,
                 lengthOfPaw = 6.5,
-            ),
-            CommonObservationSpecimenDTO(
-                id = null,
-                rev = null,
-                gender = null,
-                age = null,
-                state = null,
-                marking = null,
-                widthOfPaw = null,
-                lengthOfPaw = null,
             )
         )
-        assertEquals(expectedSpecimens, observation.specimens?.toSet())
+        assertEquals(expectedSpecimens, observation.specimens)
 
         assertEquals(1, observation.mooselikeMaleAmount)
         assertEquals(2, observation.mooselikeFemaleAmount)

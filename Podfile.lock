@@ -1,5 +1,6 @@
 PODS:
   - AcknowList (2.0.3)
+  - AJJTypedNotification (2.0.1)
   - Alamofire (5.6.1)
   - AsyncSwift (2.0.4)
   - DifferenceKit (1.2.0):
@@ -299,7 +300,6 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
-  - OAStackView (1.0.1)
   - OverlayContainer (3.5.2)
   - Pageboy (3.6.2)
   - PromisesObjC (1.2.12)
@@ -319,6 +319,7 @@ PODS:
 
 DEPENDENCIES:
   - AcknowList
+  - AJJTypedNotification (~> 2.0)
   - Alamofire
   - AsyncSwift
   - DifferenceKit
@@ -343,7 +344,6 @@ DEPENDENCIES:
   - "MaterialComponents/TextControls+UnderlinedTextFields (~> 124.2.0)"
   - MKNetworkKit
   - MultiSelectSegmentedControl
-  - OAStackView
   - OverlayContainer
   - Protobuf
   - QRCodeReader.swift
@@ -357,6 +357,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - AcknowList
+    - AJJTypedNotification
     - Alamofire
     - AsyncSwift
     - DifferenceKit
@@ -385,7 +386,6 @@ SPEC REPOS:
     - MKNetworkKit
     - MultiSelectSegmentedControl
     - nanopb
-    - OAStackView
     - OverlayContainer
     - Pageboy
     - PromisesObjC
@@ -403,6 +403,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   AcknowList: 6d4faca4c3e0173377fe5649e086d627cd60b003
+  AJJTypedNotification: 1a5109b3ebca44cab1c6444c2a8a509b22e33c1b
   Alamofire: 87bd8c952f9a4454320fce00d9cc3de57bcadaf5
   AsyncSwift: 65775a7b32e740609b24969ece3de58723b9dc3e
   DifferenceKit: 5659c430bb7fe45876fa32ce5cba5d6167f0c805
@@ -431,7 +432,6 @@ SPEC CHECKSUMS:
   MKNetworkKit: 60ad3c83b62183e40ba75ce772c9427c25b520de
   MultiSelectSegmentedControl: e34388e5d8de55a43ba0191662246c655f5b9d5a
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
-  OAStackView: 95e7cb79cbea25c2342f496a44bdbe8bd4c8d510
   OverlayContainer: 6b2727437ee7d76dc22b00d0275a94c9191f962a
   Pageboy: cf121b9dd48c63f3f281b2a9ec93d02e0f23879b
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
@@ -447,6 +447,6 @@ SPEC CHECKSUMS:
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
   UIImage-Resize: fa776860f10e6900bbaf53a73e494bdceaaccc77
 
-PODFILE CHECKSUM: c07fa828c5ddf22ee0da8875a060ece0868e2a52
+PODFILE CHECKSUM: 8d954b2c5b903f74b4e70f395c99ee37a02e78ab
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1

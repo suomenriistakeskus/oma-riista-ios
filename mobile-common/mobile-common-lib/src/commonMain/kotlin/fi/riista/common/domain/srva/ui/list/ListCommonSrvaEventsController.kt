@@ -1,8 +1,10 @@
 package fi.riista.common.domain.srva.ui.list
 
-import co.touchlab.stately.ensureNeverFrozen
+import fi.riista.common.RiistaSDK
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.srva.SrvaContext
+import fi.riista.common.domain.srva.SrvaEventFilter
+import fi.riista.common.domain.srva.model.CommonSrvaEvent
 import fi.riista.common.logging.getLogger
 import fi.riista.common.metadata.MetadataProvider
 import fi.riista.common.ui.controller.ControllerWithLoadableModel
@@ -19,9 +21,7 @@ class ListCommonSrvaEventsController(
 ) : ControllerWithLoadableModel<ListCommonSrvaEventsViewModel>(),
     HasUnreproducibleState<ListCommonSrvaEventsController.FilterState> {
 
-    init {
-        ensureNeverFrozen()
-    }
+    private val repository = srvaContext.repository
 
     private val allSrvaSpecies: List<Species> by lazy {
         metadataProvider.srvaMetadata.species + Species.Other
@@ -45,33 +45,37 @@ class ListCommonSrvaEventsController(
 
         emit(ViewModelLoadStatus.Loading)
 
-        srvaContext.srvaEventProvider.fetch(refresh = refresh)
-
-        val allSrvaEvents = srvaContext.srvaEventProvider.srvaEvents
-        if (allSrvaEvents == null) {
-            emit(ViewModelLoadStatus.LoadFailed)
-            return@flow
-        }
         val srvaEventYears = srvaContext.getSrvaYears().sortedDescending()
 
-        @Suppress("IfThenToElvis") // code is easier to read this way
         val viewModel = if (previouslyLoadedViewModel != null) {
+            val srvaEvents = fetchWithFilter(
+                year = previouslyLoadedViewModel.filterYear,
+                withSpecies = previouslyLoadedViewModel.filterSpecies,
+            ) ?: kotlin.run {
+                logger.w { "Unable to load srva events" }
+                emit(ViewModelLoadStatus.LoadFailed)
+                return@flow
+            }
             previouslyLoadedViewModel.copy(
-                allSrvaEvents = allSrvaEvents,
-                srvaEventYears = srvaEventYears,
-                srvaSpecies = allSrvaSpecies
-            ).filterEvents() // re-apply filtering based on current filters
-        } else {
-            ListCommonSrvaEventsViewModel(
-                allSrvaEvents = allSrvaEvents,
                 srvaEventYears = srvaEventYears,
                 srvaSpecies = allSrvaSpecies,
-                filterYear = null,
-                filterSpecies = null,
-                filteredSrvaEvents = allSrvaEvents,
-            ).filterEvents(
-                withYear = restoredFilterState?.year ?: pendingFilter?.year,
+                filteredSrvaEvents = srvaEvents,
+            )
+        } else {
+            val srvaEvents = fetchWithFilter(
+                year = restoredFilterState?.year ?: pendingFilter?.year,
                 withSpecies = restoredFilterState?.species ?: pendingFilter?.species,
+            ) ?: kotlin.run {
+                logger.w { "Unable to load srva events" }
+                emit(ViewModelLoadStatus.LoadFailed)
+                return@flow
+            }
+            ListCommonSrvaEventsViewModel(
+                srvaEventYears = srvaEventYears,
+                srvaSpecies = allSrvaSpecies,
+                filterYear = restoredFilterState?.year ?: pendingFilter?.year,
+                filterSpecies = restoredFilterState?.species ?: pendingFilter?.species,
+                filteredSrvaEvents = srvaEvents,
             )
         }
 
@@ -81,7 +85,7 @@ class ListCommonSrvaEventsController(
         emit(ViewModelLoadStatus.Loaded(viewModel))
     }
 
-    fun setFilters(year: Int, species: List<Species>) {
+    fun setFilters(year: Int?, species: List<Species>?) {
         val currentViewModel = getLoadedViewModelOrNull() ?: kotlin.run {
             logger.v { "Cannot filter now, no viewmodel. Adding as a pending filter." }
             pendingFilter = FilterState(
@@ -90,91 +94,50 @@ class ListCommonSrvaEventsController(
             )
             return
         }
-
+        val srvaEvents = fetchWithFilter(
+            year = year,
+            withSpecies = species,
+        ) ?: kotlin.run {
+            logger.w { "Unable to load srva events" }
+            return
+        }
         updateViewModel(
-            viewModel = currentViewModel.filterEvents(
-                withYear = year,
-                withSpecies = species
+            viewModel = currentViewModel.copy(
+                filterYear = year,
+                filterSpecies = species,
+                filteredSrvaEvents = srvaEvents,
             )
         )
-
     }
 
     fun setYearFilter(year: Int) {
-        val currentViewModel = getLoadedViewModelOrNull() ?: kotlin.run {
-            logger.v { "Cannot filter year now, no viewmodel. Adding as a pending filter." }
-            pendingFilter = FilterState(
-                year = year,
-                species = pendingFilter?.species,
-            )
-            return
-        }
-
-        updateViewModel(
-            viewModel = currentViewModel.filterEvents(withYear = year)
-        )
+        val speciesFilter = getLoadedViewModelOrNull()?.filterSpecies
+        setFilters(year, speciesFilter)
     }
 
     fun setSpeciesFilter(species: List<Species>) {
-        val currentViewModel = getLoadedViewModelOrNull() ?: kotlin.run {
-            logger.v { "Cannot filter species now, no viewmodel. Adding as a pending filter." }
-            pendingFilter = FilterState(
-                year = pendingFilter?.year,
-                species = species,
-            )
-            return
-        }
-
-        updateViewModel(
-            viewModel = currentViewModel.filterEvents(withSpecies = species)
-        )
+        val yearFilter = getLoadedViewModelOrNull()?.filterYear
+        setFilters(yearFilter, species)
     }
 
     fun clearAllFilters() {
-        val currentViewModel = getLoadedViewModelOrNull() ?: kotlin.run {
-            logger.v { "Cannot clear filters now, no viewmodel. Clearing pending filter." }
-            pendingFilter = null
-            return
-        }
-
-        updateViewModel(
-            viewModel = ListCommonSrvaEventsViewModel(
-                allSrvaEvents = currentViewModel.allSrvaEvents,
-                srvaEventYears = currentViewModel.srvaEventYears,
-                srvaSpecies = currentViewModel.srvaSpecies,
-                filterYear = null,
-                filterSpecies = null,
-                filteredSrvaEvents = currentViewModel.allSrvaEvents,
-            )
-        )
+        setFilters(null, null)
     }
 
-    private fun ListCommonSrvaEventsViewModel.filterEvents(
-        withYear: Int? = filterYear,
-        withSpecies: List<Species>? = filterSpecies,
-    ): ListCommonSrvaEventsViewModel {
-        return ListCommonSrvaEventsViewModel(
-            allSrvaEvents = this.allSrvaEvents,
-            srvaEventYears = this.srvaEventYears,
-            srvaSpecies = this.srvaSpecies,
-
-            filterYear = withYear,
-            filterSpecies = withSpecies,
-            filteredSrvaEvents = allSrvaEvents.filter { srvaEvent ->
-                if (listOnlySrvaEventsWithImages && srvaEvent.images.primaryImage == null) {
-                    return@filter false
-                }
-
-                if (withYear != null && srvaEvent.pointOfTime.year != withYear) {
-                    return@filter false
-                }
-
-                if (withSpecies != null && withSpecies.isNotEmpty() && srvaEvent.species !in withSpecies) {
-                    return@filter false
-                }
-
-                return@filter true
-            }
+    private fun fetchWithFilter(
+        year: Int?,
+        withSpecies: List<Species>?,
+    ): List<CommonSrvaEvent>? {
+        val username = RiistaSDK.currentUserContext.username  ?: kotlin.run {
+            return null
+        }
+        return repository.filter(
+            username = username,
+            filter = SrvaEventFilter(
+                year = year,
+                species = withSpecies,
+                requireImages = listOnlySrvaEventsWithImages,
+            )
         )
     }
 

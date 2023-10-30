@@ -1,5 +1,8 @@
 import Foundation
+import MaterialComponents.MaterialButtons
 import MaterialComponents.MaterialDialogs
+import RiistaCommon
+
 
 protocol ParticipantAttemptCellDelegate {
     func didPressEdit(_ tag: Int)
@@ -12,8 +15,8 @@ class UserAttemptItemCell: UITableViewCell {
     @IBOutlet weak var resultValueLabel: UILabel!
     @IBOutlet weak var hitsTitleLabel: UILabel!
     @IBOutlet weak var hitsValueLabel: UILabel!
-    @IBOutlet weak var editButton: UIButton!
-    @IBOutlet weak var deleteButton: UIButton!
+    @IBOutlet weak var editButton: MDCButton!
+    @IBOutlet weak var deleteButton: MDCButton!
 
     var cellDelegate: ParticipantAttemptCellDelegate?
 
@@ -26,28 +29,36 @@ class UserAttemptItemCell: UITableViewCell {
     }
 }
 
-class ShootingTestUserAttemptsViewController: UIViewController, UITableViewDataSource, ParticipantAttemptCellDelegate {
+class ShootingTestUserAttemptsViewController: BaseViewController, UITableViewDataSource, ParticipantAttemptCellDelegate {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var hunterNumberLabel: UILabel!
     @IBOutlet weak var dateOfBirthLabel:UILabel!
-    @IBOutlet weak var addButton: UIButton!
+    @IBOutlet weak var addButton: MDCButton!
     @IBOutlet weak var tableView: UITableView!
 
     @IBAction func addPressed(_ sender: UIButton) {
         if (!self.isLocked) {
+            guard let participantId = self.participant?.id, let participantRev = self.participant?.rev else {
+                return
+            }
+
             let vc = self.storyboard?.instantiateViewController(withIdentifier: "editAttemptViewController") as! ShootingTestEditAttemptViewController
-            vc.participantId = (participant?.id!)!
-            vc.participantRev = (participant?.rev!)!
+            vc.participantId = participantId
+            vc.participantRev = participantRev
+            vc.shootingTestManager = self.shootingTestManager
             self.setEditTypeLimitsTo(vc: vc, editType: nil)
 
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
 
-    var participantId: Int = -1
+    var shootingTestManager: ShootingTestManager?
+    var participantId: Int64? = nil
     var isLocked = false
-    var participant: ShootingTestParticipantDetailed?
-    var items = Array<ShootingTestAttemptDetailed>()
+    var participant: CommonShootingTestParticipantDetailed?
+    var attempts = [CommonShootingTestAttempt]()
+
+    private let stringProvider = LocalizedStringProvider()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,74 +72,68 @@ class ShootingTestUserAttemptsViewController: UIViewController, UITableViewDataS
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        Styles.styleButton(self.addButton)
-        self.addButton.setTitle(RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptListAdd"), for: .normal)
+        self.addButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        self.addButton.isUppercaseTitle = false
+        self.addButton.setTitle("ShootingTestAttemptListAdd".localized(), for: .normal)
 
         title = "ShootingTestAttemptListViewTitle".localized()
         self.refreshData()
     }
 
-    func refreshUi(user: ShootingTestParticipantDetailed!) {
-        self.nameLabel.text = String(format: "%@ %@", user.lastName!, user.firstName!)
+    func refreshUi(user: CommonShootingTestParticipantDetailed!) {
+        self.nameLabel.text = user.formattedFullNameLastFirst
         self.hunterNumberLabel.text = user.hunterNumber
-        self.dateOfBirthLabel.text = ShootingTestUtil.serverDateStringToDisplayDate(serverDate: user.dateOfBirth!)
+        self.dateOfBirthLabel.text = user.dateOfBirth?.toFoundationDate().formatDateOnly() ?? ""
 
         self.addButton.isEnabled = !self.isLocked
     }
 
     func refreshData() {
-        ShootingTestManager.getParticipantDetailed(participantId: self.participantId) { (result:Any?, error:Error?) in
-            if (error == nil) {
-                do {
-                    let json = try JSONSerialization.data(withJSONObject: result!)
-                    let participant = try JSONDecoder().decode(ShootingTestParticipantDetailed.self, from: json)
+        guard let shootingTestManager = shootingTestManager,
+                let participantId = participantId else {
+            print("No shooting test manager / participant id, cannot fetch data")
+            return
+        }
 
-                    self.participant = participant
-                    self.refreshUi(user: self.participant)
+        shootingTestManager.getParticipantDetailed(
+            participantId: participantId
+        ) { (participant: CommonShootingTestParticipantDetailed?, error: Error?) in
+            if let participant = participant {
+                self.participant = participant
+                self.refreshUi(user: self.participant)
 
-                    self.items.removeAll()
-                    self.items.insert(contentsOf: participant.attempts!, at: 0)
-                    self.tableView.reloadData()
-                }
-                catch {
-                    print("Failed to parse <ShootingTestParticipantDetailed> item")
-                }
-            }
-            else {
-                print("getParticipantDetailed failed: " + (error?.localizedDescription)!)
+                self.attempts = participant.attempts
+                self.tableView.reloadData()
+            } else {
+                print("getParticipantDetailed failed: \(error?.localizedDescription ?? String(describing: error))")
             }
         }
     }
 
-    private func setEditTypeLimitsTo(vc: ShootingTestEditAttemptViewController, editType: String?) {
+    private func setEditTypeLimitsTo(vc: ShootingTestEditAttemptViewController, editType: ShootingTestType?) {
         var bearCount = 0
         var mooseCount = 0
         var roeDeerCount = 0
         var bowCount = 0
 
-        for item in items {
-            if (ShootingTestAttemptDetailed.ClassConstants.TYPE_BEAR == item.type &&
-                !(ShootingTestAttemptDetailed.ClassConstants.RESULT_REBATED == item.result)) {
+        attempts.filter { attempt in
+            attempt.result.value != .rebated
+        }.forEach { attempt in
+            if (attempt.type.value == .bear) {
                 bearCount += 1
-            }
-            else if (ShootingTestAttemptDetailed.ClassConstants.TYPE_MOOSE == item.type &&
-                !(ShootingTestAttemptDetailed.ClassConstants.RESULT_REBATED == item.result)) {
+            } else if (attempt.type.value == .moose) {
                 mooseCount += 1
-            }
-            else if (ShootingTestAttemptDetailed.ClassConstants.TYPE_ROE_DEER == item.type &&
-                !(ShootingTestAttemptDetailed.ClassConstants.RESULT_REBATED == item.result)) {
+            } else if (attempt.type.value == .roeDeer) {
                 roeDeerCount += 1
-            }
-            else if (ShootingTestAttemptDetailed.ClassConstants.TYPE_BOW == item.type &&
-                !(ShootingTestAttemptDetailed.ClassConstants.RESULT_REBATED == item.result)) {
+            } else if (attempt.type.value == .bow) {
                 bowCount += 1
             }
         }
 
-        vc.enableBear = bearCount < 5 || (bearCount == 5 && ShootingTestAttemptDetailed.ClassConstants.TYPE_BEAR == editType )
-        vc.enableMoose = mooseCount < 5 || (mooseCount == 5 && ShootingTestAttemptDetailed.ClassConstants.TYPE_MOOSE == editType )
-        vc.enableRoeDeer = roeDeerCount < 5 || (roeDeerCount == 5 && ShootingTestAttemptDetailed.ClassConstants.TYPE_ROE_DEER == editType )
-        vc.enableBow = bowCount < 5 || (bowCount == 5 && ShootingTestAttemptDetailed.ClassConstants.TYPE_BOW == editType )
+        vc.enableBear = bearCount < 5 || (bearCount == 5 && editType == .bear)
+        vc.enableMoose = mooseCount < 5 || (mooseCount == 5 && editType == .moose)
+        vc.enableRoeDeer = roeDeerCount < 5 || (roeDeerCount == 5 && editType == .roeDeer)
+        vc.enableBow = bowCount < 5 || (bowCount == 5 && editType == .bow)
     }
 
     // MARK - UITableViewDataSource
@@ -138,7 +143,7 @@ class ShootingTestUserAttemptsViewController: UIViewController, UITableViewDataS
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return attempts.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -149,16 +154,16 @@ class ShootingTestUserAttemptsViewController: UIViewController, UITableViewDataS
         cell.cellDelegate = self
         cell.tag = indexPath.row
 
-        let item = items[indexPath.row]
+        let item = attempts[indexPath.row]
 
-        cell.typeLabel.text = ShootingTestAttemptDetailed.localizedTypeText(value: item.type!)
-        cell.resultTitleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptListResultTitle")
-        cell.resultValueLabel.text = ShootingTestAttemptDetailed.localizedResultText(value: item.result!)
-        cell.hitsTitleLabel.text = RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptListHitsTitle")
-        cell.hitsValueLabel.text = String(item.hits!)
+        cell.typeLabel.text = item.type.localized(stringProvider: stringProvider)
+        cell.resultTitleLabel.text = "ShootingTestAttemptListResultTitle".localized()
+        cell.resultValueLabel.text = item.result.localized(stringProvider: stringProvider)
+        cell.hitsTitleLabel.text = "ShootingTestAttemptListHitsTitle".localized()
+        cell.hitsValueLabel.text = String(item.hits)
 
-        Styles.styleNegativeButton(cell.editButton)
-        Styles.styleNegativeButton(cell.deleteButton)
+        cell.editButton.applyContainedTheme(withScheme: AppTheme.shared.primaryButtonScheme())
+        cell.deleteButton.applyContainedTheme(withScheme: AppTheme.shared.destructiveButtonScheme())
 
         cell.editButton.isEnabled = !self.isLocked
         cell.deleteButton.isEnabled = !self.isLocked
@@ -169,34 +174,45 @@ class ShootingTestUserAttemptsViewController: UIViewController, UITableViewDataS
     // MARK - ParticipantAttemptCellDelegate
 
     func didPressEdit(_ tag: Int) {
-        let item = items[tag]
+        guard let participantId = self.participant?.id, let participantRev = self.participant?.rev else {
+            return
+        }
+
+        let attempt = attempts[tag]
 
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "editAttemptViewController") as! ShootingTestEditAttemptViewController
-        vc.participantId = (self.participant?.id)!
-        vc.participantRev = (self.participant?.rev)!
-        vc.attemptId = item.id!
-        self.setEditTypeLimitsTo(vc: vc, editType: item.type)
+        vc.participantId = participantId
+        vc.participantRev = participantRev
+        vc.attemptId = attempt.id
+        vc.shootingTestManager = self.shootingTestManager
+        self.setEditTypeLimitsTo(vc: vc, editType: attempt.type.value)
 
         self.navigationController?.pushViewController(vc, animated: true)
     }
 
     func didPressDelete(_ tag: Int) {
-        let item = items[tag]
+        guard let shootingTestManager = self.shootingTestManager,
+              let attempt = attempts.getOrNil(index: tag) else {
+            print("no shooting test manager or attempt for index \(tag)")
+            return
+        }
 
-        let alert = MDCAlertController(title: nil,
-                                       message: String(format: RiistaBridgingUtils.RiistaLocalizedString(forkey: "ShootingTestAttemptDeleteConfirm")))
-        alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "OK"), handler: { action in
-            ShootingTestManager.deleteAttempt(attemptId: item.id!)
-            { (result:Any?, error:Error?) in
-                if (error == nil) {
+        let alert = MDCAlertController(
+            title: nil,
+            message: "ShootingTestAttemptDeleteConfirm".localized()
+        )
+        alert.addAction(MDCAlertAction(title: "OK".localized(), handler: { action in
+            shootingTestManager.deleteAttempt(attemptId: attempt.id) { [weak self] success, error in
+                guard let self = self else { return }
+
+                if (success) {
                     self.refreshData()
-                }
-                else {
-                    print("deleteAttempt failed: " + (error?.localizedDescription)!)
+                } else {
+                    print("deleteAttempt failed: \(error?.localizedDescription ?? String(describing: error))")
                 }
             }
         }))
-        alert.addAction(MDCAlertAction(title: RiistaBridgingUtils.RiistaLocalizedString(forkey: "No"), handler: nil))
+        alert.addAction(MDCAlertAction(title: "No".localized(), handler: nil))
         self.present(alert, animated: true, completion: nil)
     }
 }

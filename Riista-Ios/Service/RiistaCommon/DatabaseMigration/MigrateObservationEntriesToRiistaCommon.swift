@@ -4,7 +4,7 @@ import Async
 import RiistaCommon
 
 class MigrateObservationEntriesToRiistaCommon {
-    private lazy var logger: AppLogger = AppLogger(for: self)
+    private lazy var logger: AppLogger = AppLogger(for: self, printTimeStamps: false)
 
     func migrate(from context: NSManagedObjectContext, _ onCompleted: @escaping OnCompleted) {
         guard let observationEntries = fetchObservationEntries(context: context) else {
@@ -124,40 +124,43 @@ class MigrateObservationEntriesToRiistaCommon {
             return
         }
 
-        RiistaSDK.shared.observationContext.saveObservation(observation: commonObservation) { response, error in
-            if (error != nil) {
-                self.logger.w { "Got errors when saving observation event to common lib" }
-                completion(false)
-                return
-            }
+        RiistaSDK.shared.observationContext.saveObservation(
+            observation: commonObservation,
+            completionHandler: handleOnMainThread { response, error in
+                if (error != nil) {
+                    self.logger.w { "Got errors when saving observation event to common lib" }
+                    completion(false)
+                    return
+                }
 
-            if let successResponse = response as? ObservationOperationResponse.Success {
-                if let commonObservationId: KotlinLong = successResponse.observation.localId {
-                    observationEntry.commonObservationId = NSNumber(value: commonObservationId.int32Value)
+                if let successResponse = response as? ObservationOperationResponse.Success {
+                    if let commonObservationId: KotlinLong = successResponse.observation.localId {
+                        observationEntry.commonObservationId = NSNumber(value: commonObservationId.int32Value)
+                    } else {
+                        self.logger.d { "Failed to obtain id of migrated observation event. Considering still as success" }
+                        // save some value to prevent migrating again
+                        observationEntry.commonObservationId = NSNumber(value: Int32.max)
+                    }
+
+                    self.logger.v {
+                        "observation with remote id \(observationEntry.remoteId ?? -1) / object id \(observationEntry.objectID) " +
+                        "saved to common lib. Saving managed object context."
+                    }
+
+                    do {
+                        try context.save()
+
+                        self.logger.v { " - ManagedObjectContext saved" }
+                    } catch {
+                        self.logger.e { " - ManagedObjectContext save FAILED" }
+                    }
+
+                    completion(true)
                 } else {
-                    self.logger.d { "Failed to obtain id of migrated observation event. Considering still as success" }
-                    // save some value to prevent migrating again
-                    observationEntry.commonObservationId = NSNumber(value: Int32.max)
+                    completion(false)
                 }
-
-                self.logger.v {
-                    "observation with remote id \(observationEntry.remoteId ?? -1) / object id \(observationEntry.objectID) " +
-                    "saved to common lib. Saving managed object context."
-                }
-
-                do {
-                    try context.save()
-
-                    self.logger.v { " - ManagedObjectContext saved" }
-                } catch {
-                    self.logger.e { " - ManagedObjectContext save FAILED" }
-                }
-
-                completion(true)
-            } else {
-                completion(false)
             }
-        }
+        )
     }
 
     private func fetchObservationEntries(context: NSManagedObjectContext) -> [ObservationEntry]? {

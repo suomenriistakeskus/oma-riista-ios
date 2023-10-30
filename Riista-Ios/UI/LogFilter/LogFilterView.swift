@@ -9,18 +9,15 @@ protocol LogFilterViewDelegate {
     func onFilterPointOfInterestListClicked()
 }
 
-protocol LogFilterChangeListener: AnyObject {
-    func onFilterChangeRequested(filter: EntityFilter)
-}
-
 class LogFilterView: UIView, EntityFilterChangeListener, FilterCategoryViewControllerDelegate {
+    private static var logger = AppLogger(for: LogFilterView.self, printTimeStamps: false)
 
     // 15 seems to be the largest that allows multiline labels for species
     private static let fontSize: CGFloat = 15
 
     var delegate: LogFilterViewDelegate?
 
-    var changeListener: LogFilterChangeListener?
+    var changeListener: EntityFilterChangeRequestListener?
 
     private var enableSrva = false
 
@@ -61,35 +58,32 @@ class LogFilterView: UIView, EntityFilterChangeListener, FilterCategoryViewContr
 
 
 
-    //private(set) var filteredTypeUpdateTimeStamp: Date = Date(timeIntervalSince1970: 0)
-
-    // convenience access for old code
-    var logType: RiistaEntryType? {
-        get {
-            filteredType.toRiistaEntryType()
-        }
-        set(value) {
-            if let newFilteredType = value?.toFilteredType() {
-                filteredType = newFilteredType
-            }
-        }
-    }
-
-    var seasonStartYear: Int? {
-        didSet {
-            onSeasonStartYearChanged()
-        }
-    }
-
-
     private lazy var topContainer: UIStackView = {
         let container = UIStackView()
         container.axis = .vertical
         container.alignment = .fill
 
+        container.addView(showingEntriesForOthersLabel)
         container.addView(buttonsContainer)
         container.addView(clearSelectionsArea)
         return container
+    }()
+
+    private lazy var showingEntriesForOthersLabel: UILabel = {
+        let label = UILabel().configure(
+            for: .label,
+            textAlignment: .center,
+            numberOfLines: 0
+        )
+        label.backgroundColor = UIColor.applicationColor(GreyLight)
+        label.snp.makeConstraints { make in
+            make.height.greaterThanOrEqualTo(30).priority(999)
+        }
+        label.isHidden = true
+
+        label.text = "FilterShowingEntriesForOthers".localized()
+
+        return label
     }()
 
     private lazy var buttonsContainer: UIStackView = {
@@ -240,27 +234,51 @@ class LogFilterView: UIView, EntityFilterChangeListener, FilterCategoryViewContr
         filteredType = displayedFilter.entityType
 
         if let filter = displayedFilter as? HarvestFilter {
-            seasonStartYear = filter.seasonStartYear
+            updateSeasonOrYearFiltering(year: filter.seasonStartYear, isSrva: false)
             updateSpeciesFiltering(speciesCategory: filter.speciesCategory, species: filter.species)
         } else if let filter = displayedFilter as? ObservationFilter {
-            seasonStartYear = filter.seasonStartYear
+            updateSeasonOrYearFiltering(year: filter.seasonStartYear, isSrva: false)
             updateSpeciesFiltering(speciesCategory: filter.speciesCategory, species: filter.species)
         } else if let filter = displayedFilter as? SrvaFilter {
-            seasonStartYear = filter.calendarYear
+            updateSeasonOrYearFiltering(year: filter.calendarYear, isSrva: true)
             updateSpeciesFiltering(speciesCategory: nil, species: filter.species)
         } else if displayedFilter is PointOfInterestFilter {
             updateSpeciesFiltering(speciesCategory: nil, species: [])
         }
+
+        updateShowingEntriesForOthersLabel(showingEntriesForOtherActors: displayedFilter.showEntriesForOtherActors)
     }
 
     func updateTexts() {
+        showingEntriesForOthersLabel.text = "FilterShowingEntriesForOthers".localized()
         clearSelectionsLabel.text = "FilterClearSpeciesFilter".localized()
         typeButton.setTitle(filteredType.localizationKey.localized(), for: .normal)
         listPoisButton.setTitle("PointsOfInterestListButtonTitle".localized(), for: .normal)
     }
 
+    private func updateShowingEntriesForOthersLabel(showingEntriesForOtherActors: Bool?) {
+        let hideLabel: Bool
+        if let showingEntriesForOtherActors = showingEntriesForOtherActors {
+            let canShowForOthers = HarvestSettingsControllerKt.showActorSelection(RiistaSDK.shared.preferences)
+            hideLabel = !canShowForOthers || !showingEntriesForOtherActors
+        } else {
+            hideLabel = true
+        }
+
+        if (showingEntriesForOthersLabel.isHidden != hideLabel) {
+            UIView.animate(withDuration: AppConstants.Animations.durationShort) { [weak self] in
+                self?.showingEntriesForOthersLabel.isHidden = hideLabel
+            }
+        }
+    }
+
     private func isFilterSupported(filter: EntityFilter) -> Bool {
         enabledFilteredTypes.contains(filter.entityType)
+    }
+
+    private func updateSeasonOrYearFiltering(year: Int?, isSrva: Bool) {
+        let seasonButtonText = year?.formatToSeasonsText(srva: isSrva) ?? "-"
+        seasonsButton.setTitle(seasonButtonText, for: .normal)
     }
 
     private func updateSpeciesFiltering(
@@ -357,16 +375,26 @@ class LogFilterView: UIView, EntityFilterChangeListener, FilterCategoryViewContr
 
     private func onSeasonsButtonClicked() {
         if (filteredType == .pointOfInterest) {
-            print("How can seasons button be clicked while POI is selected?")
+            Self.logger.w { "How can seasons button be clicked while POI is selected?" }
             return
         }
 
-        dataSource?.activeDataSource?.getPossibleSeasonsOrYears { [weak self] seasonsOrYears in
+        let activeDataSource = dataSource?.activeDataSource
+
+        activeDataSource?.getPossibleSeasonsOrYears { [weak self] seasonsOrYears in
             guard let self = self else { return }
 
-            guard let seasonsOrYears = seasonsOrYears else {
-                print("No seasons available for type \(self.filteredType)")
+            guard var seasonsOrYears = seasonsOrYears else {
+                Self.logger.d { "No seasons available for type \(self.filteredType)" }
                 return
+            }
+
+            if let currentSeasonOrYear = activeDataSource?.getCurrentSeasonOrYear() {
+                if (!seasonsOrYears.contains(currentSeasonOrYear)) {
+                    seasonsOrYears.insert(currentSeasonOrYear, at: 0)
+                }
+            } else {
+                Self.logger.d { "No current season/year when seasons exist?" }
             }
 
             self.displaySeasonsFilterDropdown(seasonsOrYears: seasonsOrYears)
@@ -440,7 +468,7 @@ class LogFilterView: UIView, EntityFilterChangeListener, FilterCategoryViewContr
 
     func presentSpeciesSelect(navigationController: UINavigationController) {
         guard let storyBoard = navigationController.storyboard else {
-            print("No storyboard, cannot present species select!")
+            Self.logger.w { "No storyboard, cannot present species select!" }
             return
         }
 
@@ -493,11 +521,6 @@ class LogFilterView: UIView, EntityFilterChangeListener, FilterCategoryViewContr
         }
     }
 
-    private func onSeasonStartYearChanged() {
-        let seasonButtonText = seasonStartYear?.formatToSeasonsText(srva: filteredType == .srva) ?? "-"
-        seasonsButton.setTitle(seasonButtonText, for: .normal)
-    }
-
     private func createDropdownButton() -> CustomizableMaterialButton {
         let button = CustomizableMaterialButton(config: DROPDOWN_BUTTON_CONFIG)
         button.bottomIcon = UIImage(named: "arrow_drop_down")
@@ -513,18 +536,6 @@ fileprivate extension FilterableEntityType {
         case .observation:      return "Observation"
         case .srva:             return "Srva"
         case .pointOfInterest:  return "PointsOfInterest"
-        }
-    }
-}
-
-fileprivate extension RiistaEntryType {
-    func toFilteredType() -> FilterableEntityType {
-        switch self {
-        case RiistaEntryTypeHarvest:        return .harvest
-        case RiistaEntryTypeObservation:    return .observation
-        case RiistaEntryTypeSrva:           return .srva
-        default:
-            fatalError("Unexpected entry type \(self)")
         }
     }
 }

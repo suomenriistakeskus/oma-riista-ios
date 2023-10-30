@@ -5,6 +5,7 @@ import Foundation
  More information about filter implementation in SharedEntityFilterState.
  */
 
+typealias OnFilterApplied = (_ filteredContentsChanged: Bool) -> Void
 
 // base class for all data filterable data sources. Explicitly doesn't contain entity type
 // information as that eases assigning data sources to common properties
@@ -18,23 +19,24 @@ class FilterableEntityDataSource {
         self.filteredEntityType = filteredEntityType
     }
 
-    // return true if filtered contents were changed, false otherwise
-    func applyFilter(newFilter: EntityFilter) -> Bool {
+    func applyFilter(newFilter: EntityFilter, _ onFilterApplied: @escaping OnFilterApplied) {
         if (newFilter.entityType != filteredEntityType) {
-            return false
+            onFilterApplied(false)
+            return
         }
 
         let oldFilter = filter
         filter = newFilter
 
-        let changed = onFilterChanged(newFilter: newFilter, oldFilter: oldFilter)
-
-        return changed
+        onApplyFilter(newFilter: newFilter, oldFilter: oldFilter, onFilterApplied: onFilterApplied)
     }
 
-    // return true if filtered contents were changed, false otherwise
-    func onFilterChanged(newFilter: EntityFilter, oldFilter: EntityFilter?) -> Bool {
-        fatalError("Subclasses are required to implement onFilterChanged(newFilter:oldFilter:)")
+    func onApplyFilter(
+        newFilter: EntityFilter,
+        oldFilter: EntityFilter?,
+        onFilterApplied: @escaping OnFilterApplied
+    ) {
+        fatalError("Subclasses are required to implement onApplyFilter(newFilter:oldFilter:onFilterApplied:)")
     }
 
     /**
@@ -46,6 +48,10 @@ class FilterableEntityDataSource {
 
     func getPossibleSeasonsOrYears(_ onCompleted: @escaping ([Int]?) -> Void) {
         fatalError("Subclasses are required to implement getPossibleSeasonsOrYears()")
+    }
+
+    func getCurrentSeasonOrYear() -> Int? {
+        fatalError("Subclasses are required to implement getCurrentSeasonOrYear()")
     }
 
     func getSeasonStats() -> SeasonStats? {

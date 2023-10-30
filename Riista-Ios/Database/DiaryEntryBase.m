@@ -11,9 +11,6 @@ NSInteger const DiaryEntryOperationDelete = 3;
 
 NSInteger const DiaryEntrySpecimenDetailsMax = 25;
 
-NSString *const RiistaLogTypeSelectedKey = @"LogTypeSelected";
-NSString *const RiistaLogEntrySavedKey = @"LogEntrySaved";
-
 @implementation DiaryEntryBase
 
 - (BOOL)isEditable

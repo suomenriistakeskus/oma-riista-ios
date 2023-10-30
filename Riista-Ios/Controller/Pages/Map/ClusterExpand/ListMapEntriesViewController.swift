@@ -4,7 +4,7 @@ import RiistaCommon
 typealias ListMapEntriesViewControllerListener = MapHarvestCellClickHandler & MapObservationCellClickHandler &
     MapSrvaCellClickHandler & MapPointOfInterestCellClickHandler
 
-class ListMapEntriesViewController: UIViewController, ProvidesNavigationController, ContainsTableViewForBottomsheet {
+class ListMapEntriesViewController: BaseViewController, ProvidesNavigationController, ContainsTableViewForBottomsheet {
 
     private let clusteredItems: ClusteredMapItems
     private let mapDataSource: MapDataSource
@@ -58,7 +58,7 @@ class ListMapEntriesViewController: UIViewController, ProvidesNavigationControll
         view.addSubview(labelContainer)
         labelContainer.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
 
         labelContainer.addSeparatorToBottom()
@@ -76,7 +76,7 @@ class ListMapEntriesViewController: UIViewController, ProvidesNavigationControll
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(labelContainer.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 
@@ -96,16 +96,26 @@ class ListMapEntriesViewController: UIViewController, ProvidesNavigationControll
     }
 
     private func createHarvestViewModels() -> [MapClusteredItemViewModel] {
-        let harvestViewModels = mapDataSource.harvestDataSource
-            .getEntities().filter { diaryEntry in
-                clusteredItems.harvestIds.contains(.objectId(diaryEntry.objectID))
+        let harvestViewModels: [MapClusteredItemViewModel] = mapDataSource.harvestDataSource
+            .getEntities().filter { harvest in
+                if let harvestLocalId = harvest.localId {
+                    return clusteredItems.harvestIds.contains(.commonLocalId(harvestLocalId))
+                } else {
+                    return false
+                }
             }
-            .map { diaryEntry in
-                MapHarvestViewModel(
-                    id: .local(objectId: diaryEntry.objectID),
-                    speciesCode: diaryEntry.gameSpeciesCode.int32Value,
+            .compactMap { harvest in
+                // ignore harvests that don't have localId or species code (should not happen)
+                guard let harvestLocalId = harvest.localId,
+                      let speciesCode = harvest.species.knownSpeciesCodeOrNull()?.int32Value else {
+                    return nil
+                }
+
+                return MapHarvestViewModel(
+                    id: .commonLocal(commonLocalId: harvestLocalId),
+                    speciesCode: speciesCode,
                     acceptStatus: .accepted,
-                    pointOfTime: diaryEntry.pointOfTime.toLocalDateTime(),
+                    pointOfTime: harvest.pointOfTime,
                     description: "Harvest".localized()
                 )
             }
@@ -123,7 +133,7 @@ class ListMapEntriesViewController: UIViewController, ProvidesNavigationControll
                 }
             }
             .compactMap { observation in
-                // ignore observations that don't have localId or species code(should not happen)
+                // ignore observations that don't have localId or species code (should not happen)
                 guard let observationLocalId = observation.localId,
                       let speciesCode = observation.species.knownSpeciesCodeOrNull()?.int32Value else {
                     return nil

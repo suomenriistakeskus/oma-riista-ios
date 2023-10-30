@@ -7,46 +7,74 @@ import fi.riista.common.domain.model.GameAntlersType
 import fi.riista.common.domain.model.GameFitnessClass
 import fi.riista.common.domain.model.Gender
 import fi.riista.common.model.BackendEnum
+import fi.riista.common.model.toBackendEnum
 import kotlinx.serialization.Serializable
 
 typealias CommonHarvestSpecimenId = Long
 
 @Serializable
 data class CommonHarvestSpecimen(
-    val id: CommonHarvestSpecimenId? = null,
-    val rev: Int? = null,
-    val gender: BackendEnum<Gender>? = null,
-    val age: BackendEnum<GameAge>? = null,
-    val weight: Double? = null,
-    val weightEstimated: Double? = null,
-    val weightMeasured: Double? = null,
-    val fitnessClass: BackendEnum<GameFitnessClass>? = null,
-    val antlersLost: Boolean? = null,
-    val antlersType: BackendEnum<GameAntlersType>? = null,
-    val antlersWidth: Int? = null,
-    val antlerPointsLeft: Int? = null,
-    val antlerPointsRight: Int? = null,
-    val antlersGirth: Int? = null,
-    val antlersLength: Int? = null,
-    val antlersInnerWidth: Int? = null,
-    val antlerShaftWidth: Int? = null,
-    val notEdible: Boolean? = null,
-    val alone: Boolean? = null,
-    val additionalInfo: String? = null
+    val id: CommonHarvestSpecimenId?,
+    val rev: Int?,
+    val gender: BackendEnum<Gender>,
+    val age: BackendEnum<GameAge>,
+    val weight: Double?,
+    val weightEstimated: Double?,
+    val weightMeasured: Double?,
+    val fitnessClass: BackendEnum<GameFitnessClass>,
+    val antlersLost: Boolean?,
+    val antlersType: BackendEnum<GameAntlersType>,
+    val antlersWidth: Int?,
+    val antlerPointsLeft: Int?,
+    val antlerPointsRight: Int?,
+    val antlersGirth: Int?,
+    val antlersLength: Int?,
+    val antlersInnerWidth: Int?,
+    val antlerShaftWidth: Int?,
+    val notEdible: Boolean?,
+    val alone: Boolean?,
+    val additionalInfo: String?,
+) {
+    fun isEmpty() = this == EMPTY_HARVEST_SPECIMEN
+}
+
+private val EMPTY_HARVEST_SPECIMEN = CommonHarvestSpecimen(
+    id = null,
+    rev = null,
+    gender = BackendEnum.create(null),
+    age = BackendEnum.create(null),
+    weight = null,
+    weightEstimated = null,
+    weightMeasured = null,
+    fitnessClass = BackendEnum.create(null),
+    antlersLost = null,
+    antlersType = BackendEnum.create(null),
+    antlersWidth = null,
+    antlerPointsLeft = null,
+    antlerPointsRight = null,
+    antlersGirth = null,
+    antlersLength = null,
+    antlersInnerWidth = null,
+    antlerShaftWidth = null,
+    notEdible = null,
+    alone = null,
+    additionalInfo = null,
 )
+
+internal fun Iterable<CommonHarvestSpecimen>.keepNonEmpty() = filter { !it.isEmpty() }
 
 internal fun CommonHarvestSpecimen.toHarvestSpecimenDTO() : HarvestSpecimenDTO {
     return HarvestSpecimenDTO(
         id = id,
         rev = rev,
-        gender = gender?.rawBackendEnumValue,
-        age = age?.rawBackendEnumValue,
+        gender = gender.rawBackendEnumValue,
+        age = age.rawBackendEnumValue,
         weight = weight,
         weightEstimated = weightEstimated,
         weightMeasured = weightMeasured,
-        fitnessClass = fitnessClass?.rawBackendEnumValue,
+        fitnessClass = fitnessClass.rawBackendEnumValue,
         antlersLost = antlersLost,
-        antlersType = antlersType?.rawBackendEnumValue,
+        antlersType = antlersType.rawBackendEnumValue,
         antlersWidth = antlersWidth,
         antlerPointsLeft = antlerPointsLeft,
         antlerPointsRight = antlerPointsRight,
@@ -64,8 +92,8 @@ internal fun CommonHarvestSpecimen.toCommonSpecimenData() =
     CommonSpecimenData(
         remoteId = id,
         revision = rev,
-        gender = gender,
-        age = age,
+        gender = gender.rawBackendEnumValue?.toBackendEnum(),
+        age = age.rawBackendEnumValue?.toBackendEnum(),
         stateOfHealth = null,
         marking = null,
         lengthOfPaw = null,
@@ -73,9 +101,9 @@ internal fun CommonHarvestSpecimen.toCommonSpecimenData() =
         weight = weight,
         weightEstimated = weightEstimated,
         weightMeasured = weightMeasured,
-        fitnessClass = fitnessClass,
+        fitnessClass = fitnessClass.rawBackendEnumValue?.toBackendEnum(),
         antlersLost = antlersLost,
-        antlersType = antlersType,
+        antlersType = antlersType.rawBackendEnumValue?.toBackendEnum(),
         antlersWidth = antlersWidth,
         antlerPointsLeft = antlerPointsLeft,
         antlerPointsRight = antlerPointsRight,
@@ -92,14 +120,14 @@ internal fun CommonSpecimenData.toCommonHarvestSpecimen() =
     CommonHarvestSpecimen(
         id = remoteId,
         rev = revision,
-        gender = gender,
-        age = age,
+        gender = gender ?: BackendEnum.create(null),
+        age = age ?: BackendEnum.create(null),
         weight = weight,
         weightEstimated = weightEstimated,
         weightMeasured = weightMeasured,
-        fitnessClass = fitnessClass,
+        fitnessClass = fitnessClass ?: BackendEnum.create(null),
         antlersLost = antlersLost,
-        antlersType = antlersType,
+        antlersType = antlersType ?: BackendEnum.create(null),
         antlersWidth = antlersWidth,
         antlerPointsLeft = antlerPointsLeft,
         antlerPointsRight = antlerPointsRight,

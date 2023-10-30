@@ -12,7 +12,7 @@ class HuntingControlLandingPageViewController :
     CreateHuntingControlEventViewControllerListener {
 
     private(set) var _controller = RiistaCommon.SelectHuntingControlEventController(
-        huntingControlContext: RiistaSDK.shared.currentUserContext.huntingControlContext,
+        huntingControlContext: RiistaSDK.shared.huntingControlContext,
         languageProvider: CurrentLanguageProvider(),
         stringProvider: LocalizedStringProvider()
     )
@@ -35,7 +35,7 @@ class HuntingControlLandingPageViewController :
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.tableView = tableView
@@ -127,8 +127,8 @@ class HuntingControlLandingPageViewController :
         tableView.snp.makeConstraints { make in
             // let tableview take all space. The cells need to therefore respect preferred layoutmargins
             make.leading.trailing.equalTo(view)
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 
@@ -173,12 +173,15 @@ class HuntingControlLandingPageViewController :
         tableView.showLoading()
         synchronizeEventsButton.isEnabled = false
 
-        controller.loadViewModel(refresh: true) { [weak self] _, _ in
-            guard let self = self else { return }
+        controller.loadViewModel(
+            refresh: true,
+            completionHandler: handleOnMainThread { [weak self] _ in
+                guard let self = self else { return }
 
-            self.tableView.hideLoading()
-            self.synchronizeEventsButton.isEnabled = true
-        }
+                self.tableView.hideLoading()
+                self.synchronizeEventsButton.isEnabled = true
+            }
+        )
     }
 
     private func onHeaderContentsChanged() {

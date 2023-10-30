@@ -17,18 +17,24 @@ class AppLogger {
 
     static var logLevel: LogLevel = getDefaultLogLevel()
 
+    private static let timeFormatter: DateFormatter = DateFormatter(safeLocale: ()).apply({ formatter in
+        formatter.dateFormat = "HH:mm:ss.SSS"
+    })
+
 
     private let context: String
 
     private(set) var enabled: Bool
+    var printTimeStamps: Bool
 
-    convenience init(for loggedObject: AnyObject) {
-        self.init(context: "\(type(of: loggedObject))")
+    convenience init(for loggedObject: AnyObject, printTimeStamps: Bool = false) {
+        self.init(context: "\(type(of: loggedObject))", printTimeStamps: printTimeStamps)
     }
 
-    init(context: String) {
+    init(context: String, printTimeStamps: Bool) {
         self.context = context
         self.enabled = true
+        self.printTimeStamps = printTimeStamps
     }
 
     // MARK: Toggle logging on/off
@@ -64,19 +70,28 @@ class AppLogger {
     @inline(__always) private func log(level: LogLevel, _ logBlock: LogBlock) {
         if (level.rawValue >= Self.logLevel.rawValue) {
             // explicitly include "  --  " as that allows filtering output if needed
-            print("\(level.char)  --  \(context): \(logBlock())")
+            print("\(level.identifier)\(timestampString())  --  \(context): \(logBlock())")
         }
+    }
+
+    @inline(__always) private func timestampString() -> String {
+        if (!printTimeStamps) {
+            return ""
+        }
+
+        return "/\(Self.timeFormatter.string(from: Date()))"
     }
 }
 
 fileprivate extension AppLogger.LogLevel {
-    var char: String {
+    var identifier: String {
+        // colored blocks take the same space as "  " -> align letters
         switch self {
-        case .verbose:  return "V"
-        case .debug:    return "D"
-        case .info:     return "I"
-        case .warn:     return "W"
-        case .error:    return "E"
+        case .verbose:  return "  V"
+        case .debug:    return "  D"
+        case .info:     return "\u{1F7E6}I" // 0x1F7E6 = 🟦
+        case .warn:     return "\u{1F7E7}W" // 0x1F7E7 = 🟧
+        case .error:    return "\u{1F7E5}E" // 0x1F7E5 = 🟥
         }
     }
 }

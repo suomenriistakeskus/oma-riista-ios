@@ -17,6 +17,7 @@ import fi.riista.common.network.MockResponse
 import fi.riista.common.resources.StringProvider
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
+import fi.riista.common.helpers.TestSpeciesResolver
 import fi.riista.common.model.LocalDateTime
 import fi.riista.common.model.StringWithId
 import fi.riista.common.util.MockDateTimeProvider
@@ -27,9 +28,10 @@ class CreateGroupHarvestControllerTest {
     @Test
     fun testDataInitiallyNotLoaded() {
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(),
-                huntingGroupTarget = getHuntingGroupTarget(),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(),
+            huntingGroupTarget = getHuntingGroupTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         assertTrue(controller.viewModelLoadStatus.value is ViewModelLoadStatus.NotLoaded)
@@ -38,9 +40,10 @@ class CreateGroupHarvestControllerTest {
     @Test
     fun testDataCanBeLoaded() = runBlockingTest {
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(),
-                huntingGroupTarget = getHuntingGroupTarget(),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(),
+            huntingGroupTarget = getHuntingGroupTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         controller.loadViewModel()
@@ -53,9 +56,10 @@ class CreateGroupHarvestControllerTest {
     fun testHuntingDayIdIsFetchedForDeer() = runBlockingTest {
         val backendAPIMock = BackendAPIMock()
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(backendAPIMock),
-                huntingGroupTarget = getHuntingGroupTarget(MockGroupHuntingData.SecondHuntingGroupId),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(backendAPIMock),
+            huntingGroupTarget = getHuntingGroupTarget(MockGroupHuntingData.SecondHuntingGroupId),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         controller.loadViewModel()
@@ -83,12 +87,13 @@ class CreateGroupHarvestControllerTest {
     @Test
     fun testHuntingDayIsAutomaticallySelectedForMooseIfNoHuntingDay() = runBlockingTest {
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(),
-                huntingGroupTarget = getHuntingGroupTarget(MockGroupHuntingData.FirstHuntingGroupId),
-                stringProvider = getStringProvider(),
-                localDateTimeProvider = MockDateTimeProvider(
-                        now = LocalDateTime(2015, 9, 1, 12, 0, 0)
-                ),
+            groupHuntingContext = getGroupHuntingContext(),
+            huntingGroupTarget = getHuntingGroupTarget(MockGroupHuntingData.FirstHuntingGroupId),
+            localDateTimeProvider = MockDateTimeProvider(
+                    now = LocalDateTime(2015, 9, 1, 12, 0, 0)
+            ),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider(),
         )
 
         controller.loadViewModel()
@@ -100,12 +105,13 @@ class CreateGroupHarvestControllerTest {
     @Test
     fun testNoHuntingDayAutomaticSelectionIfNoHuntingDay() = runBlockingTest {
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(),
-                huntingGroupTarget = getHuntingGroupTarget(MockGroupHuntingData.SecondHuntingGroupId),
-                stringProvider = getStringProvider(),
-                localDateTimeProvider = MockDateTimeProvider(
-                        now = LocalDateTime(2021, 9, 1, 12, 0, 0)
-                ),
+            groupHuntingContext = getGroupHuntingContext(),
+            huntingGroupTarget = getHuntingGroupTarget(MockGroupHuntingData.SecondHuntingGroupId),
+            localDateTimeProvider = MockDateTimeProvider(
+                now = LocalDateTime(2021, 9, 1, 12, 0, 0)
+            ),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider(),
         )
 
         controller.loadViewModel()
@@ -117,12 +123,13 @@ class CreateGroupHarvestControllerTest {
     @Test
     fun testMooseCantBeCreatedWithoutHuntingDayId() = runBlockingTest {
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(backendApi = BackendAPIMock(
-                        // no hunting days
-                        groupHuntingGroupHuntingDaysResponse = MockResponse.success("[]")
-                )),
-                huntingGroupTarget = getHuntingGroupTarget(),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(backendApi = BackendAPIMock(
+                    // no hunting days
+                    groupHuntingGroupHuntingDaysResponse = MockResponse.success("[]")
+            )),
+            huntingGroupTarget = getHuntingGroupTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         controller.loadViewModel()
@@ -134,9 +141,10 @@ class CreateGroupHarvestControllerTest {
     @Test
     fun testSpecimenFieldsHaveDefaultValues() = runBlockingTest {
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(),
-                huntingGroupTarget = getHuntingGroupTarget(),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(),
+            huntingGroupTarget = getHuntingGroupTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         controller.loadViewModel()
@@ -153,9 +161,10 @@ class CreateGroupHarvestControllerTest {
     fun testAntlerFieldsAreClearedForYoung() = runBlockingTest {
         val backendAPIMock = BackendAPIMock()
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(backendAPIMock),
-                huntingGroupTarget = getHuntingGroupTarget(),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(backendAPIMock),
+            huntingGroupTarget = getHuntingGroupTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         controller.loadViewModel()
@@ -225,9 +234,10 @@ class CreateGroupHarvestControllerTest {
     fun testAloneFieldIsClearedForAdult() = runBlockingTest {
         val backendAPIMock = BackendAPIMock()
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(backendAPIMock),
-                huntingGroupTarget = getHuntingGroupTarget(),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(backendAPIMock),
+            huntingGroupTarget = getHuntingGroupTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         controller.loadViewModel()
@@ -267,9 +277,10 @@ class CreateGroupHarvestControllerTest {
     @Test
     fun testHarvestIsNotValidWithoutAge() = runBlockingTest {
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(),
-                huntingGroupTarget = getHuntingGroupTarget(),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(),
+            huntingGroupTarget = getHuntingGroupTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         controller.loadViewModel()
@@ -299,9 +310,10 @@ class CreateGroupHarvestControllerTest {
     @Test
     fun testHarvestIsNotValidWithoutGender() = runBlockingTest {
         val controller = CreateGroupHarvestController(
-                groupHuntingContext = getGroupHuntingContext(),
-                huntingGroupTarget = getHuntingGroupTarget(),
-                stringProvider = getStringProvider()
+            groupHuntingContext = getGroupHuntingContext(),
+            huntingGroupTarget = getHuntingGroupTarget(),
+            speciesResolver = TestSpeciesResolver.INSTANCE,
+            stringProvider = getStringProvider()
         )
 
         controller.loadViewModel()

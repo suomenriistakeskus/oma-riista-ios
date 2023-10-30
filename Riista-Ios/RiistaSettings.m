@@ -33,11 +33,17 @@ NSString *const RiistaShowGameTrianglesKey = @"RiistaShowGameTrianglesKey";
 NSString *const RiistaShowMooseRestrictionsKey = @"RiistaShowMooseRestrictionsKey";
 NSString *const RiistaShowSmallGameRestrictionsKey = @"RiistaShowSmallGameRestrictionsKey";
 NSString *const RiistaShowAviHuntingBanKey = @"RiistaShowAviHuntingBanKey";
+NSString *const RiistaShowLeadShotBanKey = @"RiistaShowLeadShotBanKey";
 NSString *const RiistaSelectedMooseAreaKey = @"RiistaSelectedMooseAreaKey";
 NSString *const RiistaSelectePienriistaAreaKey = @"RiistaSelectePienriistaAreaKey";
 
 NSString *const RiistaUseExperimentalMode = @"RiistaUseExperimentalMode";
 
+// not really a json but instead seems to be binary .plist format produced by NSKeyedArchiver
+// -> we cannot get rid of UserInfo nor change its structure as long as this file exists
+//
+// reading the file into different structure may crash or at least produces nil values
+// unless Apple somehow took this into account.
 NSString *const kUserInfoFileName = @"/user.json";
 
 @implementation RiistaSettings
@@ -194,6 +200,19 @@ NSString *const kUserInfoFileName = @"/user.json";
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     [userDefaults setBool:show forKey:RiistaShowGameTrianglesKey];
+    [userDefaults synchronize];
+}
+
++ (BOOL)showLeadShotBan
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    return [userDefaults boolForKey:RiistaShowLeadShotBanKey];
+}
+
++ (void)setShowLeadShotBan:(BOOL)show
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setBool:show forKey:RiistaShowLeadShotBanKey];
     [userDefaults synchronize];
 }
 

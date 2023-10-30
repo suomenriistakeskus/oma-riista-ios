@@ -3,6 +3,9 @@ import RiistaCommon
 
 import MaterialComponents.MaterialDialogs
 
+typealias OnLoginCompleted = (NetworkResponse<UserInfoDTO>?, Error?) -> Void
+
+
 @objc class RiistaSDKHelper: NSObject {
     @objc static private(set) var riistaSdkInitialized: Bool = false
 
@@ -26,18 +29,43 @@ import MaterialComponents.MaterialDialogs
 
         CrashlyticsHelper.log(msg: "RiistaSDK initialization completed")
 
+        MigrateUserInformationToRiistaCommon.scheduleMigration()
+
         riistaSdkInitialized = true
     }
 
-    @objc class func logout() {
+    @objc class func login(
+        username: String,
+        password: String,
+        timeoutSeconds: Int,
+        onCompleted: @escaping OnLoginCompleted
+    ) {
+        Thread.onMainThread {
+            RiistaSDK.shared.login(
+                username: username,
+                password: password,
+                timeoutSeconds: Int32(timeoutSeconds),
+                completionHandler: handleOnMainThread { response, error in
+                    onCompleted(response, error)
+                }
+            )
+        }
+    }
+
+    @objc class func logout(_ onCompleted: @escaping OnCompleted) {
         if (!riistaSdkInitialized) {
             CrashlyticsHelper.log(msg: "Refusing to logout before RiistaSDK has been initialized")
             return
         }
 
         CrashlyticsHelper.log(msg: "Logging out RiistaSDK..")
-        RiistaSDK.shared.logout()
-        CrashlyticsHelper.log(msg: "RiistaSDK logged out")
+
+        RiistaSDK.shared.logout(
+            completionHandler: handleOnMainThread { _ in
+                CrashlyticsHelper.log(msg: "RiistaSDK logged out")
+                onCompleted()
+            }
+        )
     }
 
     @objc class func prepareAppStartupMessage(_ messageJson: String?) {
@@ -48,10 +76,22 @@ import MaterialComponents.MaterialDialogs
 
         CrashlyticsHelper.log(msg: "Preparing application startup message")
 
-        let startupMessageHandler = RiistaSDK.shared.appStartupMessageHandler()
-        startupMessageHandler.parseAppStartupMessageFromJson(messageJson: messageJson)
+        RiistaSDK.shared.appStartupMessageHandler.parseAppStartupMessageFromJson(messageJson: messageJson)
 
         CrashlyticsHelper.log(msg: "Application startup message prepared")
+    }
+
+    @objc class func setupMapTileVersions(_ mapTileVersionsJson: String?) {
+        if (!riistaSdkInitialized) {
+            CrashlyticsHelper.log(msg: "Refusing to setup map tile versions before RiistaSDK has been initialized")
+            return
+        }
+
+        CrashlyticsHelper.log(msg: "Setting map tile versions")
+
+        RiistaSDK.shared.mapTileVersions.parseMapTileVersions(versionsJson: mapTileVersionsJson)
+
+        CrashlyticsHelper.log(msg: "Map tile versions applied")
     }
 
     @objc class func prepareGroupHuntingIntroMessage(_ messageJson: String?) {
@@ -66,24 +106,6 @@ import MaterialComponents.MaterialDialogs
         messageHandler.parseMessageFromJson(messageJson: messageJson)
 
         CrashlyticsHelper.log(msg: "Group hunting intro message prepared")
-    }
-
-    @objc class func overrideHarvestSeasons(_ overridesJson: String?) {
-        if (!riistaSdkInitialized) {
-            CrashlyticsHelper.log(msg: "Refusing to override harvest seasons before RiistaSDK has been initialized")
-            return
-        }
-
-        guard let overridesJson = overridesJson else {
-            CrashlyticsHelper.log(msg: "Refusing to override harvest seasons with null overrides!")
-            return
-        }
-
-        CrashlyticsHelper.log(msg: "Overriding harvest seasons")
-
-        RiistaSDK.shared.harvestSeasons.overridesProvider.parseOverridesFromJson(overridesJson: overridesJson)
-
-        CrashlyticsHelper.log(msg: "Harvest seasons overridden")
     }
 
     @objc class func applyRemoteSettings(_ remoteSettingsJson: String?) {
@@ -125,15 +147,22 @@ import MaterialComponents.MaterialDialogs
         */
     }
 
-    @objc class func synchronize(completion: @escaping OnCompleted) {
+    @objc class func synchronize(
+        synchronizationLevel: SynchronizationLevel,
+        synchronizationConfig: SynchronizationConfig,
+        completion: @escaping OnCompleted
+    ) {
         if (!riistaSdkInitialized) {
             CrashlyticsHelper.log(msg: "Refusing to synchronize before RiistaSDK has been initialized")
             completion()
             return
         }
 
-        RiistaSDK.shared.synchronizeAllDataPieces { _, _ in
-            completion()
+        RiistaSDK.shared.synchronize(
+            synchronizedContent: SynchronizedContent.SelectedLevel(synchronizationLevel: synchronizationLevel),
+            config: synchronizationConfig
+        ) { _ in
+            Thread.onMainThread(completion)
         }
     }
 
@@ -146,7 +175,7 @@ import MaterialComponents.MaterialDialogs
 
         CrashlyticsHelper.log(msg: "Trying to obtain application startup message")
 
-        let startupMessageHandler = RiistaSDK.shared.appStartupMessageHandler()
+        let startupMessageHandler = RiistaSDK.shared.appStartupMessageHandler
         guard let startupMessage = startupMessageHandler.getAppStartupMessageToBeDisplayed() else {
             CrashlyticsHelper.log(msg: "No startup message to be displayed")
             return false
@@ -231,11 +260,38 @@ import MaterialComponents.MaterialDialogs
             }
 
             if let cookie = HTTPCookie(properties: cookieProperties) {
+                // apparentally setting cookie is not always enough to overwrite cookie. This worked on some of
+                // the test device but also failed when testing on iOS simulator 13.7 (iphone se)
+                //
+                // The most probable cause for failure is that existing cookie has isHttpOnly == true and
+                // we're not setting that value. When testing the cookie was correctly updated when we either
+                // set `HTTPCookiePropertyKey("HttpOnly"): true` or delete the matching cookie in storage
+                //
+                // -> Setting HttpOnly property is undocumented and thus let's delete the existing cookie
+                cookieStorage.deleteMatchingCookie(cookieData: cookieData)
+
                 // both MKNetwork and Alamofire use the same cookieStorage
                 cookieStorage.setCookie(cookie)
             } else {
                 CrashlyticsHelper.log(msg: "Failed to create cookie with properties!")
             }
         }
+    }
+}
+
+
+fileprivate extension HTTPCookieStorage {
+    func deleteMatchingCookie(cookieData: CookieData) {
+        guard let cookie = self.cookies?.first(where: { cookie in
+            cookie.name == cookieData.name &&
+            cookie.domain == cookieData.domain &&
+            cookie.path == cookieData.path
+        }) else {
+            print("No matching cookie, cannot remove")
+            return
+        }
+
+        print("Matching cookie found, removing it")
+        deleteCookie(cookie)
     }
 }

@@ -18,7 +18,6 @@ extern NSString *const RiistaLoginDomain;
 @class DiaryImage;
 
 typedef void(^RiistaLoginCompletionBlock)(NSError *error);
-typedef void(^RiistaDiaryEntryYearsCompletionBlock)(NSArray* years, NSError *error);
 typedef void(^RiistaYearUpdateCheckCompletionBlock)(BOOL updates, NSError *error);
 typedef void(^RiistaDiaryEntryFetchCompletion)(NSArray *entries, NSError *error);
 typedef void(^RiistaDiaryEntrySendCompletion)(NSDictionary *response, NSError *error);
@@ -71,12 +70,6 @@ typedef void(^RiistaJsonCompletion)(NSDictionary *item, NSError *error);
 - (void)listAnnouncements:(RiistaAnnouncementsListCompletion)completion;
 
 /**
- * Fetch user MH permits
- * @param completion Completion block
- */
-- (void)listMhPermits:(RiistaJsonArrayCompletion)completion;
-
-/**
  * Get list of permits associated with user
  * @param completion Completion block
  */
@@ -91,49 +84,11 @@ typedef void(^RiistaJsonCompletion)(NSDictionary *item, NSError *error);
 - (void)checkPermitNumber:(NSString*)permitNumber completion:(RiistaPermitCheckNumberCompletion)completion;
 
 /**
- * Fetch diary entry years from server
- * @param retry Relogin and retry if there is no session
- * @param completion Completion block
- */
-- (void)diaryEntryYears:(BOOL)retry completion:(RiistaDiaryEntryYearsCompletionBlock)completion;
-
-/**
- * Check if there are updates for given year
- * @param year
- * @param lastFetch last time entries were fetched
- * @param completion Completion block
- */
-- (void)updatesForYear:(NSInteger)year lastFetch:(NSDate*)fetchDate completion:(RiistaYearUpdateCheckCompletionBlock)completion;
-
-/**
- * Fetches diary entries for given year
- * @param year
- * @param context Managed object context
- * @param completion Completion block
- */
-- (void)diaryEntriesForYear:(NSInteger)year context:(NSManagedObjectContext*)context completion:(RiistaDiaryEntryFetchCompletion)completion;
-
-/**
- * Sends given diary entry to server
- * @param diaryEntry
- * @param completion Completion block
- */
-- (void)sendDiaryEntry:(DiaryEntry*)diaryEntry completion:(RiistaDiaryEntrySendCompletion)completion;
-
-/**
  * Loads remote image from server
  * @param uuid Image uuid
  * @param completion Completion block
  */
 - (void)loadDiaryEntryImage:(NSString*)uuid completion:(RiistaDiaryEntryImageDownloadCompletion)completion;
-
-/**
- * Completes insert/deletion operations for images having such status
- * @param image DiaryImage object
- * @param diaryEntry DiaryEntry object
- * @param completion Completion block
- */
-- (void)diaryEntryImageOperationForImage:(DiaryImage*)image diaryEntry:(DiaryEntry*)diaryEntry completion:(RiistaDiaryEntryImageOperationCompletion)completion;
 
 
 - (void)clubAreaMaps:(RiistaJsonArrayCompletion)completion;
@@ -143,33 +98,5 @@ typedef void(^RiistaJsonCompletion)(NSDictionary *item, NSError *error);
 - (void)listMooseAreaMaps:(RiistaJsonArrayCompletion)completion;
 - (void)listPienriistaAreaMaps:(RiistaJsonArrayCompletion)completion;
 
-- (void)listShootingTestCalendarEvents:(RiistaJsonArrayCompletion)completion;
-- (void)getShootingTestCalendarEvent:(long)eventId completion:(RiistaJsonCompletion)completion;
-
-- (void)startEvent:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
-- (void)closeEvent:(NSString*)url completion:(RiistaJsonCompletion)completion;
-- (void)reopenEvent:(NSString*)url completion:(RiistaJsonCompletion)completion;
-- (void)updateOfficials:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
-
-- (void)listAvailableOfficialsForEvent:(NSString*)url completion:(RiistaJsonArrayCompletion)completion;
-- (void)listAvailableOfficialsForRhy:(NSString*)url completion:(RiistaJsonArrayCompletion)completion;
-- (void)listSelectedOfficialsForEvent:(NSString*)url completion:(RiistaJsonArrayCompletion)completion;
-
-- (void)searchWithHuntingNumberForEvent:(NSString*)url hunterNumber:(NSString*)hunterNumber completion:(RiistaJsonCompletion)completion;
-- (void)searchWithSsnForEvent:(NSString*)url ssn:(NSString*)ssn completion:(RiistaJsonCompletion)completion;
-- (void)addParticipant:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
-
-- (void)getParticipantDetailed:(NSString*)url completion:(RiistaJsonCompletion)completion;
-- (void)getAttempt:(NSString*)url completion:(RiistaJsonCompletion)completion;
-
-- (void)addAttempt:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
-- (void)updateAttempt:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
-- (void)deleteAttempt:(NSString*)url completion:(RiistaJsonCompletion)completion;
-- (void)listParticipants:(NSString*)url unfinishedOnly:(BOOL)unfinishedOnly completion:(RiistaJsonArrayCompletion)completion;
-
-- (void)getParticipantSummary:(NSString*)url completion:(RiistaJsonCompletion)completion;
-- (void)completeAllPayments:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
-
-- (void)updatePaymentState:(NSString*)url body:(NSDictionary*)body completion:(RiistaJsonCompletion)completion;
 
 @end

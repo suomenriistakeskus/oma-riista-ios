@@ -38,11 +38,13 @@ class EditGroupHuntingDayViewController:
         saveButton.isEnabled = false
 
         // accept is same as save for observations
-        controller.saveHuntingDay { [weak self] result, error in
-            self?.tableView.hideLoading()
-            self?.saveButton.isEnabled = true
-            self?.onHuntingDaySaveCompleted(result: result, error: error)
-        }
+        controller.saveHuntingDay(
+            completionHandler: handleOnMainThread { [weak self] result, error in
+                self?.tableView.hideLoading()
+                self?.saveButton.isEnabled = true
+                self?.onHuntingDaySaveCompleted(result: result, error: error)
+            }
+        )
     }
 
     private func onHuntingDaySaveCompleted(result: GroupHuntingDayUpdateResponse?, error: Error?) {

@@ -23,7 +23,7 @@ protocol AuthenticationChildHelpers: AnyObject {
  * - registering a new account (not implemented yet)
  * - changing email (not implemented yet)
  */
-@objc class AuthenticationViewController: UIViewController,
+@objc class AuthenticationViewController: BaseViewController,
                                           AuthenticationChildHelpers,
                                           LoginOrRegisterViewControllerDelegate,
                                           RecoverPasswordViewControllerDelegate,

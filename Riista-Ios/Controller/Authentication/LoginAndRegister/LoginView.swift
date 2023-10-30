@@ -5,11 +5,7 @@ class LoginView: UIStackView, UITextFieldDelegate {
 
     lazy var usernameField: TextField = {
         createTextField().apply { field in
-            if #available(iOS 11.0, *) {
-                field.textContentType = .username
-            } else {
-                field.textContentType = .emailAddress
-            }
+            field.textContentType = .username
             field.keyboardType = .emailAddress
             field.returnKeyType = .next
             field.delegate = self
@@ -19,10 +15,7 @@ class LoginView: UIStackView, UITextFieldDelegate {
     lazy var passwordField: TextField = {
         createTextField().apply { field in
             field.isSecureTextEntry = true
-
-            if #available(iOS 11.0, *) {
-                field.textContentType = .password
-            }
+            field.textContentType = .password
             field.keyboardType = .default
             field.returnKeyType = .done
             field.delegate = self

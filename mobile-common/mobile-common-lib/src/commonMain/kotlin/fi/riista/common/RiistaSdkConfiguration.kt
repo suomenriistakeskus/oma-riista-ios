@@ -22,6 +22,6 @@ data class RiistaSdkConfiguration(
 
     internal constructor(applicationVersion: String, applicationBuild: String,
                          serverBaseAddress: String, crashlyticsLogger: CrashlyticsLogger)
-            : this(versionInfo = VersionInfo(applicationVersion, applicationBuild, RiistaSDK.SDK_VERSION),
+            : this(versionInfo = VersionInfo(applicationVersion, applicationBuild),
                    serverBaseAddress = serverBaseAddress, crashlyticsLogger = crashlyticsLogger)
 }

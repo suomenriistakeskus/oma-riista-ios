@@ -19,7 +19,7 @@ class ViewHuntingControlEventViewController:
 
     private lazy var _controller: RiistaCommon.ViewHuntingControlEventController = {
         RiistaCommon.ViewHuntingControlEventController(
-            huntingControlContext: RiistaSDK.shared.currentUserContext.huntingControlContext,
+            huntingControlContext: RiistaSDK.shared.huntingControlContext,
             huntingControlEventTarget: huntingControlEventTarget,
             stringProvider: LocalizedStringProvider()
         )
@@ -40,7 +40,7 @@ class ViewHuntingControlEventViewController:
             target: self,
             action: #selector(onEditButtonClicked)
         )
-        button.isHidden = true // by default, will be displayed later if allowed
+        button.isHiddenCompat = true // by default, will be displayed later if allowed
         return button
     }()
 
@@ -62,8 +62,8 @@ class ViewHuntingControlEventViewController:
         view.addSubview(container)
         container.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         let tableView = TableView()
@@ -73,7 +73,7 @@ class ViewHuntingControlEventViewController:
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -104,7 +104,7 @@ class ViewHuntingControlEventViewController:
     }
 
     private func updateEditButtonVisibility(canEdit: Bool) {
-        editNavBarButton.isHidden = !canEdit
+        editNavBarButton.isHiddenCompat = !canEdit
     }
 
 

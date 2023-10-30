@@ -1,6 +1,7 @@
 package fi.riista.common.domain.groupHunting.ui.groupHarvest.modify
 
 import fi.riista.common.domain.constants.Constants
+import fi.riista.common.domain.content.SpeciesResolver
 import fi.riista.common.domain.groupHunting.GroupHuntingContext
 import fi.riista.common.domain.groupHunting.GroupHuntingDayForDeerResponse
 import fi.riista.common.domain.groupHunting.GroupHuntingHarvestOperationResponse
@@ -16,6 +17,7 @@ import fi.riista.common.domain.harvest.model.CommonHarvestData
 import fi.riista.common.domain.harvest.ui.modify.ModifyHarvestIntent
 import fi.riista.common.domain.model.CommonSpecimenData
 import fi.riista.common.domain.model.EntityImages
+import fi.riista.common.domain.model.SearchableOrganization
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.model.asKnownLocation
 import fi.riista.common.domain.model.isDeer
@@ -42,14 +44,16 @@ class CreateGroupHarvestController internal constructor(
     groupHuntingContext: GroupHuntingContext,
     private val huntingGroupTarget: IdentifiesHuntingGroup,
     localDateTimeProvider: LocalDateTimeProvider,
+    speciesResolver: SpeciesResolver,
     stringProvider: StringProvider,
-) : ModifyGroupHarvestController(groupHuntingContext, localDateTimeProvider, stringProvider) {
+) : ModifyGroupHarvestController(groupHuntingContext, localDateTimeProvider, speciesResolver, stringProvider) {
 
     constructor(
         groupHuntingContext: GroupHuntingContext,
         huntingGroupTarget: IdentifiesHuntingGroup,
+        speciesResolver: SpeciesResolver,
         stringProvider: StringProvider
-    ): this(groupHuntingContext, huntingGroupTarget, SystemDateTimeProvider(), stringProvider)
+    ): this(groupHuntingContext, huntingGroupTarget, SystemDateTimeProvider(), speciesResolver, stringProvider)
 
     override fun createLoadViewModelFlow(refresh: Boolean):
             Flow<ViewModelLoadStatus<ModifyGroupHarvestViewModel>> = flow {
@@ -115,7 +119,10 @@ class CreateGroupHarvestController internal constructor(
                     huntingDayId = null,
                     actorInfo = GroupHuntingPerson.Unknown,
                     authorInfo = null, // will be set on the backend
+                    selectedClub = SearchableOrganization.Unknown,
                     canEdit = true,
+                    modified = true,
+                    deleted = false,
                     harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
                     harvestReportRequired = false,
                     harvestReportState = BackendEnum.create(null),

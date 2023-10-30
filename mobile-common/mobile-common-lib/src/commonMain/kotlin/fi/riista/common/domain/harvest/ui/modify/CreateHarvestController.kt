@@ -4,17 +4,22 @@ import fi.riista.common.domain.constants.Constants
 import fi.riista.common.domain.constants.SpeciesCode
 import fi.riista.common.domain.content.SpeciesResolver
 import fi.riista.common.domain.groupHunting.model.GroupHuntingPerson
+import fi.riista.common.domain.harvest.HarvestContext
 import fi.riista.common.domain.harvest.model.CommonHarvest
 import fi.riista.common.domain.harvest.model.CommonHarvestData
+import fi.riista.common.domain.huntingclub.selectableForEntries.HuntingClubsSelectableForEntries
 import fi.riista.common.domain.model.CommonLocation
 import fi.riista.common.domain.model.CommonSpecimenData
 import fi.riista.common.domain.model.EntityImages
+import fi.riista.common.domain.model.SearchableOrganization
 import fi.riista.common.domain.model.Species
-import fi.riista.common.domain.permit.PermitProvider
+import fi.riista.common.domain.permit.harvestPermit.HarvestPermitProvider
 import fi.riista.common.domain.season.HarvestSeasons
 import fi.riista.common.model.BackendEnum
 import fi.riista.common.model.ETRMSGeoLocation
 import fi.riista.common.model.isInsideFinland
+import fi.riista.common.preferences.Preferences
+import fi.riista.common.resources.LanguageProvider
 import fi.riista.common.resources.StringProvider
 import fi.riista.common.ui.controller.ViewModelLoadStatus
 import fi.riista.common.util.LocalDateTimeProvider
@@ -29,23 +34,45 @@ import kotlinx.coroutines.flow.flow
  */
 class CreateHarvestController internal constructor(
     harvestSeasons: HarvestSeasons,
+    harvestContext: HarvestContext,
     currentTimeProvider: LocalDateTimeProvider,
-    permitProvider: PermitProvider,
+    harvestPermitProvider: HarvestPermitProvider,
+    selectableHuntingClubs: HuntingClubsSelectableForEntries,
+    languageProvider: LanguageProvider,
+    preferences: Preferences,
     speciesResolver: SpeciesResolver,
     stringProvider: StringProvider,
-) : ModifyHarvestController(harvestSeasons, currentTimeProvider, permitProvider, speciesResolver, stringProvider) {
+) : ModifyHarvestController(
+    harvestSeasons = harvestSeasons,
+    harvestContext = harvestContext,
+    currentTimeProvider = currentTimeProvider,
+    harvestPermitProvider = harvestPermitProvider,
+    selectableHuntingClubs = selectableHuntingClubs,
+    languageProvider = languageProvider,
+    preferences = preferences,
+    speciesResolver = speciesResolver,
+    stringProvider = stringProvider,
+) {
 
     var initialSpeciesCode: SpeciesCode? = null
 
     constructor(
         harvestSeasons: HarvestSeasons,
-        permitProvider: PermitProvider,
+        harvestContext: HarvestContext,
+        harvestPermitProvider: HarvestPermitProvider,
+        selectableHuntingClubs: HuntingClubsSelectableForEntries,
+        languageProvider: LanguageProvider,
+        preferences: Preferences,
         speciesResolver: SpeciesResolver,
         stringProvider: StringProvider,
-    ): this(
+    ) : this(
         harvestSeasons = harvestSeasons,
+        harvestContext = harvestContext,
         currentTimeProvider = SystemDateTimeProvider(),
-        permitProvider = permitProvider,
+        harvestPermitProvider = harvestPermitProvider,
+        selectableHuntingClubs = selectableHuntingClubs,
+        languageProvider = languageProvider,
+        preferences = preferences,
         speciesResolver = speciesResolver,
         stringProvider = stringProvider,
     )
@@ -100,14 +127,21 @@ class CreateHarvestController internal constructor(
 
     override fun createLoadViewModelFlow(refresh: Boolean):
             Flow<ViewModelLoadStatus<ModifyHarvestViewModel>> = flow {
-        val existingViewModel = getLoadedViewModelOrNull()
-        if (existingViewModel != null) {
-            return@flow
-        }
+        // prefer harvest data in following order:
+        // - currently loaded harvest data
+        // - restored harvest data
+        // - create new harvest
+        val harvestData = getLoadedViewModelOrNull()?.harvest
+            ?: restoredHarvestData
+            ?: createNewHarvest()
+
+        val shooters = harvestContext.getShooters()
 
         val viewModel = createViewModel(
-            harvest = restoredHarvestData ?: createNewHarvest(),
+            harvest = harvestData,
             permit = null,
+            ownHarvest = true,
+            shooters = shooters,
         ).applyPendingIntents()
 
         emit(ViewModelLoadStatus.Loaded(viewModel))
@@ -124,12 +158,15 @@ class CreateHarvestController internal constructor(
             pointOfTime = currentTimeProvider.now(),
             description = null,
             canEdit = true,
+            modified = true,
+            deleted = false,
             images = EntityImages.noImages(),
             specimens = listOf(CommonSpecimenData().ensureDefaultValuesAreSet()),
             amount = 1,
             huntingDayId = null,
             authorInfo = null,
             actorInfo = GroupHuntingPerson.Unknown,
+            selectedClub = SearchableOrganization.Unknown,
             harvestSpecVersion = Constants.HARVEST_SPEC_VERSION,
             harvestReportRequired = false,
             harvestReportState = BackendEnum.create(null),

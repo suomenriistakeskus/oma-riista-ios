@@ -12,7 +12,7 @@ class HunterInfoViewController :
     StartScanCellListener {
 
     private(set) var _controller = RiistaCommon.HunterInfoController(
-        huntingControlContext: RiistaSDK.shared.currentUserContext.huntingControlContext,
+        huntingControlContext: RiistaSDK.shared.huntingControlContext,
         languageProvider: CurrentLanguageProvider(),
         stringProvider: LocalizedStringProvider()
     )
@@ -40,7 +40,7 @@ class HunterInfoViewController :
         tableView.tableFooterView = nil
         tableView.allowsSelection = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 70
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
 
         tableViewController.setTableView(tableView)
@@ -53,8 +53,8 @@ class HunterInfoViewController :
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         keyboardHandler = KeyboardHandler(

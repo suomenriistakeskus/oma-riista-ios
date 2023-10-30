@@ -1,6 +1,6 @@
 package fi.riista.common.domain.groupHunting.ui.groupHarvest.modify
 
-import co.touchlab.stately.ensureNeverFrozen
+import fi.riista.common.domain.content.SpeciesResolver
 import fi.riista.common.domain.dto.toPersonWithHunterNumber
 import fi.riista.common.domain.groupHunting.GroupHuntingContext
 import fi.riista.common.domain.groupHunting.model.GroupHuntingDay
@@ -15,13 +15,13 @@ import fi.riista.common.domain.groupHunting.model.asGroupMember
 import fi.riista.common.domain.groupHunting.model.asGuest
 import fi.riista.common.domain.groupHunting.model.isMember
 import fi.riista.common.domain.groupHunting.ui.groupHarvest.GroupHuntingHarvestFields
+import fi.riista.common.domain.groupHunting.ui.groupHarvest.validation.GroupHarvestValidator
 import fi.riista.common.domain.harvest.model.CommonHarvestData
 import fi.riista.common.domain.harvest.ui.CommonHarvestField
-import fi.riista.common.domain.harvest.validation.CommonHarvestValidator
-import fi.riista.common.domain.groupHunting.ui.groupHarvest.validation.GroupHarvestValidator
 import fi.riista.common.domain.harvest.ui.modify.ModifyHarvestEventDispatcher
 import fi.riista.common.domain.harvest.ui.modify.ModifyHarvestEventToIntentMapper
 import fi.riista.common.domain.harvest.ui.modify.ModifyHarvestIntent
+import fi.riista.common.domain.harvest.validation.CommonHarvestValidator
 import fi.riista.common.domain.model.CommonSpecimenData
 import fi.riista.common.domain.model.HunterNumber
 import fi.riista.common.domain.model.PersonWithHunterNumber
@@ -48,6 +48,7 @@ import kotlinx.serialization.Serializable
 abstract class ModifyGroupHarvestController(
     protected val groupHuntingContext: GroupHuntingContext,
     protected val localDateTimeProvider: LocalDateTimeProvider,
+    speciesResolver: SpeciesResolver,
     stringProvider: StringProvider,
 ) : ControllerWithLoadableModel<ModifyGroupHarvestViewModel>(),
     IntentHandler<ModifyHarvestIntent>,
@@ -74,10 +75,7 @@ abstract class ModifyGroupHarvestController(
         currentDateTimeProvider = localDateTimeProvider,
     )
 
-    init {
-        // should be accessed from UI thread only
-        ensureNeverFrozen()
-    }
+    private val harvestValidator = GroupHarvestValidator(localDateTimeProvider, speciesResolver)
 
     override fun handleIntent(intent: ModifyHarvestIntent) {
         // It is possible that intent is sent already before we have Loaded viewmodel.
@@ -299,6 +297,9 @@ abstract class ModifyGroupHarvestController(
                     }
                     ?: harvest
             }
+            is ModifyHarvestIntent.ChangeIsOwnHarvest,
+            is ModifyHarvestIntent.ChangeSelectedClub,
+            is ModifyHarvestIntent.ChangeSelectedClubOfficialCode,
             is ModifyHarvestIntent.LaunchPermitSelection,
             is ModifyHarvestIntent.ClearSelectedPermit,
             is ModifyHarvestIntent.SelectPermit,
@@ -420,8 +421,8 @@ abstract class ModifyGroupHarvestController(
                 )
         )
 
-        val validationErrors = GroupHarvestValidator.validate(
-                harvest, huntingDays, huntingGroupPermit, localDateTimeProvider, fieldsToBeDisplayed)
+        val validationErrors = harvestValidator.validate(
+                harvest, huntingDays, huntingGroupPermit, fieldsToBeDisplayed)
 
         val harvestIsValid = validationErrors.isEmpty()
 
@@ -475,8 +476,12 @@ abstract class ModifyGroupHarvestController(
                 CommonHarvestField.LOCATION,
                 CommonHarvestField.DEER_HUNTING_TYPE,
                 CommonHarvestField.DEER_HUNTING_OTHER_TYPE_DESCRIPTION,
+                CommonHarvestField.OWN_HARVEST,
                 CommonHarvestField.ACTOR_HUNTER_NUMBER,
                 CommonHarvestField.ACTOR_HUNTER_NUMBER_INFO_OR_ERROR,
+                CommonHarvestField.SELECTED_CLUB,
+                CommonHarvestField.SELECTED_CLUB_OFFICIAL_CODE,
+                CommonHarvestField.SELECTED_CLUB_OFFICIAL_CODE_INFO_OR_ERROR,
                 CommonHarvestField.GENDER,
                 CommonHarvestField.AGE,
                 CommonHarvestField.NOT_EDIBLE,
@@ -514,7 +519,6 @@ abstract class ModifyGroupHarvestController(
                 CommonHarvestField.DESCRIPTION -> {
                     result.add(fieldSpecification)
                 }
-
             }
         }
         return result
@@ -538,11 +542,10 @@ abstract class ModifyGroupHarvestController(
             )
         )
 
-        val validationErrors = GroupHarvestValidator.validate(
+        val validationErrors = harvestValidator.validate(
             harvest = harvest,
             huntingDays = huntingDays,
             huntingGroupPermit = huntingGroupPermit,
-            localDateTimeProvider = localDateTimeProvider,
             displayedFields = displayedFields
         )
         if (validationErrors.isNotEmpty()) {

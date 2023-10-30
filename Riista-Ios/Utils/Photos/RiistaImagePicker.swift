@@ -92,12 +92,8 @@ class RiistaImagePicker: NSObject, ImagePickerProvider {
             self.allowRelease(self)
         }
 
-        if (Thread.isMainThread) {
+        Thread.onMainThread {
             dismissHandler()
-        } else {
-            Async.main {
-                dismissHandler()
-            }
         }
     }
 

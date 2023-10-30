@@ -33,19 +33,21 @@ class ControllerHolder<
 
     func bindToViewModelLoadStatus() {
         controller.viewModelLoadStatus.bindAndNotify { [weak self] viewModelLoadStatus in
-            guard let self = self else { return }
-            guard let viewModelLoadStatus = viewModelLoadStatus else { return }
+            Thread.onMainThread {
+                guard let self = self else { return }
+                guard let viewModelLoadStatus = viewModelLoadStatus else { return }
 
-            if (viewModelLoadStatus == ViewModelLoadStatusNotLoaded.shared) {
-                self.onViewModelNotLoaded()
-            } else if (viewModelLoadStatus == ViewModelLoadStatusLoading.shared) {
-                self.onViewModelLoading()
-            } else if (viewModelLoadStatus == ViewModelLoadStatusLoadFailed.shared) {
-                self.onViewModelLoadFailed()
-            } else if let loadedState = viewModelLoadStatus as? ViewModelLoadStatusLoaded<ViewModelType> {
-                self.onViewModelLoaded(viewModel: loadedState.viewModel)
-            } else {
-                fatalError("Unknown ViewModelLoadStatus!")
+                if (viewModelLoadStatus == ViewModelLoadStatusNotLoaded.shared) {
+                    self.onViewModelNotLoaded()
+                } else if (viewModelLoadStatus == ViewModelLoadStatusLoading.shared) {
+                    self.onViewModelLoading()
+                } else if (viewModelLoadStatus == ViewModelLoadStatusLoadFailed.shared) {
+                    self.onViewModelLoadFailed()
+                } else if let loadedState = viewModelLoadStatus as? ViewModelLoadStatusLoaded<ViewModelType> {
+                    self.onViewModelLoaded(viewModel: loadedState.viewModel)
+                } else {
+                    fatalError("Unknown ViewModelLoadStatus!")
+                }
             }
         }.disposeBy(disposeBag: disposeBag)
     }
@@ -63,17 +65,20 @@ class ControllerHolder<
         print("Loading viewmodel..")
         shouldRefreshViewModel = false
 
-        listener?.onWillLoadViewModel(willRefresh: refresh)
+        self.onWillLoadViewModel(willRefresh: refresh)
 
-        controller.loadViewModel(refresh: refresh) { [weak self] _, error in
-            self?.listener?.onLoadViewModelCompleted()
+        controller.loadViewModel(
+            refresh: refresh,
+            completionHandler: handleOnMainThread { [weak self] error in
+                self?.onLoadViewModelCompleted()
 
-            if (error == nil) {
-                print("ViewModel loading completed successfully.")
-            } else {
-                print("ViewModel loading completed with a failure.")
+                if (error == nil) {
+                    print("ViewModel loading completed successfully.")
+                } else {
+                    print("ViewModel loading completed with a failure.")
+                }
             }
-        }
+        )
     }
 
     func onWillLoadViewModel(willRefresh: Bool) {

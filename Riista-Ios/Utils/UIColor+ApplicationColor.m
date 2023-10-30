@@ -33,8 +33,8 @@
             @(RiistaApplicationColorHarvestStatusApproved): [UIColor colorWithHexValue:0x004923],
             @(RiistaApplicationColorHarvestStatusRejected): [UIColor colorWithHexValue:0xc44d4a],
 
-            @(ShootingTestQualifiedColor): [UIColor colorWithHexValue:0x026935],
-            @(ShootingTestUnqualifiedColor): [UIColor colorWithHexValue:0xE34256],
+            @(ShootingTestQualifiedColor): [UIColor colorWithHexValue:0x2F882E],
+            @(ShootingTestUnqualifiedColor): [UIColor colorWithHexValue:0xC72525],
             @(ShootingTestIntendedColor): [UIColor colorWithHexValue:0x56BACD],
             @(ShootingTestNotIntendedColor): [UIColor colorWithHexValue:0x56BACD],
 

@@ -56,9 +56,26 @@ open class GroupHuntingHarvestFieldsTest {
                     gameSpeciesCode = speciesCode,
                     specimens = listOf(
                         CommonHarvestSpecimen(
+                            id = null,
+                            rev = null,
                             age = BackendEnum.create(age),
                             gender = BackendEnum.create(gender),
-                            antlersLost = antlersLost
+                            antlersLost = antlersLost,
+                            weight = null,
+                            weightEstimated = null,
+                            weightMeasured = null,
+                            fitnessClass = BackendEnum.create(null),
+                            antlersType = BackendEnum.create(null),
+                            antlersWidth = null,
+                            antlerPointsLeft = null,
+                            antlerPointsRight = null,
+                            antlersGirth = null,
+                            antlersLength = null,
+                            antlersInnerWidth = null,
+                            antlerShaftWidth = null,
+                            notEdible = null,
+                            alone = null,
+                            additionalInfo = null,
                         )
                     ),
                 )

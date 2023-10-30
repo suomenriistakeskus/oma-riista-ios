@@ -5,19 +5,34 @@ import fi.riista.common.domain.groupHunting.GroupHuntingContext
 import fi.riista.common.domain.groupHunting.MockGroupHuntingData
 import fi.riista.common.domain.groupHunting.model.GroupHuntingHarvestTarget
 import fi.riista.common.domain.harvest.ui.CommonHarvestField
-import fi.riista.common.helpers.*
-import fi.riista.common.domain.model.*
+import fi.riista.common.domain.model.GameAge
+import fi.riista.common.domain.model.Gender
+import fi.riista.common.domain.model.Species
+import fi.riista.common.domain.model.asKnownLocation
+import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
+import fi.riista.common.helpers.TestStringProvider
+import fi.riista.common.helpers.getAgeField
+import fi.riista.common.helpers.getDateTimeField
+import fi.riista.common.helpers.getGenderField
+import fi.riista.common.helpers.getLocationField
+import fi.riista.common.helpers.getSpeciesField
+import fi.riista.common.helpers.getStringField
+import fi.riista.common.helpers.runBlockingTest
+import fi.riista.common.model.BackendEnum
+import fi.riista.common.model.ETRMSGeoLocation
+import fi.riista.common.model.GeoLocationSource
+import fi.riista.common.model.LocalDateTime
 import fi.riista.common.network.BackendAPI
 import fi.riista.common.network.BackendAPIMock
 import fi.riista.common.network.MockResponse
 import fi.riista.common.resources.StringProvider
 import fi.riista.common.ui.controller.ViewModelLoadStatus
-import fi.riista.common.domain.userInfo.CurrentUserContextProviderFactory
-import fi.riista.common.model.BackendEnum
-import fi.riista.common.model.ETRMSGeoLocation
-import fi.riista.common.model.GeoLocationSource
-import fi.riista.common.model.LocalDateTime
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class ViewGroupHarvestControllerTest {
 
@@ -26,7 +41,7 @@ class ViewGroupHarvestControllerTest {
         val controller = ViewGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(),
             harvestTarget = getHarvestTarget(),
-            stringProvider = getStringProvider()
+            stringProvider = getStringProvider(),
         )
 
         assertTrue(controller.viewModelLoadStatus.value is ViewModelLoadStatus.NotLoaded)
@@ -37,7 +52,7 @@ class ViewGroupHarvestControllerTest {
         val controller = ViewGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(),
             harvestTarget = getHarvestTarget(),
-            stringProvider = getStringProvider()
+            stringProvider = getStringProvider(),
         )
 
         controller.loadHarvest()
@@ -56,7 +71,7 @@ class ViewGroupHarvestControllerTest {
         val controller = ViewGroupHarvestController(
                 groupHuntingContext = getGroupHuntingContext(),
                 harvestTarget = getHarvestTarget(),
-                stringProvider = getStringProvider()
+                stringProvider = getStringProvider(),
         )
 
         controller.loadHarvest()
@@ -180,7 +195,7 @@ class ViewGroupHarvestControllerTest {
         val controller = ViewGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(),
             harvestTarget = getHarvestTarget(),
-            stringProvider = getStringProvider()
+            stringProvider = getStringProvider(),
         )
 
         controller.loadHarvest()
@@ -197,7 +212,7 @@ class ViewGroupHarvestControllerTest {
         val controller = ViewGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(),
             harvestTarget = getHarvestTarget(MockGroupHuntingData.SecondHarvestId),
-            stringProvider = getStringProvider()
+            stringProvider = getStringProvider(),
         )
 
         controller.loadHarvest()
@@ -217,7 +232,7 @@ class ViewGroupHarvestControllerTest {
         val controller = ViewGroupHarvestController(
             groupHuntingContext = getGroupHuntingContext(backendApi),
             harvestTarget = getHarvestTarget(),
-            stringProvider = getStringProvider()
+            stringProvider = getStringProvider(),
         )
         controller.loadHarvest()
 

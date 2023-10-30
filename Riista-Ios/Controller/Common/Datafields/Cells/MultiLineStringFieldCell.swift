@@ -64,6 +64,8 @@ class MultiLineStringFieldCell<FieldId : DataFieldId>:
         textView.textAlignment = .left
         textView.isScrollEnabled = false
 
+        textView.inputAccessoryView = KeyboardToolBar().hideKeyboardOnDone(editView: textView)
+
         // remove left/right paddings
         textView.textContainer.lineFragmentPadding = 0
         textView.textContainerInset = .zero

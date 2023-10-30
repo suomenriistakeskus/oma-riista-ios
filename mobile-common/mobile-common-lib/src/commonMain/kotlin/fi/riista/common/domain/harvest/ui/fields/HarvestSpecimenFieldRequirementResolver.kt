@@ -4,6 +4,7 @@ import fi.riista.common.domain.constants.SpeciesCode
 import fi.riista.common.domain.harvest.model.HarvestReportingType
 import fi.riista.common.domain.harvest.ui.CommonHarvestField
 import fi.riista.common.domain.model.Species
+import fi.riista.common.domain.specimens.ui.SpecimenFieldType
 import fi.riista.common.ui.dataField.FieldRequirement
 import fi.riista.common.ui.dataField.FieldSpecification
 
@@ -14,11 +15,9 @@ internal object HarvestSpecimenFieldRequirementResolver {
         speciesCode: SpeciesCode,
         harvestReportingType: HarvestReportingType,
     ): Boolean {
-        val permitMandatorySpecies = when (specimenField) {
-            CommonHarvestField.AGE -> PERMIT_MANDATORY_AGE
-            CommonHarvestField.GENDER -> PERMIT_MANDATORY_GENDER
-            CommonHarvestField.WEIGHT -> PERMIT_MANDATORY_WEIGHT
-            else -> return false
+        val permitMandatorySpecies = specimenField.mandatorySpecies
+        if (permitMandatorySpecies.isEmpty()) {
+            return false
         }
 
         return getFieldRequirement(speciesCode, permitMandatorySpecies, harvestReportingType)
@@ -26,6 +25,32 @@ internal object HarvestSpecimenFieldRequirementResolver {
 
     fun resolveRequirementType(
         specimenField: CommonHarvestField,
+        speciesCode: SpeciesCode,
+        harvestReportingType: HarvestReportingType,
+        fallbackRequirement: FieldRequirement.Type = FieldRequirement.Type.VOLUNTARY,
+    ): FieldRequirement.Type {
+        return if (isFieldRequired(specimenField, speciesCode, harvestReportingType)) {
+            FieldRequirement.Type.REQUIRED
+        } else {
+            fallbackRequirement
+        }
+    }
+
+    fun isFieldRequired(
+        specimenField: SpecimenFieldType,
+        speciesCode: SpeciesCode,
+        harvestReportingType: HarvestReportingType,
+    ): Boolean {
+        val permitMandatorySpecies = specimenField.mandatorySpecies
+        if (permitMandatorySpecies.isEmpty()) {
+            return false
+        }
+
+        return getFieldRequirement(speciesCode, permitMandatorySpecies, harvestReportingType)
+    }
+
+    fun resolveRequirementType(
+        specimenField: SpecimenFieldType,
         speciesCode: SpeciesCode,
         harvestReportingType: HarvestReportingType,
         fallbackRequirement: FieldRequirement.Type = FieldRequirement.Type.VOLUNTARY,
@@ -81,6 +106,26 @@ internal object HarvestSpecimenFieldRequirementResolver {
 
     // {karhu,metsäkauris,halli,villisika,norppa}
     internal val SEASON_COMMON_MANDATORY = setOf(47348, 47507, 47282, 47926, 200555)
+
+    private val CommonHarvestField.mandatorySpecies: Set<SpeciesCode>
+        get() {
+            return when (this) {
+                CommonHarvestField.AGE -> PERMIT_MANDATORY_AGE
+                CommonHarvestField.GENDER -> PERMIT_MANDATORY_GENDER
+                CommonHarvestField.WEIGHT -> PERMIT_MANDATORY_WEIGHT
+                else -> emptySet()
+            }
+        }
+
+    private val SpecimenFieldType.mandatorySpecies: Set<SpeciesCode>
+        get() {
+            return when (this) {
+                SpecimenFieldType.AGE -> PERMIT_MANDATORY_AGE
+                SpecimenFieldType.GENDER -> PERMIT_MANDATORY_GENDER
+                SpecimenFieldType.WEIGHT -> PERMIT_MANDATORY_WEIGHT
+                else -> emptySet()
+            }
+        }
 }
 
 /**

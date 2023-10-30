@@ -72,7 +72,7 @@ class ListGroupDiaryEntriesViewController:
         view.addSubview(labelContainer)
         labelContainer.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
 
         labelContainer.addSeparatorToBottom()
@@ -90,7 +90,7 @@ class ListGroupDiaryEntriesViewController:
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(labelContainer.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
 

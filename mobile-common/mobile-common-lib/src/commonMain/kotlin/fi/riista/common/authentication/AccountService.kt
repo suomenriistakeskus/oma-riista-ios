@@ -29,7 +29,7 @@ class AccountService internal constructor(
         currentUserContextProvider.userContext.loginStatus.bind { loginStatus ->
             if (loginStatus is LoginStatus.LoggedIn) {
                 saveUnregistrationRequestTime(
-                    unregistrationRequestTime = loginStatus.userInfoDTO.unregisterRequestedTime
+                    unregistrationRequestTime = loginStatus.userInformation.unregisterRequestedTime?.toStringISO8601()
                 )
             }
         }

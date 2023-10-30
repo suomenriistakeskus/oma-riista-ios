@@ -55,6 +55,30 @@ extension UINavigationController {
     }
 
     /**
+     * Replaces the `viewControllerToPop` and subsequent view controllers with the given `childViewControllers`.
+     *
+     * `viewControllerToPop` is required to exist in the navigation stack (will do nothing if it doesn't exist) in the stack.
+     *
+     * Example:
+     * - let the navigation stack be: [A, B, C, D]
+     * - replaceViewControllers(viewControllerToPop: B, childViewControllers: [E, F])
+     * - stack after operation: [A, E, F]
+     */
+    func replaceViewController(
+        viewControllerToPop: UIViewController,
+        childViewControllers: [UIViewController],
+        animated: Bool
+    ) {
+        guard let popIndex = viewControllers.firstIndex(of: viewControllerToPop) else {
+            print("viewControllerToPop not in viewControllers, returning!")
+            return
+        }
+
+        let newViewControllers = Array(viewControllers.prefix(upTo: popIndex)) + childViewControllers
+        setViewControllers(newViewControllers, animated: animated)
+    }
+
+    /**
      * Replaces the view controllers that are after the given `parentViewController` with
      * the given `childViewControllers`
      *
@@ -62,7 +86,7 @@ extension UINavigationController {
      *
      * Example:
      * - let the navigation stack be: [A, B, C, D]
-     * - replaceViewControllers(parent: B, childViewControllers: [E, F])
+     * - replaceViewControllers(parentViewController: B, childViewControllers: [E, F])
      * - stack after operation: [A, B, E, F]
      */
     func replaceViewControllers(

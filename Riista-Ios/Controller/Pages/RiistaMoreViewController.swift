@@ -9,9 +9,11 @@ fileprivate enum MoreItemType {
     case settings
     case huntingDirector
     case huntingControl
+    case sunriseAndSunsetTimes
     case eventSearch
     case magazine
     case seasons
+    case about
     case logout
 }
 
@@ -35,7 +37,8 @@ fileprivate struct MoreItem {
     @IBOutlet weak var opensInBrowserIndicator: UIImageView!
 
     fileprivate func setup(item: MoreItem) {
-        iconView.image = UIImage(named: item.iconResource)
+        iconView.image = UIImage(named: item.iconResource)?.withRenderingMode(.alwaysTemplate)
+        iconView.tintColor = UIColor.applicationColor(Primary)
         titleView.text = item.titleResource.localized()
 
         if (item.opensInBrowser) {
@@ -88,9 +91,11 @@ fileprivate struct MoreItem {
         moreItems.append(MoreItem(.gallery, iconResource: "more_gallery", titleResource: "Gallery"))
         moreItems.append(MoreItem(.contactDetails, iconResource: "more_contacts", titleResource: "MenuContactDetails"))
         moreItems.append(MoreItem(.settings, iconResource: "more_settings", titleResource: "MenuSettings"))
+        moreItems.append(MoreItem(.sunriseAndSunsetTimes, iconResource: "more_sunset", titleResource: "SunriseAndSunsetTitle"))
         moreItems.append(MoreItem(.eventSearch, iconResource: "more_search", titleResource: "MenuEventSearch", opensInBrowser: true))
         moreItems.append(MoreItem(.magazine, iconResource: "more_magazine", titleResource: "MenuReadMagazine", opensInBrowser: true))
         moreItems.append(MoreItem(.seasons, iconResource: "more_seasons", titleResource: "MenuOpenSeasons", opensInBrowser: true))
+        moreItems.append(MoreItem(.about, iconResource: "info", titleResource: "MenuAbout"))
         moreItems.append(MoreItem(.logout, iconResource: "more_logout", titleResource: "Logout"))
 
         updateShootingTestsItemVisibility()
@@ -101,7 +106,7 @@ fileprivate struct MoreItem {
         updateItemVisibility(
             item: MoreItem(.shootingTests, iconResource: "more_shooting", titleResource: "MenuShootingTests"),
             visible: RiistaSettings.userInfo()?.isShootingTestOfficial() == true,
-            beforeItemsOfType: [.huntingDirector, .huntingControl, .eventSearch],
+            beforeItemsOfType: [.huntingDirector, .huntingControl, .sunriseAndSunsetTimes],
             animateVisibilityChange: false
         )
     }
@@ -110,7 +115,7 @@ fileprivate struct MoreItem {
         updateItemVisibility(
             item: MoreItem(.huntingDirector, iconResource: "more_hunting_director", titleResource: "MenuHuntingDirector"),
             visible: UserSession.shared().groupHuntingAvailable,
-            beforeItemsOfType: [.huntingControl, .eventSearch],
+            beforeItemsOfType: [.huntingControl, .sunriseAndSunsetTimes],
             animateVisibilityChange: animateVisibilityChange
         )
     }
@@ -119,7 +124,7 @@ fileprivate struct MoreItem {
         updateItemVisibility(
             item: MoreItem(.huntingControl, iconResource: "more_hunting_control", titleResource: "MenuHuntingControl"),
             visible: UserSession.shared().huntingControlAvailable,
-            beforeItemsOfType: [.eventSearch],
+            beforeItemsOfType: [.sunriseAndSunsetTimes],
             animateVisibilityChange: animateVisibilityChange
         )
     }
@@ -230,7 +235,7 @@ fileprivate struct MoreItem {
             launchViewController(identifier: "ContactDetailsController")
             break
         case .settings:
-            launchViewController(identifier: "SettingsController")
+            launchViewController(controller: AppSettingsViewController())
             break
         case .shootingTests:
             launchViewController(identifier: "ShootingTestCalendarEventsController")
@@ -241,6 +246,8 @@ fileprivate struct MoreItem {
         case .huntingControl:
             launchViewController(controller: HuntingControlLandingPageViewController())
             break
+        case .sunriseAndSunsetTimes:
+            launchViewController(controller: SunriseAndSunsetTimesViewController())
         case .eventSearch:
             launchEventSearch()
             break
@@ -249,6 +256,9 @@ fileprivate struct MoreItem {
             break
         case .seasons:
             launchHuntingSeasons()
+            break
+        case .about:
+            launchViewController(controller: AboutViewController())
             break
         case .logout:
             askLogoutConfirmation()

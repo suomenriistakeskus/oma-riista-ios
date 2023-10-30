@@ -91,6 +91,8 @@ internal fun GroupHuntingHarvest.toCommonHarvestData(groupMembers: List<HuntingG
         pointOfTime = pointOfTime,
         description = description,
         canEdit = canEdit,
+        modified = false,
+        deleted = false,
         images = EntityImages(
             remoteImageIds = imageIds,
             localImages = emptyList(),
@@ -106,6 +108,7 @@ internal fun GroupHuntingHarvest.toCommonHarvestData(groupMembers: List<HuntingG
                 person.asGuest()
             }
         },
+        selectedClub = SearchableOrganization.Unknown,
         harvestSpecVersion = harvestSpecVersion,
         harvestReportRequired = harvestReportRequired,
         harvestReportState = harvestReportState,
@@ -119,7 +122,7 @@ internal fun GroupHuntingHarvest.toCommonHarvestData(groupMembers: List<HuntingG
         rejected = rejected,
         feedingPlace = null,
         taigaBeanGoose = null,
-        greySealHuntingMethod = BackendEnum.create(null)
+        greySealHuntingMethod = BackendEnum.create(null),
     )
 }
 

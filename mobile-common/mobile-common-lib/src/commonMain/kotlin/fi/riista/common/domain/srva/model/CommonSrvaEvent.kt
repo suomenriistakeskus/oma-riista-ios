@@ -30,6 +30,7 @@ data class CommonSrvaEvent(
 
     val species: Species,
     val otherSpeciesDescription: String?,
+    val totalSpecimenAmount: Int,
     val specimens: List<CommonSrvaSpecimen>,
 
     val eventCategory: BackendEnum<SrvaEventCategoryType>,
@@ -69,7 +70,7 @@ internal fun CommonSrvaEvent.toSrvaEventData(): CommonSrvaEventData {
         approver = approver,
         species = species,
         otherSpeciesDescription = otherSpeciesDescription,
-        specimenAmount = specimens.size,
+        specimenAmount = totalSpecimenAmount,
         specimens = specimens.map { it.toCommonSpecimenData() },
         eventCategory = eventCategory,
         deportationOrderNumber = deportationOrderNumber,

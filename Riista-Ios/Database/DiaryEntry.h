@@ -16,6 +16,8 @@ extern NSString *const DiaryEntryHarvestPermitRejected;
 
 @interface DiaryEntry : DiaryEntryBase
 
+// The id of the diary entry (harvest) after it has been migrated to common library
+@property (nullable, nonatomic, retain) NSNumber *commonHarvestId;
 @property (nonatomic, retain) NSNumber * amount;
 @property (nonatomic, retain) NSString * diarydescription;
 @property (nonatomic, retain) NSString * deerHuntingType;

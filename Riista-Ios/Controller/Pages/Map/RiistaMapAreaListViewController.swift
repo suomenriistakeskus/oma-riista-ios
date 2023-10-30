@@ -16,7 +16,7 @@ class AreaListItemCell: UITableViewCell {
     @IBOutlet weak var removeButton: MaterialButton!
 }
 
-class RiistaMapAreaListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, MDCAlertControllerDelegate {
+class RiistaMapAreaListViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, MDCAlertControllerDelegate {
     @IBOutlet weak var filterInput: MDCUnderlinedTextField!
     @IBOutlet weak var areaCodeButton: MDCButton!
     @IBOutlet weak var tableView: UITableView!
@@ -43,6 +43,7 @@ class RiistaMapAreaListViewController: UIViewController, UITableViewDataSource, 
         self.tableView.rowHeight = UITableView.automaticDimension
 
         self.filterInput.configure(for: .inputValue)
+        self.filterInput.inputAccessoryView = KeyboardToolBar().hideKeyboardOnDone(editView: filterInput)
         self.filterInput.delegate = self
         self.filterInput.label.text = "MapAreaFilterHint".localized()
         self.filterInput.leftViewMode = .always
@@ -268,6 +269,8 @@ class RiistaMapAreaListViewController: UIViewController, UITableViewDataSource, 
             textField.autocapitalizationType = .allCharacters
             textField.returnKeyType = UIReturnKeyType.done
             textField.delegate = self
+
+            textField.inputAccessoryView = KeyboardToolBar().hideKeyboardOnDone(editView: textField)
 
             textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
             return textField

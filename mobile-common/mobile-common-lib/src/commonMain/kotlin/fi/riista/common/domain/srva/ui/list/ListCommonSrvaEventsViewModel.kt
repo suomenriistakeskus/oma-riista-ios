@@ -7,7 +7,6 @@ import fi.riista.common.model.groupByYearMonth
 import fi.riista.common.model.yearMonth
 
 data class ListCommonSrvaEventsViewModel(
-    internal val allSrvaEvents: List<CommonSrvaEvent>,
     val srvaEventYears: List<Int>,
     val srvaSpecies: List<Species>,
 
@@ -26,4 +25,6 @@ data class ListCommonSrvaEventsViewModel(
     val filteredSrvaEventsByYearMonth: List<EntitiesByYearMonth<CommonSrvaEvent>> by lazy {
         filteredSrvaEvents.groupByYearMonth { it.pointOfTime.yearMonth() }
     }
+
+    fun getByLocalId(localId: Long) = filteredSrvaEvents.firstOrNull { it.localId == localId }
 }

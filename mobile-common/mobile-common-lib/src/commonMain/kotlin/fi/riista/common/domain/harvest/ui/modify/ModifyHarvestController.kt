@@ -1,26 +1,41 @@
 package fi.riista.common.domain.harvest.ui.modify
 
 import co.touchlab.stately.concurrency.AtomicReference
-import co.touchlab.stately.ensureNeverFrozen
 import fi.riista.common.domain.constants.SpeciesCode
 import fi.riista.common.domain.content.SpeciesResolver
+import fi.riista.common.domain.dto.toPersonWithHunterNumber
+import fi.riista.common.domain.groupHunting.model.GroupHuntingPerson
+import fi.riista.common.domain.groupHunting.model.asGuest
+import fi.riista.common.domain.harvest.HarvestContext
+import fi.riista.common.domain.harvest.HarvestOperationResponse
+import fi.riista.common.domain.harvest.SaveHarvestResponse
 import fi.riista.common.domain.harvest.model.CommonHarvest
 import fi.riista.common.domain.harvest.model.CommonHarvestData
+import fi.riista.common.domain.harvest.model.HarvestReportingType
 import fi.riista.common.domain.harvest.model.toCommonHarvest
 import fi.riista.common.domain.harvest.ui.CommonHarvestField
 import fi.riista.common.domain.harvest.ui.common.HarvestSpecimenFieldProducer
 import fi.riista.common.domain.harvest.ui.fields.CommonHarvestFields
 import fi.riista.common.domain.harvest.validation.CommonHarvestValidator
+import fi.riista.common.domain.huntingclub.selectableForEntries.HuntingClubsSelectableForEntries
 import fi.riista.common.domain.model.CommonLocation
 import fi.riista.common.domain.model.CommonSpecimenData
+import fi.riista.common.domain.model.HunterNumber
+import fi.riista.common.domain.model.Organization
+import fi.riista.common.domain.model.PersonWithHunterNumber
+import fi.riista.common.domain.model.SearchableOrganization
 import fi.riista.common.domain.model.Species
 import fi.riista.common.domain.model.asKnownLocation
-import fi.riista.common.domain.permit.PermitProvider
-import fi.riista.common.domain.permit.model.CommonPermit
+import fi.riista.common.domain.model.asSearchableOrganization
+import fi.riista.common.domain.model.keepNonEmpty
+import fi.riista.common.domain.permit.harvestPermit.CommonHarvestPermit
+import fi.riista.common.domain.permit.harvestPermit.HarvestPermitProvider
 import fi.riista.common.domain.season.HarvestSeasons
 import fi.riista.common.domain.specimens.ui.SpecimenFieldType
 import fi.riista.common.logging.getLogger
 import fi.riista.common.model.BackendEnum
+import fi.riista.common.preferences.Preferences
+import fi.riista.common.resources.LanguageProvider
 import fi.riista.common.resources.StringProvider
 import fi.riista.common.ui.controller.ControllerWithLoadableModel
 import fi.riista.common.ui.controller.HasUnreproducibleState
@@ -29,7 +44,6 @@ import fi.riista.common.ui.dataField.FieldSpecification
 import fi.riista.common.ui.dataField.noRequirement
 import fi.riista.common.ui.intent.IntentHandler
 import fi.riista.common.util.LocalDateTimeProvider
-import fi.riista.common.util.withNumberOfElements
 import kotlinx.serialization.Serializable
 
 /**
@@ -37,8 +51,12 @@ import kotlinx.serialization.Serializable
  */
 abstract class ModifyHarvestController internal constructor(
     harvestSeasons: HarvestSeasons,
+    protected val harvestContext: HarvestContext,
     protected val currentTimeProvider: LocalDateTimeProvider,
-    internal val permitProvider: PermitProvider,
+    internal val harvestPermitProvider: HarvestPermitProvider,
+    private val selectableHuntingClubs: HuntingClubsSelectableForEntries,
+    languageProvider: LanguageProvider,
+    preferences: Preferences,
     speciesResolver: SpeciesResolver,
     stringProvider: StringProvider,
 ) : ControllerWithLoadableModel<ModifyHarvestViewModel>(),
@@ -46,8 +64,10 @@ abstract class ModifyHarvestController internal constructor(
     HasUnreproducibleState<ModifyHarvestController.SavedState> {
 
     private val harvestFields = CommonHarvestFields(
-        harvestSeasons, speciesResolver
+        harvestSeasons, speciesResolver, preferences
     )
+
+    private val harvestValidator = CommonHarvestValidator(currentTimeProvider, speciesResolver)
 
     val eventDispatchers: ModifyHarvestEventDispatcher by lazy {
         ModifyHarvestEventToIntentMapper(intentHandler = this)
@@ -74,20 +94,57 @@ abstract class ModifyHarvestController internal constructor(
 
     private val fieldProducer = ModifyHarvestFieldProducer(
         canChangeSpecies = true,
-        permitProvider = permitProvider,
+        harvestPermitProvider = harvestPermitProvider,
+        huntingClubsSelectableForHarvests = selectableHuntingClubs,
         stringProvider = stringProvider,
+        languageProvider = languageProvider,
         currentDateTimeProvider = currentTimeProvider,
     )
 
-    init {
-        // should be accessed from UI thread only
-        ensureNeverFrozen()
+    /**
+     * Saves the harvest to local database and optionally tries to send it to backend.
+     */
+    suspend fun saveHarvest(updateToBackend: Boolean): SaveHarvestResponse {
+        val harvestToBeSaved = getHarvestToSaveOrNull()?.copy(modified = true) ?: kotlin.run {
+            return SaveHarvestResponse(
+                databaseSaveResponse = HarvestOperationResponse.Error("Not valid harvest"),
+            )
+        }
+
+        return when (val saveResponse = harvestContext.saveHarvest(harvestToBeSaved)) {
+            is HarvestOperationResponse.Error,
+            is HarvestOperationResponse.SaveFailure,
+            is HarvestOperationResponse.NetworkFailure -> {
+                SaveHarvestResponse(databaseSaveResponse = saveResponse)
+            }
+            is HarvestOperationResponse.Success -> {
+                if (updateToBackend) {
+                    val networkResponse = harvestContext.sendHarvestToBackend(harvest = saveResponse.harvest)
+                    SaveHarvestResponse(
+                        databaseSaveResponse = saveResponse,
+                        networkSaveResponse = networkResponse,
+                    )
+                } else {
+                    SaveHarvestResponse(databaseSaveResponse = saveResponse)
+                }
+            }
+        }
     }
 
-    fun getValidatedHarvest(): CommonHarvest? {
-        return getLoadedViewModelOrNull()
-            ?.getValidatedHarvestOrNull()
-            ?.toCommonHarvest()
+    fun updateViewModel() {
+        val viewModel = getLoadedViewModelOrNull()
+        if (viewModel != null) {
+            updateViewModel(
+                ViewModelLoadStatus.Loaded(
+                    viewModel = createViewModel(
+                        harvest = viewModel.harvest,
+                        permit = viewModel.permit,
+                        ownHarvest = viewModel.ownHarvest,
+                        shooters = viewModel.shooters,
+                    )
+                )
+            )
+        }
     }
 
     override fun handleIntent(intent: ModifyHarvestIntent) {
@@ -121,6 +178,7 @@ abstract class ModifyHarvestController internal constructor(
 
         // the current permit. Should be updated if permit is changed.
         var currentPermit = viewModel.permit
+        var ownHarvest = viewModel.ownHarvest
 
         val updatedHarvest = when (intent) {
             is ModifyHarvestIntent.LaunchPermitSelection -> {
@@ -149,13 +207,23 @@ abstract class ModifyHarvestController internal constructor(
                     ?: harvest.species.takeIf { intent.permit.isAvailableForSpecies(it) }
                     ?: Species.Unknown
 
+                // determine whether species changed as that information is needed when deciding
+                // whether specimens need to be cleared or not
+                val speciesChanged = newSpecies.knownSpeciesCodeOrNull() != harvest.species.knownSpeciesCodeOrNull()
                 currentPermit = intent.permit
 
-                harvest.copy(
+                val harvestWithPermit = harvest.copy(
                     species = newSpecies,
                     permitNumber = intent.permit.permitNumber,
                     permitType = intent.permit.permitType
                 )
+
+                if (speciesChanged) {
+                    // invalidate specimens if species was changed
+                    harvestWithPermit.withInvalidatedSpecimens()
+                } else {
+                    harvestWithPermit
+                }
             }
             is ModifyHarvestIntent.ChangeSpecies -> {
                 if (fieldProducer.selectableHarvestSpecies.contains(candidate = intent.species)) {
@@ -190,18 +258,12 @@ abstract class ModifyHarvestController internal constructor(
                 )
             }
             is ModifyHarvestIntent.ChangeSpecimenAmount -> {
-                if (intent.specimenAmount == null) {
-                    harvest.copy(
-                        amount = intent.specimenAmount
-                    )
-                } else {
-                    val updatedSpecimens = harvest.specimens.withNumberOfElements(intent.specimenAmount) {
-                        CommonSpecimenData().ensureDefaultValuesAreSet()
-                    }
-                    harvest.updateSpecimens(
-                        specimens = updatedSpecimens
-                    )
-                }
+                // explicitly don't alter specimens, only amount
+                // - harvest data allowed to contain different amount of specimens than amount
+                //   (allows user to change amount: 10->1->""->2->20 (first 10 being the original ones)
+                harvest.copy(
+                    amount = intent.specimenAmount
+                )
             }
             is ModifyHarvestIntent.ChangeSpecimenData ->
                 harvest.updateSpecimens(
@@ -337,15 +399,86 @@ abstract class ModifyHarvestController internal constructor(
                 harvest.copy(taigaBeanGoose = intent.isTaigaBeanGoose)
             is ModifyHarvestIntent.ChangeGreySealHuntingMethod ->
                 harvest.copy(greySealHuntingMethod = intent.greySealHuntingMethod)
+            is ModifyHarvestIntent.ChangeIsOwnHarvest -> {
+                ownHarvest = intent.isOwnHarvest
+                harvest
+            }
+            is ModifyHarvestIntent.ChangeActorHunterNumber -> {
+                (viewModel.harvest.actorInfo as? GroupHuntingPerson.SearchingByHunterNumber)
+                    ?.let { currentSearch ->
+                        val updatedSearch = currentSearch.withUpdatedHunterNumber(intent.hunterNumber.toString())
+                        if (updatedSearch.status == GroupHuntingPerson.SearchingByHunterNumber.Status.VALID_HUNTER_NUMBER_ENTERED) {
+                            // we've got a valid hunter number -> initiate search
+                            updateViewModelSuspended {
+                                searchActorByHunterNumber()
+                            }
+                        }
+                        harvest.copy(actorInfo = updatedSearch)
+                    }
+                    ?: harvest
+            }
+            is ModifyHarvestIntent.ChangeActor -> {
+                if (intent.newActor.id == GroupHuntingPerson.SearchingByHunterNumber.ID) {
+                    harvest.copy(actorInfo = GroupHuntingPerson.SearchingByHunterNumber(
+                        hunterNumber = "",
+                        status = GroupHuntingPerson.SearchingByHunterNumber.Status.ENTERING_HUNTER_NUMBER
+                    ))
+                } else {
+                    val shooter = viewModel.shooters.firstOrNull { it.id == intent.newActor.id }
+                    if (shooter != null) {
+                        harvest.copy(actorInfo = GroupHuntingPerson.Guest(shooter))
+                    } else {
+                        harvest
+                    }
+                }
+            }
+            is ModifyHarvestIntent.ChangeSelectedClub -> {
+                when (intent.newSelectedClub.id) {
+                    SearchableOrganization.Unknown.ID -> {
+                        harvest.copy(selectedClub = SearchableOrganization.Unknown)
+                    }
+                    SearchableOrganization.Searching.ID -> {
+                        // continue from previous search (if exists)
+                        val previousSearch = harvest.selectedClub as? SearchableOrganization.Searching
+                        harvest.copy(
+                            selectedClub = previousSearch ?: SearchableOrganization.Searching.startSearch()
+                        )
+                    }
+                    else -> {
+                        val huntingClubId = intent.newSelectedClub.id
+                        val huntingClub = selectableHuntingClubs.findSelectableClub(huntingClubId)
+                        if (huntingClub != null) {
+                            harvest.copy(selectedClub = SearchableOrganization.Found(huntingClub))
+                        } else {
+                            logger.w { "No club found with id $huntingClubId" }
+                            harvest
+                        }
+                    }
+                }
+            }
+            is ModifyHarvestIntent.ChangeSelectedClubOfficialCode -> {
+                (viewModel.harvest.selectedClub as? SearchableOrganization.Searching)
+                    ?.let { currentSearch ->
+                        val updatedSearch = currentSearch.withUpdatedOfficialCode(intent.officialCode.toString())
+                        if (updatedSearch.status == SearchableOrganization.Searching.Status.VALID_OFFICIAL_CODE_ENTERED) {
+                            // we've got a valid official code -> initiate search
+                            updateViewModelSuspended {
+                                searchHuntingClubByOfficialCode()
+                            }
+                        }
+                        harvest.copy(selectedClub = updatedSearch)
+                    }
+                    ?: harvest
+            }
             is ModifyHarvestIntent.ChangeTime,
-            is ModifyHarvestIntent.ChangeHuntingDay,
-            is ModifyHarvestIntent.ChangeActor,
-            is ModifyHarvestIntent.ChangeActorHunterNumber -> harvest
+            is ModifyHarvestIntent.ChangeHuntingDay -> harvest
         }
 
         return createViewModel(
             harvest = updatedHarvest,
             permit = currentPermit,
+            ownHarvest = ownHarvest,
+            shooters = viewModel.shooters,
         )
     }
 
@@ -371,7 +504,7 @@ abstract class ModifyHarvestController internal constructor(
     ): CommonHarvestData {
         return copy(
             amount = specimens.size,
-            specimens = specimens,
+            specimens = specimens.keepNonEmpty(),
         )
     }
 
@@ -398,7 +531,8 @@ abstract class ModifyHarvestController internal constructor(
         return getLoadedViewModelOrNull()?.harvest?.let {
             SavedState(
                 harvest = it,
-                harvestLocationCanBeUpdatedAutomatically = harvestLocationCanBeUpdatedAutomatically
+                harvestLocationCanBeUpdatedAutomatically = harvestLocationCanBeUpdatedAutomatically,
+                nonPersistentSelectableClubs = selectableHuntingClubs.getNonPersistentClubs()
             )
         }
     }
@@ -406,22 +540,26 @@ abstract class ModifyHarvestController internal constructor(
     override fun restoreUnreproducibleState(state: SavedState) {
         restoredHarvestData = state.harvest
         harvestLocationCanBeUpdatedAutomatically = state.harvestLocationCanBeUpdatedAutomatically
+        selectableHuntingClubs.restoreNonPersistentClubs(state.nonPersistentSelectableClubs)
     }
 
     internal fun createViewModel(
         harvest: CommonHarvestData,
-        permit: CommonPermit?,
+        permit: CommonHarvestPermit?,
+        shooters: List<PersonWithHunterNumber>,
+        ownHarvest: Boolean,
     ): ModifyHarvestViewModel {
         val harvestContext = harvestFields.createContext(
             harvest = harvest,
             mode = CommonHarvestFields.Context.Mode.EDIT,
+            ownHarvest = ownHarvest,
         )
         var fieldsToBeDisplayed = harvestFields.getFieldsToBeDisplayed(harvestContext)
 
-        val validationErrors = CommonHarvestValidator.validate(
+        val validationErrors = harvestValidator.validate(
             harvest = harvest,
             permit = permit,
-            localDateTimeProvider = currentTimeProvider,
+            harvestReportingType = harvestContext.harvestReportingType,
             displayedFields = fieldsToBeDisplayed,
         )
 
@@ -432,11 +570,15 @@ abstract class ModifyHarvestController internal constructor(
         return ModifyHarvestViewModel(
             harvest = harvest,
             permit = permit,
+            shooters = shooters,
+            ownHarvest = ownHarvest,
             fields = fieldsToBeDisplayed.mapNotNull { fieldSpecification ->
                 fieldProducer.createField(
                     fieldSpecification = fieldSpecification,
                     harvest = harvest,
                     harvestReportingType = harvestContext.harvestReportingType,
+                    shooters = shooters,
+                    ownHarvest = harvestContext.ownHarvest,
                 )
             },
             harvestIsValid = harvestIsValid
@@ -453,93 +595,190 @@ abstract class ModifyHarvestController internal constructor(
         return viewModel
     }
 
-    private fun ModifyHarvestViewModel.getValidatedHarvestOrNull(): CommonHarvestData? {
-        val displayedFields = harvestFields.getFieldsToBeDisplayed(
-            harvest = harvest,
-            mode = CommonHarvestFields.Context.Mode.EDIT
-        )
+    /**
+     * Attempts to get the harvest and prepare it to be saved.
+     *
+     * Validates the current harvest data and ensures it only contains data that is allowed
+     * to be saved.
+     */
+    private fun getHarvestToSaveOrNull(): CommonHarvest? {
+        val viewModel = getLoadedViewModelOrNull() ?: kotlin.run { return null }
 
-        val validationErrors = CommonHarvestValidator.validate(
-            harvest = harvest,
-            permit = permit,
-            localDateTimeProvider = currentTimeProvider,
-            displayedFields = displayedFields,
+        return prepareForSave(
+            saveCandidate = viewModel.harvest,
+            permit = viewModel.permit,
+            ownHarvest = viewModel.ownHarvest,
+        )?.toCommonHarvest()
+    }
+
+    /**
+     * Prepares the given ([saveCandidate]) harvest to be saved. Returns either valid harvest with data
+     * that can be saved or `null` if harvest could not be validated.
+     */
+    private fun prepareForSave(
+        saveCandidate: CommonHarvestData,
+        permit: CommonHarvestPermit?,
+        ownHarvest: Boolean,
+    ): CommonHarvestData? {
+        val harvestContext = harvestFields.createContext(
+            harvest = saveCandidate,
+            mode = CommonHarvestFields.Context.Mode.EDIT,
+            ownHarvest = ownHarvest,
         )
-        if (validationErrors.isNotEmpty()) {
+        val displayedFields = harvestFields.getFieldsToBeDisplayed(harvestContext)
+
+        if (!saveCandidate.isValidAgainstFields(displayedFields, permit, harvestContext.harvestReportingType)) {
+            logger.w { "Harvest save-candidate was not valid." }
             return null
         }
 
-        return harvest.createCopyWithFields(displayedFields)
+        val harvestToSave = saveCandidate.prepareForSaveWithFields(
+            fields = displayedFields.map { it.fieldId }.toSet(),
+            ownHarvest = ownHarvest,
+        ) ?: kotlin.run {
+            logger.w { "Failed to obtain harvest-to-save." }
+            return null
+        }
+
+        if (!harvestToSave.isValidAgainstFields(displayedFields, permit, harvestContext.harvestReportingType)) {
+            logger.w { "Harvest-to-save was not valid." }
+            return null
+        }
+
+        return harvestToSave
 
     }
 
-    private fun CommonHarvestData.createCopyWithFields(
-        fields: List<FieldSpecification<CommonHarvestField>>,
-    ): CommonHarvestData? {
-        val fieldTypes: Set<CommonHarvestField> = fields.map { it.fieldId }.toSet()
+    private fun CommonHarvestData.isValidAgainstFields(
+        displayedFields: List<FieldSpecification<CommonHarvestField>>,
+        permit: CommonHarvestPermit?,
+        harvestReportingType: HarvestReportingType,
+    ): Boolean {
+        val validationErrors = harvestValidator.validate(
+            harvest = this,
+            permit = permit,
+            harvestReportingType = harvestReportingType,
+            displayedFields = displayedFields,
+        )
 
-        val harvestCopy = copy(
-            location = location.takeIf {
-                fieldTypes.contains(CommonHarvestField.LOCATION)
-            } ?: CommonLocation.Unknown,
+        return validationErrors.isEmpty()
+    }
+
+    private fun CommonHarvestData.prepareForSaveWithFields(
+        fields: Set<CommonHarvestField>,
+        ownHarvest: Boolean,
+    ): CommonHarvestData? {
+        // sanitize amount i.e. use the value provided by the user if available and amount field was displayed.
+        // If the field was not displayed (e.g. most mammals), fallback to single
+        val sanitizedSpecimenAmount = amount.takeIf {
+            // this may produce invalid harvest data if amount field is not displayed. It
+            // is necessary to take this into account when converting CommonHarvestData to
+            // CommonHarvest (i.e. default to amount of specimens if amount is missing)
+            fields.contains(CommonHarvestField.SPECIMEN_AMOUNT)
+        }
+            // fallback to defaulting one specimen
+            ?: 1
+
+
+        val harvestCopy = CommonHarvestData(
+            localId = localId,
+            localUrl = localUrl,
+            id = id,
+            rev = rev,
             species = species.takeIf {
-                fieldTypes.contains(CommonHarvestField.SPECIES_CODE_AND_IMAGE) ||
-                        fieldTypes.contains(CommonHarvestField.SPECIES_CODE)
+                fields.contains(CommonHarvestField.SPECIES_CODE_AND_IMAGE) ||
+                        fields.contains(CommonHarvestField.SPECIES_CODE)
             } ?: Species.Unknown,
+            location = location.takeIf {
+                fields.contains(CommonHarvestField.LOCATION)
+            } ?: CommonLocation.Unknown,
             pointOfTime = pointOfTime.also {
-                if (!fieldTypes.contains(CommonHarvestField.DATE_AND_TIME)) {
+                if (!fields.contains(CommonHarvestField.DATE_AND_TIME)) {
                     logger.e { "Fields didn't contain DATE_AND_TIME!" }
                     return null
                 }
             },
-            amount = amount.takeIf {
-                fieldTypes.contains(CommonHarvestField.SPECIMEN_AMOUNT)
+            description = description.takeIf {
+                fields.contains(CommonHarvestField.DESCRIPTION)
             },
-            specimens = specimens.map { specimen ->
-                specimen.createCopyWithFields(
-                    speciesCode = species.knownSpeciesCodeOrNull(),
-                    fieldTypes = fieldTypes
-                )
-            },
-            deerHuntingType = deerHuntingType.takeIf {
-                fieldTypes.contains(CommonHarvestField.DEER_HUNTING_TYPE)
-            } ?: BackendEnum.create(null),
-            deerHuntingOtherTypeDescription = deerHuntingOtherTypeDescription.takeIf {
-                fieldTypes.contains(CommonHarvestField.DEER_HUNTING_OTHER_TYPE_DESCRIPTION)
-            },
+            canEdit = canEdit,
+            modified = modified,
+            deleted = deleted,
+            images = images,
+            specimens = specimens.prepareForSaveWithFields(
+                speciesCode = species.knownSpeciesCodeOrNull(),
+                specimenAmount = sanitizedSpecimenAmount,
+                fields = fields
+            ),
+            amount = sanitizedSpecimenAmount,
+            huntingDayId = huntingDayId,
+            authorInfo = authorInfo,
+            // GroupHuntingPerson.Guest is used when the actor is not the same as the author. Use Unknown when it is own
+            actorInfo = if (ownHarvest) { GroupHuntingPerson.Unknown } else { actorInfo },
+            selectedClub = selectedClub.takeIf { fields.contains(CommonHarvestField.SELECTED_CLUB) }
+                ?: SearchableOrganization.Unknown,
+            harvestSpecVersion = harvestSpecVersion,
+            harvestReportRequired = harvestReportRequired,
+            harvestReportState = harvestReportState,
             permitNumber = permitNumber.takeIf {
-                fieldTypes.contains(CommonHarvestField.PERMIT_INFORMATION)
+                fields.contains(CommonHarvestField.PERMIT_INFORMATION)
             },
             permitType = permitType.takeIf {
-                fieldTypes.contains(CommonHarvestField.PERMIT_INFORMATION)
+                fields.contains(CommonHarvestField.PERMIT_INFORMATION)
             },
+            stateAcceptedToHarvestPermit = stateAcceptedToHarvestPermit,
+            deerHuntingType = deerHuntingType.takeIf {
+                fields.contains(CommonHarvestField.DEER_HUNTING_TYPE)
+            } ?: BackendEnum.create(null),
+            deerHuntingOtherTypeDescription = deerHuntingOtherTypeDescription.takeIf {
+                fields.contains(CommonHarvestField.DEER_HUNTING_OTHER_TYPE_DESCRIPTION)
+            },
+            mobileClientRefId = mobileClientRefId,
+            harvestReportDone = harvestReportDone,
+            rejected = rejected,
             feedingPlace = feedingPlace.takeIf {
-                fieldTypes.contains(CommonHarvestField.WILD_BOAR_FEEDING_PLACE)
+                fields.contains(CommonHarvestField.WILD_BOAR_FEEDING_PLACE)
             },
             taigaBeanGoose = taigaBeanGoose.takeIf {
-                fieldTypes.contains(CommonHarvestField.IS_TAIGA_BEAN_GOOSE)
+                fields.contains(CommonHarvestField.IS_TAIGA_BEAN_GOOSE)
             },
             greySealHuntingMethod = greySealHuntingMethod.takeIf {
-                fieldTypes.contains(CommonHarvestField.GREY_SEAL_HUNTING_METHOD)
+                fields.contains(CommonHarvestField.GREY_SEAL_HUNTING_METHOD)
             } ?: BackendEnum.create(null),
-            description = description.takeIf {
-                fieldTypes.contains(CommonHarvestField.DESCRIPTION)
-            },
         )
 
         return harvestCopy
     }
 
+    private fun List<CommonSpecimenData>.prepareForSaveWithFields(
+        speciesCode: SpeciesCode?,
+        specimenAmount: Int,
+        fields: Set<CommonHarvestField>,
+    ): List<CommonSpecimenData> {
+        if (specimenAmount == 0) {
+            // should not happen as there should always be at least one specimen (according to current knowledge)
+            return emptyList()
+        }
+
+        // strategy:
+        // 1. iterate the specimens and only keep data that should be kept
+        // 2. drop empty specimens
+        // 3. ensure total specimen amount is not exceeded
+        return this.map { it.createCopyWithFields(speciesCode, fields) }
+            .keepNonEmpty()
+            .take(specimenAmount)
+    }
+
     private fun CommonSpecimenData.createCopyWithFields(
         speciesCode: SpeciesCode?,
-        fieldTypes: Set<CommonHarvestField>,
+        fields: Set<CommonHarvestField>,
     ): CommonSpecimenData {
         // two possibilities here. Either specimen is modified directly in harvest view or it is modified in
         // external view (EditSpecimensController). In the latter case the specimen fields are NOT determined
         // by the fieldTypes but HarvestSpecimenFieldProducer.
         //
         // Check the latter case first
-        if (fieldTypes.contains(CommonHarvestField.SPECIMENS)) {
+        if (fields.contains(CommonHarvestField.SPECIMENS)) {
             val specimenFieldTypes = HarvestSpecimenFieldProducer.getSpecimenFieldTypes(speciesCode = speciesCode)
 
             // don't copy in order to make sure extra data is not included
@@ -575,28 +814,28 @@ abstract class ModifyHarvestController internal constructor(
         return CommonSpecimenData(
             remoteId = remoteId,
             revision = revision,
-            gender = gender.takeIf { fieldTypes.contains(CommonHarvestField.GENDER) },
-            age = age.takeIf { fieldTypes.contains(CommonHarvestField.AGE) },
+            gender = gender.takeIf { fields.contains(CommonHarvestField.GENDER) },
+            age = age.takeIf { fields.contains(CommonHarvestField.AGE) },
             stateOfHealth = null, // observation related field
             marking = null, // observation related field
             lengthOfPaw = null, // observation related field
             widthOfPaw = null, // observation related field
-            weight = weight.takeIf { fieldTypes.contains(CommonHarvestField.WEIGHT) },
-            weightEstimated = weightEstimated.takeIf { fieldTypes.contains(CommonHarvestField.WEIGHT_ESTIMATED) },
-            weightMeasured = weightMeasured.takeIf { fieldTypes.contains(CommonHarvestField.WEIGHT_MEASURED) },
-            fitnessClass = fitnessClass.takeIf { fieldTypes.contains(CommonHarvestField.FITNESS_CLASS) },
-            antlersLost = antlersLost.takeIf { fieldTypes.contains(CommonHarvestField.ANTLERS_LOST) },
-            antlersType = antlersType.takeIf { fieldTypes.contains(CommonHarvestField.ANTLERS_TYPE) },
-            antlersWidth = antlersWidth.takeIf { fieldTypes.contains(CommonHarvestField.ANTLERS_WIDTH) },
-            antlerPointsLeft = antlerPointsLeft.takeIf { fieldTypes.contains(CommonHarvestField.ANTLER_POINTS_LEFT) },
-            antlerPointsRight = antlerPointsRight.takeIf { fieldTypes.contains(CommonHarvestField.ANTLER_POINTS_RIGHT) },
-            antlersGirth = antlersGirth.takeIf { fieldTypes.contains(CommonHarvestField.ANTLERS_GIRTH) },
-            antlersLength = antlersLength.takeIf { fieldTypes.contains(CommonHarvestField.ANTLERS_LENGTH) },
-            antlersInnerWidth = antlersInnerWidth.takeIf { fieldTypes.contains(CommonHarvestField.ANTLERS_INNER_WIDTH) },
-            antlerShaftWidth = antlerShaftWidth.takeIf { fieldTypes.contains(CommonHarvestField.ANTLER_SHAFT_WIDTH) },
-            notEdible = notEdible.takeIf { fieldTypes.contains(CommonHarvestField.NOT_EDIBLE) },
-            alone = alone.takeIf { fieldTypes.contains(CommonHarvestField.ALONE) },
-            additionalInfo = additionalInfo.takeIf { fieldTypes.contains(CommonHarvestField.ADDITIONAL_INFORMATION) },
+            weight = weight.takeIf { fields.contains(CommonHarvestField.WEIGHT) },
+            weightEstimated = weightEstimated.takeIf { fields.contains(CommonHarvestField.WEIGHT_ESTIMATED) },
+            weightMeasured = weightMeasured.takeIf { fields.contains(CommonHarvestField.WEIGHT_MEASURED) },
+            fitnessClass = fitnessClass.takeIf { fields.contains(CommonHarvestField.FITNESS_CLASS) },
+            antlersLost = antlersLost.takeIf { fields.contains(CommonHarvestField.ANTLERS_LOST) },
+            antlersType = antlersType.takeIf { fields.contains(CommonHarvestField.ANTLERS_TYPE) },
+            antlersWidth = antlersWidth.takeIf { fields.contains(CommonHarvestField.ANTLERS_WIDTH) },
+            antlerPointsLeft = antlerPointsLeft.takeIf { fields.contains(CommonHarvestField.ANTLER_POINTS_LEFT) },
+            antlerPointsRight = antlerPointsRight.takeIf { fields.contains(CommonHarvestField.ANTLER_POINTS_RIGHT) },
+            antlersGirth = antlersGirth.takeIf { fields.contains(CommonHarvestField.ANTLERS_GIRTH) },
+            antlersLength = antlersLength.takeIf { fields.contains(CommonHarvestField.ANTLERS_LENGTH) },
+            antlersInnerWidth = antlersInnerWidth.takeIf { fields.contains(CommonHarvestField.ANTLERS_INNER_WIDTH) },
+            antlerShaftWidth = antlerShaftWidth.takeIf { fields.contains(CommonHarvestField.ANTLER_SHAFT_WIDTH) },
+            notEdible = notEdible.takeIf { fields.contains(CommonHarvestField.NOT_EDIBLE) },
+            alone = alone.takeIf { fields.contains(CommonHarvestField.ALONE) },
+            additionalInfo = additionalInfo.takeIf { fields.contains(CommonHarvestField.ADDITIONAL_INFORMATION) },
         )
     }
 
@@ -622,11 +861,15 @@ abstract class ModifyHarvestController internal constructor(
                 CommonHarvestField.SPECIES_CODE,
                 CommonHarvestField.ERROR_DATE_NOT_WITHIN_PERMIT,
                 CommonHarvestField.ERROR_TIME_NOT_WITHIN_HUNTING_DAY,
+                CommonHarvestField.ERROR_DATETIME_IN_FUTURE,
                 CommonHarvestField.LOCATION,
                 CommonHarvestField.DEER_HUNTING_TYPE,
                 CommonHarvestField.DEER_HUNTING_OTHER_TYPE_DESCRIPTION,
                 CommonHarvestField.ACTOR_HUNTER_NUMBER,
                 CommonHarvestField.ACTOR_HUNTER_NUMBER_INFO_OR_ERROR,
+                CommonHarvestField.SELECTED_CLUB,
+                CommonHarvestField.SELECTED_CLUB_OFFICIAL_CODE,
+                CommonHarvestField.SELECTED_CLUB_OFFICIAL_CODE_INFO_OR_ERROR,
                 CommonHarvestField.GENDER,
                 CommonHarvestField.AGE,
                 CommonHarvestField.NOT_EDIBLE,
@@ -648,6 +891,7 @@ abstract class ModifyHarvestController internal constructor(
                 CommonHarvestField.ANTLER_SHAFT_WIDTH,
                 CommonHarvestField.ANTLERS_LENGTH,
                 CommonHarvestField.ANTLERS_INNER_WIDTH,
+                CommonHarvestField.OWN_HARVEST,
                 CommonHarvestField.ACTOR,
                 CommonHarvestField.AUTHOR,
                 CommonHarvestField.ALONE,
@@ -670,10 +914,125 @@ abstract class ModifyHarvestController internal constructor(
         return result
     }
 
+    private suspend fun searchActorByHunterNumber() {
+        var viewModel = getLoadedViewModelOrNull()
+            ?: kotlin.run {
+                logger.d { "Cannot search actor by hunter number. No loaded viewmodel!" }
+                return
+            }
+
+        val initialHunterNumberSearch = viewModel.harvest.actorInfo as? GroupHuntingPerson.SearchingByHunterNumber
+        val hunterNumber = initialHunterNumberSearch?.hunterNumber
+            ?: kotlin.run {
+                logger.d { "No hunter number, cannot search actor." }
+                return
+            }
+
+        val searchingHunterNumber = initialHunterNumberSearch.copy(
+            status = GroupHuntingPerson.SearchingByHunterNumber.Status.SEARCHING_PERSON_BY_HUNTER_NUMBER
+        )
+
+        updateViewModel(ViewModelLoadStatus.Loaded(
+            viewModel = createViewModel(
+                harvest = viewModel.harvest.copy(actorInfo = searchingHunterNumber),
+                permit = viewModel.permit,
+                ownHarvest = viewModel.ownHarvest,
+                shooters = viewModel.shooters,
+            )
+        ))
+
+        val hunter = searchPersonByHunterNumber(hunterNumber)
+
+        viewModel = getLoadedViewModelOrNull()
+            ?: kotlin.run {
+                logger.d { "Cannot search actor by hunter number. No loaded viewmodel!" }
+                return
+            }
+
+        // only update viewModel if user has not updated viewModel while we we're fetching
+        // hunter information
+        if (searchingHunterNumber != viewModel.harvest.actorInfo) {
+            logger.d { "User updated actor selection while fetching hunter, discarding result" }
+            return
+        }
+
+        val actorInfo = hunter?.asGuest()
+            ?: searchingHunterNumber.copy(status = GroupHuntingPerson.SearchingByHunterNumber.Status.SEARCH_FAILED)
+
+        updateViewModel(ViewModelLoadStatus.Loaded(
+            viewModel = createViewModel(
+                harvest = viewModel.harvest.copy(actorInfo = actorInfo),
+                permit = viewModel.permit,
+                ownHarvest = viewModel.ownHarvest,
+                shooters = viewModel.shooters,
+            )
+        ))
+    }
+
+    private suspend fun searchPersonByHunterNumber(hunterNumber: HunterNumber): PersonWithHunterNumber? {
+        return harvestContext.searchPersonByHunterNumber(hunterNumber)?.toPersonWithHunterNumber()
+    }
+
+    private suspend fun searchHuntingClubByOfficialCode() {
+        var viewModel = getLoadedViewModelOrNull()
+            ?: kotlin.run {
+                logger.d { "Cannot search club by official code. No loaded viewmodel!" }
+                return
+            }
+
+        val initialOfficialCodeSearch = viewModel.harvest.selectedClub as? SearchableOrganization.Searching
+        val officialCode = initialOfficialCodeSearch?.officialCode
+            ?: kotlin.run {
+                logger.d { "No hunter number, cannot search actor." }
+                return
+            }
+
+        val searchingState = initialOfficialCodeSearch.copy(
+            status = SearchableOrganization.Searching.Status.SEARCHING
+        )
+
+        updateViewModel(ViewModelLoadStatus.Loaded(
+            viewModel = createViewModel(
+                harvest = viewModel.harvest.copy(selectedClub = searchingState),
+                permit = viewModel.permit,
+                ownHarvest = viewModel.ownHarvest,
+                shooters = viewModel.shooters,
+            )
+        ))
+
+        val huntingClub = selectableHuntingClubs.searchClubByOfficialCode(officialCode)
+
+        viewModel = getLoadedViewModelOrNull()
+            ?: kotlin.run {
+                logger.d { "Cannot search club by official code. No loaded viewmodel!" }
+                return
+            }
+
+        // only update viewModel if user has not updated viewModel while we we're fetching
+        // hunting club
+        if (searchingState != viewModel.harvest.selectedClub) {
+            logger.d { "User updated selected club while fetching hunter, discarding result" }
+            return
+        }
+
+        val searchResult = huntingClub?.asSearchableOrganization()
+            ?: searchingState.copy(status = SearchableOrganization.Searching.Status.SEARCH_FAILED)
+
+        updateViewModel(ViewModelLoadStatus.Loaded(
+            viewModel = createViewModel(
+                harvest = viewModel.harvest.copy(selectedClub = searchResult),
+                permit = viewModel.permit,
+                ownHarvest = viewModel.ownHarvest,
+                shooters = viewModel.shooters,
+            )
+        ))
+    }
+
     @Serializable
     data class SavedState internal constructor(
         internal val harvest: CommonHarvestData,
         internal val harvestLocationCanBeUpdatedAutomatically: Boolean,
+        internal val nonPersistentSelectableClubs: List<Organization>
     )
 
     companion object {

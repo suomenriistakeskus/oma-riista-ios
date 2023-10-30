@@ -2,7 +2,7 @@ import Foundation
 import MaterialComponents
 import SnapKit
 
-@objc class MapSettingsViewController: UIViewController {
+@objc class MapSettingsViewController: BaseViewController {
 
     private lazy var settingsContainer: MapSettingsView = {
         MapSettingsView()
@@ -30,10 +30,8 @@ import SnapKit
             make.edges.equalToSuperview()
         }
 
-        if #available(iOS 11.0, *) {
-            // the layoutMargins we're setting may be less than system minimum layout margins..
-            viewRespectsSystemMinimumLayoutMargins = false
-        }
+        // the layoutMargins we're setting may be less than system minimum layout margins..
+        viewRespectsSystemMinimumLayoutMargins = false
 
         scrollView.addSubview(settingsContainer)
         settingsContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -45,6 +43,7 @@ import SnapKit
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.title = "MapSettings".localized()
         bindToViews()
     }
 
@@ -82,6 +81,9 @@ import SnapKit
         settingsContainer.displayGameTrianglesToggle.onToggled = { isEnabled in
             RiistaSettings.setShowGameTriangles(isEnabled)
         }
+        settingsContainer.displayLeadShotBanToggle.onToggled = { isEnabled in
+            RiistaSettings.setShowLeadShotBan(isEnabled)
+        }
         settingsContainer.displayMooseRestrictionsToggle.onToggled = { isEnabled in
             RiistaSettings.setShowMooseRestrictions(isEnabled)
         }
@@ -115,8 +117,6 @@ import SnapKit
     }
 
     private func updateUI() {
-        title = RiistaBridgingUtils.RiistaLocalizedString(forkey: "Map")
-
         settingsContainer.selectedMapType = RiistaSettings.mapType()
 
         settingsContainer.showUserLocationToggle.isToggledOn = RiistaSettings.showMyMapLocation()
@@ -124,6 +124,7 @@ import SnapKit
         settingsContainer.displayStateLandsToggle.isToggledOn = RiistaSettings.showStateOwnedLands()
         settingsContainer.displayGMABordersToggle.isToggledOn = RiistaSettings.showRhyBorders()
         settingsContainer.displayGameTrianglesToggle.isToggledOn = RiistaSettings.showGameTriangles()
+        settingsContainer.displayLeadShotBanToggle.isToggledOn = RiistaSettings.showLeadShotBan()
         settingsContainer.displayMooseRestrictionsToggle.isToggledOn = RiistaSettings.showMooseRestrictions()
         settingsContainer.displaySmallGameRestrictionsToggle.isToggledOn = RiistaSettings.showSmallGameRestrictions()
         settingsContainer.displayAviHuntingBanToggle.isToggledOn = RiistaSettings.showAviHuntingBan()

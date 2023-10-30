@@ -5,7 +5,6 @@
 #import "RiistaLocalization.h"
 #import "RiistaNetworkManager.h"
 #import "RiistaUtils.h"
-#import "Styles.h"
 #import "UIColor+ApplicationColor.h"
 #import "ValueListViewController.h"
 #import "RiistaDateTimeUtils.h"

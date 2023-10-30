@@ -2,20 +2,29 @@ package fi.riista.common.domain.harvest.ui.modify
 
 import fi.riista.common.domain.constants.SpeciesCodes
 import fi.riista.common.domain.constants.SpeciesConstants
+import fi.riista.common.domain.groupHunting.model.GroupHuntingPerson
+import fi.riista.common.domain.groupHunting.ui.groupHarvest.modify.toStringWithId
 import fi.riista.common.domain.harvest.model.CommonHarvestData
 import fi.riista.common.domain.harvest.model.HarvestConstants
 import fi.riista.common.domain.harvest.model.HarvestReportingType
 import fi.riista.common.domain.harvest.ui.CommonHarvestField
 import fi.riista.common.domain.harvest.ui.common.HarvestSpecimenFieldProducer
+import fi.riista.common.domain.huntingclub.selectableForEntries.HuntingClubsSelectableForEntries
 import fi.riista.common.domain.model.DeerHuntingType
 import fi.riista.common.domain.model.GameAge
 import fi.riista.common.domain.model.GameAntlersType
 import fi.riista.common.domain.model.GameFitnessClass
-import fi.riista.common.domain.model.Gender
 import fi.riista.common.domain.model.GreySealHuntingMethod
+import fi.riista.common.domain.model.Organization
+import fi.riista.common.domain.model.PersonWithHunterNumber
+import fi.riista.common.domain.model.SearchableOrganization
 import fi.riista.common.domain.model.Species
-import fi.riista.common.domain.permit.PermitProvider
+import fi.riista.common.domain.permit.harvestPermit.HarvestPermitProvider
+import fi.riista.common.logging.getLogger
 import fi.riista.common.model.BackendEnum
+import fi.riista.common.model.StringWithId
+import fi.riista.common.model.localizedWithFallbacks
+import fi.riista.common.resources.LanguageProvider
 import fi.riista.common.resources.RR
 import fi.riista.common.resources.StringProvider
 import fi.riista.common.ui.dataField.AgeField
@@ -38,12 +47,15 @@ import fi.riista.common.ui.dataField.StringField
 import fi.riista.common.ui.dataField.StringListField
 import fi.riista.common.ui.helpers.WeightFormatter
 import fi.riista.common.util.LocalDateTimeProvider
+import fi.riista.common.util.LocalizedStringComparator
 
 
 internal open class ModifyHarvestFieldProducer(
     private val canChangeSpecies: Boolean,
-    private val permitProvider: PermitProvider?,
+    private val harvestPermitProvider: HarvestPermitProvider?,
+    private val huntingClubsSelectableForHarvests: HuntingClubsSelectableForEntries?,
     protected val stringProvider: StringProvider,
+    private val languageProvider: LanguageProvider?,
     private val currentDateTimeProvider: LocalDateTimeProvider?,
 ) {
     private val specimenFieldProducer = HarvestSpecimenFieldProducer(
@@ -61,10 +73,16 @@ internal open class ModifyHarvestFieldProducer(
         fieldSpecification: FieldSpecification<CommonHarvestField>,
         harvest: CommonHarvestData,
         harvestReportingType: HarvestReportingType,
-    ) : DataField<CommonHarvestField>? {
+        shooters: List<PersonWithHunterNumber>,
+        ownHarvest: Boolean,
+    ): DataField<CommonHarvestField>? {
         return when (fieldSpecification.fieldId) {
             CommonHarvestField.SPECIES_CODE -> speciesCode(fieldSpecification, harvest, showEntityImage = false)
-            CommonHarvestField.SPECIES_CODE_AND_IMAGE -> speciesCode(fieldSpecification, harvest, showEntityImage = true)
+            CommonHarvestField.SPECIES_CODE_AND_IMAGE -> speciesCode(
+                fieldSpecification,
+                harvest,
+                showEntityImage = true
+            )
             CommonHarvestField.DATE_AND_TIME -> dateAndTime(fieldSpecification, harvest)
             CommonHarvestField.ERROR_DATE_NOT_WITHIN_PERMIT -> errorDateNotWithinPermit(fieldSpecification)
             CommonHarvestField.ERROR_DATETIME_IN_FUTURE -> errorDatetimeInFuture(fieldSpecification)
@@ -75,7 +93,10 @@ internal open class ModifyHarvestFieldProducer(
             CommonHarvestField.SPECIMENS -> specimens(fieldSpecification, harvest, harvestReportingType)
             CommonHarvestField.HEADLINE_SHOOTER -> shooter(fieldSpecification)
             CommonHarvestField.DEER_HUNTING_TYPE -> deerHuntingType(fieldSpecification, harvest)
-            CommonHarvestField.DEER_HUNTING_OTHER_TYPE_DESCRIPTION -> deerHuntingOtherTypeDescription(fieldSpecification, harvest)
+            CommonHarvestField.DEER_HUNTING_OTHER_TYPE_DESCRIPTION -> deerHuntingOtherTypeDescription(
+                fieldSpecification,
+                harvest
+            )
             CommonHarvestField.HEADLINE_SPECIMEN -> specimenDetails(fieldSpecification)
             CommonHarvestField.GENDER -> gender(fieldSpecification, harvest)
             CommonHarvestField.AGE -> age(fieldSpecification, harvest)
@@ -95,7 +116,10 @@ internal open class ModifyHarvestFieldProducer(
             CommonHarvestField.ANTLERS_INNER_WIDTH -> antlersInnerWidth(fieldSpecification, harvest)
             CommonHarvestField.ALONE -> alone(fieldSpecification, harvest)
             CommonHarvestField.ADDITIONAL_INFORMATION -> additionalInformation(fieldSpecification, harvest)
-            CommonHarvestField.ADDITIONAL_INFORMATION_INSTRUCTIONS -> additionalInformationInstructions(fieldSpecification, harvest)
+            CommonHarvestField.ADDITIONAL_INFORMATION_INSTRUCTIONS -> additionalInformationInstructions(
+                fieldSpecification,
+                harvest
+            )
             CommonHarvestField.ANTLER_INSTRUCTIONS -> antlerInstructions(fieldSpecification, harvest)
             CommonHarvestField.DESCRIPTION -> description(fieldSpecification, harvest)
 
@@ -105,10 +129,23 @@ internal open class ModifyHarvestFieldProducer(
             CommonHarvestField.SELECT_PERMIT -> selectPermit(fieldSpecification, harvest)
             CommonHarvestField.PERMIT_INFORMATION -> permitInformation(fieldSpecification, harvest)
             CommonHarvestField.PERMIT_REQUIRED_NOTIFICATION -> permitRequiredNotification(fieldSpecification)
+
+            CommonHarvestField.OWN_HARVEST -> ownHarvest(fieldSpecification, ownHarvest)
+            CommonHarvestField.ACTOR -> actor(fieldSpecification, harvest, shooters)
+            CommonHarvestField.ACTOR_HUNTER_NUMBER -> actorHunterNumber(fieldSpecification, harvest)
+            CommonHarvestField.ACTOR_HUNTER_NUMBER_INFO_OR_ERROR -> actorHunterNumberInfoOrError(
+                fieldSpecification,
+                harvest
+            )
+
+            CommonHarvestField.SELECTED_CLUB -> selectedClub(fieldSpecification, harvest)
+            CommonHarvestField.SELECTED_CLUB_OFFICIAL_CODE -> selectedClubOfficialCode(fieldSpecification, harvest)
+            CommonHarvestField.SELECTED_CLUB_OFFICIAL_CODE_INFO_OR_ERROR -> selectedClubOfficialCodeInfoOrError(
+                fieldSpecification,
+                harvest
+            )
+
             // explicitly list unexpected fields, don't use else here!
-            CommonHarvestField.ACTOR,
-            CommonHarvestField.ACTOR_HUNTER_NUMBER,
-            CommonHarvestField.ACTOR_HUNTER_NUMBER_INFO_OR_ERROR,
             CommonHarvestField.AUTHOR,
             CommonHarvestField.HARVEST_REPORT_STATE -> {
                 return null
@@ -142,7 +179,7 @@ internal open class ModifyHarvestFieldProducer(
     ): LabelField<CommonHarvestField>? {
         return harvest.permitNumber
             ?.let { permitNumber ->
-                val permitType = permitProvider?.getPermit(permitNumber)?.permitType
+                val permitType = harvestPermitProvider?.getPermit(permitNumber)?.permitType
                     ?: harvest.permitType
 
                 // prefix with permit type if exists, otherwise display just the number
@@ -342,9 +379,10 @@ internal open class ModifyHarvestFieldProducer(
         fieldSpecification: FieldSpecification<CommonHarvestField>,
         harvest: CommonHarvestData
     ): GenderField<CommonHarvestField> {
-        val gender = harvest.specimens.firstOrNull()?.gender?.value ?: Gender.UNKNOWN
+        val gender = harvest.specimens.firstOrNull()?.gender?.value
         return GenderField(fieldSpecification.fieldId, gender) {
             readOnly = false
+            showUnknown = harvest.unknownGenderAllowed
             requirementStatus = fieldSpecification.requirementStatus
             paddingTop = Padding.SMALL_MEDIUM
         }
@@ -354,9 +392,10 @@ internal open class ModifyHarvestFieldProducer(
         fieldSpecification: FieldSpecification<CommonHarvestField>,
         harvest: CommonHarvestData
     ): AgeField<CommonHarvestField> {
-        val age = harvest.specimens.firstOrNull()?.age?.value ?: GameAge.UNKNOWN
+        val age = harvest.specimens.firstOrNull()?.age?.value
         return AgeField(fieldSpecification.fieldId, age) {
             readOnly = false
+            showUnknown = harvest.unknownAgeAllowed
             requirementStatus = fieldSpecification.requirementStatus
         }
     }
@@ -671,4 +710,338 @@ internal open class ModifyHarvestFieldProducer(
             label = stringProvider.getString(RR.string.harvest_label_description)
         }
     }
+
+    private fun ownHarvest(
+        fieldSpecification: FieldSpecification<CommonHarvestField>,
+        ownHarvest: Boolean,
+    ): BooleanField<CommonHarvestField> {
+        return BooleanField(fieldSpecification.fieldId, ownHarvest) {
+            readOnly = false
+            requirementStatus = fieldSpecification.requirementStatus
+            label = stringProvider.getString(RR.string.harvest_label_own_harvest)
+            appearance = BooleanField.Appearance.YES_NO_BUTTONS
+        }
+    }
+
+    private fun actor(
+        fieldSpecification: FieldSpecification<CommonHarvestField>,
+        harvest: CommonHarvestData,
+        persons: List<PersonWithHunterNumber>
+    ): StringListField<CommonHarvestField> {
+        val actorInfo = harvest.actorInfo
+
+        val guestHunterChoice = StringWithId(
+            id = GroupHuntingPerson.SearchingByHunterNumber.ID,
+            string = stringProvider.getString(RR.string.group_hunting_other_hunter)
+        )
+
+        val personsWithoutSelected = persons.filterNot { it.id == actorInfo.personWithHunterNumber?.id }
+
+        val listOfHunters = listOfNotNull(
+            guestHunterChoice,
+            harvest.actorInfo.personWithHunterNumber
+                ?.toStringWithId(includeHunterNumber = false)
+        ) + personsWithoutSelected.toStringWithIdList(includeHunterNumber = false)
+
+        val detailedListOfHunters = listOfNotNull(
+            guestHunterChoice,
+            harvest.actorInfo.personWithHunterNumber
+                ?.toStringWithId(includeHunterNumber = true)
+        ) + personsWithoutSelected.toStringWithIdList(includeHunterNumber = true)
+
+        val selectedValueId = when (actorInfo) {
+            is GroupHuntingPerson.GroupMember -> actorInfo.personInformation.id
+            is GroupHuntingPerson.Guest -> actorInfo.personInformation.id
+            is GroupHuntingPerson.SearchingByHunterNumber -> guestHunterChoice.id
+            GroupHuntingPerson.Unknown -> null
+        }
+
+        val selected = selectedValueId?.let { listOf(it) }
+        return StringListField(
+            id = fieldSpecification.fieldId,
+            values = listOfHunters,
+            detailedValues = detailedListOfHunters,
+            selected = selected,
+        ) {
+            mode = StringListField.Mode.SINGLE
+            readOnly = false
+            requirementStatus = fieldSpecification.requirementStatus
+            preferExternalViewForSelection = true
+            externalViewConfiguration = StringListField.ExternalViewConfiguration(
+                title = stringProvider.getString(RR.string.group_member_selection_select_hunter),
+                filterEnabled = listOfHunters.size >= ACTOR_FILTER_LIMIT,
+                filterLabelText = stringProvider.getString(RR.string.group_member_selection_search_by_name),
+                filterTextHint = stringProvider.getString(RR.string.group_member_selection_name_hint),
+            )
+            label = stringProvider.getString(RR.string.harvest_label_actor)
+            paddingTop = Padding.SMALL_MEDIUM
+        }
+    }
+
+    private fun actorHunterNumber(
+        fieldSpecification: FieldSpecification<CommonHarvestField>,
+        harvest: CommonHarvestData,
+    ): IntField<CommonHarvestField> {
+        val actorInfo = harvest.actorInfo
+        val hunterNumber = actorInfo.personWithHunterNumber?.hunterNumber
+            ?: (actorInfo as? GroupHuntingPerson.SearchingByHunterNumber)?.hunterNumber
+
+        return IntField(
+            id = fieldSpecification.fieldId,
+            value = hunterNumber?.toIntOrNull()
+        ) {
+            // not allowed to edit for known hunters
+            readOnly = actorInfo !is GroupHuntingPerson.SearchingByHunterNumber
+            maxValue = 99999999 // hunternumber is 8 digits
+            requirementStatus = fieldSpecification.requirementStatus
+
+            label = stringProvider.getString(RR.string.group_hunting_hunter_id)
+            paddingTop = Padding.NONE
+            paddingBottom = Padding.NONE
+        }
+    }
+
+    private fun actorHunterNumberInfoOrError(
+        fieldSpecification: FieldSpecification<CommonHarvestField>,
+        harvest: CommonHarvestData,
+    ): LabelField<CommonHarvestField>? {
+        val actorInfo = harvest.actorInfo as? GroupHuntingPerson.SearchingByHunterNumber
+
+        val type: LabelField.Type = when (actorInfo?.status) {
+            GroupHuntingPerson.SearchingByHunterNumber.Status.ENTERING_HUNTER_NUMBER,
+            GroupHuntingPerson.SearchingByHunterNumber.Status.VALID_HUNTER_NUMBER_ENTERED,
+            GroupHuntingPerson.SearchingByHunterNumber.Status.SEARCHING_PERSON_BY_HUNTER_NUMBER,
+            null -> LabelField.Type.INFO
+            GroupHuntingPerson.SearchingByHunterNumber.Status.INVALID_HUNTER_NUMBER,
+            GroupHuntingPerson.SearchingByHunterNumber.Status.SEARCH_FAILED -> LabelField.Type.ERROR
+        }
+
+        val text: String = when (actorInfo?.status) {
+            GroupHuntingPerson.SearchingByHunterNumber.Status.ENTERING_HUNTER_NUMBER ->
+                stringProvider.getString(RR.string.group_hunting_enter_hunter_id)
+            GroupHuntingPerson.SearchingByHunterNumber.Status.INVALID_HUNTER_NUMBER ->
+                stringProvider.getString(RR.string.group_hunting_invalid_hunter_id)
+            GroupHuntingPerson.SearchingByHunterNumber.Status.VALID_HUNTER_NUMBER_ENTERED ->
+                stringProvider.getString(RR.string.group_hunting_searching_hunter_by_id)
+            GroupHuntingPerson.SearchingByHunterNumber.Status.SEARCHING_PERSON_BY_HUNTER_NUMBER ->
+                stringProvider.getString(RR.string.group_hunting_searching_hunter_by_id)
+            GroupHuntingPerson.SearchingByHunterNumber.Status.SEARCH_FAILED ->
+                stringProvider.getString(RR.string.group_hunting_hunter_search_failed)
+            null -> return null
+        }
+        return LabelField(
+            id = fieldSpecification.fieldId,
+            text = text,
+            type = type
+        ) {
+            paddingTop = Padding.NONE
+            paddingBottom = Padding.MEDIUM
+        }
+    }
+
+    private fun selectedClub(
+        fieldSpecification: FieldSpecification<CommonHarvestField>,
+        harvest: CommonHarvestData,
+    ): StringListField<CommonHarvestField>? {
+        if (huntingClubsSelectableForHarvests == null) {
+            logger.w { "No selectable hunting clubs, cannot produce ${fieldSpecification.fieldId}"}
+            return null
+        }
+        val languageProvider = languageProvider ?: kotlin.run {
+            logger.w { "No language provider, cannot produce ${fieldSpecification.fieldId}"}
+            return null
+        }
+
+        val noChoice = StringWithId(
+            id = SearchableOrganization.Unknown.ID,
+            string = stringProvider.getString(RR.string.hunting_club_selection_no_club_selection)
+        )
+        val searchChoice = StringWithId(
+            id = SearchableOrganization.Searching.ID,
+            string = stringProvider.getString(RR.string.hunting_club_selection_other_club)
+        )
+
+        val selectedClub = harvest.selectedClub
+        val selectableClubsWithoutSelected = huntingClubsSelectableForHarvests.getClubsSelectableForEntries()
+            .filterNot { it.officialCode == selectedClub.organization?.officialCode }
+
+        val listOfHuntingClubs = listOfNotNull(
+            noChoice,
+            searchChoice,
+            selectedClub.organization?.toStringWithId(
+                languageProvider = languageProvider,
+                includeOfficialCode = false
+            ),
+        ) + selectableClubsWithoutSelected.toStringWithIdList(
+            languageProvider = languageProvider,
+            includeOfficialCode = false
+        )
+
+        val detailedListOfHuntingClubs = listOfNotNull(
+            noChoice,
+            searchChoice,
+            selectedClub.organization?.toStringWithId(
+                languageProvider = languageProvider,
+                includeOfficialCode = true
+            ),
+        ) + selectableClubsWithoutSelected.toStringWithIdList(
+            languageProvider = languageProvider,
+            includeOfficialCode = true
+        )
+
+        val selectedValueId = when (selectedClub) {
+            is SearchableOrganization.Found -> selectedClub.result.id
+            is SearchableOrganization.Searching -> searchChoice.id
+            SearchableOrganization.Unknown -> noChoice.id
+        }
+
+        val selected = selectedValueId.let { listOf(it) }
+
+        return StringListField(
+            id = fieldSpecification.fieldId,
+            values = listOfHuntingClubs,
+            detailedValues = detailedListOfHuntingClubs,
+            selected = selected,
+        ) {
+            mode = StringListField.Mode.SINGLE
+            readOnly = false
+            requirementStatus = fieldSpecification.requirementStatus
+            preferExternalViewForSelection = true
+            externalViewConfiguration = StringListField.ExternalViewConfiguration(
+                title = stringProvider.getString(RR.string.hunting_club_selection_select_club),
+                filterLabelText = stringProvider.getString(RR.string.hunting_club_selection_search_by_name),
+                filterTextHint = stringProvider.getString(RR.string.hunting_club_selection_search_by_name_hint),
+            )
+            label = stringProvider.getString(RR.string.harvest_label_hunting_club)
+            paddingTop = Padding.SMALL_MEDIUM
+        }
+    }
+
+    private fun selectedClubOfficialCode(
+        fieldSpecification: FieldSpecification<CommonHarvestField>,
+        harvest: CommonHarvestData,
+    ): IntField<CommonHarvestField> {
+        val selectedClub = harvest.selectedClub
+        val officialCode = selectedClub.organization?.officialCode
+            ?: (selectedClub as? SearchableOrganization.Searching)?.officialCode
+
+        val shouldBeReadOnly = when (selectedClub) {
+            is SearchableOrganization.Found,
+            SearchableOrganization.Unknown -> true
+            is SearchableOrganization.Searching -> {
+                when (selectedClub.status) {
+                    SearchableOrganization.Searching.Status.ENTERING_OFFICIAL_CODE,
+                    SearchableOrganization.Searching.Status.INVALID_OFFICIAL_CODE,
+                    SearchableOrganization.Searching.Status.SEARCH_FAILED -> false
+                    SearchableOrganization.Searching.Status.VALID_OFFICIAL_CODE_ENTERED,
+                    SearchableOrganization.Searching.Status.SEARCHING -> true
+                }
+            }
+        }
+
+        return IntField(
+            id = fieldSpecification.fieldId,
+            value = officialCode?.toIntOrNull()
+        ) {
+            readOnly = shouldBeReadOnly
+            maxValue = 9999999 // official code is 8 digits, see Constants.HUNTING_CLUB_OFFICIAL_CODE_LENGTH
+            requirementStatus = fieldSpecification.requirementStatus
+
+            label = stringProvider.getString(RR.string.harvest_label_hunting_club_official_code)
+            paddingTop = Padding.NONE
+            paddingBottom = Padding.NONE
+        }
+    }
+
+    private fun selectedClubOfficialCodeInfoOrError(
+        fieldSpecification: FieldSpecification<CommonHarvestField>,
+        harvest: CommonHarvestData,
+    ): LabelField<CommonHarvestField>? {
+        val searchingClub = harvest.selectedClub as? SearchableOrganization.Searching
+
+        val type: LabelField.Type = when (searchingClub?.status) {
+            SearchableOrganization.Searching.Status.ENTERING_OFFICIAL_CODE,
+            SearchableOrganization.Searching.Status.VALID_OFFICIAL_CODE_ENTERED,
+            SearchableOrganization.Searching.Status.SEARCHING,
+            null -> LabelField.Type.INFO
+            SearchableOrganization.Searching.Status.INVALID_OFFICIAL_CODE,
+            SearchableOrganization.Searching.Status.SEARCH_FAILED -> LabelField.Type.ERROR
+        }
+
+        val text: String = when (searchingClub?.status) {
+            SearchableOrganization.Searching.Status.ENTERING_OFFICIAL_CODE ->
+                stringProvider.getString(RR.string.hunting_club_search_enter_club_official_code)
+            SearchableOrganization.Searching.Status.INVALID_OFFICIAL_CODE ->
+                stringProvider.getString(RR.string.hunting_club_search_invalid_official_code)
+            SearchableOrganization.Searching.Status.VALID_OFFICIAL_CODE_ENTERED ->
+                stringProvider.getString(RR.string.hunting_club_search_searching_by_official_code)
+            SearchableOrganization.Searching.Status.SEARCHING ->
+                stringProvider.getString(RR.string.hunting_club_search_searching_by_official_code)
+            SearchableOrganization.Searching.Status.SEARCH_FAILED ->
+                stringProvider.getString(RR.string.hunting_club_search_search_failed)
+            null -> return null
+        }
+        return LabelField(
+            id = fieldSpecification.fieldId,
+            text = text,
+            type = type
+        ) {
+            paddingTop = Padding.NONE
+            paddingBottom = Padding.MEDIUM
+        }
+    }
+
+
+    companion object {
+        private const val ACTOR_FILTER_LIMIT = 5
+        private val logger by getLogger(ModifyHarvestFieldProducer::class)
+    }
+}
+
+internal fun List<PersonWithHunterNumber>.toStringWithIdList(
+    includeHunterNumber: Boolean
+): List<StringWithId> {
+    return sortedBy { it.lastName + it.byName }
+        .map { person ->
+            val hunterNumberPostfix = person.hunterNumber
+                ?.takeIf { includeHunterNumber }
+                ?.let { " ($it)" }
+                ?: ""
+
+            StringWithId(
+                id = person.id,
+                string = "${person.byName} ${person.lastName}$hunterNumberPostfix"
+            )
+        }
+}
+
+internal fun List<Organization>.toStringWithIdList(
+    languageProvider: LanguageProvider,
+    includeOfficialCode: Boolean,
+): List<StringWithId> {
+    return sortedWith { a, b -> LocalizedStringComparator.compare(a.name, b.name) }
+        .map { organization ->
+            organization.toStringWithId(
+                languageProvider = languageProvider,
+                prefix = "",
+                includeOfficialCode = includeOfficialCode
+            )
+        }
+}
+
+internal fun Organization.toStringWithId(
+    languageProvider: LanguageProvider,
+    prefix: String = "",
+    includeOfficialCode: Boolean
+): StringWithId {
+    val officialCodePostfix = officialCode
+        .takeIf { includeOfficialCode }
+        ?.let { " ($it)" }
+        ?: ""
+
+    val name = name.localizedWithFallbacks(languageProvider) ?: ""
+    return StringWithId(
+        id = id,
+        string = "$prefix$name$officialCodePostfix"
+    )
 }

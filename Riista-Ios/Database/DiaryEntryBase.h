@@ -9,15 +9,6 @@ extern NSInteger const DiaryEntryOperationDelete;
 
 extern NSInteger const DiaryEntrySpecimenDetailsMax;
 
-typedef enum {
-    RiistaEntryTypeHarvest,
-    RiistaEntryTypeObservation,
-    RiistaEntryTypeSrva
-} RiistaEntryType;
-
-extern NSString *const RiistaLogTypeSelectedKey;
-extern NSString *const RiistaLogEntrySavedKey;
-
 @interface DiaryEntryBase : NSManagedObject
 
 - (BOOL)isEditable;

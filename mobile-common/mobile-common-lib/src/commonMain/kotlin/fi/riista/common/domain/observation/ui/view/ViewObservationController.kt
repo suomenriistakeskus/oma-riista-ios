@@ -1,6 +1,5 @@
 package fi.riista.common.domain.observation.ui.view
 
-import co.touchlab.stately.ensureNeverFrozen
 import fi.riista.common.domain.observation.ObservationContext
 import fi.riista.common.domain.observation.model.CommonObservation
 import fi.riista.common.domain.observation.model.CommonObservationData
@@ -32,10 +31,6 @@ class ViewObservationController(
     private val observationFields = ObservationFields(metadataProvider)
     private val dataFieldProducer = ViewObservationFieldProducer(userContext, metadataProvider, stringProvider)
 
-    init {
-        // should be accessed from UI thread only
-        ensureNeverFrozen()
-    }
 
     override fun createLoadViewModelFlow(refresh: Boolean):
             Flow<ViewModelLoadStatus<ViewObservationViewModel>> = flow {
@@ -92,7 +87,7 @@ class ViewObservationController(
             )
         )
 
-        return fieldsToBeDisplayed.map { fieldSpecification ->
+        return fieldsToBeDisplayed.mapNotNull { fieldSpecification ->
             dataFieldProducer.createField(
                 fieldSpecification = fieldSpecification,
                 observation = observation

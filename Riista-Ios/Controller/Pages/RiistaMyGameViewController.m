@@ -1,9 +1,4 @@
 #import "RiistaMyGameViewController.h"
-#import "RiistaHeaderLabel.h"
-#import "Styles.h"
-#import "RiistaUtils.h"
-#import "RiistaSpecies.h"
-#import "RiistaSettings.h"
 #import "RiistaLocalization.h"
 #import "UIColor+ApplicationColor.h"
 #import "UserInfo.h"
@@ -28,25 +23,10 @@
 @property (weak, nonatomic) IBOutlet MDCButton *shootingTestsButton;
 @property (weak, nonatomic) IBOutlet MDCButton *huntingLicenseButton;
 
-@property (nonatomic, strong) NSArray *latestHarvestSpecies;
-
 @property (nonatomic, strong) UIBarButtonItem* synchronizeButton;
-
-@property (nonatomic, copy) NSNumber *srvaQuick1SpeciesCode;
-@property (nonatomic, copy) NSString *srvaQuick1EventName;
-@property (nonatomic, copy) NSString *srvaQuick1EventType;
-
-@property (nonatomic, copy) NSNumber *srvaQuick2SpeciesCode;
-@property (nonatomic, copy) NSString *srvaQuick2EventName;
-@property (nonatomic, copy) NSString *srvaQuick2EventType;
 
 @end
 
-NSInteger const quickHarvest1Default = 47503; // Hirvi
-NSInteger const quickHarvest2Default = 50106; // Metsajanis
-
-NSInteger const quickSrva1Default = 47503; // Hirvi
-NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 @implementation RiistaMyGameViewController
 {
@@ -128,7 +108,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userInfoUpdated:) name:RiistaUserInfoUpdatedKey object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tryDisplayAppStartupMessage) name:RiistaUserInfoUpdatedKey object:nil];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(calendarEntriesUpdated:) name:NotificationNames.ObservationModified object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(calendarEntriesUpdated:) name:NotificationNames.EntityModifiedName object:nil];
 
     [self updateNavigationItemTitleView];
     [self setupQuickButtons];
@@ -278,7 +258,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)updateSyncButton
 {
-    self.synchronizeButton.isHidden = [AppSync.shared isAutomaticSyncEnabled];
+    self.synchronizeButton.isHiddenCompat = [AppSync.shared isAutomaticSyncEnabled];
     self.synchronizeButton.enabled = AppSync.shared.manualSynchronizationPossible;
 }
 
@@ -293,7 +273,7 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)performManualAppSync
 {
-    [AppSync.shared synchronizeUsingMode:SynchronizationModeManual];
+    [AppSync.shared synchronizeManuallyWithForceContentReload:false];
 }
 
 
@@ -370,85 +350,10 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 
 - (void)setupQuickButtons
 {
-    // Harvest buttons
-    NSArray *quickButtons = @[self.quickHarvestButton1, self.quickHarvestButton2];
-    NSMutableArray *defaultItems = [@[@(quickHarvest1Default), @(quickHarvest2Default)] mutableCopy];
-    NSArray *latestSpecies = [[RiistaGameDatabase sharedInstance] latestEventSpecies:quickButtons.count];
-    [self setupQuickButtonGroup:quickButtons species:latestSpecies defaults:defaultItems isHarvest:YES];
-
-
+    [quickButtonHelper setupHarvestButtonsWithButton1:self.quickHarvestButton1
+                                              button2:self.quickHarvestButton2];
     [quickButtonHelper setupObservationButtonsWithButton1:self.quickObservationButton1
                                                   button2:self.quickObservationButton2];
-}
-
-- (void)setupQuickButtonGroup:(NSArray*)quickButtons species:(NSArray*)latestSpecies defaults:(NSMutableArray*)defaultItems isHarvest:(BOOL)isHarvest
-{
-    NSMutableArray *speciesArray = [NSMutableArray new];
-
-    for (int i=0; i<quickButtons.count; i++) {
-        NSInteger speciesId = 0;
-        if (latestSpecies && (latestSpecies.count > i)) {
-            speciesId = [latestSpecies[i] integerValue];
-            NSUInteger index =  [defaultItems indexOfObjectPassingTest:^(id obj, NSUInteger idx, BOOL *stop) {
-                if ([obj integerValue] == speciesId) {
-                    return YES;
-                }
-                return NO;
-            }];
-            if (index != NSNotFound) {
-                [defaultItems removeObjectAtIndex:index];
-            }
-        } else if (defaultItems.count > 0) {
-            speciesId = [defaultItems[0] integerValue];
-            [defaultItems removeObjectAtIndex:0];
-        }
-        RiistaSpecies *species = [[RiistaGameDatabase sharedInstance] speciesById:speciesId];
-        if (species) {
-            [speciesArray addObject:species];
-        } else {
-            [speciesArray addObject:[NSNull null]];
-        }
-    }
-
-    if (isHarvest) {
-        self.latestHarvestSpecies = [speciesArray copy];
-
-        for (int i=0; i<quickButtons.count; i++) {
-            [self setupQuickButton:quickButtons[i] ordinal:i titleResource:@"LogGameFormat" speciesList:self.latestHarvestSpecies presetSpecies:@selector(logHarvestSpecies:)];
-        }
-    }
-}
-
-/**
- * Setups quick button using given species id
- * If the species does not exist (could happen with defaults) the button is hidden
- */
-- (void)setupQuickButton:(UIButton*)button
-                 ordinal:(NSInteger)ordinal
-           titleResource:(NSString*)titleResource
-             speciesList:(NSArray*)speciesList
-           presetSpecies:(SEL)presetSpecies
-{
-    if (speciesList.count > ordinal && ![speciesList[ordinal] isEqual:[NSNull null]]) {
-        RiistaSpecies *species = speciesList[ordinal];
-        button.hidden = NO;
-        NSString *titleString = [NSString stringWithFormat:RiistaLocalizedString(titleResource, nil), [RiistaUtils nameWithPreferredLanguage:species.name]];
-        button.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
-        button.titleLabel.textAlignment = NSTextAlignmentCenter;
-        button.tag = ordinal;
-        [button setTitle:titleString forState:UIControlStateNormal];
-        [button addTarget:self action:presetSpecies forControlEvents:UIControlEventTouchUpInside];
-    } else {
-        button.hidden = YES;
-    }
-}
-
-- (void)logHarvestSpecies:(id)sender
-{
-    RiistaSpecies *species = self.latestHarvestSpecies[[sender tag]];
-
-    UIViewController *viewController = [CreateHarvestViewControllerHelper createViewControllerWithSpecies:species];
-    [self.navigationController pushViewController:viewController animated:YES];
 }
 
 - (void)navigateToMap:(id)sender
@@ -465,8 +370,6 @@ NSInteger const quickSrva2Default = 47629; // Valkohantapeura
 - (void)navigateToShootingTests:(id)sender
 {
     ShootingTestsViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"ShootingTestsController"];
-    controller.user = [RiistaSettings userInfo];
-
     [self.navigationController pushViewController:controller animated:YES];
 }
 

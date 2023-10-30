@@ -94,6 +94,18 @@ extension LocalDateTime {
     }
 }
 
+extension IndicatorColor {
+    func toUIColor() -> UIColor? {
+        switch self {
+        case .green:        return UIColor.applicationColor(ApplicationGreen)!
+        case .yellow:       return UIColor.applicationColor(ApplicationYellow)!
+        case .red:          return UIColor.applicationColor(ApplicationRed)!
+        case .invisible:    fallthrough
+        default:            return nil
+        }
+    }
+}
+
 extension LocalDateTime: Comparable {
     public static func == (lhs: LocalDateTime, rhs: LocalDateTime) -> Bool {
         return lhs.compareTo(other: rhs) == 0
@@ -178,6 +190,10 @@ extension Double {
     func toKotlinDouble() -> KotlinDouble {
         KotlinDouble(floatLiteral: self)
     }
+
+    func toDecimalNumber() -> NSDecimalNumber {
+        return NSDecimalNumber(value: self)
+    }
 }
 
 extension Int32 {
@@ -244,6 +260,18 @@ extension Species {
             return known.speciesCode.toNSNumber()
         }
         return nil
+    }
+}
+
+extension DiaryEntryType {
+    func toFilterableEntityType() -> FilterableEntityType {
+        switch self {
+        case .harvest:          return .harvest
+        case .observation:      return .observation
+        case .srva:             return .srva
+        default:
+            fatalError("Unexpected DiaryEntryType observed: \(self)")
+        }
     }
 }
 
@@ -395,5 +423,14 @@ extension EntityImage {
         let diaryImage = DiaryImage(entity: entity, insertInto: context)
 
         return diaryImage.updateWithEntityImage(image: self)
+    }
+}
+
+extension CommonMetsahallitusPermit {
+    var formattedPeriodDates: String {
+        let formattedBeginDate = beginDate?.toFoundationDate().formatDateOnly().appending(" ") ?? ""
+        let formattedEndDate = endDate?.toFoundationDate().formatDateOnly().prefixed(with: " ") ?? ""
+
+        return "\(formattedBeginDate)-\(formattedEndDate)"
     }
 }

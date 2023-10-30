@@ -352,6 +352,7 @@ class AppTheme: NSObject {
         field.leadingEdgePaddingOverride = 0
         field.trailingEdgePaddingOverride = 0
         field.verticalDensity = 1
+        (field as UITextField).borderStyle = .none
 
         field.setUnderlineColor(UIColor.applicationColor(Primary), for: .editing)
         field.setUnderlineColor(UIColor.applicationColor(GreyDark), for: .normal)

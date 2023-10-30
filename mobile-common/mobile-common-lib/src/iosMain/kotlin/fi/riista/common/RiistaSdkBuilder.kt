@@ -1,5 +1,7 @@
 package fi.riista.common
 
+import co.touchlab.crashkios.crashlytics.enableCrashlytics
+import co.touchlab.crashkios.crashlytics.setCrashlyticsUnhandledExceptionHook
 import fi.riista.common.database.DatabaseDriverFactory
 import fi.riista.common.logging.CrashlyticsLogger
 
@@ -11,7 +13,13 @@ actual class RiistaSdkBuilder private constructor(
      * Initializes the RiistaSDK.
      */
     actual fun initializeRiistaSDK() {
+        setupCrashlytics()
         RiistaSDK.initialize(configuration, DatabaseDriverFactory())
+    }
+
+    internal actual fun setupCrashlytics() {
+        enableCrashlytics()
+        setCrashlyticsUnhandledExceptionHook()
     }
 
     companion object {

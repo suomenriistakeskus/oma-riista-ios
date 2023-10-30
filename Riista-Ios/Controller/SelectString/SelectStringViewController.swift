@@ -12,7 +12,7 @@ protocol SelectStringViewControllerDelegate: AnyObject {
  */
 class SelectStringViewController:
     BaseControllerWithViewModel<SelectStringWithIdViewModel, SelectStringWithIdController>,
-    ProvidesNavigationController, SelectableStringCellListener {
+    ProvidesNavigationController, SelectableStringCellListener, KeyboardHandlerDelegate {
 
     private let mode: StringListFieldMode
     private let allValues: [StringWithId]
@@ -44,6 +44,8 @@ class SelectStringViewController:
         controller.clickListener = self
         return controller
     }()
+
+    private var keyboardHandler: KeyboardHandler?
 
     private lazy var selectableStringsView: ListSelectableStringsView = {
         let view = ListSelectableStringsView()
@@ -82,8 +84,8 @@ class SelectStringViewController:
         view.addSubview(selectableStringsView)
         selectableStringsView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(bottomLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         if (filterEnabled) {
@@ -91,6 +93,23 @@ class SelectStringViewController:
         } else {
             selectableStringsView.hideFilter()
         }
+
+        keyboardHandler = KeyboardHandler(
+            view: view,
+            contentMovement: .adjustContentInset(scrollView: selectableStringsView.tableView)
+        )
+        keyboardHandler?.delegate = self
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        keyboardHandler?.listenKeyboardEvents()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        keyboardHandler?.hideKeyboard()
+        keyboardHandler?.stopListenKeyboardEvents()
+        super.viewWillDisappear(animated)
     }
 
     private func onFilterTextChanged(text: String) {
@@ -115,9 +134,9 @@ class SelectStringViewController:
         super.onViewModelLoaded(viewModel: viewModel)
 
         if let selectedValues = viewModel.selectedValues {
-            selectableStringsView.canSelectHuntingDay = !selectedValues.isEmpty
+            selectableStringsView.canSelect = !selectedValues.isEmpty
         } else {
-            selectableStringsView.canSelectHuntingDay = false
+            selectableStringsView.canSelect = false
         }
 
         selectableStringsView.filterText = viewModel.filter
@@ -127,8 +146,15 @@ class SelectStringViewController:
 
     func onSelectableStringClicked(stringWithId: StringWithId) {
         controller.eventDispatcher.dispatchSelectedValueChanged(value: stringWithId)
+        keyboardHandler?.hideKeyboard()
     }
 
+
+    // MARK: KeyboardHandlerDelegate
+
+    func getBottommostVisibleViewWhileKeyboardVisible() -> UIView? {
+        selectableStringsView.tableView
+    }
 }
 
 

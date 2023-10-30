@@ -76,11 +76,11 @@ class UnifiedEntityDataSource: EntityFilterChangeNotifier, EntityFilterChangeLis
 
     // MARK: Accessing entities
 
-    func getHarvests() -> [DiaryEntry] {
+    func getHarvests() -> [CommonHarvest] {
         harvestDataSource.getEntities()
     }
 
-    func getHarvest(specifiedBy: EntityAccessMethod) -> DiaryEntry? {
+    func getHarvest(specifiedBy: EntityAccessMethod) -> CommonHarvest? {
         if (activeDataSource?.filteredEntityType != .harvest) {
             return nil
         }
@@ -165,10 +165,12 @@ class UnifiedEntityDataSource: EntityFilterChangeNotifier, EntityFilterChangeLis
             fatalError("Expecting active data source to exist after activating data source for type \(entityType)")
         }
 
-        let filteredDataChanged = activeDataSource.applyFilter(newFilter: newFilter)
+        activeDataSource.applyFilter(newFilter: newFilter) { [weak self] filteredDataChanged in
+            guard let self = self else { return }
 
-        onFilterApplied(dataSourceChanged: dataSourceChanged, filteredDataChanged: filteredDataChanged)
-        notifyEntityFilterChanged(change: change)
+            self.onFilterApplied(dataSourceChanged: dataSourceChanged, filteredDataChanged: filteredDataChanged)
+            self.notifyEntityFilterChanged(change: change)
+        }
     }
 
     private func fallbackToLastValidSupportedFilter(change: EntityFilterChange) {
